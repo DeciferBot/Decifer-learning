@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server'
+import type { Badge } from '@prisma/client'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import { calcQuizPoints, scoreToSm2Quality } from '@/lib/points'
 import { sm2 } from '@/lib/sm2'
+import { pickRarity } from '@/lib/cards'
 
 type AnswerInput = {
   questionId: string
@@ -17,6 +19,20 @@ type SubmitBody = {
   answers: AnswerInput[]
   timeTakenSeconds: number
   heartsRemaining: number
+}
+
+export type DroppedCard = {
+  id: string
+  title: string
+  fact_text: string
+  rarity: string
+  isNew: boolean
+}
+
+export type EarnedBadge = {
+  id: string
+  name: string
+  description: string | null
 }
 
 export async function POST(req: Request) {
@@ -46,10 +62,10 @@ export async function POST(req: Request) {
   const scoreFraction = correctCount / totalQuestions
   const passed = scoreFraction >= 0.7
   const hintsUsedCount = answers.filter((a) => a.hintNumber > 0).length
+  const perfectScore = correctCount === totalQuestions && hintsUsedCount === 0
 
   const points = calcQuizPoints(answers)
 
-  // Streak calculation (done before transaction so we can return it)
   const { streakDays, newStreak, streakProfileUpdate } = calcStreakUpdate(profile)
 
   const result = await prisma.$transaction(async (tx) => {
@@ -77,7 +93,7 @@ export async function POST(req: Request) {
       })),
     })
 
-    // Award points (correct answers always earn, even on fail)
+    // Award points
     const newTotalPoints = profile.total_points + points
     if (points > 0) {
       await tx.pointEvent.create({
@@ -131,7 +147,7 @@ export async function POST(req: Request) {
       })
     }
 
-    // Update profile (points + streak + SM-2 easiness in one write)
+    // Update profile (points + streak + SM-2 in one write)
     await tx.profile.update({
       where: { id: profile.id },
       data: {
@@ -141,7 +157,51 @@ export async function POST(req: Request) {
       },
     })
 
-    return { newTotalPoints }
+    // ── Card drop (on pass) ───────────────────────────────────────────────
+    let droppedCard: DroppedCard | null = null
+    if (passed) {
+      droppedCard = await dropCard(tx, profile.id, profile.year_group_id)
+    }
+
+    // ── Badge checks ──────────────────────────────────────────────────────
+    const newBadges = await checkBadges(tx, {
+      profileId: profile.id,
+      passed,
+      perfectScore,
+      newStreakDays: streakDays,
+    })
+
+    // ── Streak shield award (when Streak 7 earned for the first time) ─────
+    let shieldAwarded = false
+    const streak7Badge = newBadges.find(
+      (b) =>
+        b !== null &&
+        typeof b.trigger_rule === 'object' &&
+        b.trigger_rule !== null &&
+        (b.trigger_rule as { type: string }).type === 'streak_days',
+    )
+    if (streak7Badge) {
+      await tx.$executeRaw`
+        INSERT INTO streak_shields (profile_id, quantity)
+        VALUES (${profile.id}::uuid, 1)
+        ON CONFLICT (profile_id)
+        DO UPDATE SET quantity = streak_shields.quantity + 1
+      `
+      shieldAwarded = true
+    }
+
+    return {
+      newTotalPoints,
+      droppedCard,
+      newBadges: newBadges
+        .filter((b): b is NonNullable<typeof b> => b !== null)
+        .map((b) => ({
+          id: b.id,
+          name: b.name ?? '',
+          description: b.description ?? '',
+        })) satisfies EarnedBadge[],
+      shieldAwarded,
+    }
   })
 
   return NextResponse.json({
@@ -152,8 +212,114 @@ export async function POST(req: Request) {
     totalPoints: result.newTotalPoints,
     streakDays,
     newStreak,
+    droppedCard: result.droppedCard,
+    newBadges: result.newBadges,
+    shieldAwarded: result.shieldAwarded,
   })
 }
+
+// ── Card drop ─────────────────────────────────────────────────────────────
+
+async function dropCard(
+  tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0],
+  profileId: string,
+  yearGroupId: string | null,
+): Promise<DroppedCard | null> {
+  const rarity = pickRarity()
+
+  // Find published cards for this rarity: year-group-specific OR shared (null)
+  const candidates = await tx.cardCatalog.findMany({
+    where: {
+      rarity,
+      status: 'published',
+      OR: [
+        { year_group_id: yearGroupId ?? undefined },
+        { year_group_id: null },
+      ],
+    },
+  })
+  if (candidates.length === 0) return null
+
+  const card = candidates[Math.floor(Math.random() * candidates.length)]
+
+  // Upsert child_collection
+  const existing = await tx.childCollection.findUnique({
+    where: { profile_id_card_id: { profile_id: profileId, card_id: card.id } },
+  })
+  if (existing) {
+    await tx.childCollection.update({
+      where: { profile_id_card_id: { profile_id: profileId, card_id: card.id } },
+      data: { quantity: { increment: 1 } },
+    })
+  } else {
+    await tx.childCollection.create({
+      data: { profile_id: profileId, card_id: card.id, quantity: 1 },
+    })
+  }
+
+  return {
+    id: card.id,
+    title: card.title,
+    fact_text: card.fact_text,
+    rarity: card.rarity,
+    isNew: !existing,
+  }
+}
+
+// ── Badge checks ──────────────────────────────────────────────────────────
+
+async function checkBadges(
+  tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0],
+  opts: {
+    profileId: string
+    passed: boolean
+    perfectScore: boolean
+    newStreakDays: number
+  },
+) {
+  const { profileId, passed, perfectScore, newStreakDays } = opts
+  const awarded: Badge[] = []
+
+  // Existing badges for this profile (to avoid double-awarding)
+  const existing = await tx.profileBadge.findMany({
+    where: { profile_id: profileId },
+    select: { badge_id: true },
+  })
+  const ownedIds = new Set(existing.map((e) => e.badge_id))
+
+  const allBadges = await tx.badge.findMany()
+
+  for (const badge of allBadges) {
+    if (ownedIds.has(badge.id)) continue
+
+    const rule = badge.trigger_rule as { type: string; threshold?: number }
+    let shouldAward = false
+
+    if (rule.type === 'topic_complete' && passed) {
+      // First topic completion ever
+      const completedTopics = await tx.topicProgress.count({
+        where: { profile_id: profileId, status: 'completed' },
+      })
+      shouldAward = completedTopics === 1
+    } else if (rule.type === 'perfect_score' && perfectScore) {
+      shouldAward = true
+    } else if (rule.type === 'streak_days' && rule.threshold) {
+      shouldAward = newStreakDays >= rule.threshold
+    }
+    // subject_complete and guardian_win not triggered yet (Phase 8/11)
+
+    if (shouldAward) {
+      await tx.profileBadge.create({
+        data: { profile_id: profileId, badge_id: badge.id },
+      })
+      awarded.push(badge)
+    }
+  }
+
+  return awarded
+}
+
+// ── Streak calculation ────────────────────────────────────────────────────
 
 function calcStreakUpdate(profile: {
   last_active: Date | null

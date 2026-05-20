@@ -43,31 +43,37 @@ export function RegisterForm() {
     }
 
     startTransition(async () => {
-      const supabase = createSupabaseBrowserClient()
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email: email.trim(),
-        password,
-        options: {
-          // Use the actual origin so the link works in both dev and production.
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-          data: {
-            role,
-            display_name: trimmedName,
-            ...(role === 'child' ? { year_group: yearGroup } : {}),
+      try {
+        const supabase = createSupabaseBrowserClient()
+        const { data, error: signUpError } = await supabase.auth.signUp({
+          email: email.trim(),
+          password,
+          options: {
+            // Use the actual origin so the link works in both dev and production.
+            emailRedirectTo: `${window.location.origin}/auth/callback`,
+            data: {
+              role,
+              display_name: trimmedName,
+              ...(role === 'child' ? { year_group: yearGroup } : {}),
+            },
           },
-        },
-      })
-      if (signUpError) {
-        setError(signUpError.message)
-        return
+        })
+        if (signUpError) {
+          setError(signUpError.message)
+          return
+        }
+        // Supabase returns a user but no session when email confirmation is required.
+        // It also returns a user with no identities when the email is already registered
+        // (it avoids revealing which emails exist). Treat both as "check your email".
+        if (!data.session) {
+          setNotice('Check your email to confirm your account, then sign in.')
+          return
+        }
+        router.push('/dashboard')
+        router.refresh()
+      } catch {
+        setError('Something went wrong. Please try again.')
       }
-      // If Supabase project has email confirmation enabled, there is no session yet.
-      if (!data.session) {
-        setNotice('Check your email to confirm your account, then sign in.')
-        return
-      }
-      router.push('/dashboard')
-      router.refresh()
     })
   }
 
