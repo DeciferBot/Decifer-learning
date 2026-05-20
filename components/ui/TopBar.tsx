@@ -12,7 +12,7 @@ export function TopBar({ displayName }: { displayName: string }) {
           href="/dashboard"
           className="font-heading text-base font-bold text-maths"
         >
-          Decipher Learning
+          Decifer Learning
         </Link>
         <div className="flex items-center gap-3">
           <span className="hidden text-sm text-muted sm:inline" aria-label="Signed-in user">

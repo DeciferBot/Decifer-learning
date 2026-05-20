@@ -1,4 +1,4 @@
-# Decipher Learning — Claude Code Project Bible (v2)
+# Decifer Learning — Claude Code Project Bible (v2)
 
 > Single source of truth for Claude Code. Read at the start of every session.
 > Supersedes v1 and all sibling planning docs (`EduPlatform_Upgrade_Plan.md`, `EduPlatform_Benchmark_Analysis.md`, `EduPlatform_BuildGuide.md`).
@@ -8,8 +8,8 @@
 
 ## 1. Project identity
 
-- **Product name:** Decipher Learning
-- **Folder name:** `decipher-learning/`
+- **Product name:** Decifer Learning
+- **Folder name:** `decifer-learning/`
 - **Form factor:** Progressive Web App (PWA) — installable on iPhone / iPad via Safari "Add to Home Screen". No native app.
 - **Curriculum:** UK National Curriculum.
 - **MVP audience:** Two children — son (Year 3) and daughter (Year 7). Family pilot.
@@ -342,7 +342,7 @@ Designed-for in the schema or upgrade plan, but **must not** be built in the MVP
 ## 12. File and folder structure
 
 ```
-decipher-learning/
+decifer-learning/
 ├── CLAUDE.md                       ← this file
 ├── app/
 │   ├── (auth)/login, register
@@ -394,7 +394,7 @@ decipher-learning/
 
 ## 13. PWA and mobile requirements
 
-- `public/manifest.json`: name "Decipher Learning", short_name "Decipher", display `standalone`, background `#FAFBFF`, theme `#6C9EFF`, icons at 192 px and 512 px.
+- `public/manifest.json`: name "Decifer Learning", short_name "Decifer", display `standalone`, background `#FAFBFF`, theme `#6C9EFF`, icons at 192 px and 512 px.
 - iOS meta tags in `app/layout.tsx`: `apple-mobile-web-app-capable=yes`, `apple-mobile-web-app-status-bar-style=default`.
 - `next-pwa` service worker caches: all `/learn` pages, topic data, game assets, manifest, fonts.
 - `lib/offline.ts`: IndexedDB `pending-answers` store. `submitAnswer` queues offline; `online` event drains the queue in order.
@@ -529,7 +529,7 @@ decipher-learning/
 7. **Preserve schema names.** `card_catalog`, `child_collection`, `practice_games`, `quiz_questions.correct_answer`, `quiz_questions.distractors`. Do not rename.
 8. **Use the env var names in §6 exactly.** Do not introduce new secrets silently — if a new one is needed, update §6 and stop for confirmation.
 9. **Stop and report on gate failure.** Do not auto-advance to the next phase.
-10. **Old-name purge.** `edu-platform` and `sproutlearn` must never appear in code, copy, manifest, README, or commit messages. The folder is `decipher-learning/` and the product is "Decipher Learning".
+10. **Old-name purge.** `edu-platform` and `sproutlearn` must never appear in code, copy, manifest, README, or commit messages. The folder is `decifer-learning/` and the product is "Decifer Learning".
 
 ---
 

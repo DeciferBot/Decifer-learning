@@ -7,7 +7,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       <div className="w-full max-w-sm">
         <div className="mb-6 text-center">
           <h1 className="font-heading text-2xl font-bold text-maths">
-            Decipher Learning
+            Decifer Learning
           </h1>
         </div>
         <div className="rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-black/5">

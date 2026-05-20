@@ -4,7 +4,7 @@
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { getUserDisplayName, getUserYearGroup, MVP_YEAR_GROUPS } from '@/lib/auth/roles'
 
-export const metadata = { title: 'Dashboard — Decipher Learning' }
+export const metadata = { title: 'Dashboard — Decifer Learning' }
 
 export default async function ChildDashboardPage() {
   const supabase = createSupabaseServerClient()

@@ -1,4 +1,4 @@
-// Role + year-group types for Decipher Learning.
+// Role + year-group types for Decifer Learning.
 // Source of truth: CLAUDE.md §7 (Role enum: child | parent | admin), §3 (MVP year groups).
 //
 // Phase 1 stores role + year_group in Supabase auth.users.user_metadata so we

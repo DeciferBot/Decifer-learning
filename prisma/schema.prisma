@@ -1,4 +1,4 @@
-// Decipher Learning — Prisma schema
+// Decifer Learning — Prisma schema
 // Source of truth: CLAUDE.md v2 §7. Do not rename tables/fields.
 // CHECK constraints are modelled as PostgreSQL enums (Role, ContentStatus, Tier).
 // Supabase manages auth.users — no parallel custom users table.

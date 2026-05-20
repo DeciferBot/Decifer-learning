@@ -1,4 +1,4 @@
-# Decipher Learning — Step-by-Step Build Guide
+# Decifer Learning — Step-by-Step Build Guide
 ## Gated Phases with Verification Checks & Claude Code Prompts
 
 **North star:** A PWA (Progressive Web App) that a child opens in Safari on iPhone or iPad, adds to their home screen, logs in, and uses as if it were a native app — with no App Store, no download, and full offline support for core learning.
@@ -26,12 +26,12 @@ npm install -g @anthropic-ai/claude-code
 
 ### Create your project folder
 ```bash
-mkdir decipher-learning
-cd decipher-learning
+mkdir decifer-learning
+cd decifer-learning
 ```
 
 ### Copy the project bible into the folder
-Copy `CLAUDE.md` into `decipher-learning/`. Claude Code reads this automatically every session.
+Copy `CLAUDE.md` into `decifer-learning/`. Claude Code reads this automatically every session.
 
 ### Start Claude Code
 ```bash
@@ -56,7 +56,7 @@ From this point, every prompt below is typed or pasted into Claude Code.
 ```
 Read CLAUDE.md first, then do the following:
 
-1. Scaffold a Next.js 14 App Router project called "decipher-learning" with TypeScript, Tailwind CSS, and Framer Motion installed.
+1. Scaffold a Next.js 14 App Router project called "decifer-learning" with TypeScript, Tailwind CSS, and Framer Motion installed.
 
 2. Install dependencies: @supabase/supabase-js @supabase/auth-helpers-nextjs prisma @prisma/client idb next-pwa
 
@@ -64,7 +64,7 @@ Read CLAUDE.md first, then do the following:
 
 4. Create a services/content-pipeline/ folder with a minimal FastAPI app (main.py with a /health endpoint only). Add a Dockerfile and requirements.txt listing: fastapi uvicorn sympy pint chempy language-tool-python
 
-5. Create public/manifest.json for PWA with: name "Decipher Learning", short_name "Decipher Learning", display "standalone", background_color "#FAFBFF", theme_color "#6C9EFF", icons at 192px and 512px (placeholder icons for now).
+5. Create public/manifest.json for PWA with: name "Decifer Learning", short_name "Decifer Learning", display "standalone", background_color "#FAFBFF", theme_color "#6C9EFF", icons at 192px and 512px (placeholder icons for now).
 
 6. Add next.config.js with next-pwa configured to cache /learn pages and /api/topics.
 
@@ -120,7 +120,7 @@ Build the following using Supabase Auth and Next.js App Router:
 
 6. app/(parent)/dashboard/page.tsx — placeholder showing linked children's names.
 
-7. Top navigation bar component (components/ui/TopBar.tsx) showing: logo "Decipher Learning" on left, streak count + points badge + avatar circle on right. Mobile-first — no items collapse off-screen at 375px.
+7. Top navigation bar component (components/ui/TopBar.tsx) showing: logo "Decifer Learning" on left, streak count + points badge + avatar circle on right. Mobile-first — no items collapse off-screen at 375px.
 
 Use the colour tokens from CLAUDE.md throughout. All forms must work with keyboard on desktop and tap on mobile. Minimum tap target 48px on all interactive elements.
 ```
@@ -765,9 +765,9 @@ Phase 10: Family pilot             → Real children, real feedback, live monito
 
 **Almost — but there is one extra step.** Here is exactly what to do:
 
-1. Copy `CLAUDE.md` into the root of your project folder (e.g., `decipher-learning/CLAUDE.md`)
+1. Copy `CLAUDE.md` into the root of your project folder (e.g., `decifer-learning/CLAUDE.md`)
 2. Open Terminal on your Mac
-3. Run: `cd decipher-learning && claude`
+3. Run: `cd decifer-learning && claude`
 4. Claude Code automatically reads `CLAUDE.md` on startup — it becomes Claude Code's permanent context for the project
 5. Paste the Phase 0 prompt above and press Enter
 

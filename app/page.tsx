@@ -5,7 +5,7 @@ export default function Home() {
     <main className="flex min-h-screen items-center justify-center p-6">
       <div className="w-full max-w-sm text-center">
         <h1 className="font-heading text-3xl font-bold text-maths">
-          Decipher Learning
+          Decifer Learning
         </h1>
         <p className="mt-3 text-sm text-muted">
           A UK National Curriculum learning adventure.

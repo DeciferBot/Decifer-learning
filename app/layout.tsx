@@ -15,14 +15,14 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'Decipher Learning',
+  title: 'Decifer Learning',
   description: 'UK National Curriculum learning adventure.',
-  applicationName: 'Decipher Learning',
+  applicationName: 'Decifer Learning',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Decipher Learning',
+    title: 'Decifer Learning',
   },
   formatDetection: {
     telephone: false,
