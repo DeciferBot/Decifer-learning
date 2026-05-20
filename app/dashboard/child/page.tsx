@@ -1,11 +1,11 @@
 // Child dashboard — shows published topics for the child's year group.
-// Phase 4: Learn / Practise / Quiz links for Multiplication Tables (Year 3 Maths).
-// Points, streaks, world map, cards land in Phases 5–8.
+// Phase 5: Points, streak, and StreakPing added.
 
 import Link from 'next/link'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { getUserDisplayName, MVP_YEAR_GROUPS } from '@/lib/auth/roles'
 import { getCurrentProfile } from '@/lib/profile'
+import { StreakPing } from './StreakPing'
 
 export const metadata = { title: 'Dashboard — Decifer Learning' }
 
@@ -37,17 +37,32 @@ export default async function ChildDashboardPage() {
 
   return (
     <section className="space-y-5">
-      <div>
-        <h1 className="font-heading text-2xl font-bold text-ink">Hi {displayName} 👋</h1>
-        {yearGroup && (
-          <p className="mt-1 text-sm text-muted">
-            {yearGroup.display} — {yearGroup.keyStage}
-          </p>
-        )}
+      <StreakPing />
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <h1 className="font-heading text-2xl font-bold text-ink">Hi {displayName} 👋</h1>
+          {yearGroup && (
+            <p className="mt-1 text-sm text-muted">
+              {yearGroup.display} — {yearGroup.keyStage}
+            </p>
+          )}
+        </div>
+        <div className="flex shrink-0 flex-col items-end gap-0.5 text-right">
+          {(profile?.total_points ?? 0) > 0 && (
+            <span className="font-heading text-sm font-bold text-points-gold">
+              ⭐ {profile!.total_points.toLocaleString()} pts
+            </span>
+          )}
+          {(profile?.streak_days ?? 0) > 0 && (
+            <span className="text-xs text-muted">
+              🔥 {profile!.streak_days} day streak
+            </span>
+          )}
+        </div>
       </div>
 
       {topics.length === 0 ? (
-        <p className="text-sm text-muted">No topics available yet — check back soon!</p>
+        <p className="text-sm text-muted">No topics yet — check back soon!</p>
       ) : (
         <div className="space-y-3">
           <h2 className="font-heading text-lg font-semibold text-ink">Your Topics</h2>

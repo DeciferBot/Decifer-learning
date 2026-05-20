@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { HintButton } from './HintButton'
+import { HeartsDisplay } from './HeartsDisplay'
 
 export type QuizQuestion = {
   id: string
@@ -15,6 +16,24 @@ export type QuizQuestion = {
   hint_2: string | null
   hint_3: string | null
   explanation: string | null
+}
+
+type AnswerLog = {
+  questionId: string
+  childAnswer: string
+  wasCorrect: boolean
+  hintNumber: number
+  timeSeconds: number
+}
+
+type SubmitResult = {
+  points: number
+  passed: boolean
+  score: number
+  totalQuestions: number
+  totalPoints: number
+  streakDays: number
+  newStreak: boolean
 }
 
 function shuffleChoices(correct: string, distractors: string[]): string[] {
@@ -30,6 +49,9 @@ function buildInitialChoices(q: QuizQuestion): string[] {
   return shuffleChoices(q.correct_answer, q.distractors)
 }
 
+const MAX_HEARTS = 3
+const CONSECUTIVE_WRONG_FOR_HEART_LOSS = 3
+
 export function QuizShell({
   questions,
   topicId,
@@ -42,8 +64,24 @@ export function QuizShell({
   const [selected, setSelected] = useState<string | null>(null)
   const [answered, setAnswered] = useState(false)
   const [score, setScore] = useState(0)
-  const [done, setDone] = useState(false)
   const [hintsRevealed, setHintsRevealed] = useState(0)
+
+  // Hearts / lives
+  const [hearts, setHearts] = useState(MAX_HEARTS)
+  const [consecutiveWrong, setConsecutiveWrong] = useState(0)
+  const [heartsDead, setHeartsDead] = useState(false)
+
+  // Quiz completion + submission
+  const [done, setDone] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [submitResult, setSubmitResult] = useState<SubmitResult | null>(null)
+
+  // Refs: answer log and timestamps (no re-render needed)
+  const answerLogRef = useRef<AnswerLog[]>([])
+  const questionStartRef = useRef(Date.now())
+  const quizStartRef = useRef(Date.now())
+  // Capture hearts at completion time before any state reset
+  const heartsAtDoneRef = useRef(MAX_HEARTS)
 
   const q = questions[qIndex]
   const hints = [q.hint_1, q.hint_2, q.hint_3].filter((h): h is string => h !== null)
@@ -51,9 +89,37 @@ export function QuizShell({
 
   function pick(choice: string) {
     if (answered) return
+    const isCorrect = choice === q.correct_answer
+    const timeSeconds = Math.max(1, Math.round((Date.now() - questionStartRef.current) / 1000))
+
     setSelected(choice)
     setAnswered(true)
-    if (choice === q.correct_answer) setScore((s) => s + 1)
+    if (isCorrect) {
+      setScore((s) => s + 1)
+      setConsecutiveWrong(0)
+    } else {
+      setConsecutiveWrong((cw) => {
+        const next = cw + 1
+        if (next >= CONSECUTIVE_WRONG_FOR_HEART_LOSS) {
+          setHearts((h) => {
+            const newH = h - 1
+            heartsAtDoneRef.current = newH
+            if (newH <= 0) setHeartsDead(true)
+            return newH
+          })
+          return 0
+        }
+        return next
+      })
+    }
+
+    answerLogRef.current.push({
+      questionId: q.id,
+      childAnswer: choice,
+      wasCorrect: isCorrect,
+      hintNumber: hintsRevealed,
+      timeSeconds,
+    })
   }
 
   function revealNextHint() {
@@ -63,6 +129,7 @@ export function QuizShell({
   function next() {
     const nextIdx = qIndex + 1
     if (nextIdx >= questions.length) {
+      heartsAtDoneRef.current = hearts
       setDone(true)
       return
     }
@@ -72,6 +139,7 @@ export function QuizShell({
     setSelected(null)
     setAnswered(false)
     setHintsRevealed(0)
+    questionStartRef.current = Date.now()
   }
 
   function restart() {
@@ -81,12 +149,73 @@ export function QuizShell({
     setAnswered(false)
     setScore(0)
     setDone(false)
+    setHeartsDead(false)
+    setHearts(MAX_HEARTS)
+    setConsecutiveWrong(0)
     setHintsRevealed(0)
+    setSubmitting(false)
+    setSubmitResult(null)
+    answerLogRef.current = []
+    questionStartRef.current = Date.now()
+    quizStartRef.current = Date.now()
+    heartsAtDoneRef.current = MAX_HEARTS
   }
 
+  // Submit to API when quiz is done (all questions answered, hearts > 0)
+  useEffect(() => {
+    if (!done) return
+    setSubmitting(true)
+    const timeTakenSeconds = Math.max(1, Math.round((Date.now() - quizStartRef.current) / 1000))
+    fetch('/api/quiz/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        topicId,
+        answers: answerLogRef.current,
+        timeTakenSeconds,
+        heartsRemaining: heartsAtDoneRef.current,
+      }),
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data: SubmitResult | null) => {
+        if (data) setSubmitResult(data)
+        setSubmitting(false)
+      })
+      .catch(() => setSubmitting(false))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [done])
+
+  // ── Hearts dead → retry screen ───────────────────────────────────────────
+  if (heartsDead) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="rounded-2xl border border-black/5 bg-surface p-8 text-center shadow-sm"
+      >
+        <div className="mb-3 text-5xl">💔</div>
+        <h2 className="font-heading text-2xl font-bold text-ink">Out of hearts!</h2>
+        <p className="mt-2 text-muted">Don&apos;t worry — no score saved. Give it another go!</p>
+        <button
+          onClick={restart}
+          className="mt-6 min-h-[48px] w-full rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white transition-opacity hover:opacity-90"
+        >
+          Try Again
+        </button>
+      </motion.div>
+    )
+  }
+
+  // ── Quiz done → result screen ─────────────────────────────────────────────
   if (done) {
-    const pct = Math.round((score / questions.length) * 100)
+    const localScore = score
+    const localTotal = questions.length
+    const pct = Math.round((localScore / localTotal) * 100)
     const passed = pct >= 70
+    const points = submitResult?.points
+    const totalPoints = submitResult?.totalPoints
+    const streakDays = submitResult?.streakDays
+
     return (
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
@@ -101,12 +230,30 @@ export function QuizShell({
           className="mt-2 text-4xl font-bold"
           style={{ color: passed ? '#40C057' : '#FF6B6B' }}
         >
-          {score} / {questions.length}
+          {localScore} / {localTotal}
         </p>
         <p className="mt-1 text-muted">
-          {pct}% —{' '}
-          {passed ? 'Topic complete!' : 'Try again to improve your score.'}
+          {pct}% — {passed ? 'Topic complete!' : 'Try again to improve your score.'}
         </p>
+
+        {submitting ? (
+          <p className="mt-4 text-sm text-muted">Saving results…</p>
+        ) : (
+          <div className="mt-4 space-y-1">
+            {typeof points === 'number' && (
+              <p className="font-heading font-bold" style={{ color: '#FFC107' }}>
+                +{points} points earned
+              </p>
+            )}
+            {typeof totalPoints === 'number' && (
+              <p className="text-sm text-muted">Total: {totalPoints.toLocaleString()} pts</p>
+            )}
+            {typeof streakDays === 'number' && streakDays > 0 && (
+              <p className="text-sm text-muted">🔥 {streakDays} day streak</p>
+            )}
+          </div>
+        )}
+
         <div className="mt-6 flex flex-col gap-3">
           {!passed && (
             <button
@@ -127,13 +274,23 @@ export function QuizShell({
     )
   }
 
+  // ── Active quiz ───────────────────────────────────────────────────────────
   return (
     <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <HeartsDisplay hearts={hearts} />
+        <span className="text-sm font-bold text-ink">Score: {score}</span>
+      </div>
+
       <div className="flex items-center justify-between text-sm text-muted">
         <span>
           Question {qIndex + 1} of {questions.length}
         </span>
-        <span className="font-bold text-ink">Score: {score}</span>
+        {consecutiveWrong > 0 && (
+          <span className="text-xs" style={{ color: '#FF6B6B' }}>
+            {CONSECUTIVE_WRONG_FOR_HEART_LOSS - consecutiveWrong} more wrong = ❤️ lost
+          </span>
+        )}
       </div>
 
       <div className="h-2 overflow-hidden rounded-full bg-black/5">
@@ -203,10 +360,7 @@ export function QuizShell({
               >
                 <p
                   className="font-bold"
-                  style={{
-                    color:
-                      selected === q.correct_answer ? '#40C057' : '#FF6B6B',
-                  }}
+                  style={{ color: selected === q.correct_answer ? '#40C057' : '#FF6B6B' }}
                 >
                   {selected === q.correct_answer
                     ? '✓ Correct!'
@@ -219,7 +373,7 @@ export function QuizShell({
             )}
           </AnimatePresence>
 
-          {answered && (
+          {answered && !heartsDead && (
             <motion.button
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

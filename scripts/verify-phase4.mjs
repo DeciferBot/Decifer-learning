@@ -193,6 +193,78 @@ async function main() {
     ok('All parseable fill-blank answers match arithmetic')
   })
 
+  // ── 9. Quiz content variety (Phase 4.1 gate) ─────────────────────────────
+  console.log('\n9. Quiz content variety')
+
+  await check('No duplicate question_text among published questions', async () => {
+    const qs = await prisma.quizQuestion.findMany({
+      where: { topic_id: TOPIC_ID, status: 'published' },
+      select: { question_text: true },
+    })
+    const texts = qs.map((q) => q.question_text)
+    const unique = new Set(texts)
+    if (unique.size !== texts.length)
+      throw new Error(
+        `${texts.length - unique.size} duplicate question_text(s) found among ${texts.length} published questions`
+      )
+    ok(`All ${texts.length} published questions have unique question_text`)
+  })
+
+  await check('No two published questions share the same correct_answer', async () => {
+    const qs = await prisma.quizQuestion.findMany({
+      where: { topic_id: TOPIC_ID, status: 'published' },
+      select: { correct_answer: true, question_text: true },
+    })
+    const seen = new Map()
+    const dupes = []
+    for (const q of qs) {
+      if (seen.has(q.correct_answer)) {
+        dupes.push(`"${seen.get(q.correct_answer)}" and "${q.question_text}" both answer ${q.correct_answer}`)
+      } else {
+        seen.set(q.correct_answer, q.question_text)
+      }
+    }
+    if (dupes.length > 0) throw new Error(`Duplicate answers: ${dupes.join('; ')}`)
+    ok(`All ${qs.length} published questions have unique correct_answer`)
+  })
+
+  await check('Published questions span ≥ 3 distinct multiplication facts', async () => {
+    const qs = await prisma.quizQuestion.findMany({
+      where: { topic_id: TOPIC_ID, status: 'published' },
+      select: { question_text: true },
+    })
+    const factPattern = /(\d+)\s*[×x*]\s*(\d+)/
+    const facts = new Set()
+    for (const q of qs) {
+      const m = q.question_text.match(factPattern)
+      if (m) {
+        // Normalise a×b and b×a to the same key
+        const key = [parseInt(m[1]), parseInt(m[2])].sort().join('×')
+        facts.add(key)
+      }
+    }
+    if (facts.size < 3)
+      throw new Error(
+        `Only ${facts.size} distinct multiplication fact(s) found — need ≥ 3 for variety`
+      )
+    ok(`${facts.size} distinct multiplication facts across ${qs.length} published questions`)
+  })
+
+  await check('Questions span all 3 tiers: sprout, explorer, lightning', async () => {
+    const tiers = await prisma.quizQuestion.groupBy({
+      by: ['tier'],
+      where: { topic_id: TOPIC_ID, status: 'published' },
+      _count: true,
+    })
+    const tierNames = tiers.map((t) => t.tier)
+    for (const required of ['sprout', 'explorer', 'lightning']) {
+      if (!tierNames.includes(required))
+        throw new Error(`No published questions with tier="${required}"`)
+    }
+    const summary = tiers.map((t) => `${t.tier}:${t._count}`).join(', ')
+    ok(`All 3 tiers present — ${summary}`)
+  })
+
   // ── Summary ───────────────────────────────────────────────────────────────
   console.log('\n══════════════════════════════════════════════')
   console.log(`  Results: ${passed} passed, ${failed} failed`)
