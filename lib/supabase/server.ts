@@ -1,9 +1,9 @@
 // Server-side Supabase client for React Server Components and route handlers.
-// Reads + writes the auth cookie via next/headers. Some RSC contexts disallow
-// cookie mutation (e.g. inside a pure server component render); we swallow that
-// error because the middleware layer is responsible for cookie refresh.
+// Reads + writes the auth cookie via next/headers. The setAll handler swallows
+// errors in pure-RSC render contexts where cookie mutation is disallowed;
+// the middleware layer is responsible for the cookie refresh in those cases.
 
-import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
 export function createSupabaseServerClient() {
@@ -19,21 +19,16 @@ export function createSupabaseServerClient() {
 
   return createServerClient(url, anonKey, {
     cookies: {
-      get(name: string): string | undefined {
-        return cookieStore.get(name)?.value
+      getAll() {
+        return cookieStore.getAll()
       },
-      set(name: string, value: string, options: CookieOptions): void {
+      setAll(cookiesToSet) {
         try {
-          cookieStore.set({ name, value, ...options })
+          cookiesToSet.forEach(({ name, value, options }) =>
+            cookieStore.set(name, value, options)
+          )
         } catch {
           // RSC render contexts disallow cookie mutation — middleware refreshes.
-        }
-      },
-      remove(name: string, options: CookieOptions): void {
-        try {
-          cookieStore.set({ name, value: '', ...options })
-        } catch {
-          // Same as above.
         }
       },
     },

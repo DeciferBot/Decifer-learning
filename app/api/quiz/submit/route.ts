@@ -202,7 +202,7 @@ export async function POST(req: Request) {
         })) satisfies EarnedBadge[],
       shieldAwarded,
     }
-  })
+  }, { timeout: 15000 })
 
   return NextResponse.json({
     points,
