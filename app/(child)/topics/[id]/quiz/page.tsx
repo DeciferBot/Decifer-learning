@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { prisma } from '@/lib/prisma'
+import { getCurrentProfile } from '@/lib/profile'
 import { QuizShell, type QuizQuestion } from '@/components/quiz/QuizShell'
 
 // RLS: topics_select_published (is_published=true)
@@ -33,7 +35,6 @@ export default async function QuizPage({ params }: { params: { id: string } }) {
   if (!topic) notFound()
 
   // Fetch up to 20 published questions; slice to 10 after shuffle.
-  // FORCE RLS on quiz_questions ensures status='published' even if app filter were absent.
   const { data: rawQuestions } = await supabase
     .from('quiz_questions')
     .select('id, tier, question_text, correct_answer, distractors, hint_1, hint_2, hint_3, explanation')
@@ -50,6 +51,21 @@ export default async function QuizPage({ params }: { params: { id: string } }) {
         </Link>
       </div>
     )
+  }
+
+  // Fetch streak shield count for the logged-in child
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  let initialShields = 0
+  if (user) {
+    const profile = await getCurrentProfile(supabase, user.id)
+    if (profile) {
+      const shield = await prisma.streakShield.findUnique({
+        where: { profile_id: profile.id },
+      })
+      initialShields = shield?.quantity ?? 0
+    }
   }
 
   const questions: QuizQuestion[] = shuffle(rawQuestions as QuizQuestion[]).slice(0, 10)
@@ -72,7 +88,7 @@ export default async function QuizPage({ params }: { params: { id: string } }) {
 
       <h1 className="font-heading text-2xl font-bold text-ink">{topic.title} — Quiz</h1>
 
-      <QuizShell questions={questions} topicId={params.id} />
+      <QuizShell questions={questions} topicId={params.id} initialShields={initialShields} />
     </div>
   )
 }

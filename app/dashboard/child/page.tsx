@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { getUserDisplayName, MVP_YEAR_GROUPS } from '@/lib/auth/roles'
 import { getCurrentProfile } from '@/lib/profile'
+import { prisma } from '@/lib/prisma'
 import { StreakPing } from './StreakPing'
 
 export const metadata = { title: 'Dashboard — Decifer Learning' }
@@ -35,6 +36,12 @@ export default async function ChildDashboardPage() {
     topics = (data as TopicRow[] | null) ?? []
   }
 
+  // Card count for collection teaser
+  let collectionCount = 0
+  if (profile?.id) {
+    collectionCount = await prisma.childCollection.count({ where: { profile_id: profile.id } })
+  }
+
   return (
     <section className="space-y-5">
       <StreakPing />
@@ -60,6 +67,19 @@ export default async function ChildDashboardPage() {
           )}
         </div>
       </div>
+
+      {/* Collection teaser */}
+      <Link
+        href="/collection"
+        className="flex min-h-[48px] items-center justify-between rounded-2xl border border-black/5 bg-surface px-5 py-3 shadow-sm transition-colors hover:bg-black/5"
+      >
+        <span className="font-heading font-semibold text-ink">
+          🃏 My Collection
+        </span>
+        <span className="text-sm text-muted">
+          {collectionCount > 0 ? `${collectionCount} card${collectionCount === 1 ? '' : 's'}` : 'Complete a quiz!'} →
+        </span>
+      </Link>
 
       {topics.length === 0 ? (
         <p className="text-sm text-muted">No topics yet — check back soon!</p>

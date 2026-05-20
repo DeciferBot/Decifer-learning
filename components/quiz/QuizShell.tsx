@@ -5,6 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { HintButton } from './HintButton'
 import { HeartsDisplay } from './HeartsDisplay'
+import { CardReveal } from '@/components/cards/CardReveal'
+import { BadgePopup } from '@/components/quiz/BadgePopup'
+import type { DroppedCard, EarnedBadge } from '@/app/api/quiz/submit/route'
 
 export type QuizQuestion = {
   id: string
@@ -34,6 +37,9 @@ type SubmitResult = {
   totalPoints: number
   streakDays: number
   newStreak: boolean
+  droppedCard: DroppedCard | null
+  newBadges: EarnedBadge[]
+  shieldAwarded: boolean
 }
 
 function shuffleChoices(correct: string, distractors: string[]): string[] {
@@ -55,9 +61,11 @@ const CONSECUTIVE_WRONG_FOR_HEART_LOSS = 3
 export function QuizShell({
   questions,
   topicId,
+  initialShields = 0,
 }: {
   questions: QuizQuestion[]
   topicId: string
+  initialShields?: number
 }) {
   const [qIndex, setQIndex] = useState(0)
   const [choices, setChoices] = useState<string[]>(() => buildInitialChoices(questions[0]))
@@ -66,21 +74,26 @@ export function QuizShell({
   const [score, setScore] = useState(0)
   const [hintsRevealed, setHintsRevealed] = useState(0)
 
-  // Hearts / lives
+  // Hearts + streak shields
   const [hearts, setHearts] = useState(MAX_HEARTS)
+  const [shields, setShields] = useState(initialShields)
   const [consecutiveWrong, setConsecutiveWrong] = useState(0)
   const [heartsDead, setHeartsDead] = useState(false)
+  const [shieldFlash, setShieldFlash] = useState(false)
 
   // Quiz completion + submission
   const [done, setDone] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [submitResult, setSubmitResult] = useState<SubmitResult | null>(null)
 
-  // Refs: answer log and timestamps (no re-render needed)
+  // Post-result overlays
+  const [showCard, setShowCard] = useState(false)
+  const [badgeQueue, setBadgeQueue] = useState<EarnedBadge[]>([])
+
+  // Refs
   const answerLogRef = useRef<AnswerLog[]>([])
   const questionStartRef = useRef(Date.now())
   const quizStartRef = useRef(Date.now())
-  // Capture hearts at completion time before any state reset
   const heartsAtDoneRef = useRef(MAX_HEARTS)
 
   const q = questions[qIndex]
@@ -101,11 +114,24 @@ export function QuizShell({
       setConsecutiveWrong((cw) => {
         const next = cw + 1
         if (next >= CONSECUTIVE_WRONG_FOR_HEART_LOSS) {
-          setHearts((h) => {
-            const newH = h - 1
-            heartsAtDoneRef.current = newH
-            if (newH <= 0) setHeartsDead(true)
-            return newH
+          // Check for streak shield first
+          setShields((sh) => {
+            if (sh > 0) {
+              // Shield absorbs the heart loss
+              setShieldFlash(true)
+              setTimeout(() => setShieldFlash(false), 800)
+              // Decrement shield server-side in background (fire-and-forget)
+              fetch('/api/streak/shields/use', { method: 'POST' }).catch(() => null)
+              return sh - 1
+            }
+            // No shield — lose a heart
+            setHearts((h) => {
+              const newH = h - 1
+              heartsAtDoneRef.current = newH
+              if (newH <= 0) setHeartsDead(true)
+              return newH
+            })
+            return sh
           })
           return 0
         }
@@ -151,17 +177,20 @@ export function QuizShell({
     setDone(false)
     setHeartsDead(false)
     setHearts(MAX_HEARTS)
+    setShields(initialShields)
     setConsecutiveWrong(0)
     setHintsRevealed(0)
     setSubmitting(false)
     setSubmitResult(null)
+    setShowCard(false)
+    setBadgeQueue([])
     answerLogRef.current = []
     questionStartRef.current = Date.now()
     quizStartRef.current = Date.now()
     heartsAtDoneRef.current = MAX_HEARTS
   }
 
-  // Submit to API when quiz is done (all questions answered, hearts > 0)
+  // Submit to API when quiz is done
   useEffect(() => {
     if (!done) return
     setSubmitting(true)
@@ -178,12 +207,27 @@ export function QuizShell({
     })
       .then((r) => (r.ok ? r.json() : null))
       .then((data: SubmitResult | null) => {
-        if (data) setSubmitResult(data)
+        if (data) {
+          setSubmitResult(data)
+          if (data.passed && data.droppedCard) setShowCard(true)
+          else if (data.newBadges?.length) setBadgeQueue(data.newBadges)
+        }
         setSubmitting(false)
       })
       .catch(() => setSubmitting(false))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [done])
+
+  // ── Card reveal dismissed → show badges ──────────────────────────────────
+  function onCardDismissed() {
+    setShowCard(false)
+    if (submitResult?.newBadges?.length) setBadgeQueue(submitResult.newBadges)
+  }
+
+  // ── Badge dismissed → show next badge ────────────────────────────────────
+  function onBadgeDismissed() {
+    setBadgeQueue((q) => q.slice(1))
+  }
 
   // ── Hearts dead → retry screen ───────────────────────────────────────────
   if (heartsDead) {
@@ -215,62 +259,88 @@ export function QuizShell({
     const points = submitResult?.points
     const totalPoints = submitResult?.totalPoints
     const streakDays = submitResult?.streakDays
+    const shieldAwarded = submitResult?.shieldAwarded
 
     return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="rounded-2xl border border-black/5 bg-surface p-8 text-center shadow-sm"
-      >
-        <div className="mb-3 text-5xl">{passed ? '🌟' : '💪'}</div>
-        <h2 className="font-heading text-2xl font-bold text-ink">
-          {passed ? 'Great work!' : 'Keep going!'}
-        </h2>
-        <p
-          className="mt-2 text-4xl font-bold"
-          style={{ color: passed ? '#40C057' : '#FF6B6B' }}
-        >
-          {localScore} / {localTotal}
-        </p>
-        <p className="mt-1 text-muted">
-          {pct}% — {passed ? 'Topic complete!' : 'Try again to improve your score.'}
-        </p>
-
-        {submitting ? (
-          <p className="mt-4 text-sm text-muted">Saving results…</p>
-        ) : (
-          <div className="mt-4 space-y-1">
-            {typeof points === 'number' && (
-              <p className="font-heading font-bold" style={{ color: '#FFC107' }}>
-                +{points} points earned
-              </p>
-            )}
-            {typeof totalPoints === 'number' && (
-              <p className="text-sm text-muted">Total: {totalPoints.toLocaleString()} pts</p>
-            )}
-            {typeof streakDays === 'number' && streakDays > 0 && (
-              <p className="text-sm text-muted">🔥 {streakDays} day streak</p>
-            )}
-          </div>
+      <>
+        {/* Card reveal overlay */}
+        {showCard && submitResult?.droppedCard && (
+          <CardReveal card={submitResult.droppedCard} onDismiss={onCardDismissed} />
         )}
 
-        <div className="mt-6 flex flex-col gap-3">
-          {!passed && (
-            <button
-              onClick={restart}
-              className="min-h-[48px] rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white transition-opacity hover:opacity-90"
-            >
-              Try Again
-            </button>
-          )}
-          <Link
-            href="/dashboard/child"
-            className="inline-flex min-h-[48px] items-center justify-center rounded-xl border border-black/10 px-6 py-3 font-heading font-bold text-ink transition-colors hover:bg-black/5"
+        {/* Badge popup (shown after card dismissed) */}
+        {!showCard && badgeQueue.length > 0 && (
+          <BadgePopup badge={badgeQueue[0]} onDismiss={onBadgeDismissed} />
+        )}
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="rounded-2xl border border-black/5 bg-surface p-8 text-center shadow-sm"
+        >
+          <div className="mb-3 text-5xl">{passed ? '🌟' : '💪'}</div>
+          <h2 className="font-heading text-2xl font-bold text-ink">
+            {passed ? 'Great work!' : 'Keep going!'}
+          </h2>
+          <p
+            className="mt-2 text-4xl font-bold"
+            style={{ color: passed ? '#40C057' : '#FF6B6B' }}
           >
-            Back to Home
-          </Link>
-        </div>
-      </motion.div>
+            {localScore} / {localTotal}
+          </p>
+          <p className="mt-1 text-muted">
+            {pct}% — {passed ? 'Topic complete!' : 'Try again to improve your score.'}
+          </p>
+
+          {submitting ? (
+            <p className="mt-4 text-sm text-muted">Saving results…</p>
+          ) : (
+            <div className="mt-4 space-y-1">
+              {typeof points === 'number' && (
+                <p className="font-heading font-bold" style={{ color: '#FFC107' }}>
+                  +{points} points earned
+                </p>
+              )}
+              {typeof totalPoints === 'number' && (
+                <p className="text-sm text-muted">Total: {totalPoints.toLocaleString()} pts</p>
+              )}
+              {typeof streakDays === 'number' && streakDays > 0 && (
+                <p className="text-sm text-muted">🔥 {streakDays} day streak</p>
+              )}
+              {shieldAwarded && (
+                <p className="text-sm font-bold" style={{ color: '#74C0FC' }}>
+                  🛡️ Streak Shield awarded!
+                </p>
+              )}
+            </div>
+          )}
+
+          <div className="mt-6 flex flex-col gap-3">
+            {passed && (
+              <Link
+                href="/collection"
+                className="inline-flex min-h-[48px] items-center justify-center rounded-xl border border-black/10 px-6 py-3 font-heading font-bold text-maths transition-colors hover:bg-maths/10"
+              >
+                View Collection
+              </Link>
+            )}
+            {!passed && (
+              <button
+                onClick={restart}
+                className="min-h-[48px] rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white transition-opacity hover:opacity-90"
+              >
+                Try Again
+              </button>
+            )}
+            <Link
+              href="/dashboard/child"
+              className="inline-flex min-h-[48px] items-center justify-center rounded-xl border border-black/10 px-6 py-3 font-heading font-bold text-ink transition-colors hover:bg-black/5"
+            >
+              Back to Home
+            </Link>
+          </div>
+        </motion.div>
+      </>
     )
   }
 
@@ -279,7 +349,20 @@ export function QuizShell({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <HeartsDisplay hearts={hearts} />
-        <span className="text-sm font-bold text-ink">Score: {score}</span>
+        <div className="flex items-center gap-3">
+          {shields > 0 && (
+            <motion.span
+              animate={shieldFlash ? { scale: [1, 1.4, 1], opacity: [1, 0.5, 1] } : {}}
+              transition={{ duration: 0.4 }}
+              className="text-sm font-bold"
+              style={{ color: '#74C0FC' }}
+              title="Streak Shields — absorb 1 heart loss each"
+            >
+              🛡️ ×{shields}
+            </motion.span>
+          )}
+          <span className="text-sm font-bold text-ink">Score: {score}</span>
+        </div>
       </div>
 
       <div className="flex items-center justify-between text-sm text-muted">
@@ -288,7 +371,7 @@ export function QuizShell({
         </span>
         {consecutiveWrong > 0 && (
           <span className="text-xs" style={{ color: '#FF6B6B' }}>
-            {CONSECUTIVE_WRONG_FOR_HEART_LOSS - consecutiveWrong} more wrong = ❤️ lost
+            {CONSECUTIVE_WRONG_FOR_HEART_LOSS - consecutiveWrong} more wrong = {shields > 0 ? '🛡️' : '❤️'} lost
           </span>
         )}
       </div>
