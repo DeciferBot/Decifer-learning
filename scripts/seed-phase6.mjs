@@ -82,13 +82,14 @@ const LEARN_HTML = `
 
 // ── Practice game config ──────────────────────────────────────────────────
 const PRACTICE_CONFIG = {
-  instructions: 'Fill in the value of x that makes each equation true.',
-  problems: [
-    { equation: 'x + 9 = 14',      answer: '5',  hint: 'Subtract 9 from both sides.' },
-    { equation: '3x = 21',          answer: '7',  hint: 'Divide both sides by 3.' },
-    { equation: '2x + 4 = 14',     answer: '5',  hint: 'Subtract 4, then divide by 2.' },
-    { equation: 'x − 6 = 11',      answer: '17', hint: 'Add 6 to both sides.' },
-    { equation: '5x − 10 = 15',    answer: '5',  hint: 'Add 10, then divide by 5.' },
+  title: 'Fill in the Blank',
+  instructions: 'Type the value of x that makes each equation true.',
+  questions: [
+    { display: 'x + 9 = 14',   answer: '5'  },
+    { display: '3x = 21',      answer: '7'  },
+    { display: '2x + 4 = 14',  answer: '5'  },
+    { display: 'x − 6 = 11',   answer: '17' },
+    { display: '5x − 10 = 15', answer: '5'  },
   ],
 }
 

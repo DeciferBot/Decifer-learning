@@ -16,23 +16,31 @@ export function LoginForm() {
       ? 'The confirmation link has expired or is invalid. Please sign in or request a new link.'
       : null
   )
+  const successMessage =
+    searchParams.get('message') === 'password_updated'
+      ? 'Password updated. Please sign in with your new password.'
+      : null
   const [isPending, startTransition] = useTransition()
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>): void {
     e.preventDefault()
     setError(null)
     startTransition(async () => {
-      const supabase = createSupabaseBrowserClient()
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password,
-      })
-      if (signInError) {
-        setError(signInError.message)
-        return
+      try {
+        const supabase = createSupabaseBrowserClient()
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password,
+        })
+        if (signInError) {
+          setError(signInError.message)
+          return
+        }
+        router.push(redirectTo)
+        router.refresh()
+      } catch {
+        setError('Something went wrong. Please try again.')
       }
-      router.push(redirectTo)
-      router.refresh()
     })
   }
 
@@ -61,6 +69,11 @@ export function LoginForm() {
           className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-white px-3 text-base outline-none focus:border-maths focus:ring-2 focus:ring-maths/30"
         />
       </label>
+      {successMessage ? (
+        <p role="status" className="rounded-md bg-correct/10 px-3 py-2 text-sm text-correct">
+          {successMessage}
+        </p>
+      ) : null}
       {error ? (
         <p role="alert" className="rounded-md bg-incorrect/10 px-3 py-2 text-sm text-incorrect">
           {error}
