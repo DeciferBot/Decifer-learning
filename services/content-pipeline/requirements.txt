@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+sympy
+pint
+chempy
+language-tool-python

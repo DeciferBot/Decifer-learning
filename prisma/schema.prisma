@@ -1,0 +1,448 @@
+// Decipher Learning — Prisma schema
+// Source of truth: CLAUDE.md v2 §7. Do not rename tables/fields.
+// CHECK constraints are modelled as PostgreSQL enums (Role, ContentStatus, Tier).
+// Supabase manages auth.users — no parallel custom users table.
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  directUrl  = env("DIRECT_URL")
+  extensions = [vector, pgcrypto]
+}
+
+// ---------- Enums (replace CHECK constraints) ----------
+
+enum Role {
+  child
+  parent
+  admin
+}
+
+enum ContentStatus {
+  staged
+  published
+  flagged
+  regenerating
+}
+
+enum Tier {
+  sprout
+  explorer
+  lightning
+}
+
+// ---------- Identity & family ----------
+
+model Profile {
+  id                     String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id                String    @unique @db.Uuid // FK to auth.users (Supabase-managed)
+  display_name           String
+  avatar_config          Json?
+  theme_name             String?
+  year_group_id          String?   @db.Uuid
+  role                   Role      @default(child)
+  total_points           Int       @default(0)
+  streak_days            Int       @default(0)
+  last_active            DateTime?
+  sr_easiness            Float     @default(2.5)
+  dashboard_widgets      Json?
+  study_buddy            String?
+  accessibility_settings Json?
+  created_at             DateTime  @default(now())
+
+  year_group       YearGroup?       @relation(fields: [year_group_id], references: [id])
+  family_as_parent FamilyLink[]     @relation("ParentLink")
+  family_as_child  FamilyLink[]     @relation("ChildLink")
+  parent_controls  ParentControl?
+  point_events     PointEvent[]
+  profile_badges   ProfileBadge[]
+  streak_shield    StreakShield?
+  collection       ChildCollection[]
+  topic_progress   TopicProgress[]
+  quiz_attempts    QuizAttempt[]
+  session_answers  SessionAnswer[]
+  child_missions   ChildMission[]
+
+  @@map("profiles")
+}
+
+model FamilyLink {
+  id             String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  parent_user_id String @db.Uuid
+  child_user_id  String @db.Uuid
+
+  parent Profile @relation("ParentLink", fields: [parent_user_id], references: [user_id])
+  child  Profile @relation("ChildLink", fields: [child_user_id], references: [user_id])
+
+  @@unique([parent_user_id, child_user_id])
+  @@map("family_links")
+}
+
+model ParentControl {
+  child_profile_id         String   @id @db.Uuid
+  daily_time_limit_minutes Int      @default(60)
+  allowed_time_start       DateTime? @db.Time
+  allowed_time_end         DateTime? @db.Time
+  leaderboard_visible      Boolean  @default(true)
+  social_features_enabled  Boolean  @default(false)
+
+  child Profile @relation(fields: [child_profile_id], references: [id])
+
+  @@map("parent_controls")
+}
+
+// ---------- Curriculum structure ----------
+
+model YearGroup {
+  id        String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  label     String @unique
+  key_stage String
+
+  profiles         Profile[]
+  topics           Topic[]
+  zones            Zone[]
+  daily_challenges DailyChallenge[]
+
+  @@map("year_groups")
+}
+
+model Subject {
+  id           String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name         String @unique
+  colour_token String
+
+  topics Topic[]
+  zones  Zone[]
+  cards  CardCatalog[]
+
+  @@map("subjects")
+}
+
+model Topic {
+  id            String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  subject_id    String  @db.Uuid
+  year_group_id String  @db.Uuid
+  title         String
+  order_index   Int     @default(0)
+  is_published  Boolean @default(false)
+  zone_id       String? @db.Uuid
+
+  subject           Subject        @relation(fields: [subject_id], references: [id])
+  year_group        YearGroup      @relation(fields: [year_group_id], references: [id])
+  zone              Zone?          @relation(fields: [zone_id], references: [id])
+  learn_content     LearnContent[]
+  practice_games    PracticeGame[]
+  quiz_questions    QuizQuestion[]
+  world_map_nodes   WorldMapNode[] @relation("NodeTopic")
+  unlocks_for_nodes WorldMapNode[] @relation("UnlockedByTopic")
+  topic_progress    TopicProgress[]
+  quiz_attempts     QuizAttempt[]
+  missions          ChildMission[]
+
+  @@map("topics")
+}
+
+model Zone {
+  id               String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  year_group_id    String  @db.Uuid
+  subject_id       String  @db.Uuid
+  name             String
+  theme            String?
+  illustration_url String?
+  guardian_quiz_id String? @db.Uuid
+
+  year_group      YearGroup       @relation(fields: [year_group_id], references: [id])
+  subject         Subject         @relation(fields: [subject_id], references: [id])
+  topics          Topic[]
+  world_map_nodes WorldMapNode[]
+
+  @@map("zones")
+}
+
+model WorldMapNode {
+  id                   String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  zone_id              String  @db.Uuid
+  topic_id             String  @db.Uuid
+  x_pos                Float
+  y_pos                Float
+  unlocked_by_topic_id String? @db.Uuid
+
+  zone        Zone   @relation(fields: [zone_id], references: [id])
+  topic       Topic  @relation("NodeTopic", fields: [topic_id], references: [id])
+  unlocked_by Topic? @relation("UnlockedByTopic", fields: [unlocked_by_topic_id], references: [id])
+
+  @@map("world_map_nodes")
+}
+
+// ---------- Content ----------
+
+model LearnContent {
+  id                   String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  topic_id             String        @db.Uuid
+  body_html            String
+  examples_json        Json?
+  foundation_audio_url String?
+  status               ContentStatus @default(staged)
+
+  topic Topic @relation(fields: [topic_id], references: [id])
+
+  @@map("learn_content")
+}
+
+model PracticeGame {
+  id          String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  topic_id    String @db.Uuid
+  game_type   String
+  config_json Json
+
+  topic Topic @relation(fields: [topic_id], references: [id])
+
+  @@map("practice_games")
+}
+
+model QuizQuestion {
+  id                String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  topic_id          String        @db.Uuid
+  tier              Tier
+  question_text     String
+  question_type     String
+  correct_answer    String
+  distractors       Json
+  hint_1            String?
+  hint_2            String?
+  hint_3            String?
+  explanation       String?
+  foundation_images Json?
+  confidence_score  Float?
+  status            ContentStatus @default(staged)
+  source_chunk_ids  Json?
+  created_at        DateTime      @default(now())
+
+  topic           Topic           @relation(fields: [topic_id], references: [id])
+  quiz_answers    QuizAnswer[]
+  session_answers SessionAnswer[]
+
+  @@index([topic_id, status, tier])
+  @@map("quiz_questions")
+}
+
+// ---------- Gamification ----------
+
+model PointEvent {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  profile_id String   @db.Uuid
+  amount     Int
+  reason     String
+  created_at DateTime @default(now())
+
+  profile Profile @relation(fields: [profile_id], references: [id])
+
+  @@map("point_events")
+}
+
+model Badge {
+  id           String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name         String  @unique
+  icon_url     String?
+  description  String?
+  trigger_rule Json
+
+  profile_badges ProfileBadge[]
+
+  @@map("badges")
+}
+
+model ProfileBadge {
+  profile_id String   @db.Uuid
+  badge_id   String   @db.Uuid
+  awarded_at DateTime @default(now())
+
+  profile Profile @relation(fields: [profile_id], references: [id])
+  badge   Badge   @relation(fields: [badge_id], references: [id])
+
+  @@id([profile_id, badge_id])
+  @@map("profile_badges")
+}
+
+model StreakShield {
+  profile_id String @id @db.Uuid
+  quantity   Int    @default(0)
+
+  profile Profile @relation(fields: [profile_id], references: [id])
+
+  @@map("streak_shields")
+}
+
+// ---------- Discovery Cards ----------
+
+model CardCatalog {
+  id                   String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  subject_id           String?       @db.Uuid
+  year_group_id        String?       @db.Uuid
+  rarity               String
+  title                String
+  fact_text            String
+  illustration_url     String?
+  source_url           String?
+  is_seasonal          Boolean       @default(false)
+  available_until      DateTime?
+  is_fusion            Boolean       @default(false)
+  required_subject_ids Json?
+  status               ContentStatus @default(staged)
+
+  subject            Subject?          @relation(fields: [subject_id], references: [id])
+  collection_entries ChildCollection[]
+
+  @@map("card_catalog")
+}
+
+model ChildCollection {
+  profile_id        String   @db.Uuid
+  card_id           String   @db.Uuid
+  quantity          Int      @default(1)
+  first_obtained_at DateTime @default(now())
+
+  profile Profile     @relation(fields: [profile_id], references: [id])
+  card    CardCatalog @relation(fields: [card_id], references: [id])
+
+  @@id([profile_id, card_id])
+  @@map("child_collection")
+}
+
+// ---------- Progress ----------
+
+model TopicProgress {
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  profile_id       String    @db.Uuid
+  topic_id         String    @db.Uuid
+  status           String
+  last_score       Float?
+  completed_at     DateTime?
+  sr_repetitions   Int       @default(0)
+  sr_interval_days Int       @default(1)
+  sr_next_review   DateTime? @db.Date
+
+  profile Profile @relation(fields: [profile_id], references: [id])
+  topic   Topic   @relation(fields: [topic_id], references: [id])
+
+  @@unique([profile_id, topic_id])
+  @@map("topic_progress")
+}
+
+model QuizAttempt {
+  id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  profile_id         String   @db.Uuid
+  topic_id           String   @db.Uuid
+  score              Float
+  hints_used         Int      @default(0)
+  time_taken_seconds Int      @default(0)
+  hearts_remaining   Int      @default(3)
+  created_at         DateTime @default(now())
+
+  profile Profile      @relation(fields: [profile_id], references: [id])
+  topic   Topic        @relation(fields: [topic_id], references: [id])
+  answers QuizAnswer[]
+
+  @@map("quiz_attempts")
+}
+
+model QuizAnswer {
+  id           String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  attempt_id   String  @db.Uuid
+  question_id  String  @db.Uuid
+  child_answer String?
+  was_correct  Boolean
+  hint_number  Int     @default(0)
+  time_seconds Int     @default(0)
+
+  attempt  QuizAttempt  @relation(fields: [attempt_id], references: [id])
+  question QuizQuestion @relation(fields: [question_id], references: [id])
+
+  @@map("quiz_answers")
+}
+
+model SessionAnswer {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  profile_id  String   @db.Uuid
+  question_id String   @db.Uuid
+  was_correct Boolean
+  tier        Tier
+  created_at  DateTime @default(now())
+
+  profile  Profile      @relation(fields: [profile_id], references: [id])
+  question QuizQuestion @relation(fields: [question_id], references: [id])
+
+  @@index([profile_id, created_at])
+  @@map("session_answers")
+}
+
+// ---------- Missions ----------
+
+model ChildMission {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  profile_id      String    @db.Uuid
+  mission_type    String
+  target_topic_id String?   @db.Uuid
+  target_tier     Tier?
+  target_value    Int?
+  current_value   Int       @default(0)
+  created_at      DateTime  @default(now())
+  completed_at    DateTime?
+
+  profile Profile @relation(fields: [profile_id], references: [id])
+  topic   Topic?  @relation(fields: [target_topic_id], references: [id])
+
+  @@map("child_missions")
+}
+
+// ---------- Phase 2: Past papers ----------
+
+model PastPaperQuestion {
+  id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  exam_board         String
+  subject            String
+  year               Int
+  paper_number       Int
+  question_number    Int
+  question_text      String
+  question_image_url String?
+  marks_available    Int
+  mark_scheme        Json
+  topic_tag          String[]
+
+  @@map("past_paper_questions")
+}
+
+// ---------- RAG knowledge base ----------
+
+model CurriculumChunk {
+  id          String                       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  subject     String
+  year_group  String
+  source_name String
+  chunk_text  String
+  embedding   Unsupported("vector(1536)")?
+
+  @@index([subject, year_group])
+  @@map("curriculum_chunks")
+}
+
+// ---------- Daily challenge cache ----------
+
+model DailyChallenge {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  date          DateTime @db.Date
+  year_group_id String   @db.Uuid
+  question_ids  Json
+  is_flare      Boolean  @default(false)
+
+  year_group YearGroup @relation(fields: [year_group_id], references: [id])
+
+  @@unique([date, year_group_id])
+  @@map("daily_challenges")
+}

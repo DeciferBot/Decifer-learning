@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #FAFBFF;
+  --surface: #FFFFFF;
+  --maths: #6C9EFF;
+  --english: #FF8FAB;
+  --science: #52D9A0;
+  --sprout: #A8E6CF;
+  --explorer: #74C0FC;
+  --lightning: #FFD43B;
+  --points-gold: #FFC107;
+  --correct: #40C057;
+  --incorrect: #FF6B6B;
+  --text-primary: #2D3748;
+  --text-muted: #718096;
+}
+
+html,
+body {
+  background-color: var(--background);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+}

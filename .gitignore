@@ -1,0 +1,37 @@
+node_modules/
+.next/
+out/
+build/
+tsconfig.tsbuildinfo
+*.tsbuildinfo
+
+# env (all variants are local-only; never commit)
+.env
+.env.local
+.env*.local
+!.env.local.example
+
+# OS / editor
+.DS_Store
+*.log
+npm-debug.log*
+.vscode/
+.idea/
+
+# Vercel / Turbo
+.vercel
+.turbo
+
+# next-pwa generated artefacts
+public/sw.js
+public/sw.js.map
+public/workbox-*.js
+public/workbox-*.js.map
+
+# Python (content-pipeline)
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+services/content-pipeline/.venv/
+services/content-pipeline/__pycache__/
