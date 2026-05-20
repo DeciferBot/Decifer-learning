@@ -1,8 +1,10 @@
-// Phase 1 child dashboard placeholder. No quiz / world map / cards / points yet.
-// Those land in Phases 4–8 per CLAUDE.md §14.
+// Child dashboard placeholder — proves Phase 2 DB wiring by reading the user's
+// own profile row (RLS policy "profiles_select_self"). Quiz / world map / cards
+// / points land in Phases 4–8 per CLAUDE.md §14.
 
 import { createSupabaseServerClient } from '@/lib/supabase/server'
-import { getUserDisplayName, getUserYearGroup, MVP_YEAR_GROUPS } from '@/lib/auth/roles'
+import { getUserDisplayName, MVP_YEAR_GROUPS } from '@/lib/auth/roles'
+import { getCurrentProfile } from '@/lib/profile'
 
 export const metadata = { title: 'Dashboard — Decifer Learning' }
 
@@ -12,9 +14,9 @@ export default async function ChildDashboardPage() {
     data: { user },
   } = await supabase.auth.getUser()
   // Middleware + layout already guard this; user is non-null here.
-  const displayName = user ? getUserDisplayName(user) : 'Explorer'
-  const yearGroupLabel = user ? getUserYearGroup(user) : null
-  const yearGroup = MVP_YEAR_GROUPS.find((y) => y.label === yearGroupLabel)
+  const profile = user ? await getCurrentProfile(supabase, user.id) : null
+  const displayName = profile?.display_name ?? (user ? getUserDisplayName(user) : 'Explorer')
+  const yearGroup = MVP_YEAR_GROUPS.find((y) => y.label === profile?.year_group_label)
 
   return (
     <section className="space-y-3">

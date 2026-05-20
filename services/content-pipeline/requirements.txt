@@ -1,6 +1,16 @@
 fastapi
-uvicorn
+uvicorn[standard]
 sympy
-pint
-chempy
-language-tool-python
+anthropic
+openai
+psycopg2-binary
+pgvector
+numpy
+python-dotenv
+httpx
+pydantic>=2
+
+# Phase 11 verifiers (not built yet — install now so the image is complete):
+# pint
+# chempy
+# language-tool-python
