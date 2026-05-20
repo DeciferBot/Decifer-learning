@@ -11,7 +11,11 @@ export function LoginForm() {
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(
+    searchParams.get('error') === 'auth_callback_failed'
+      ? 'The confirmation link has expired or is invalid. Please sign in or request a new link.'
+      : null
+  )
   const [isPending, startTransition] = useTransition()
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>): void {

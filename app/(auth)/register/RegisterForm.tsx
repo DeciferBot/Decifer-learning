@@ -48,6 +48,8 @@ export function RegisterForm() {
         email: email.trim(),
         password,
         options: {
+          // Use the actual origin so the link works in both dev and production.
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
           data: {
             role,
             display_name: trimmedName,

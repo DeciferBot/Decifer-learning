@@ -13,12 +13,14 @@ import { updateSession } from '@/lib/supabase/middleware'
 import { getUserRole, ROLE_HOME, type Role } from '@/lib/auth/roles'
 
 const PUBLIC_EXACT = new Set<string>(['/', '/login', '/register'])
+// Auth callback must be public so the middleware never redirects the token exchange request.
+const PUBLIC_PREFIX = ['/auth/callback', '/_next/']
 const STATIC_EXT =
   /\.(svg|png|jpg|jpeg|gif|webp|ico|css|js|map|woff2?|ttf|otf|txt|xml|json)$/i
 
 function isPublic(pathname: string): boolean {
   if (PUBLIC_EXACT.has(pathname)) return true
-  if (pathname.startsWith('/_next/')) return true
+  if (PUBLIC_PREFIX.some((p) => pathname.startsWith(p))) return true
   if (pathname.startsWith('/favicon')) return true
   if (STATIC_EXT.test(pathname)) return true
   return false
