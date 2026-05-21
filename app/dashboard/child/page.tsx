@@ -118,19 +118,19 @@ export default async function ChildDashboardPage() {
               <div className="grid grid-cols-3 gap-2">
                 <Link
                   href={`/topics/${topic.id}/learn`}
-                  className="flex min-h-[44px] items-center justify-center rounded-xl bg-maths/10 px-3 py-2 text-sm font-bold text-maths transition-colors hover:bg-maths/20"
+                  className="flex min-h-[48px] items-center justify-center rounded-xl bg-maths/10 px-3 py-2 text-sm font-bold text-maths transition-colors hover:bg-maths/20"
                 >
                   📖 Learn
                 </Link>
                 <Link
                   href={`/topics/${topic.id}/practise`}
-                  className="flex min-h-[44px] items-center justify-center rounded-xl bg-science/10 px-3 py-2 text-sm font-bold text-science transition-colors hover:bg-science/20"
+                  className="flex min-h-[48px] items-center justify-center rounded-xl bg-science/10 px-3 py-2 text-sm font-bold text-science transition-colors hover:bg-science/20"
                 >
                   ✏️ Practise
                 </Link>
                 <Link
                   href={`/topics/${topic.id}/quiz`}
-                  className="flex min-h-[44px] items-center justify-center rounded-xl bg-lightning/20 px-3 py-2 text-sm font-bold text-ink transition-colors hover:bg-lightning/30"
+                  className="flex min-h-[48px] items-center justify-center rounded-xl bg-lightning/20 px-3 py-2 text-sm font-bold text-ink transition-colors hover:bg-lightning/30"
                 >
                   ⚡ Quiz
                 </Link>
