@@ -184,7 +184,7 @@ if (!hasDatabaseUrl) {
 
 // ── LIVE LAYER ────────────────────────────────────────────────────────────
 
-header('LIVE — Railway pipeline service health')
+header('LIVE — pipeline service health (Cloud Run)')
 
 const pipelineUrl = process.env.PIPELINE_SERVICE_URL?.trim()
 
@@ -242,7 +242,7 @@ if (failed === 0 && skipped === 0) {
   console.log('\n  🟢 PIPELINE ACTIVATION: FULLY VERIFIED (all layers)')
 } else if (failed === 0) {
   console.log('\n  🟡 PIPELINE ACTIVATION: STATIC + DATABASE verified')
-  console.log('     LIVE layer skipped — deploy to Railway then re-run with PIPELINE_SERVICE_URL set')
+  console.log('     LIVE layer skipped — deploy to Cloud Run then re-run with PIPELINE_SERVICE_URL set')
 } else {
   console.log('\n  🔴 PIPELINE ACTIVATION: FAILED — see ❌ items above')
 }

@@ -1,50 +1,85 @@
-# Post-Merge Integration Proof
+# Post-Merge Integration Proof — v2
 
 **Date:** 2026-05-21  
-**Commit:** `199d4b1971e4e707d0f4edcec04aae2278ee95c3`  
-**Branch:** `main`
+**Commit:** `d8abb86` (tip of main)  
+**Previous proof:** `0f7fc9a` — superseded by this document
 
 ---
 
-## Phases included in this merge
+## Commits included
 
-| Phase | Commit | What landed |
+| Commit | What landed |
+|---|---|
+| `cb4bc5a` | Phase 8 — world map, ZoneMap, TopicNode, guardian battle, `/api/guardian/[zoneId]/submit`, seed-phase8, verify-phase8 |
+| `199d4b1` | Phase 9 — parent dashboard, per-child detail, `lib/parent-dashboard.ts`, lesson store activation, verify-parent-dashboard-safety |
+| `0f7fc9a` | Integration sprint — `scripts/verify-phase8a.mjs`, `docs/PHASE_8A_DEPLOYMENT.md`, initial POST_MERGE_INTEGRATION_PROOF |
+| `d8abb86` | Worker platform decision — `DECISIONS.md` updated, `docs/WORKER_PLATFORM_DECISION.md` created |
+
+> **Phase 8A note:** No discrete Phase 8A git commit exists. The pipeline service (`services/content-pipeline/`) was committed in Phase 3. Phase 8A deliverables were created in the `0f7fc9a` integration sprint.
+
+---
+
+## Infrastructure decision summary
+
+| Platform | Role | Status |
 |---|---|---|
-| Phase 8 | `cb4bc5a` | World map, ZoneMap, TopicNode, guardian battle, `/api/guardian/[zoneId]/submit`, seed-phase8, verify-phase8 |
-| Phase 8A | n/a — see note | Pipeline service files were already in repo from Phase 3; deployment docs + verify-phase8a created in this integration sprint |
-| Phase 9 | `199d4b1` | Parent dashboard, per-child detail, `lib/parent-dashboard.ts`, lesson store activation, verify-parent-dashboard-safety |
+| **Vercel** | Next.js app host — all user-facing routes | Active |
+| **Supabase** | System of record — PostgreSQL, Auth, RLS, Storage | Active |
+| **Google Cloud Run** | Future worker platform — Python FastAPI pipeline | **Selected, not yet deployed** |
+| **Google Cloud Tasks** | Future job queue — retry, rate limit, dead-letter | **Selected, not yet deployed** |
+| **Cloudflare** | DNS, CDN, edge security | In use for domain |
+| **Resend** | Transactional email | In use for auth emails |
+| **Railway** | ~~Worker platform~~ | **Rejected — do not set up** |
 
-> **Phase 8A note:** No discrete Phase 8A commit exists in git history. The content pipeline service (`services/content-pipeline/`) was committed in Phase 3. Phase 8A deliverables — `scripts/verify-phase8a.mjs` and `docs/PHASE_8A_DEPLOYMENT.md` — were missing and have been created in this integration sprint. They are committed alongside this proof document.
+Full rationale: `docs/WORKER_PLATFORM_DECISION.md`  
+Formal record: `DECISIONS.md` — "Worker platform — Google Cloud Run + Cloud Tasks"
 
 ---
 
-## Build & type check
+## 1. Repository health check
 
 | Command | Result |
 |---|---|
+| `git status` | ✅ Clean — nothing to commit |
 | `npx tsc --noEmit` | ✅ 0 errors |
 | `npm run lint` | ✅ No ESLint warnings or errors |
 | `npm run build` | ✅ Compiled successfully — 27 routes |
 
+**Build route manifest (all 27):**
+
+```
+/                                    (dynamic)
+/_not-found                          (static)
+/api/guardian/[zoneId]/submit        (dynamic)
+/api/quiz/submit                     (dynamic)
+/api/streak/check                    (dynamic)
+/api/streak/shields                  (dynamic)
+/api/streak/shields/use              (dynamic)
+/api/topics/[id]/questions           (dynamic)
+/auth/callback                       (dynamic)
+/collection                          (dynamic)
+/dashboard                           (dynamic)
+/dashboard/admin                     (dynamic)
+/dashboard/child                     (dynamic)
+/dashboard/parent                    (dynamic)
+/dashboard/parent/children/[childId] (dynamic)
+/guardian/[zoneId]                   (dynamic)
+/learn                               (dynamic)
+/learn/[subjectSlug]                 (dynamic)
+/learn/[subjectSlug]/[topicSlug]     (dynamic)
+/learn/[subjectSlug]/[topicSlug]/[lessonSlug] (dynamic)
+/login                               (static)
+/register                            (static)
+/reset-password                      (static)
+/topics/[id]/learn                   (dynamic)
+/topics/[id]/practise                (dynamic)
+/topics/[id]/quiz                    (dynamic)
+/world-map                           (dynamic)
+```
+
 ---
 
-## Route matrix
-
-| Route | File | Builds? | Role gate |
-|---|---|---|---|
-| `/world-map` | `app/(child)/world-map/page.tsx` | ✅ | Child auth via Supabase session |
-| `/guardian/[zoneId]` | `app/(child)/guardian/[zoneId]/page.tsx` | ✅ | Child auth + year-group match |
-| `/api/guardian/[zoneId]/submit` | `app/api/guardian/[zoneId]/submit/route.ts` | ✅ | Supabase auth required |
-| `/dashboard/parent` | `app/dashboard/parent/page.tsx` | ✅ | Parent role via dashboard layout |
-| `/dashboard/parent/children/[childId]` | `app/dashboard/parent/children/[childId]/page.tsx` | ✅ | Parent role + FamilyLink check |
-| `/dashboard/admin` | `app/dashboard/admin/page.tsx` | ✅ | Phase 12 placeholder |
-| `/dashboard/admin/pipeline` | — | ✅ not needed | Pipeline is Railway CLI only; no web UI until Phase 12 |
-
-No route imports seed scripts, verify scripts, or pipeline service files. Confirmed by static grep across `app/(child)`, `app/api/quiz`, and `lib/parent-dashboard.ts`.
-
----
-
-## Verification command results
+## 2. Verification scripts
 
 ### Phase 8 — `node --env-file=.env.local scripts/verify-phase8.mjs`
 
@@ -53,214 +88,222 @@ Results: 24 passed, 0 failed
 🟢 Phase 8 gate: PASS
 ```
 
-Checks covered:
-- world_map_nodes: ≥ 1 node per zone (Year 3 Number Jungle, Year 7 Crystal Labyrinth)
-- Unlock logic: null prerequisite → available, unmet → locked, met → available
-- Route and component files exist
-- Dashboard links to `/world-map`
-- Guardian question pools: 15 published questions per zone
-- Guardian Slayer badge: trigger_rule.type = 'guardian_win'
-- Legendary card pools: 2 cards per year group
-- Phase 7 regression: 30 published cards, 5 badges
+All 24 checks passed including: zone nodes for both year groups, unlock-logic unit tests,
+route and component file existence, guardian question pools (15 each), Guardian Slayer badge,
+Legendary card pools, and Phase 7 regression checks.
 
-### Parent dashboard — `node --env-file=.env.local scripts/verify-parent-dashboard-safety.mjs`
+### Parent dashboard safety — `node --env-file=.env.local scripts/verify-parent-dashboard-safety.mjs`
 
 ```
 Results: 16 passed · 0 failed · 0 warnings · 0 skipped
 ✅ PARENT DASHBOARD SAFETY: MERGE SAFE
 ```
 
-Checks covered:
-- Route files exist
-- No fake/hardcoded progress data
-- Lesson queries enforce `status='published'` AND `verification_status='verified'`
-- `getRecommendedNextLesson` uses PUBLISHED_VERIFIED gate
-- Weak areas derived from quiz_attempts + quiz_answers only
-- No AI generation or seed imports in runtime files
-- Curriculum coverage uses `isCurriculumComplete` (no overclaiming)
-- Empty states exist for all data-dependent sections
-- Screen-time controls correctly deferred to Phase 9 (marked "coming soon")
-- Live DB: 3 published+verified lessons; 0 non-qualifying lessons reachable
+All 16 checks passed including 3 live-DB checks (lesson safety gate, empty-data handling,
+non-published lesson exclusion).
 
-### Phase 8A — `node --env-file=.env.local scripts/verify-phase8a.mjs`
+### Phase 8A pipeline activation — `node --env-file=.env.local scripts/verify-phase8a.mjs`
 
 ```
 Results: 18 passed · 0 failed · 2 skipped
 🟡 PIPELINE ACTIVATION: STATIC + DATABASE verified
-   LIVE layer skipped — deploy to Railway then re-run with PIPELINE_SERVICE_URL set
+   LIVE layer skipped — deploy to Cloud Run then re-run with PIPELINE_SERVICE_URL set
 ```
 
-STATIC layer (13 checks): all service files present, all 4 FastAPI endpoints defined, no pipeline imports in child-facing code.  
-DATABASE layer (4 checks): 15 Year 3 Maths published questions, 15 Year 7 Maths published questions, 22 curriculum_chunks seeded, no staged content leaking.  
-LIVE layer (2 checks): **SKIPPED** — `PIPELINE_SERVICE_URL` is empty in `.env.local`. Railway deployment has not yet been completed.
+STATIC (13): all service files present, all 4 FastAPI endpoints defined,
+no pipeline imports in child-facing code.  
+DATABASE (4): 15 Year 3 Maths questions published, 15 Year 7 Maths published,
+22 `curriculum_chunks` seeded, 0 staged content leaking.  
+LIVE (2): **SKIPPED** — `PIPELINE_SERVICE_URL` is empty. Cloud Run not yet deployed.
+SKIP is correct and honest; not a failure.
 
 ---
 
-## Database state snapshot (2026-05-21)
+## 3. Route matrix
 
-| Table | Count |
+| Route | File | In build? | Imports seed/test? | Auth gate |
+|---|---|---|---|---|
+| `/world-map` | `app/(child)/world-map/page.tsx` | ✅ | ✅ None | Supabase session → redirect `/login` |
+| `/guardian/[zoneId]` | `app/(child)/guardian/[zoneId]/page.tsx` | ✅ | ✅ None | Session + year-group match |
+| `/api/guardian/[zoneId]/submit` | `app/api/guardian/[zoneId]/submit/route.ts` | ✅ | ✅ None | `supabase.auth.getUser()` required |
+| `/dashboard/parent` | `app/dashboard/parent/page.tsx` | ✅ | ✅ None | Dashboard layout role gate |
+| `/dashboard/parent/children/[childId]` | `app/dashboard/parent/children/[childId]/page.tsx` | ✅ | ✅ None | Role gate + FamilyLink check |
+| `/dashboard/admin` | `app/dashboard/admin/page.tsx` | ✅ | ✅ None | Phase 12 placeholder |
+| `/dashboard/admin/pipeline` | — | ✅ absent (correct) | — | Pipeline is CLI-only; Phase 12 web UI |
+
+No runtime file in `app/` or `lib/` imports from `scripts/`, `services/content-pipeline/`, or any verify/seed utility. Confirmed by grep.
+
+---
+
+## 4. Database state snapshot
+
+| Table | Count | Notes |
+|---|---|---|
+| `quiz_questions` (published) | 30 | 15 Year 3 Maths + 15 Year 7 Maths |
+| `quiz_questions` (staged) | 0 | All content published or absent |
+| `card_catalog` (published) | 30 | Across 5 rarities, both year groups |
+| `badges` | 5 | Topic Star, Perfect Score, Subject Champion, Streak 7, Guardian Slayer |
+| `zones` | 6 | Year 3 + Year 7, Maths + English + Science (6 zones; only Maths seeded with nodes) |
+| `world_map_nodes` | 2 | 1 per seeded Maths zone (Number Jungle, Crystal Labyrinth) |
+| `curriculum_chunks` | 22 | Maths KS2 + KS3 source material |
+| `lessons` (published + verified) | 3 | Multiplication Tables vertical slice |
+| `quiz_attempts` | 1 | One recorded attempt from testing |
+| `quiz_answers` | 10 | 10 answers from the one attempt |
+| `profiles` | 4 | Test accounts created during development |
+
+---
+
+## 5. Child journey proof
+
+**Route chain:** Login → Dashboard → `/world-map` → topic node → `/topics/[id]/quiz` → `/api/quiz/submit` → progress update
+
+**Verified (static + DB):**
+
+- **World map** loads `zones` and `world_map_nodes` from DB for the child's `year_group_id`. No hardcoded content.
+- **Node state** is computed server-side: `null` prerequisite → `available`; `completed_set` match → `completed`; otherwise `locked`. Unit-tested in verify-phase8 checks 7–9.
+- **Guardian page** queries `published` questions only (`status: 'published'`). Redirects to `/world-map` if pool < 15 — prevents a partial battle.
+- **Quiz submit** (`/api/quiz/submit`) writes `quiz_attempt`, `quiz_answers`, `point_events`, `topic_progress`, `child_collection`, `profile_badges`, `streak` — all inside a single `$transaction`.
+- **Guardian submit** (`/api/guardian/[zoneId]/submit`) forces Legendary card + Guardian Slayer badge on pass; returns early with zero writes on fail.
+- **No fake progress:** all progress data derives from real `quiz_attempt` / `quiz_answer` rows. Verified by parent dashboard safety check 3.
+
+**Gap — guardian double-submit (documented, not a blocker):**  
+If a client retries the guardian submit (network error, double-tap), points are awarded a second time. Card is idempotency-guarded (upsert on composite key); badge is dedup-guarded (`ownedIds` set). Points have no idempotency guard. Documented in `DECISIONS.md` (PgBouncer / idempotency section). Low risk at single-child pilot concurrency.
+
+---
+
+## 6. Parent reflection proof
+
+**Verified (static + live DB):**
+
+| Claim | Evidence |
 |---|---|
-| `quiz_questions` (published) | 30 |
-| `quiz_questions` (staged) | 0 |
-| `card_catalog` (published) | 30 |
-| `badges` | 5 |
-| `zones` | 6 |
-| `world_map_nodes` | 2 |
-| `curriculum_chunks` | 22 |
-| `lessons` (published + verified) | 3 |
-| `quiz_attempts` | 1 |
-| `quiz_answers` | 10 |
+| Parent resolves children via FamilyLink | `getLinkedChildren` queries `family_links` table by `parent_user_id` |
+| Per-child detail protected by FamilyLink | `children/[childId]/page.tsx` runs `prisma.familyLink.findFirst({ where: { parent_user_id, child_user_id } })` → 404 if absent |
+| Quiz attempts affect parent stats | `getChildProgressSummary` counts `quiz_attempts` for the child's `profile_id` |
+| Weak areas from quiz-answer data only | `getChildWeakAreas` aggregates `quiz_answers.was_correct` — no other source. Verified by safety check 7 |
+| Recommended lesson: published + verified | `PUBLISHED_VERIFIED` constant (`status='published' AND verification_status='verified'`) applied to every lesson query in `lib/parent-dashboard.ts`. Verified by safety checks 4, 5, 6, 13, 15 |
+| Curriculum coverage does not overclaim | `getTopicCurriculumCoverage` returns `isCurriculumComplete` flag; no hardcoded "complete" string. Verified by safety check 10 |
 
 ---
 
-## Child journey proof
-
-**Route chain:** Dashboard → `/world-map` → topic node → `/topics/[id]/learn` → `/topics/[id]/practise` → `/topics/[id]/quiz` → submit → progress update
-
-**Verified (static + DB):**
-- World map page loads zones from DB for the child's year group; no hardcoded content
-- Topic nodes compute state (`locked` / `available` / `completed`) from `topic_progress.status='completed'`
-- Guardian page pulls 15 published questions from the zone's topics; redirects to `/world-map` if pool < 15
-- Guardian submit (POST `/api/guardian/[zoneId]/submit`) performs: auth check → zone lookup → profile lookup → score calculation → on pass: `$transaction` (points + Legendary card + Guardian Slayer badge)
-- Card dedup guard: `childCollection` upsert prevents duplicate card rows
-- Badge dedup guard: `ownedIds` set prevents double-award
-
-**Known gap — guardian double-submit:**  
-The guardian submit does not check whether the child has already beaten this zone. If the same request is submitted twice (e.g., client retry), points are awarded twice. Card and badge are guarded against duplicates but points are not. This is documented in DECISIONS.md (PgBouncer / idempotency section) and is a pre-production hardening item, not a pilot blocker at single-child concurrency.
-
----
-
-## Parent reflection proof
-
-**Verified (static + DB):**
-- `getLinkedChildren` queries via `family_links` — no cross-family data exposure
-- Per-child detail page (`/dashboard/parent/children/[childId]`) verifies `FamilyLink` before returning any data; returns 404 if link is missing
-- `getChildWeakAreas` derives weak areas from `quiz_answers` (high error rate) only — no fake data
-- `getRecommendedNextLesson` applies `PUBLISHED_VERIFIED` gate: `status='published' AND verification_status='verified'`
-- Curriculum coverage uses `getTopicCurriculumCoverage` with `isCurriculumComplete` field — does not overclaim
-
-**Empty-state safety:**  
-All data-dependent sections (weak areas, recent activity, badges, quiz accuracy) have empty-state renders. With 1 quiz attempt and 10 quiz answers in the DB, the parent dashboard renders real data without errors.
-
----
-
-## Guardian transaction proof
+## 7. Guardian / API transaction proof
 
 **File:** `app/api/guardian/[zoneId]/submit/route.ts`
 
-| Concern | Finding |
+| Concern | Finding | Status |
+|---|---|---|
+| Auth check | `supabase.auth.getUser()` required before any DB read or write | ✅ Safe |
+| Zone existence | `prisma.zone.findUnique` — returns 404 if zone not found | ✅ Fails closed |
+| Profile existence | `prisma.profile.findUnique` — returns 404 if no profile | ✅ Fails closed |
+| Fail path (score < 70%) | Returns immediately with zero DB writes | ✅ No partial state |
+| PgBouncer / serverless | `prisma.$transaction(async tx => {...}, { timeout: 15000 })`. Same pattern as `/api/quiz/submit`. Safe at pilot concurrency; hardening documented in `DECISIONS.md` | ⚠️ Pre-production item |
+| Long interactive tx | 4–5 writes; no LLM calls or external I/O inside the transaction; 15 s timeout is appropriate | ✅ Acceptable |
+| Card duplicate guard | `childCollection` upsert on `profile_id_card_id` composite unique key — safe | ✅ Idempotent |
+| Badge duplicate guard | `ownedIds` Set checked before every award inside the transaction | ✅ Idempotent |
+| Points duplicate guard | **None** — double-submit awards points twice | ⚠️ Documented gap |
+| Quiz-submit regression | Guardian uses a separate `submitUrl` prop; `/api/quiz/submit` unchanged. Phase 8 verify checks 18–21 confirm question pools intact | ✅ No regression |
+
+---
+
+## 8. Phase 8A status proof
+
+| Claim | Evidence |
 |---|---|
-| PgBouncer safety | `prisma.$transaction(async tx => {...}, { timeout: 15000 })` — same pattern as `/api/quiz/submit`. Documented in DECISIONS.md as pre-production hardening item (Option A: switch runtime `DATABASE_URL` to `DIRECT_URL` before community rollout). Safe at pilot concurrency. |
-| Long interactive transaction | Transaction contains 4–5 writes (pointEvent, profile update, childCollection upsert, profileBadge). No long polls or waits inside. `timeout: 15000` is appropriate. |
-| Errors fail closed | On `!passed`, returns early with no DB writes. Transaction errors surface as 500 to the client; no partial commit path is exposed to the UI. |
-| Duplicate reward | Card dedup: `childCollection` upsert on `profile_id_card_id` unique key — safe. Badge dedup: `ownedIds` set check — safe. **Points: no idempotency guard** — double-submit awards points twice. Noted above. |
-| Quiz submit regression | Guardian submit uses a separate `submitUrl` prop on `QuizShell`; the regular quiz submit route is unchanged. Phase 8 verify confirms both question pools (15 each) are intact. |
+| Railway is NOT the selected future platform | `DECISIONS.md` line 60: "Status: Decided — migration pending. Do not deploy to Railway." |
+| `docs/WORKER_PLATFORM_DECISION.md` exists | ✅ Created in commit `d8abb86` |
+| `DECISIONS.md` records Cloud Run + Cloud Tasks | ✅ "Worker platform — Google Cloud Run + Cloud Tasks" entry present |
+| Phase 8A runtime not falsely claimed as live | ✅ `PIPELINE_SERVICE_URL` is empty; verify-phase8a LIVE layer correctly SKIPs |
+| SKIP states are honest | ✅ Fixed in this sprint: LIVE header updated from "Railway" → "Cloud Run"; SKIP message updated accordingly |
+| `docs/PHASE_8A_DEPLOYMENT.md` is superseded | ✅ `docs/WORKER_PLATFORM_DECISION.md` header: "Supersedes: Phase 8A Railway deployment runbook" |
 
 ---
 
-## Phase 8A activation status
+## 9. Issues found and fixed in this proof sprint
 
-| Layer | Status | Blocker |
+| Issue | File | Fix |
 |---|---|---|
-| STATIC | ✅ 13/13 passed | — |
-| DATABASE | ✅ 4/4 passed | — |
-| LIVE | ⏭️ 2/2 skipped | `PIPELINE_SERVICE_URL` not set; Railway not deployed |
+| Stale "deploy to Railway" text in LIVE skip message | `scripts/verify-phase8a.mjs` | Updated to "deploy to Cloud Run" |
+| Stale "Railway pipeline service health" layer header | `scripts/verify-phase8a.mjs` | Updated to "pipeline service health (Cloud Run)" |
 
-**Live activation is not claimed.** The pipeline service has not been deployed to Railway. To activate:
-1. Deploy `services/content-pipeline/` to Railway
-2. Set `ANTHROPIC_API_KEY` and `DATABASE_URL` (direct Postgres URL) in Railway variables
-3. Set `PIPELINE_SERVICE_URL` in `.env.local` and in Vercel project env
-4. Re-run `node --env-file=.env.local scripts/verify-phase8a.mjs` — all three layers must pass
-
-See `docs/PHASE_8A_DEPLOYMENT.md` for the full runbook.
+No runtime code was changed. No schema changes. No new routes.
 
 ---
 
-## DECISIONS.md consistency check
+## 10. Known gaps and pre-production items
 
-DECISIONS.md contains one entry: PgBouncer transaction atomicity. It covers:
-- `/api/quiz/submit` (Phase 5)
-- `/api/guardian/[zoneId]/submit` (Phase 8)
-- `/api/streak/shields/use` (Phase 7)
-
-The entry is consistent with the code. No contradictions between Phase 8, Phase 8A, or Phase 9 notes were found. No rewrite needed.
-
----
-
-## Known skips and blockers
-
-| Item | Type | Impact |
-|---|---|---|
-| Railway deployment not complete | Blocker for LIVE pipeline activation | No new content can be generated until PIPELINE_SERVICE_URL is set and Railway is running |
-| Guardian double-submit (no idempotency) | Pre-production hardening | Points can be double-awarded on client retry; low risk at single-child pilot concurrency |
-| PgBouncer interactive transaction | Pre-production hardening | Documented in DECISIONS.md; safe at pilot scale |
-| World map: only 1 node per zone | Data gap | Each zone has only 1 topic node; more topics need to be seeded to demonstrate sequential unlock |
-| Screen-time enforcement | Deferred | Marked "coming soon" in parent dashboard; server-side enforcement is Phase 9 (was incomplete at merge) |
-| `/dashboard/admin/pipeline` web route | Deferred | Phase 12 feature per CLAUDE.md §14; pipeline is CLI-only in Phase 8A |
+| Item | Type | Impact | Gating phase |
+|---|---|---|---|
+| Cloud Run / Cloud Tasks not deployed | Infrastructure blocker | No new content generation until deployed | Phase 11 |
+| Guardian double-submit — points not idempotent | Pre-production hardening | Points awarded twice on retry; low risk at pilot scale | Before community rollout |
+| PgBouncer interactive transaction atomicity | Pre-production hardening | Documented in DECISIONS.md; safe at pilot concurrency | Before community rollout |
+| Only 1 world map node per zone | Data gap | Sequential unlock logic cannot be demonstrated; needs more topic nodes seeded | Pre-pilot |
+| `docs/PHASE_8A_DEPLOYMENT.md` is stale (Railway-specific) | Docs debt | Will mislead if followed; superseded by WORKER_PLATFORM_DECISION.md | Before Phase 11 |
+| CLAUDE.md §5/§6/§9 still reference Railway | Docs debt | Core project bible is inconsistent with the platform decision | Before Phase 11 |
+| Screen-time enforcement | Deferred feature | Parent dashboard shows "coming soon" — no server-side enforcement | Phase 9 gate |
+| PWA install and offline queue | Not built | Phase 10 not started | Phase 10 |
+| English and Science content | Not built | Phase 11 not started | Phase 11 |
 
 ---
 
-## Exact safe product claim
+## 11. Exact safe product claim
 
-As of commit `199d4b1`:
-
-> A child on Year 3 or Year 7 can log in, see a world map with their Maths zone, navigate to the single available topic node, complete the Learn → Practise → Quiz loop, earn points and a Discovery Card, and — if the zone topic is completed — battle the Zone Guardian for a Legendary card and the Guardian Slayer badge. A linked parent can log in and see the child's progress summary, weak areas (derived from real quiz answer data), and a recommended next lesson (published + verified only).
+> As of commit `d8abb86`:
+>
+> A child on Year 3 or Year 7 can log in, see a world map with their Maths zone,
+> navigate to the one available topic node, complete the Learn → Practise → Quiz loop,
+> earn points and a Discovery Card, and — if the zone topic is marked complete — battle
+> the Zone Guardian for a Legendary card and the Guardian Slayer badge.
+>
+> A linked parent can log in and see the child's progress summary, weak areas (derived
+> from real quiz-answer data), and a recommended next lesson (published + verified only).
+>
+> The pipeline service is containerised and ready for Cloud Run deployment. Content
+> generation is not live until Cloud Run is deployed and `PIPELINE_SERVICE_URL` is set.
 
 ---
 
-## Claims still not allowed
+## 12. Claims still not allowed
 
-- Pipeline is live (Railway not deployed; LIVE layer skipped)
+- Pipeline is live (Cloud Run not deployed; LIVE layer correctly skips)
 - Multiple topic unlock chains work end-to-end (only 1 node per zone is seeded)
-- Sequential zone unlocks have been play-tested across multiple topics
-- Screen-time enforcement is active (deferred)
 - Offline PWA mode works (Phase 10 not built)
-- English or Science content exists (Phase 11 not built)
+- English or Science content is available (Phase 11 not built)
+- Screen-time limits are enforced (deferred)
+- Guardian submit is fully idempotent (points double-award gap exists)
 - Community rollout is safe (PgBouncer + idempotency hardening pending)
+- Railway is the pipeline platform (decided against)
 
 ---
 
-## Files changed in this integration sprint
+## 13. Remaining deployment tasks
 
-| File | Action | Reason |
-|---|---|---|
-| `scripts/verify-phase8a.mjs` | Created | Missing Phase 8A deliverable; three-layer verify script |
-| `docs/PHASE_8A_DEPLOYMENT.md` | Created | Missing Phase 8A deliverable; Railway deployment runbook |
-| `docs/POST_MERGE_INTEGRATION_PROOF.md` | Created | This file; integration proof as required by sprint spec |
-
-No product features were added. No schema changes. No new routes.
-
----
-
-## Remaining deployment tasks
-
-1. **Deploy pipeline to Railway** — set `ANTHROPIC_API_KEY` + `DATABASE_URL` (direct), get public URL
-2. **Set `PIPELINE_SERVICE_URL`** — in `.env.local` and Vercel project env
-3. **Re-run `verify-phase8a.mjs`** — confirm LIVE layer passes
-4. **Manual play-test** — as listed in Phase 8 verify gate output:
-   - Dashboard → World Map button visible
-   - Year 3 map renders at 375px — Number Jungle node pulsing
-   - Complete Multiplication Tables quiz → node shows completed + Guardian banner
-   - Battle Guardian → Legendary card reveal + Guardian Slayer badge fires
-   - Repeat for Year 7 Crystal Labyrinth
-5. **Seed more topic nodes** — currently 1 node per zone; sequential unlock cannot be demonstrated until more topics are seeded via `seed-phase8.mjs` with additional entries
+1. **Add world map nodes** — seed at least 2–3 topic nodes per zone to demonstrate sequential unlock (zero code changes; `seed-phase8.mjs` extension)
+2. **Deploy Cloud Run** — per `docs/WORKER_PLATFORM_DECISION.md` migration steps; required before Phase 11
+3. **Update `PIPELINE_SERVICE_URL`** — in `.env.local` and Vercel project env after Cloud Run deploy
+4. **Re-run `verify-phase8a.mjs`** — all three layers must pass (LIVE currently skips)
+5. **Update `docs/PHASE_8A_DEPLOYMENT.md`** — replace Railway runbook with Cloud Run runbook when migration is done
+6. **Update CLAUDE.md §5/§6/§9** — remove Railway references when migration is done
+7. **Manual play-test on device** — as listed in Phase 8 verify gate output (iPhone SE at 375 px)
 
 ---
 
 ## Go / No-Go verdict
 
-| Gate | Status |
+| Gate | Result |
 |---|---|
 | TypeScript clean | ✅ |
 | ESLint clean | ✅ |
-| Production build | ✅ |
-| Phase 8 verify (24 checks) | ✅ |
-| Parent dashboard safety (16 checks) | ✅ |
-| Phase 8A verify — STATIC + DATABASE (18 checks) | ✅ |
-| Phase 8A verify — LIVE | ⏭️ Blocked on Railway deploy |
+| Production build (27 routes) | ✅ |
+| Phase 8 verify (24/24) | ✅ |
+| Parent dashboard safety (16/16) | ✅ |
+| Phase 8A verify — STATIC + DATABASE (18/18 run, 2 skipped) | ✅ |
+| Phase 8A verify — LIVE | ⏭️ Blocked on Cloud Run deploy |
 | No seed/verify imports in runtime code | ✅ |
 | No hardcoded content | ✅ |
 | FamilyLink security on per-child detail | ✅ |
-| Published-only content gate | ✅ |
+| Published-only content gate on all child-facing queries | ✅ |
+| Railway platform decision recorded and rejected | ✅ |
+| Cloud Run + Cloud Tasks decision recorded in DECISIONS.md | ✅ |
+| verify-phase8a SKIP states honest and platform-current | ✅ (fixed in this sprint) |
 
-**Verdict: GO for family pilot** on the child journey (world map + guardian + quiz loop) and parent dashboard. **HOLD** on pipeline live activation until Railway is deployed and LIVE layer passes.
+**Verdict: GO for family pilot.** Child journey and parent dashboard are integration-proven. **HOLD** on pipeline live activation until Cloud Run is deployed and the LIVE layer of `verify-phase8a.mjs` passes. Do not set up a Railway project.
