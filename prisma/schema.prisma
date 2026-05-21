@@ -116,9 +116,10 @@ model Subject {
   name         String @unique
   colour_token String
 
-  topics Topic[]
-  zones  Zone[]
-  cards  CardCatalog[]
+  topics               Topic[]
+  zones                Zone[]
+  cards                CardCatalog[]
+  curriculum_outcomes  CurriculumOutcome[]
 
   @@map("subjects")
 }
@@ -132,17 +133,18 @@ model Topic {
   is_published  Boolean @default(false)
   zone_id       String? @db.Uuid
 
-  subject           Subject        @relation(fields: [subject_id], references: [id])
-  year_group        YearGroup      @relation(fields: [year_group_id], references: [id])
-  zone              Zone?          @relation(fields: [zone_id], references: [id])
-  learn_content     LearnContent[]
-  practice_games    PracticeGame[]
-  quiz_questions    QuizQuestion[]
-  world_map_nodes   WorldMapNode[] @relation("NodeTopic")
-  unlocks_for_nodes WorldMapNode[] @relation("UnlockedByTopic")
-  topic_progress    TopicProgress[]
-  quiz_attempts     QuizAttempt[]
-  missions          ChildMission[]
+  subject               Subject             @relation(fields: [subject_id], references: [id])
+  year_group            YearGroup           @relation(fields: [year_group_id], references: [id])
+  zone                  Zone?               @relation(fields: [zone_id], references: [id])
+  learn_content         LearnContent[]
+  practice_games        PracticeGame[]
+  quiz_questions        QuizQuestion[]
+  world_map_nodes       WorldMapNode[]      @relation("NodeTopic")
+  unlocks_for_nodes     WorldMapNode[]      @relation("UnlockedByTopic")
+  topic_progress        TopicProgress[]
+  quiz_attempts         QuizAttempt[]
+  missions              ChildMission[]
+  curriculum_outcomes   CurriculumOutcome[]
 
   @@map("topics")
 }
@@ -430,6 +432,35 @@ model CurriculumChunk {
 
   @@index([subject, year_group])
   @@map("curriculum_chunks")
+}
+
+// ---------- Curriculum coverage spine ----------
+
+model CurriculumOutcome {
+  id                     String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  framework_country      String   @default("England")
+  framework_name         String   @default("National Curriculum 2014")
+  key_stage              String   // "KS1", "KS2"
+  year_group             String   // "Year 1" … "Year 6"
+  subject                String   @default("Mathematics")
+  domain                 String   // "Number – multiplication and division"
+  statutory_outcome      String   // Full statutory statement text (verbatim)
+  non_statutory_notes    String?
+  source_reference       String   // Document + page reference + outcome code
+  app_subject_id         String?  @db.Uuid
+  app_topic_id           String?  @db.Uuid
+  app_skill_id           String?  // e.g. "times_tables_recall" (text identifier, no FK)
+  required_content_types String[] // ["learn","practice","quiz_sprout","quiz_explorer","quiz_lightning"]
+  coverage_status        String   @default("unmapped")   // "mapped" | "partial" | "unmapped"
+  verification_status    String   @default("unverified") // "verified" | "unverified" | "failed"
+  created_at             DateTime @default(now())
+
+  subject_ref Subject? @relation(fields: [app_subject_id], references: [id])
+  topic_ref   Topic?   @relation(fields: [app_topic_id], references: [id])
+
+  @@index([key_stage, year_group])
+  @@index([app_topic_id])
+  @@map("curriculum_outcomes")
 }
 
 // ---------- Daily challenge cache ----------
