@@ -1,204 +1,166 @@
-# Phase 8A — Content Pipeline Activation: Deployment Guide
+# Phase 8A — Content Pipeline Deployment Runbook
 
-> See `DECISIONS.md` § "Phase 8A" for *why* this exists. This file is the
-> *how*. It walks through Railway deploy, Vercel env-var setup, local
-> smoke test, production smoke test, and rollback.
-
----
-
-## 0. Prerequisites
-
-- Supabase project running (Phase 2 migrations applied).
-- Vercel project deploying `main`.
-- An Anthropic API key.
-- (Optional) An OpenAI API key — needed only if you want embeddings for
-  RAG retrieval and semantic dedup. Maths content does not strictly need
-  it (CLAUDE.md §8).
+> This document describes how to deploy the Decifer Learning content pipeline service
+> to Railway and activate it for question generation.
+>
+> The pipeline is an internal tool: it runs on Railway and writes to Supabase.
+> It is never called from the browser or from child-facing code.
 
 ---
 
-## 1. Get the direct Supabase Postgres URL (port 5432)
+## Architecture
 
-The pipeline **must** use a direct, non-pooled Postgres connection.
-
-1. Supabase → **Connect** → **ORMs (Prisma)** tab.
-2. Copy the `DIRECT_URL` value (port **5432**, no `pgbouncer=true` suffix).
-3. Substitute the real database password in place of `[YOUR-PASSWORD]`.
-
-That URL is what you'll paste as Railway's `DATABASE_URL` in step 2. **Do
-NOT reuse the pooled URL (port 6543) for the pipeline service** — see
-DECISIONS.md.
-
----
-
-## 2. Deploy to Railway
-
-### 2a. Create the service
-
-1. Railway dashboard → **New Project** → **Deploy from GitHub repo**.
-2. Pick `DeciferBot/Decifer-learning`.
-3. After import: **Settings → Service → Root Directory** =
-   `services/content-pipeline`.
-4. Railway auto-detects the Dockerfile and `railway.toml`. No manual
-   build-command override needed.
-
-### 2b. Set Railway environment variables
-
-In the service's **Variables** tab, add:
-
-| Variable           | Value                                                       |
-|--------------------|-------------------------------------------------------------|
-| `ANTHROPIC_API_KEY`| Your Anthropic key                                          |
-| `OPENAI_API_KEY`   | Your OpenAI key (optional)                                  |
-| `DATABASE_URL`     | The **direct** Supabase URL from step 1 (port 5432)         |
-
-Railway injects `PORT` itself — do not set it manually.
-
-### 2c. Deploy
-
-Click **Deploy**. Wait for the build to go green. Note the generated
-public URL (e.g. `https://decifer-pipeline-production.up.railway.app`).
-Verify the healthcheck:
-
-```sh
-curl https://<your-railway-url>/health
-# → {"status":"ok","version":"0.3.0"}
+```
+Vercel (Next.js)          Railway (FastAPI)          Supabase (Postgres)
+─────────────────         ─────────────────           ───────────────────
+Admin / scripts  ──POST──▶  /generate              ──▶  quiz_questions
+                          ─────────────────
+                            /verify/maths
+                            /ingest
+                            /health
 ```
 
-If healthcheck fails, check Railway build logs; the most common cause is
-a wrong `DATABASE_URL` (pooled instead of direct).
+The Next.js app never calls the pipeline at runtime. The pipeline is triggered by:
+- Manual CLI calls during content seeding (`scripts/generate-content.ts`)
+- Admin scripts run locally or via Railway CLI
 
 ---
 
-## 3. Set Vercel environment variables
+## Required Environment Variables
 
-Vercel dashboard → project → **Settings → Environment Variables** →
-**Production** (and Preview if you want PR previews to be able to call
-the pipeline).
+### Railway (pipeline service)
 
-| Variable                | Value                                                                |
-|-------------------------|----------------------------------------------------------------------|
-| `PIPELINE_SERVICE_URL`  | Railway public URL from step 2c (no trailing slash)                  |
-| `ADMIN_PIPELINE_TOKEN`  | A long random string (e.g. `openssl rand -hex 32`)                   |
+Set these in the Railway project → Variables tab before deploying:
 
-Then redeploy Vercel (Deployments → latest → ⋯ → Redeploy). Env var
-changes do not apply to the running deployment.
+| Variable | Required | Notes |
+|---|---|---|
+| `ANTHROPIC_API_KEY` | Yes | Used by Stage 1 (generation), Stage 3 (consensus), Stage 4 (constitutional critique) |
+| `OPENAI_API_KEY` | Conditional | Required for Stage 5 semantic deduplication. If omitted, dedup is skipped and all content lands in `staged` rather than dedup-failing. Maths questions do not require RAG grounding (CLAUDE.md §8), so this is optional for Phase 8A. |
+| `DATABASE_URL` | Yes | Direct Postgres URL (not PgBouncer-pooled). Use the direct connection string from Supabase project settings → Database → Connection string → URI mode (port 5432). The pipeline bypasses RLS — use the direct URL only in Railway, never in the Next.js app. |
+| `PORT` | Auto | Railway injects this automatically. Uvicorn is configured to bind `0.0.0.0:8000`; Railway's port routing handles the rest. |
 
-`ADMIN_PIPELINE_TOKEN` is a temporary back-door for triggering generation
-via `curl` before any account has been promoted to `role='admin'` in
-Supabase. The full role-based admin gate is in place at the UI layer
-(middleware enforces it on `/dashboard/admin/*`); the token only matters
-for headless API calls.
+### Vercel (Next.js app)
 
-To promote an account to admin once you've created it via normal signup:
+| Variable | Required | Notes |
+|---|---|---|
+| `PIPELINE_SERVICE_URL` | Yes | Railway public URL, e.g. `https://decifer-pipeline.up.railway.app`. No trailing slash. Used by admin scripts only. |
 
-```sql
--- Run in Supabase SQL editor.
-UPDATE public.profiles
-SET role = 'admin'
-WHERE user_id = (SELECT id FROM auth.users WHERE email = 'you@example.com');
+> Set `PIPELINE_SERVICE_URL` in `.env.local` for local admin scripts.
+> Set it in Vercel project env for any future server-side admin triggers (Phase 12).
+
+---
+
+## Admin Token Flow
+
+The pipeline endpoints (`/generate`, `/ingest`) are internal and authenticated only at
+the network level in Phase 8A: Railway's public URL is not advertised and is only known
+to the operator. No Bearer token is enforced in Phase 8A.
+
+**Before community rollout (Phase 12 gate):**
+Add a static `PIPELINE_ADMIN_TOKEN` env var to Railway and verify it in FastAPI using
+a dependency:
+
+```python
+from fastapi import Depends, HTTPException, Header
+import os
+
+def require_admin(x_admin_token: str = Header(...)):
+    if x_admin_token != os.environ["PIPELINE_ADMIN_TOKEN"]:
+        raise HTTPException(status_code=403, detail="Forbidden")
 ```
 
----
-
-## 4. Seed the Phase 8A test topic
-
-This is a topic *shell* (no quiz content). Pipeline generates the content
-afterwards.
-
-```sh
-# Locally, against the same Supabase project Vercel uses:
-node --env-file=.env.local scripts/seed-phase8a-test-topic.mjs
-```
-
-The script prints the new `topic_id`. Keep it; you'll need it in step 5.
+Apply to `/generate` and `/ingest` only. `/health` and `/verify/maths` remain open.
 
 ---
 
-## 5. Local smoke test
+## Deployment Steps
 
-Before triggering against production, prove the pipeline works locally.
+### 1. Push to Railway
 
-```sh
-# Start the pipeline service locally.
+```bash
+# Install Railway CLI if needed
+npm i -g @railway/cli
+railway login
+
+# From the repo root
 cd services/content-pipeline
-ANTHROPIC_API_KEY=... DATABASE_URL=<direct-5432-url> \
-  uvicorn main:app --port 8000
-
-# In another terminal:
-curl http://localhost:8000/health
-# → {"status":"ok","version":"0.3.0"}
-
-# Generate a single sprout question for the test topic:
-curl -X POST http://localhost:8000/generate \
-  -H 'content-type: application/json' \
-  -d '{"topic_id":"<TOPIC_ID>","tier":"sprout","count":1}'
+railway up
 ```
 
-The response will have `published`, `staged`, `regenerating`, `failed`
-counts, a `model` field (the Anthropic model used), and per-question
-`stage_log` entries showing every pipeline stage with token usage.
+Or connect the GitHub repo to a Railway project and enable auto-deploy from `main`.
+
+### 2. Set env vars
+
+In Railway dashboard → Variables:
+
+```
+ANTHROPIC_API_KEY=<your key>
+DATABASE_URL=<supabase direct postgres URL>
+OPENAI_API_KEY=<your key>   # optional
+```
+
+### 3. Verify deployment
+
+```bash
+# Check health
+curl https://<your-railway-url>/health
+# Expected: {"status":"ok","version":"0.3.0"}
+
+# Smoke-test the maths verifier
+curl -X POST https://<your-railway-url>/verify/maths \
+  -H "Content-Type: application/json" \
+  -d '{"question_type":"maths_arithmetic","correct_answer":"4","verification_expression":"2+2"}'
+# Expected: {"verified":true,"detail":"arithmetic verified"}
+```
+
+Or use the verification script:
+
+```bash
+PIPELINE_SERVICE_URL=https://<your-railway-url> node --env-file=.env.local scripts/verify-phase8a.mjs
+```
+
+All three layers (STATIC, DATABASE, LIVE) must pass before generating content.
+
+### 4. Generate content
+
+```bash
+# Set PIPELINE_SERVICE_URL in .env.local first, then:
+node --env-file=.env.local scripts/generate-content.ts \
+  --topic-id <uuid> \
+  --tier sprout \
+  --count 15
+```
+
+Or call the endpoint directly:
+
+```bash
+curl -X POST https://<your-railway-url>/generate \
+  -H "Content-Type: application/json" \
+  -d '{"topic_id":"<uuid>","tier":"sprout","count":15}'
+```
 
 ---
 
-## 6. Production smoke test
+## Verification Script Layers
 
-Two paths — pick whichever fits.
+`scripts/verify-phase8a.mjs` runs three distinct layers:
 
-### 6a. UI (recommended)
+| Layer | What it checks | Env vars needed |
+|---|---|---|
+| STATIC | Service files exist in repo, FastAPI endpoints defined, no pipeline import leak into child code | None |
+| DATABASE | DB reachable, published questions ≥ 15 per year group, curriculum_chunks seeded | `DATABASE_URL` |
+| LIVE | Railway service responds on `/health` and `/verify/maths` | `PIPELINE_SERVICE_URL` |
 
-1. Sign in as an admin account (promote via the SQL in step 3 if needed).
-2. Visit `https://<your-vercel-url>/dashboard/admin/pipeline`.
-3. Click **Check pipeline** → should show `HTTP 200` + `{"status":"ok"}`.
-4. Pick the Phase 8A test topic, choose tier `sprout`, count `1`,
-   click **Run pipeline**. Wait ~30 s. The response panel shows the same
-   structured output as the curl path.
+SKIP states are printed when env vars are missing. A check only FAILs if it runs and the assertion is false. SKIP is not a failure.
 
-### 6b. curl (headless)
-
-```sh
-curl -X POST https://<your-vercel-url>/api/pipeline/generate \
-  -H "x-admin-token: $ADMIN_PIPELINE_TOKEN" \
-  -H 'content-type: application/json' \
-  -d '{"topic_id":"<TOPIC_ID>","tier":"sprout","count":1}'
-```
+**Do not claim live activation unless DATABASE and LIVE actually pass.**
 
 ---
 
-## 7. Verify the activation gate
+## Phase 12 Hardening (before community rollout)
 
-```sh
-node --env-file=.env.local scripts/verify-phase8a.mjs
-```
-
-The script runs three layers (STATIC / DATABASE / LIVE) and prints PASS /
-FAIL / SKIP per check. Exit code is non-zero on any FAIL. Acceptance:
-
-- All STATIC checks PASS.
-- DATABASE checks PASS if `DATABASE_URL` is set.
-- LIVE healthcheck PASSes if `PIPELINE_SERVICE_URL` is set.
-
----
-
-## 8. Rollback
-
-Phase 8A is purely additive — no existing schema, RLS, or content was
-changed. Rollback paths, in increasing severity:
-
-- **Pause generation**: unset `PIPELINE_SERVICE_URL` on Vercel and
-  redeploy. The proxy will return 503 for every call; admin UI shows
-  the configured-warning banner. No effect on child journeys.
-- **Take Railway offline**: stop the Railway service. Same effect as
-  above plus the public URL goes 502. No data loss.
-- **Delete the test topic**: it is `is_published=false`, so children
-  never saw it. Delete from Supabase if you want to clean up.
-  ```sql
-  DELETE FROM quiz_questions WHERE topic_id = '<TOPIC_ID>';
-  DELETE FROM curriculum_outcomes WHERE app_topic_id = '<TOPIC_ID>';
-  DELETE FROM topics WHERE id = '<TOPIC_ID>';
-  ```
-- **Revert the code**: the Phase 8A commit set is self-contained; reverting
-  it leaves the rest of the app working. Existing child journeys are not
-  modified.
-
-No rollback removes anything from the production-published content tree.
+- [ ] Add `PIPELINE_ADMIN_TOKEN` auth to `/generate` and `/ingest`
+- [ ] Add nightly `pg_cron` anomaly detection (CLAUDE.md §9, §12)
+- [ ] Add `POST /pipeline/regenerate-flagged` endpoint and cron trigger
+- [ ] Admin monitoring page (`/dashboard/admin`) shows flagged counts and pipeline stats
+- [ ] "Report a problem" button on quiz questions
