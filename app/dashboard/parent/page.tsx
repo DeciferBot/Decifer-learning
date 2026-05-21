@@ -12,6 +12,7 @@ import {
   getChildWeakAreas,
   getRecommendedNextLesson,
 } from '@/lib/parent-dashboard'
+import { LinkChildForm } from '@/components/parent/LinkChildForm'
 
 export const metadata = { title: 'Parent dashboard — Decifer Learning' }
 
@@ -52,13 +53,15 @@ export default async function ParentDashboardPage() {
         </p>
       </div>
 
-      {/* No children linked */}
+      {/* No children linked — show form prominently */}
       {children.length === 0 && (
-        <div className="rounded-2xl border border-dashed border-muted/40 bg-surface p-6 text-center">
-          <p className="font-heading font-semibold text-ink">No children linked yet</p>
-          <p className="mt-1 text-sm text-muted">
-            Ask your child to register and link their account to yours.
+        <div className="rounded-2xl border border-dashed border-muted/40 bg-surface p-6">
+          <p className="font-heading font-semibold text-ink">Link your child&apos;s account</p>
+          <p className="mb-4 mt-1 text-sm text-muted">
+            Your child registers separately at /register. Once they have an account, enter their
+            email below to connect it to yours.
           </p>
+          <LinkChildForm />
         </div>
       )}
 
@@ -193,6 +196,19 @@ export default async function ParentDashboardPage() {
           Daily time limits and allowed hours are coming in Phase 9.
         </p>
       </div>
+
+      {/* Add another child — shown only when at least one child is already linked */}
+      {children.length > 0 && (
+        <div className="rounded-2xl border border-black/5 bg-surface px-5 py-4 shadow-sm">
+          <h2 className="font-heading text-sm font-semibold uppercase tracking-wide text-muted">
+            Link another child
+          </h2>
+          <p className="mb-4 mt-1 text-sm text-muted">
+            Add a second child account using their registered email.
+          </p>
+          <LinkChildForm />
+        </div>
+      )}
     </section>
   )
 }

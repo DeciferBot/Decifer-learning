@@ -149,21 +149,23 @@ Both zones have 15 published questions. The guardian page draws from all publish
 
 ### 5c. FamilyLink (connects parent to child)
 
-There is no in-app UI for this yet. Create the link via the Supabase SQL editor:
+Use the in-app form on the parent dashboard:
 
+1. Log in as the parent → `/dashboard/parent`
+2. If no children are linked, the **Link your child's account** form is shown prominently
+3. Enter the child's registered email address → tap **Link child account**
+4. On success the child's progress card appears immediately
+
+If you need to link a second child, an **Add another child** section appears at the bottom of the parent dashboard after the first link is made.
+
+**Fallback (SQL editor):** If the in-app form fails for any reason:
 ```sql
--- 1. Find the parent's user_id
-SELECT id, email FROM auth.users WHERE email = 'parent@example.com';
-
--- 2. Find the child's user_id
-SELECT id, email FROM auth.users WHERE email = 'child@example.com';
-
--- 3. Insert the family link (use the user_ids from above)
 INSERT INTO family_links (parent_user_id, child_user_id)
-VALUES ('<parent-user-id>', '<child-user-id>');
+SELECT p.id, c.id
+FROM auth.users p, auth.users c
+WHERE p.email = 'parent@example.com'
+  AND c.email = 'child@example.com';
 ```
-
-After this, the parent dashboard will show the child's progress card.
 
 ### 5d. Admin role
 
@@ -245,7 +247,9 @@ Walk through this before handing the device to a child.
 
 ### Parent login
 - [ ] Log in with parent credentials → redirects to `/dashboard/parent`
-- [ ] If no children linked: "No children linked yet" placeholder shown with instructions
+- [ ] If no children linked: **Link your child's account** form shown prominently
+- [ ] Enter child's registered email → tap **Link child account** → child card appears
+- [ ] If already linked: **Add another child** section at the bottom
 
 ### Parent dashboard (with linked child)
 - [ ] Child name + year group displayed
@@ -318,7 +322,7 @@ Test at **375 px** (iPhone SE) and **390 px** (iPhone 14).
 
 | Item | Impact | Gating phase |
 |---|---|---|
-| **FamilyLink requires manual SQL** | Pilot operator must create the link in Supabase SQL editor | Phase 1.1 (post-pilot) |
+| ~~FamilyLink requires manual SQL~~ | In-app form built — parent enters child email on dashboard | ✅ Done |
 | **1 topic per zone** | Sequential unlock chain cannot be shown; world map has single node per active zone | Phase 11 adds more topics |
 | **English + Science zones empty** | Zones render with "More topics coming soon!" — correct but pilot is Maths-only | Phase 11 |
 | **Offline quiz sync not built** | Phase 10 not started; no `pending-answers` IndexedDB queue | Phase 10 |
