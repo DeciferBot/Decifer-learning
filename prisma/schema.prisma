@@ -488,7 +488,7 @@ model Lesson {
   lesson_type           String?
   estimated_minutes     Int?
   app_experience        String?
-  status                ContentStatus @default(staged)
+  status                String        @default("staged")
   verification_method   String?
   verification_status   String        @default("unverified")
   source_reference      String?
