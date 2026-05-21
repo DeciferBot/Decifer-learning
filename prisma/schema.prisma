@@ -112,14 +112,16 @@ model YearGroup {
 }
 
 model Subject {
-  id           String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name         String @unique
+  id           String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name         String  @unique
   colour_token String
+  slug         String? @unique
 
   topics               Topic[]
   zones                Zone[]
   cards                CardCatalog[]
   curriculum_outcomes  CurriculumOutcome[]
+  lessons              Lesson[]
 
   @@map("subjects")
 }
@@ -132,6 +134,7 @@ model Topic {
   order_index   Int     @default(0)
   is_published  Boolean @default(false)
   zone_id       String? @db.Uuid
+  slug          String?
 
   subject               Subject             @relation(fields: [subject_id], references: [id])
   year_group            YearGroup           @relation(fields: [year_group_id], references: [id])
@@ -145,7 +148,9 @@ model Topic {
   quiz_attempts         QuizAttempt[]
   missions              ChildMission[]
   curriculum_outcomes   CurriculumOutcome[]
+  lessons               Lesson[]
 
+  @@unique([subject_id, slug])
   @@map("topics")
 }
 
@@ -457,10 +462,45 @@ model CurriculumOutcome {
 
   subject_ref Subject? @relation(fields: [app_subject_id], references: [id])
   topic_ref   Topic?   @relation(fields: [app_topic_id], references: [id])
+  lessons     Lesson[]
 
   @@index([key_stage, year_group])
   @@index([app_topic_id])
   @@map("curriculum_outcomes")
+}
+
+// ---------- Lesson Store ----------
+// Navigation/metadata layer on top of learn_content + practice_games + quiz_questions.
+// Child-facing routes only show status='published' AND verification_status='verified'.
+
+model Lesson {
+  id                    String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  subject_id            String        @db.Uuid
+  topic_id              String        @db.Uuid
+  curriculum_outcome_id String?       @db.Uuid
+  title                 String
+  slug                  String        @unique
+  lesson_summary        String?
+  learning_objective    String?
+  key_stage             String
+  year_group            String
+  difficulty_lane       String?
+  lesson_type           String?
+  estimated_minutes     Int?
+  app_experience        String?
+  status                ContentStatus @default(staged)
+  verification_method   String?
+  verification_status   String        @default("unverified")
+  source_reference      String?
+  created_at            DateTime      @default(now())
+  updated_at            DateTime      @updatedAt
+
+  subject            Subject            @relation(fields: [subject_id], references: [id])
+  topic              Topic              @relation(fields: [topic_id], references: [id])
+  curriculum_outcome CurriculumOutcome? @relation(fields: [curriculum_outcome_id], references: [id])
+
+  @@index([topic_id, status, verification_status])
+  @@map("lessons")
 }
 
 // ---------- Daily challenge cache ----------

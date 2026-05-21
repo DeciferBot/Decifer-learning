@@ -104,7 +104,7 @@ async function main() {
       orderBy: [{ key_stage: 'asc' }, { year_group: 'asc' }],
     })
     if (allOutcomes.length === 0)
-      throw new Error('No outcomes found — run seed-curriculum-ks2-maths.mjs first')
+      throw new Error('No outcomes found — run seed-curriculum-england-primary-maths-multiplication.mjs first')
     ok(`${allOutcomes.length} outcomes loaded from curriculum_outcomes`)
   })
 
