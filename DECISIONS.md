@@ -48,6 +48,7 @@ Restructure multi-write reward routes into safe non-interactive batch writes:
 
 **Affected routes:**
 - `POST /api/quiz/submit` — quiz_attempt + quiz_answers + points + topic_progress + card + badges + streak (all in one `$transaction`)
+- `POST /api/guardian/[zoneId]/submit` — points + Legendary card + Guardian Slayer badge (all in one `$transaction`, added Phase 8)
 - `POST /api/streak/shields/use` — single decrement (low risk, but not atomic with callers)
 
 **Action required by:** before community rollout (Phase 12 gate or earlier).

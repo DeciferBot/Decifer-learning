@@ -68,6 +68,17 @@ export default async function ChildDashboardPage() {
         </div>
       </div>
 
+      {/* World Map entry */}
+      <Link
+        href="/world-map"
+        className="flex min-h-[48px] items-center justify-between rounded-2xl border border-black/5 bg-surface px-5 py-3 shadow-sm transition-colors hover:bg-black/5"
+      >
+        <span className="font-heading font-semibold text-ink">
+          🗺️ World Map
+        </span>
+        <span className="text-sm text-muted">Explore your zones →</span>
+      </Link>
+
       {/* Collection teaser */}
       <Link
         href="/collection"

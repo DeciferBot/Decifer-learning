@@ -62,10 +62,18 @@ export function QuizShell({
   questions,
   topicId,
   initialShields = 0,
+  submitUrl = '/api/quiz/submit',
+  backHref = '/dashboard/child',
+  backLabel = 'Back to Home',
+  winMessage = 'Topic complete!',
 }: {
   questions: QuizQuestion[]
-  topicId: string
+  topicId: string | null
   initialShields?: number
+  submitUrl?: string
+  backHref?: string
+  backLabel?: string
+  winMessage?: string
 }) {
   const [qIndex, setQIndex] = useState(0)
   const [choices, setChoices] = useState<string[]>(() => buildInitialChoices(questions[0]))
@@ -192,15 +200,16 @@ export function QuizShell({
     if (!done) return
     setSubmitting(true)
     const timeTakenSeconds = Math.max(1, Math.round((Date.now() - quizStartRef.current) / 1000))
-    fetch('/api/quiz/submit', {
+    const submitBody: Record<string, unknown> = {
+      answers: answerLogRef.current,
+      timeTakenSeconds,
+      heartsRemaining: heartsAtDoneRef.current,
+    }
+    if (topicId !== null) submitBody.topicId = topicId
+    fetch(submitUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        topicId,
-        answers: answerLogRef.current,
-        timeTakenSeconds,
-        heartsRemaining: heartsAtDoneRef.current,
-      }),
+      body: JSON.stringify(submitBody),
     })
       .then((r) => (r.ok ? r.json() : null))
       .then((data: SubmitResult | null) => {
@@ -286,7 +295,7 @@ export function QuizShell({
             {localScore} / {localTotal}
           </p>
           <p className="mt-1 text-muted">
-            {pct}% — {passed ? 'Topic complete!' : 'Try again to improve your score.'}
+            {pct}% — {passed ? winMessage : 'Try again to improve your score.'}
           </p>
 
           {submitting ? (
@@ -330,10 +339,10 @@ export function QuizShell({
               </button>
             )}
             <Link
-              href="/dashboard/child"
+              href={backHref}
               className="inline-flex min-h-[48px] items-center justify-center rounded-xl border border-black/10 px-6 py-3 font-heading font-bold text-ink transition-colors hover:bg-black/5"
             >
-              Back to Home
+              {backLabel}
             </Link>
           </div>
         </motion.div>

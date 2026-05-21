@@ -306,7 +306,8 @@ async function checkBadges(
     } else if (rule.type === 'streak_days' && rule.threshold) {
       shouldAward = newStreakDays >= rule.threshold
     }
-    // subject_complete and guardian_win not triggered yet (Phase 8/11)
+    // subject_complete not triggered yet (Phase 11)
+    // guardian_win is handled in /api/guardian/[zoneId]/submit — not here
 
     if (shouldAward) {
       await tx.profileBadge.create({
