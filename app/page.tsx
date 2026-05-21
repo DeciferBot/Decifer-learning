@@ -1,7 +1,19 @@
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { RecoveryRedirect } from './RecoveryRedirect'
 
-export default function Home() {
+// Server-side: if Supabase redirected here with a PKCE code (e.g. a magic
+// link whose redirect_to was set to the site root instead of /auth/callback),
+// forward it immediately so the callback route can exchange it for a session.
+export default function Home({
+  searchParams,
+}: {
+  searchParams: { code?: string }
+}) {
+  if (searchParams.code) {
+    redirect(`/auth/callback?code=${encodeURIComponent(searchParams.code)}`)
+  }
+
   return (
     <main className="flex min-h-screen items-center justify-center p-6">
       <RecoveryRedirect />
