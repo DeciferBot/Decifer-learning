@@ -205,10 +205,20 @@ class PipelineResult:
     status: str = "failed"
     confidence_score: float = 0.0
     stage_log: list[str] = field(default_factory=list)
+    input_tokens: int = 0
+    output_tokens: int = 0
 
     def log_stage(self, msg: str):
         log.info(msg)
         self.stage_log.append(msg)
+
+    def add_tokens(self, msg) -> None:
+        """Accumulate Anthropic usage tokens. msg.usage is the SDK return shape."""
+        usage = getattr(msg, "usage", None)
+        if usage is None:
+            return
+        self.input_tokens += int(getattr(usage, "input_tokens", 0) or 0)
+        self.output_tokens += int(getattr(usage, "output_tokens", 0) or 0)
 
 
 # ── Individual stages ─────────────────────────────────────────────────────
@@ -229,6 +239,7 @@ def stage1_generate(topic: dict, tier: str, result: PipelineResult) -> Optional[
                 max_tokens=1024,
                 messages=[{"role": "user", "content": prompt}],
             )
+            result.add_tokens(msg)
             text = msg.content[0].text.strip()
             # Strip markdown code fences if present
             if text.startswith("```"):
@@ -276,6 +287,7 @@ def stage3_consensus(topic: dict, tier: str, question_data: dict, result: Pipeli
             temperature=0,
             messages=[{"role": "user", "content": prompt}],
         )
+        result.add_tokens(msg)
         text = msg.content[0].text.strip()
         if text.startswith("```"):
             text = "\n".join(l for l in text.splitlines() if not l.startswith("```"))
@@ -319,6 +331,7 @@ def stage4_constitutional(
             temperature=0,
             messages=[{"role": "user", "content": prompt}],
         )
+        result.add_tokens(msg)
         text = msg.content[0].text.strip()
         if text.startswith("```"):
             text = "\n".join(l for l in text.splitlines() if not l.startswith("```"))
@@ -477,13 +490,37 @@ def run_one(topic: dict, tier: str) -> PipelineResult:
 
 
 def run_for_topic(topic_id: str, tier: str, count: int) -> list[PipelineResult]:
-    """Generate `count` questions for a topic at the given tier."""
+    """Generate `count` questions for a topic at the given tier.
+
+    Emits a single structured summary line via the `pipeline.cost` logger
+    when the run completes, so log aggregators can track token spend per topic
+    and act as a tripwire before anyone bulk-generates at scale.
+    """
     topic = db.get_topic(topic_id)
     if topic is None:
         raise ValueError(f"Topic {topic_id!r} not found")
 
-    results = []
+    results: list[PipelineResult] = []
     for i in range(count):
         log.info(f"Generating question {i+1}/{count} for topic {topic['title']!r} tier={tier}")
         results.append(run_one(topic, tier))
+
+    summary = {
+        "event": "pipeline.run_for_topic.complete",
+        "topic_id": str(topic_id),
+        "topic_title": topic.get("title"),
+        "year_group": topic.get("year_group_label"),
+        "subject": topic.get("subject_name"),
+        "tier": tier,
+        "model": config.CLAUDE_MODEL,
+        "count_requested": count,
+        "count_published": sum(1 for r in results if r.status == "published"),
+        "count_staged": sum(1 for r in results if r.status == "staged"),
+        "count_regenerating": sum(1 for r in results if r.status == "regenerating"),
+        "count_failed": sum(1 for r in results if r.status == "failed"),
+        "input_tokens": sum(r.input_tokens for r in results),
+        "output_tokens": sum(r.output_tokens for r in results),
+        "question_ids": [r.question_id for r in results if r.question_id],
+    }
+    logging.getLogger("pipeline.cost").info(json.dumps(summary))
     return results

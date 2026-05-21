@@ -54,3 +54,40 @@ Restructure multi-write reward routes into safe non-interactive batch writes:
 **Action required by:** before community rollout (Phase 12 gate or earlier).
 
 ---
+
+## Phase 8A — Content Pipeline Activation Gate
+
+**Status:** Active. Landed in parallel with Phase 8 (World Map) and Phase 9 (Parent Dashboard). It was scoped as a gate that would have sequenced *before* Phase 8 (see "Why this matters" below); in practice Phase 8 + 9 shipped while Phase 8A was being built. The substantive work is unchanged — pipeline activation is still the prerequisite for any content scaling beyond the current hand-seeded demo set.
+
+**Why this phase exists:**
+The Phase-3 audit (see audit thread, May 2026) found that the FastAPI content pipeline (`services/content-pipeline/`) is feature-complete for Maths but has only ever run on `localhost`. No Railway deployment, no `PIPELINE_SERVICE_URL` wiring in the Next.js app, no admin trigger, no proxy route. Every quiz question currently in production was produced by hand-written Prisma seed scripts (`seed-phase4.mjs`, `seed-phase6.mjs`, etc.) — the pipeline was bypassed.
+
+This is acceptable at demo scale (2 topics, ~30 questions). It is **not** acceptable at MVP scale (~150–250 topics across Maths/English/Science Year 3 + Year 7). Hand-seeding does not scale, duplicates verifier logic into every seed script, and creates a content-process that any community rollout will outgrow within weeks.
+
+**Why this matters now Phase 8 has shipped:**
+The new World Map is currently sparse — it can only surface the two existing topics. Until the pipeline is activated, populating that map requires more hand-seeding, which deepens the technical debt rather than removing it. The intended sequence (*activate pipeline → generate breadth → design navigation on top*) is reversed, so Phase 8A's value is now "unblock content growth on the already-built map" rather than "unblock building the map".
+
+**What Phase 8A does:**
+1. Deploys the FastAPI pipeline to Railway with `railway.toml` + a `$PORT`-aware Dockerfile.
+2. Adds a server-only Next.js proxy at `/api/pipeline/{health,generate}` that reads `PIPELINE_SERVICE_URL` and fails closed (HTTP 503) when missing.
+3. Adds a minimal admin trigger UI at `/dashboard/admin/pipeline` (middleware-gated to `role='admin'`; API also accepts `ADMIN_PIPELINE_TOKEN` header for curl).
+4. Adds one new Year 3 Maths topic shell ("Addition and Subtraction", `is_published=false`) and one mapped `curriculum_outcome` row, for end-to-end pipeline proof. **No hand-written quiz content for this topic.**
+5. Adds structured cost/token logging at both proxy and pipeline layers, capped at 10 questions per single trigger to prevent accidental bulk-generation cost.
+6. Adds `scripts/verify-phase8a.mjs` to prove the activation gate is in place (static + DB + live checks).
+
+**Direct Postgres requirement on Railway:**
+The pipeline writes via multi-statement transactions (`db.write_question`, `db.bulk_upsert_chunks`). Supabase's pooled `PgBouncer` (port 6543) in transaction mode breaks multi-statement connections by handing different physical connections per statement. The Railway service's `DATABASE_URL` **must** therefore be the **direct** Supabase connection on port **5432**, NOT the same pooled URL the Vercel app uses. This is the same root-cause family as the pre-production hardening note above, but more acute — the pipeline cannot tolerate pooled mode at all.
+
+**Hand-seed scripts remain in place, not retired:**
+The Phase 4/6/7 seed scripts continue to own the content they produced. Retiring them now would lose audit trail and re-running them is currently the only way to recover that content if the DB is reset before Phase 11 completes pipeline coverage for English/Science. They should be retired once the pipeline has produced equivalent or better content for every Phase 4–7 topic.
+
+**Acceptance gate:**
+- `scripts/verify-phase8a.mjs` passes (all static checks; DB + live checks SKIP cleanly when their env vars are absent).
+- `npm run typecheck`, `npm run lint`, `npm run build` all pass.
+- The Phase 8A test topic, when generated through the pipeline, produces quiz_questions with non-null `confidence_score` and a terminal status of `staged` or `published`. (Hand-seeded rows have null `confidence_score` — this is the proof of provenance.)
+- Existing child journeys (Multiplication Tables, Algebra: Solving Linear Equations) continue to work unchanged.
+
+**Out of scope for Phase 8A:**
+World Map UI, English verifier, Science verifiers, bulk generation, retiring legacy seed scripts, full admin dashboard.
+
+---

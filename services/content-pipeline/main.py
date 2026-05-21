@@ -106,6 +106,8 @@ class QuestionResult(BaseModel):
     status: str
     confidence_score: float
     stage_log: list[str]
+    input_tokens: int = 0
+    output_tokens: int = 0
 
 
 class GenerateResponse(BaseModel):
@@ -115,6 +117,9 @@ class GenerateResponse(BaseModel):
     staged: int
     regenerating: int
     failed: int
+    input_tokens: int
+    output_tokens: int
+    model: str
     results: list[QuestionResult]
 
 
@@ -128,6 +133,7 @@ def generate(req: GenerateRequest) -> GenerateResponse:
     if not (1 <= req.count <= 50):
         raise HTTPException(status_code=400, detail="count must be 1–50")
 
+    import config
     log.info(f"/generate topic_id={req.topic_id} tier={req.tier} count={req.count}")
     results = pl.run_for_topic(req.topic_id, req.tier, req.count)
 
@@ -142,12 +148,17 @@ def generate(req: GenerateRequest) -> GenerateResponse:
         staged=counts["staged"],
         regenerating=counts["regenerating"],
         failed=counts["failed"],
+        input_tokens=sum(r.input_tokens for r in results),
+        output_tokens=sum(r.output_tokens for r in results),
+        model=config.CLAUDE_MODEL,
         results=[
             QuestionResult(
                 question_id=r.question_id,
                 status=r.status,
                 confidence_score=r.confidence_score,
                 stage_log=r.stage_log,
+                input_tokens=r.input_tokens,
+                output_tokens=r.output_tokens,
             )
             for r in results
         ],
