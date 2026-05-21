@@ -232,7 +232,7 @@ export function LoginForm() {
           <div>
             <h3 className="font-heading text-lg font-semibold">Reset your password</h3>
             <p className="mt-1 text-sm text-muted">
-              Enter your email and we'll send you a reset link.
+              Enter your email and we&apos;ll send you a reset link.
             </p>
           </div>
           <label className="block">
