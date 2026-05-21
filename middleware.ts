@@ -12,7 +12,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { updateSession } from '@/lib/supabase/middleware'
 import { getUserRole, ROLE_HOME, type Role } from '@/lib/auth/roles'
 
-const PUBLIC_EXACT = new Set<string>(['/', '/login', '/register'])
+const PUBLIC_EXACT = new Set<string>(['/', '/login', '/register', '/reset-password'])
 // Auth callback must be public so the middleware never redirects the token exchange request.
 const PUBLIC_PREFIX = ['/auth/callback', '/_next/']
 const STATIC_EXT =
