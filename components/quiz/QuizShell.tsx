@@ -111,32 +111,29 @@ export function QuizShell({
       setScore((s) => s + 1)
       setConsecutiveWrong(0)
     } else {
-      setConsecutiveWrong((cw) => {
-        const next = cw + 1
-        if (next >= CONSECUTIVE_WRONG_FOR_HEART_LOSS) {
-          // Check for streak shield first
-          setShields((sh) => {
-            if (sh > 0) {
-              // Shield absorbs the heart loss
-              setShieldFlash(true)
-              setTimeout(() => setShieldFlash(false), 800)
-              // Decrement shield server-side in background (fire-and-forget)
-              fetch('/api/streak/shields/use', { method: 'POST' }).catch(() => null)
-              return sh - 1
-            }
-            // No shield — lose a heart
-            setHearts((h) => {
-              const newH = h - 1
-              heartsAtDoneRef.current = newH
-              if (newH <= 0) setHeartsDead(true)
-              return newH
-            })
-            return sh
-          })
-          return 0
+      // Read current values directly — safe in event handlers (never double-invoked
+      // by React Strict Mode, unlike setState updater functions).
+      const next = consecutiveWrong + 1
+      if (next >= CONSECUTIVE_WRONG_FOR_HEART_LOSS) {
+        if (shields > 0) {
+          // Shield absorbs the heart loss. Call the API exactly once here,
+          // outside any setState updater, to prevent the double-invocation
+          // that Strict Mode applies to updater callbacks.
+          setShields(shields - 1)
+          setShieldFlash(true)
+          setTimeout(() => setShieldFlash(false), 800)
+          fetch('/api/streak/shields/use', { method: 'POST' }).catch(() => null)
+        } else {
+          // No shield — lose a heart
+          const newH = hearts - 1
+          heartsAtDoneRef.current = newH
+          setHearts(newH)
+          if (newH <= 0) setHeartsDead(true)
         }
-        return next
-      })
+        setConsecutiveWrong(0)
+      } else {
+        setConsecutiveWrong(next)
+      }
     }
 
     answerLogRef.current.push({
