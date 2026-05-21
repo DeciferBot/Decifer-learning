@@ -68,7 +68,7 @@ The decision to move away from Railway is based on the following:
 
 **No IAM-native auth.** Railway authentication is API-key-based. Cloud Tasks authenticates to Cloud Run via a GCP service account and OIDC token — no long-lived secrets to rotate.
 
-Railway remains a valid option for the family pilot if deployment is needed before the Cloud Run migration is complete. It must not be set up as a permanent platform.
+Railway is not a valid option at any stage. Do not set up a Railway project. If deployment is needed before Cloud Run is configured, run the pipeline locally using operator scripts — the seeded content is sufficient for the family pilot.
 
 ---
 
@@ -246,3 +246,10 @@ Lives at services/content-pipeline/ (Python FastAPI on Railway)
 The family pilot can proceed using operator-driven local script execution (`node --env-file=.env.local scripts/generate-content.ts`) until Cloud Run is deployed. The pipeline service does not need to be deployed anywhere to run the pilot — content has already been seeded (30 published questions, 30 cards). New content generation is needed only for Phase 11 (English + Science).
 
 Do not deploy to Railway. Do not set up a Railway project.
+
+---
+
+## Project vocabulary rule
+
+Active worker-platform instructions must say **Cloud Run + Cloud Tasks**. Railway may only appear as a historical rejected option or as a stale reference being removed. Any file that gives active deployment instructions for the pipeline must use Cloud Run vocabulary. If you encounter Railway in an active instruction, it is a bug — fix it.
+

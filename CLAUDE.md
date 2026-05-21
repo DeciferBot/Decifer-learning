@@ -76,7 +76,7 @@ A child opens Safari on their iPad, taps "Add to Home Screen", and the next day 
 | Scheduling | Supabase `pg_cron` |
 | Frontend hosting | Vercel |
 | Computation service | Python FastAPI microservice |
-| Computation hosting | Railway |
+| Computation hosting | Google Cloud Run |
 | Maths verifier | SymPy + safe-eval arithmetic |
 | Physics verifier | Pint (units) + SymPy |
 | Chemistry verifier | ChemPy + local periodic table |
@@ -107,11 +107,11 @@ ANTHROPIC_API_KEY             # content generation, consensus, constitutional cr
 OPENAI_API_KEY                # embeddings (RAG + dedup). Omit only if a local embedding model is used.
 
 # App + microservice
-PIPELINE_SERVICE_URL          # Python FastAPI URL on Railway
+PIPELINE_SERVICE_URL          # Python FastAPI URL on Cloud Run (worker platform)
 NEXT_PUBLIC_APP_URL           # canonical site URL — used for PWA + share links
 ```
 
-`.env.local` for dev; Vercel project env for prod; Railway env for the pipeline service. **Do not add new env vars without updating this section first.**
+`.env.local` for dev; Vercel project env for prod; GCP Secret Manager for the pipeline service (Cloud Run). **Do not add new env vars without updating this section first.**
 
 ---
 
@@ -246,7 +246,7 @@ Anything below threshold stays `staged` or routes to `regenerating`. **Nothing a
 
 ## 9. Automated content pipeline
 
-Lives at `services/content-pipeline/` (Python FastAPI on Railway). Six stages per generated item, in order:
+Lives at `services/content-pipeline/` (Python FastAPI on Google Cloud Run). Six stages per generated item, in order:
 
 1. **RAG generation** — Retrieve top-5 chunks from `curriculum_chunks` filtered by `subject + year_group`, inject as the only allowed factual source. Claude returns strict JSON: `{question, correct_answer, distractors[3], hint_1..3, explanation, source_chunk_ids[]}`. Reject if `source_chunk_ids` is empty for content types that require grounding (see §8).
 2. **Code verification** — Route by `question_type`:

@@ -2,7 +2,7 @@
 Database helpers for the Decifer Learning content pipeline.
 
 All connections use DATABASE_URL (direct Postgres — bypasses pgbouncer and RLS).
-This is the pipeline service running on Railway; it is never called from browser
+This is the pipeline service running on Google Cloud Run; it is never called from browser
 or child-facing code. CLAUDE.md §5 (service role in pipeline is fine; service
 role key itself is not used here — direct Postgres URL bypasses RLS as postgres
 superuser).

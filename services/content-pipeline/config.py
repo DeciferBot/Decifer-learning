@@ -3,7 +3,7 @@
 import os
 from pathlib import Path
 
-# Load .env in the service directory (Railway injects real values as OS env)
+# Load .env in the service directory (Cloud Run injects real values as OS env from Secret Manager)
 _env_file = Path(__file__).parent / ".env"
 if _env_file.exists():
     from dotenv import load_dotenv
