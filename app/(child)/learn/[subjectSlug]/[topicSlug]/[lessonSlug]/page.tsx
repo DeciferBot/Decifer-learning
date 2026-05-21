@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { getPublishedLesson, lessonSlugExists } from '@/lib/lesson-store'
+import { getPublishedLesson } from '@/lib/lesson-store'
 import { prisma } from '@/lib/prisma'
 
 type Props = {

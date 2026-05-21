@@ -138,21 +138,24 @@ async function main() {
   }
 
   // ── Tests 5–7: Hidden statuses ─────────────────────────────────────────────
+  // Correct approach: find lessons with each bad status in DB, then verify none
+  // are returned by getPublishedLesson(). Tests the actual safety gate function.
   console.log('\n── Tests 5–7: Hidden lesson statuses ────────────────────────────')
 
   for (const [testNum, badStatus] of [['5', 'staged'], ['6', 'flagged'], ['7', 'regenerating']]) {
-    const count = await prisma.lesson.count({
-      where: { status: badStatus, verification_status: 'verified' },
+    const badLessons = await prisma.lesson.findMany({
+      where: { status: badStatus },
+      select: { slug: true },
     })
-    // These lessons EXIST in DB but must NOT appear via getPublishedLesson
-    const visibleCount = await prisma.lesson.count({
-      where: { status: badStatus, ...PUBLISHED_VERIFIED },
-    })
-    // visibleCount will always be 0 since status can't be both 'published' and 'staged'
-    if (visibleCount > 0) {
-      fail(`Test ${testNum}`, `${visibleCount} ${badStatus} lesson(s) visible in published query`)
+    let leaked = 0
+    for (const l of badLessons) {
+      const visible = await getPublishedLesson(l.slug)
+      if (visible) leaked++
+    }
+    if (leaked > 0) {
+      fail(`Test ${testNum}`, `${leaked} ${badStatus} lesson(s) leaked through getPublishedLesson`)
     } else {
-      ok(`Test ${testNum} — ${badStatus} lessons (${count} total) correctly hidden`)
+      ok(`Test ${testNum} — ${badStatus} lessons (${badLessons.length} in DB) correctly hidden via safety gate`)
     }
   }
 
@@ -188,16 +191,19 @@ async function main() {
 
   // ── Test 9: Not-started / non-published lessons hidden ─────────────────────
   console.log('\n── Test 9: Non-published lesson shells are hidden ────────────────')
-  const nonPublished = await prisma.lesson.count({
+  const nonPublishedLessons = await prisma.lesson.findMany({
     where: { status: { not: 'published' } },
+    select: { slug: true },
   })
-  const nonPublishedVisible = await prisma.lesson.count({
-    where: { status: { not: 'published' }, ...PUBLISHED_VERIFIED },
-  })
-  if (nonPublishedVisible > 0) {
-    fail('Test 9', `${nonPublishedVisible} non-published lesson(s) visible in published query`)
+  let nonPubLeaked = 0
+  for (const l of nonPublishedLessons) {
+    const visible = await getPublishedLesson(l.slug)
+    if (visible) nonPubLeaked++
+  }
+  if (nonPubLeaked > 0) {
+    fail('Test 9', `${nonPubLeaked} non-published lesson(s) leaked through safety gate`)
   } else {
-    ok(`Test 9 — ${nonPublished} non-published lesson(s) correctly hidden`)
+    ok(`Test 9 — ${nonPublishedLessons.length} non-published lesson(s) correctly hidden`)
   }
 
   // ── Test 10: Published but unverified lessons fail safety gate ─────────────
