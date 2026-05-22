@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Nunito, Inter } from 'next/font/google'
+import { OfflineBanner } from '@/components/ui/OfflineBanner'
 import './globals.css'
 
 const nunito = Nunito({
@@ -44,6 +45,7 @@ export default function RootLayout({
   return (
     <html lang="en-GB" className={`${nunito.variable} ${inter.variable}`}>
       <body className="font-body bg-background text-ink min-h-screen">
+        <OfflineBanner />
         {children}
       </body>
     </html>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { submitAnswer } from '@/lib/offline'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { HintButton } from './HintButton'
@@ -93,6 +94,7 @@ export function QuizShell({
   const [done, setDone] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [submitResult, setSubmitResult] = useState<SubmitResult | null>(null)
+  const [submittedOffline, setSubmittedOffline] = useState(false)
 
   // Post-result overlays
   const [showCard, setShowCard] = useState(false)
@@ -187,6 +189,7 @@ export function QuizShell({
     setHintsRevealed(0)
     setSubmitting(false)
     setSubmitResult(null)
+    setSubmittedOffline(false)
     setShowCard(false)
     setBadgeQueue([])
     answerLogRef.current = []
@@ -206,17 +209,15 @@ export function QuizShell({
       heartsRemaining: heartsAtDoneRef.current,
     }
     if (topicId !== null) submitBody.topicId = topicId
-    fetch(submitUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(submitBody),
-    })
-      .then((r) => (r.ok ? r.json() : null))
+    submitAnswer(submitUrl, submitBody)
+      .then((res) => (res ? res.json() : null))
       .then((data: SubmitResult | null) => {
         if (data) {
           setSubmitResult(data)
           if (data.passed && data.droppedCard) setShowCard(true)
           else if (data.newBadges?.length) setBadgeQueue(data.newBadges)
+        } else {
+          setSubmittedOffline(true)
         }
         setSubmitting(false)
       })
@@ -300,6 +301,10 @@ export function QuizShell({
 
           {submitting ? (
             <p className="mt-4 text-sm text-muted">Saving results…</p>
+          ) : submittedOffline ? (
+            <p className="mt-4 text-sm text-muted">
+              Saved offline — your points will sync when you reconnect.
+            </p>
           ) : (
             <div className="mt-4 space-y-1">
               {typeof points === 'number' && (
