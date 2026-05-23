@@ -433,7 +433,7 @@ model CurriculumChunk {
   year_group  String
   source_name String
   chunk_text  String
-  embedding   Unsupported("vector(1536)")?
+  embedding   Unsupported("vector(384)")?
 
   @@index([subject, year_group])
   @@map("curriculum_chunks")

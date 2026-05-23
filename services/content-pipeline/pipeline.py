@@ -43,27 +43,22 @@ def _anthropic():
     return _anthropic_client
 
 
-# ── OpenAI embeddings (optional) ─────────────────────────────────────────
+# ── sentence-transformers embeddings (local, no API key needed) ───────────
 
-_openai_client = None
+_st_model = None
 
 
-def _openai():
-    global _openai_client
-    if _openai_client is None:
-        import openai
-        if not config.OPENAI_API_KEY:
-            raise RuntimeError("OPENAI_API_KEY is not set")
-        _openai_client = openai.OpenAI(api_key=config.OPENAI_API_KEY)
-    return _openai_client
+def _st():
+    global _st_model
+    if _st_model is None:
+        from sentence_transformers import SentenceTransformer
+        _st_model = SentenceTransformer(config.EMBEDDING_MODEL)
+    return _st_model
 
 
 def embed_text(text: str) -> Optional[np.ndarray]:
-    """Return a 1536-dim embedding or None if embeddings are disabled."""
-    if not config.EMBEDDINGS_ENABLED:
-        return None
-    resp = _openai().embeddings.create(model=config.EMBEDDING_MODEL, input=text)
-    return np.array(resp.data[0].embedding, dtype=np.float32)
+    """Return a 384-dim embedding using the local sentence-transformers model."""
+    return _st().encode(text, convert_to_numpy=True).astype(np.float32)
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────

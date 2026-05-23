@@ -2,15 +2,14 @@ fastapi
 uvicorn[standard]
 sympy
 anthropic
-openai
 psycopg2-binary
 pgvector
 numpy
 python-dotenv
 httpx
 pydantic>=2
+sentence-transformers
 
-# Phase 11 verifiers (not built yet — install now so the image is complete):
-# pint
-# chempy
-# language-tool-python
+pint
+chempy
+language-tool-python
