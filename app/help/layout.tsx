@@ -13,12 +13,20 @@ export default function HelpLayout({ children }: { children: React.ReactNode }) 
           <Link href="/">
             <DeciferMark size="sm" />
           </Link>
-          <Link
-            href="/dashboard"
-            className="text-sm font-semibold text-brand hover:underline"
-          >
-            Back to dashboard →
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/login"
+              className="flex h-9 items-center rounded-lg px-3 text-sm font-semibold text-ink transition-colors hover:bg-black/5"
+            >
+              Sign in
+            </Link>
+            <Link
+              href="/register"
+              className="flex h-9 items-center rounded-lg bg-brand px-3 text-sm font-semibold text-white transition-colors hover:bg-brand-600"
+            >
+              Get started
+            </Link>
+          </div>
         </div>
       </nav>
 

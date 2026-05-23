@@ -122,8 +122,16 @@ export default async function ChildDashboardPage() {
       {topics.length === 0 ? (
         <EmptyState
           icon="📚"
-          heading="No topics yet"
-          body="Your topics will appear here once they're ready. Come back soon!"
+          heading="Your first topics are being prepared"
+          body="Maths content is the most complete right now. Topics appear here once they pass all quality checks."
+          action={
+            <Link
+              href="/help/how-decifer-works"
+              className="inline-flex h-10 items-center rounded-xl border border-brand/30 px-5 text-sm font-semibold text-brand transition-colors hover:bg-brand/5"
+            >
+              How Decifer works →
+            </Link>
+          }
         />
       ) : (
         <div className="space-y-3">

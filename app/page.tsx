@@ -215,6 +215,58 @@ export default function Home({
           </div>
         </section>
 
+        {/* ── Content availability ────────────────────────────────────────── */}
+        <section className="bg-surface py-14">
+          <div className="mx-auto max-w-3xl px-4">
+            <div className="rounded-2xl border border-black/5 bg-background p-6 text-center shadow-sm md:p-8">
+              <p className="mb-2 text-xs font-bold uppercase tracking-widest text-muted">
+                What is available now
+              </p>
+              <h2 className="mb-4 font-heading text-xl font-bold text-ink md:text-2xl">
+                Maths is the most complete subject today.
+              </h2>
+              <p className="mx-auto mb-6 max-w-lg text-sm text-muted leading-relaxed">
+                Year 3 and Year 7 Maths topics are the most fully published.
+                English and Science content is expanding through the verified pipeline
+                and will appear as topics pass all quality checks.
+                Your child will only ever see content that is ready.
+              </p>
+              <div className="flex flex-wrap justify-center gap-3 text-sm">
+                <span className="flex items-center gap-1.5 rounded-full bg-maths/10 px-4 py-1.5 font-semibold text-maths">
+                  ✓ Maths — Year 3 and Year 7
+                </span>
+                <span className="flex items-center gap-1.5 rounded-full bg-english/10 px-4 py-1.5 font-semibold text-english">
+                  Expanding — English
+                </span>
+                <span className="flex items-center gap-1.5 rounded-full bg-science/10 px-4 py-1.5 font-semibold text-science">
+                  Expanding — Science
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Why Decifer is different ─────────────────────────────────────── */}
+        <section className="py-16">
+          <div className="mx-auto max-w-5xl px-4">
+            <h2 className="mb-2 text-center font-heading text-2xl font-bold text-ink md:text-3xl">
+              Why Decifer is different
+            </h2>
+            <p className="mb-10 text-center text-sm text-muted">
+              Built carefully, not quickly.
+            </p>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {WHY_DIFFERENT.map((item, i) => (
+                <div key={i} className="rounded-2xl border border-black/5 bg-surface p-5 shadow-sm">
+                  <span className="mb-3 block text-2xl" aria-hidden>{item.icon}</span>
+                  <p className="mb-1 font-heading font-semibold text-ink">{item.label}</p>
+                  <p className="text-sm text-muted leading-relaxed">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* ── Help & guides ───────────────────────────────────────────────── */}
         <section className="py-16">
           <div className="mx-auto max-w-5xl px-4">
@@ -372,6 +424,39 @@ const SAMPLE_TOPICS = [
     yearGroup: 'Year 7',
     color: '#FF8FAB',
     description: 'Explore inference, vocabulary, and deep understanding of texts.',
+  },
+]
+
+const WHY_DIFFERENT = [
+  {
+    icon: '📐',
+    label: 'Curriculum-aware',
+    desc: 'Every topic maps to the UK National Curriculum for Year 3 and Year 7. Nothing is off-syllabus.',
+  },
+  {
+    icon: '✅',
+    label: 'Verification-first',
+    desc: 'No AI-generated answer reaches a child without passing code verification. Maths is checked by SymPy, not guessed.',
+  },
+  {
+    icon: '🎯',
+    label: 'Structured practice',
+    desc: 'Learn, then Practise with support, then Quiz. The three-stage loop is consistent across every topic.',
+  },
+  {
+    icon: '👁️',
+    label: 'Parent visibility',
+    desc: 'Parents see real topic progress, accuracy rates, and areas that need more support — no guessing.',
+  },
+  {
+    icon: '📈',
+    label: 'Expands carefully',
+    desc: 'New content only appears once it passes six pipeline stages. The range grows, but quality does not drop.',
+  },
+  {
+    icon: '💪',
+    label: 'Confidence by design',
+    desc: 'Hints are there to help. Retrying is always allowed. There is no shame state in Decifer.',
   },
 ]
 

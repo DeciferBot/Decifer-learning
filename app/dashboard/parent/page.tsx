@@ -55,13 +55,33 @@ export default async function ParentDashboardPage() {
 
       {/* No children linked — show form prominently */}
       {children.length === 0 && (
-        <div className="rounded-2xl border border-dashed border-muted/40 bg-surface p-6">
-          <p className="font-heading font-semibold text-ink">Link your child&apos;s account</p>
-          <p className="mb-4 mt-1 text-sm text-muted">
-            Your child needs their own Decifer account. Ask them to sign up and choose
-            &quot;Student&quot;. Once they&apos;ve registered, enter their email below to connect the accounts.
-          </p>
-          <LinkChildForm />
+        <div className="space-y-4">
+          <div className="rounded-2xl border border-dashed border-muted/40 bg-surface p-6">
+            <p className="font-heading font-semibold text-ink">Link your child&apos;s account</p>
+            <p className="mb-4 mt-1 text-sm text-muted">
+              Your child needs their own Decifer account. Ask them to sign up and choose
+              &quot;Student&quot;. Once they&apos;ve registered, enter their email below to connect the accounts.
+            </p>
+            <LinkChildForm />
+          </div>
+
+          {/* What parents will track once linked */}
+          <div className="rounded-2xl border border-black/5 bg-surface px-5 py-5 shadow-sm">
+            <p className="mb-4 text-xs font-bold uppercase tracking-wide text-muted">
+              What you will track
+            </p>
+            <ul className="space-y-4">
+              {PARENT_PREVIEW_ITEMS.map((item) => (
+                <li key={item.title} className="flex items-start gap-3">
+                  <span className="mt-0.5 flex-none text-xl" aria-hidden>{item.icon}</span>
+                  <div>
+                    <p className="font-heading text-sm font-semibold text-ink">{item.title}</p>
+                    <p className="mt-0.5 text-xs text-muted">{item.body}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       )}
 
@@ -212,6 +232,29 @@ export default async function ParentDashboardPage() {
     </section>
   )
 }
+
+const PARENT_PREVIEW_ITEMS = [
+  {
+    icon: '📊',
+    title: 'Topic progress',
+    body: 'See which topics your child has started, practised, and completed.',
+  },
+  {
+    icon: '🎯',
+    title: 'Quiz accuracy',
+    body: 'Track average scores and how performance changes over time.',
+  },
+  {
+    icon: '📍',
+    title: 'Areas to strengthen',
+    body: 'Topics with high hint use or low scores are highlighted so you know where to focus.',
+  },
+  {
+    icon: '📅',
+    title: 'Recent activity',
+    body: 'A log of recent quiz sessions with dates, topics, and scores.',
+  },
+]
 
 function Stat({
   label,

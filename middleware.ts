@@ -14,7 +14,8 @@ import { getUserRole, ROLE_HOME, type Role } from '@/lib/auth/roles'
 
 const PUBLIC_EXACT = new Set<string>(['/', '/login', '/register', '/reset-password'])
 // Auth callback must be public so the middleware never redirects the token exchange request.
-const PUBLIC_PREFIX = ['/auth/callback', '/_next/']
+// Help pages are public so unauthenticated visitors can read guides linked from the homepage.
+const PUBLIC_PREFIX = ['/auth/callback', '/_next/', '/help']
 const STATIC_EXT =
   /\.(svg|png|jpg|jpeg|gif|webp|ico|css|js|map|woff2?|ttf|otf|txt|xml|json)$/i
 
