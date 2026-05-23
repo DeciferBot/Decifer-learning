@@ -2,9 +2,11 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { FillBlank } from '@/components/games/FillBlank'
+import { rotateFillBlankItems } from '@/lib/adaptive'
 
 // RLS: topics_select_published (is_published=true)
 // RLS: practice_games_select_via_published_topic
+// Practice rotation: rotateFillBlankItems shuffles config_json.questions per session (Phase 10D).
 
 type TopicRow = { id: string; title: string }
 
@@ -45,7 +47,13 @@ export default async function PractisePage({ params }: { params: { id: string } 
 
   if (!game || game.game_type !== 'fill_blank') notFound()
 
-  const config = game.config_json as PracticeConfig
+  const rawConfig = game.config_json as PracticeConfig
+  // Rotate: shuffle and show up to 10 items per session for freshness.
+  // Larger config_json.questions pools produce more variety across visits.
+  const config: PracticeConfig = {
+    ...rawConfig,
+    questions: rotateFillBlankItems(rawConfig.questions ?? [], 10),
+  }
 
   return (
     <div className="space-y-5">

@@ -11,7 +11,8 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "prisma:generate": "prisma generate",
-    "prisma:validate": "prisma validate"
+    "prisma:validate": "prisma validate",
+    "verify-content-freshness-safety": "node scripts/verify-content-freshness-safety.mjs"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",

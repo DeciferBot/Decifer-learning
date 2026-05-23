@@ -4,19 +4,12 @@ import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import { getCurrentProfile } from '@/lib/profile'
 import { QuizShell, type QuizQuestion } from '@/components/quiz/QuizShell'
+import { selectQuizQuestions } from '@/lib/adaptive'
 
 // RLS: topics_select_published (is_published=true)
 // RLS: quiz_questions_select_published (status='published') + FORCE RLS
-// App-layer .eq('status', 'published') is defence-in-depth.
-
-function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr]
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[a[i], a[j]] = [a[j], a[i]]
-  }
-  return a
-}
+// App-layer .eq('status', 'published') in selectQuizQuestions is defence-in-depth.
+// Adaptive selection avoids recently-seen questions per child (Phase 10D).
 
 export async function generateMetadata() {
   return { title: 'Quiz — Decifer Learning' }
@@ -34,15 +27,20 @@ export default async function QuizPage({ params }: { params: { id: string } }) {
 
   if (!topic) notFound()
 
-  // Fetch up to 20 published questions; slice to 10 after shuffle.
-  const { data: rawQuestions } = await supabase
-    .from('quiz_questions')
-    .select('id, tier, question_text, correct_answer, distractors, hint_1, hint_2, hint_3, explanation')
-    .eq('topic_id', params.id)
-    .eq('status', 'published')
-    .limit(20)
+  // Resolve profile first so adaptive selection can consult attempt history.
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
-  if (!rawQuestions || rawQuestions.length === 0) {
+  const profile = user ? await getCurrentProfile(supabase, user.id) : null
+
+  // Adaptive selection: avoids questions seen in last 2 quizzes, balances tiers.
+  // Falls back gracefully when pool is small. Only returns status='published' content.
+  const selected = profile
+    ? await selectQuizQuestions(supabase, profile.id, params.id)
+    : await selectQuizQuestions(supabase, '', params.id) // unauthenticated: no history
+
+  if (selected.length === 0) {
     return (
       <div className="space-y-4 py-8 text-center">
         <p className="text-muted">No quiz questions are available for this topic yet.</p>
@@ -53,22 +51,16 @@ export default async function QuizPage({ params }: { params: { id: string } }) {
     )
   }
 
-  // Fetch streak shield count for the logged-in child
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  // Fetch streak shield count
   let initialShields = 0
-  if (user) {
-    const profile = await getCurrentProfile(supabase, user.id)
-    if (profile) {
-      const shield = await prisma.streakShield.findUnique({
-        where: { profile_id: profile.id },
-      })
-      initialShields = shield?.quantity ?? 0
-    }
+  if (profile) {
+    const shield = await prisma.streakShield.findUnique({
+      where: { profile_id: profile.id },
+    })
+    initialShields = shield?.quantity ?? 0
   }
 
-  const questions: QuizQuestion[] = shuffle(rawQuestions as QuizQuestion[]).slice(0, 10)
+  const questions = selected as QuizQuestion[]
 
   return (
     <div className="space-y-5">
