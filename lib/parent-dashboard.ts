@@ -396,3 +396,77 @@ export async function getCardCollectionSummary(
 
   return { total: entries.length, byRarity }
 }
+
+// ── Reward Vault ──────────────────────────────────────────────────────────────
+
+export interface ChildVaultSummary {
+  creditBalance: number
+  currentBand: string
+  pendingRequestCount: number
+}
+
+export interface PendingVaultRequest {
+  requestId: string
+  childProfileId: string
+  childName: string
+  milestoneBand: string
+  childMessage: string | null
+  xpAtRequest: number
+  topicsAtRequest: number
+  status: string
+  createdAt: Date
+}
+
+export async function getChildVaultSummary(childProfileId: string): Promise<ChildVaultSummary> {
+  const [vaultStatus, pendingCount] = await Promise.all([
+    prisma.childVaultStatus.findUnique({
+      where: { profile_id: childProfileId },
+      select: { credit_balance: true, current_band: true },
+    }),
+    prisma.rewardRequest.count({
+      where: {
+        child_profile_id: childProfileId,
+        status: { in: ['pending', 'deferred', 'counter_offered'] },
+      },
+    }),
+  ])
+
+  return {
+    creditBalance: vaultStatus?.credit_balance ?? 0,
+    currentBand: vaultStatus?.current_band ?? 'none',
+    pendingRequestCount: pendingCount,
+  }
+}
+
+export async function getPendingVaultRequests(parentProfileId: string): Promise<PendingVaultRequest[]> {
+  const requests = await prisma.rewardRequest.findMany({
+    where: {
+      parent_profile_id: parentProfileId,
+      status: { in: ['pending', 'deferred', 'counter_offered'] },
+    },
+    orderBy: { created_at: 'desc' },
+    select: {
+      id: true,
+      child_profile_id: true,
+      milestone_band: true,
+      child_message: true,
+      xp_at_request: true,
+      topics_at_request: true,
+      status: true,
+      created_at: true,
+      child: { select: { display_name: true } },
+    },
+  })
+
+  return requests.map((r) => ({
+    requestId: r.id,
+    childProfileId: r.child_profile_id,
+    childName: r.child.display_name,
+    milestoneBand: r.milestone_band,
+    childMessage: r.child_message,
+    xpAtRequest: r.xp_at_request,
+    topicsAtRequest: r.topics_at_request,
+    status: r.status,
+    createdAt: r.created_at,
+  }))
+}

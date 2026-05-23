@@ -68,6 +68,15 @@ model Profile {
   session_answers  SessionAnswer[]
   child_missions   ChildMission[]
 
+  // Reward Vault
+  vault_status                    ChildVaultStatus?
+  vault_milestone_events          VaultMilestoneEvent[]
+  reward_requests_as_child        RewardRequest[]        @relation("ChildRewardRequests")
+  reward_requests_as_parent       RewardRequest[]        @relation("ParentRewardRequests")
+  reward_requests_responded       RewardRequest[]        @relation("RespondedByProfile")
+  vault_parent_settings_as_parent VaultParentSettings[]  @relation("ParentVaultSettings")
+  vault_parent_settings_as_child  VaultParentSettings[]  @relation("ChildVaultSettings")
+
   @@map("profiles")
 }
 
@@ -553,6 +562,132 @@ model Lesson {
 
   @@index([topic_id, status, verification_status])
   @@map("lessons")
+}
+
+// ---------- Reward Vault ----------
+
+model VaultMilestone {
+  id                String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  band              String  @unique // 'bronze' | 'silver' | 'gold' | 'platinum'
+  display_name      String
+  xp_required       Int     @default(0)
+  topics_required   Int     @default(0)
+  badges_required   Int     @default(0)
+  guardian_required Boolean @default(false)
+  credits_awarded   Int     @default(1)
+  order_index       Int
+  is_active         Boolean @default(true)
+
+  @@map("vault_milestones")
+}
+
+model ChildVaultStatus {
+  profile_id              String    @id @db.Uuid
+  current_band            String    @default("none")
+  current_band_reached_at DateTime?
+  credit_balance          Int       @default(0)
+  credits_earned_total    Int       @default(0)
+  last_milestone_check    DateTime  @default(now())
+
+  profile Profile @relation(fields: [profile_id], references: [id], onDelete: Cascade)
+
+  @@map("child_vault_status")
+}
+
+model VaultParentSettings {
+  id                       String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  parent_profile_id        String   @db.Uuid
+  child_profile_id         String   @db.Uuid
+  physical_rewards_enabled Boolean  @default(false)
+  monthly_budget_pence     Int      @default(0)
+  allowed_categories       String[] @default([])
+  family_reward_options    Json     @default("[]")
+  max_requests_per_month   Int      @default(1)
+  created_at               DateTime @default(now())
+  updated_at               DateTime @updatedAt
+
+  parent Profile @relation("ParentVaultSettings", fields: [parent_profile_id], references: [id], onDelete: Cascade)
+  child  Profile @relation("ChildVaultSettings", fields: [child_profile_id], references: [id], onDelete: Cascade)
+
+  @@unique([parent_profile_id, child_profile_id])
+  @@map("vault_parent_settings")
+}
+
+model RewardRequest {
+  id                      String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  child_profile_id        String    @db.Uuid
+  parent_profile_id       String    @db.Uuid
+  responded_by_profile_id String?   @db.Uuid
+  milestone_band          String
+  xp_at_request           Int
+  topics_at_request       Int
+  badges_at_request       Int
+  streak_at_request       Int       @default(0)
+  child_message           String?
+  credits_used            Int       @default(1)
+  status                  String    @default("pending")
+  parent_response_note    String?
+  reward_type             String?
+  reward_label            String?
+  created_at              DateTime  @default(now())
+  responded_at            DateTime?
+
+  child        Profile       @relation("ChildRewardRequests", fields: [child_profile_id], references: [id], onDelete: Cascade)
+  parent       Profile       @relation("ParentRewardRequests", fields: [parent_profile_id], references: [id])
+  responded_by Profile?      @relation("RespondedByProfile", fields: [responded_by_profile_id], references: [id])
+  fulfilment   RewardFulfilment?
+
+  @@index([child_profile_id, status])
+  @@index([parent_profile_id, created_at(sort: Desc)])
+  @@map("reward_requests")
+}
+
+model VaultMilestoneEvent {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  profile_id      String   @db.Uuid
+  band            String
+  credits_awarded Int      @default(1)
+  xp_snapshot     Int
+  topics_snapshot Int
+  occurred_at     DateTime @default(now())
+
+  profile Profile @relation(fields: [profile_id], references: [id], onDelete: Cascade)
+
+  @@index([profile_id, occurred_at(sort: Desc)])
+  @@map("vault_milestone_events")
+}
+
+// Future-readiness tables — empty in Stage 1, populated in Stage 2+
+
+model RewardCatalog {
+  id                 String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name               String
+  description        String?
+  category           String?
+  min_milestone      String?
+  price_pence        Int     @default(0)
+  image_url          String?
+  shopify_variant_id String?
+  is_active          Boolean @default(false)
+  created_at         DateTime @default(now())
+
+  @@map("reward_catalog")
+}
+
+model RewardFulfilment {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  request_id       String   @unique @db.Uuid
+  status           String   @default("approved")
+  shopify_order_id String?
+  shopify_order_url String?
+  tracking_number  String?
+  admin_notes      String?
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  request RewardRequest @relation(fields: [request_id], references: [id])
+
+  @@map("reward_fulfilments")
 }
 
 // ---------- Daily challenge cache ----------

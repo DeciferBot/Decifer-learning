@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma'
 import { calcQuizPoints, scoreToSm2Quality } from '@/lib/points'
 import { sm2 } from '@/lib/sm2'
 import { pickRarity } from '@/lib/cards'
+import { checkAndUpdateMilestone } from '@/lib/vault/status'
 
 type AnswerInput = {
   questionId: string
@@ -203,6 +204,12 @@ export async function POST(req: Request) {
       shieldAwarded,
     }
   }, { timeout: 15000 })
+
+  // Non-blocking milestone check — fires after response is returned.
+  // Vault writes are isolated; any failure here must not affect the quiz result.
+  if (passed) {
+    void checkAndUpdateMilestone(profile.id).catch(() => {})
+  }
 
   return NextResponse.json({
     points,

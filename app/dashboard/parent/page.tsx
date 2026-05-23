@@ -6,11 +6,14 @@ import Link from 'next/link'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { getUserDisplayName } from '@/lib/auth/roles'
 import { getCurrentProfile } from '@/lib/profile'
+import { prisma } from '@/lib/prisma'
 import {
   getLinkedChildren,
   getChildProgressSummary,
   getChildWeakAreas,
   getRecommendedNextLesson,
+  getChildVaultSummary,
+  getPendingVaultRequests,
 } from '@/lib/parent-dashboard'
 import { LinkChildForm } from '@/components/parent/LinkChildForm'
 
@@ -30,14 +33,24 @@ export default async function ParentDashboardPage() {
   // Fetch per-child data in parallel
   const childData = await Promise.all(
     children.map(async (child) => {
-      const [progress, weakAreas, recommended] = await Promise.all([
+      const [progress, weakAreas, recommended, vault] = await Promise.all([
         getChildProgressSummary(child.profileId),
         getChildWeakAreas(child.profileId, 2),
         getRecommendedNextLesson(child.profileId, child.yearGroupLabel),
+        getChildVaultSummary(child.profileId).catch(() => ({ creditBalance: 0, currentBand: 'none', pendingRequestCount: 0 })),
       ])
-      return { child, progress, weakAreas, recommended }
+      return { child, progress, weakAreas, recommended, vault }
     }),
   )
+
+  const parentProfile = profile ? await prisma.profile.findUnique({
+    where: { user_id: profile.user_id },
+    select: { id: true },
+  }) : null
+
+  const pendingVaultRequests = parentProfile
+    ? await getPendingVaultRequests(parentProfile.id).catch(() => [])
+    : []
 
   return (
     <section className="space-y-6">
@@ -206,6 +219,40 @@ export default async function ParentDashboardPage() {
           </div>
         </div>
       ))}
+
+      {/* ── Reward Vault ─────────────────────────────────────────────���── */}
+      {pendingVaultRequests.length > 0 && (
+        <div className="rounded-2xl border border-brand/20 bg-brand/5 px-5 py-4 shadow-sm space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="font-heading text-sm font-semibold text-brand">🎁 Reward Vault</h2>
+            <span className="rounded-full bg-brand px-2 py-0.5 text-xs font-bold text-white">
+              {pendingVaultRequests.length} pending
+            </span>
+          </div>
+          {pendingVaultRequests.map((req) => (
+            <div key={req.requestId} className="rounded-xl border border-black/5 bg-surface p-4 space-y-2">
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <p className="font-heading text-sm font-bold text-ink">{req.childName}</p>
+                  <p className="text-xs text-muted capitalize">{req.milestoneBand} milestone · {req.xpAtRequest.toLocaleString()} XP · {req.topicsAtRequest} topics</p>
+                </div>
+                <span className="rounded-full bg-points-gold/20 px-2 py-0.5 text-xs font-bold text-points-gold capitalize">
+                  {req.status.replace('_', ' ')}
+                </span>
+              </div>
+              {req.childMessage && (
+                <p className="text-sm text-ink italic">&ldquo;{req.childMessage}&rdquo;</p>
+              )}
+              <Link
+                href={`/dashboard/parent/vault/${req.childProfileId}`}
+                className="inline-flex h-9 items-center rounded-xl bg-brand px-4 text-xs font-bold text-white transition-colors hover:bg-brand-600"
+              >
+                Respond →
+              </Link>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Screen-time controls placeholder */}
       <div className="rounded-2xl border border-black/5 bg-surface px-5 py-4 shadow-sm">

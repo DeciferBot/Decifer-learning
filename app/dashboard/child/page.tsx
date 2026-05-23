@@ -8,6 +8,7 @@ import { getCurrentProfile } from '@/lib/profile'
 import { prisma } from '@/lib/prisma'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { StreakPing } from './StreakPing'
+import { getVaultStatus } from '@/lib/vault/status'
 
 export const metadata = { title: 'Dashboard — Decifer Learning' }
 
@@ -46,6 +47,19 @@ export default async function ChildDashboardPage() {
   const points = profile?.total_points ?? 0
   const streak = profile?.streak_days ?? 0
   const firstTopic = topics[0] ?? null
+
+  // Vault teaser — non-blocking, graceful if vault tables not yet migrated
+  let vaultCredits = 0
+  let vaultBand = 'none'
+  if (profile?.id) {
+    try {
+      const vault = await getVaultStatus(profile.id)
+      vaultCredits = vault.creditBalance
+      vaultBand = vault.currentBand
+    } catch {
+      // Vault tables may not exist yet — silently skip
+    }
+  }
 
   return (
     <section className="space-y-5">
@@ -117,6 +131,35 @@ export default async function ChildDashboardPage() {
           </span>
         </Link>
       </div>
+
+      {/* ── Vault teaser ─────────────────────────────────────────────────── */}
+      {vaultBand !== 'none' || vaultCredits > 0 ? (
+        <Link
+          href="/vault"
+          className="flex min-h-[52px] items-center justify-between rounded-2xl border border-brand/20 bg-brand/5 px-5 py-3 shadow-sm transition-colors hover:bg-brand/10"
+        >
+          <div className="flex items-center gap-2">
+            <span className="text-base">🎁</span>
+            <div>
+              <span className="font-heading text-sm font-semibold text-brand">Reward Vault</span>
+              {vaultCredits > 0 && (
+                <span className="ml-2 rounded-full bg-brand px-2 py-0.5 text-xs font-bold text-white">
+                  {vaultCredits} credit{vaultCredits !== 1 ? 's' : ''}
+                </span>
+              )}
+            </div>
+          </div>
+          <span className="text-xs text-brand">→</span>
+        </Link>
+      ) : (
+        <Link
+          href="/vault"
+          className="flex min-h-[48px] items-center justify-between rounded-2xl border border-black/5 bg-surface px-4 py-3 shadow-sm transition-colors hover:bg-black/[0.03]"
+        >
+          <span className="font-heading text-sm font-semibold text-ink">🎁 Reward Vault</span>
+          <span className="text-xs text-muted">→</span>
+        </Link>
+      )}
 
       {/* ── Topics ──────────────────────────────────────────────────────── */}
       {topics.length === 0 ? (
