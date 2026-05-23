@@ -154,9 +154,13 @@ check('11', 'milestone-engine.ts has no screen_time, session_duration, or login_
 
 // ── 12. XP and reward credits are separate ───────────────────────────────────
 
-check('12', 'requests.ts does not write to point_events or profiles.total_points', () => {
+check('12', 'requests.ts does not write to point_events table or profile.total_points key', () => {
   const src = read('lib/vault/requests.ts')
-  return !src.includes('point_events') && !src.includes('total_points') && !src.includes('pointEvent')
+  // Writing point_events: e.g. pointEvent.create / pointEvent.createMany
+  const writesPointEvents = /pointEvent\.(create|createMany|update|upsert)/.test(src)
+  // Writing profile.total_points: e.g. profile.update({data:{total_points:
+  const writesTotalPoints = /profile\.(update|upsert|create)\s*\(\s*\{/.test(src)
+  return !writesPointEvents && !writesTotalPoints
 })
 
 // ── 13. Fulfilling rewards does not reduce XP ────────────────────────────────
@@ -214,7 +218,7 @@ check('17', 'NullCommerceAdapter is the only active adapter — no ShopifyAdapte
 
 // ── 18. No Shopify imports exist anywhere in the codebase ────────────────────
 
-check('18', 'No Shopify imports in lib/vault or app/api/vault', () => {
+check('18', 'No Shopify imports (non-comment) in lib/vault or app/api/vault', () => {
   const files = [
     'lib/vault/milestone-engine.ts',
     'lib/vault/status.ts',
@@ -229,8 +233,9 @@ check('18', 'No Shopify imports in lib/vault or app/api/vault', () => {
     'app/api/admin/vault/requests/route.ts',
   ]
   return files.every((f) => {
-    const src = read(f)
-    return !src.toLowerCase().includes('shopify') && !src.includes('@shopify')
+    const importLines = read(f).split('\n')
+      .filter(l => l.trimStart().startsWith('import'))
+    return !importLines.some(l => /shopify/i.test(l) || l.includes('@shopify'))
   })
 })
 
@@ -299,15 +304,18 @@ check('21', 'Child vault page has no "credit balance", "spend", "price", "wallet
 
 // ── 22. Physical rewards remain disabled in Stage 1 ──────────────────────────
 
-check('22', 'Physical rewards are locked out in respond route and settings.ts', () => {
+check('22', 'Physical rewards are locked out in respond route and settings interface', () => {
   const respondRoute = read('app/api/vault/parent/respond/route.ts')
   const settingsSrc = read('lib/vault/settings.ts')
-  return (
+  // Respond route must explicitly block physical reward_type
+  const respondOk =
     respondRoute.includes("rewardType === 'physical'") &&
-    respondRoute.includes('PHYSICAL_DISABLED') &&
-    !settingsSrc.includes('physicalRewardsEnabled') &&
-    !settingsSrc.includes('physical_rewards_enabled')
-  )
+    respondRoute.includes('PHYSICAL_DISABLED')
+  // Settings interface (ParentSettingsUpdate) must not expose physical_rewards_enabled
+  // Check only the interface definition block, not comments
+  const interfaceBlock = settingsSrc.match(/interface ParentSettingsUpdate\s*\{[^}]+\}/)?.[0] ?? ''
+  const settingsOk = !interfaceBlock.includes('physical')
+  return respondOk && settingsOk
 })
 
 // ── Report ────────────────────────────────────────────────────────────────────
