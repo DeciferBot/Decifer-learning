@@ -123,11 +123,14 @@ export default async function ChildDashboardPage() {
         <EmptyState
           icon="📚"
           heading="No topics yet"
-          body="Your topics will appear here once they're ready. Check back soon!"
+          body="Your topics will appear here once they're ready. Come back soon!"
         />
       ) : (
         <div className="space-y-3">
-          <h2 className="font-heading text-base font-semibold text-ink">Your topics</h2>
+          <div className="flex items-baseline justify-between gap-2">
+            <h2 className="font-heading text-base font-semibold text-ink">Your topics</h2>
+            <span className="text-xs text-muted">Learn → Practise → Quiz</span>
+          </div>
           {topics.map((topic) => (
             <article
               key={topic.id}

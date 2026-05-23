@@ -1,9 +1,8 @@
 {
   "name": "decifer-learning",
-
-  "version": "0.9.5",
+  "version": "0.9.6",
   "private": true,
-  "description": "Decifer Learning \u2014 UK National Curriculum PWA. See CLAUDE.md.",
+  "description": "Decifer Learning — UK National Curriculum PWA. See CLAUDE.md.",
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
@@ -12,7 +11,12 @@
     "typecheck": "tsc --noEmit",
     "prisma:generate": "prisma generate",
     "prisma:validate": "prisma validate",
-    "verify-content-freshness-safety": "node scripts/verify-content-freshness-safety.mjs"
+    "verify-content-freshness-safety": "node scripts/verify-content-freshness-safety.mjs",
+    "verify-content-safety": "node scripts/verify-content-safety.mjs",
+    "verify-phase8": "node scripts/verify-phase8.mjs",
+    "verify-phase8a": "node scripts/verify-phase8a.mjs",
+    "verify-parent-dashboard-safety": "node scripts/verify-parent-dashboard-safety.mjs",
+    "verify-lesson-store-safety": "node --env-file=.env.local scripts/verify-lesson-store-safety.mjs"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",

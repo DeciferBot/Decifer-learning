@@ -89,11 +89,11 @@ const PARENT_FAQS = [
   },
   {
     q: 'What subjects are available?',
-    a: 'Maths, English, and Science. Maths is the most complete subject — English and Science content is expanding.',
+    a: 'Maths, English, and Science. Maths is the most complete — topics are published as soon as they pass the full quality pipeline, so the range of available content grows over time. Your child will only see topics that are ready.',
   },
   {
     q: 'How do screen-time controls work?',
-    a: 'Screen-time controls (daily time limits and allowed hours) are coming in a future update. The parent dashboard will let you set limits per child.',
+    a: 'Daily time limits and allowed hours are coming soon. Once live, you\'ll be able to set a per-child daily cap and restrict the hours Decifer can be used.',
   },
 ]
 

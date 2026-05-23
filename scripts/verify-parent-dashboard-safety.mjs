@@ -323,7 +323,7 @@ console.log('\nCheck 11: Empty states exist for data-dependent sections')
 const EMPTY_STATE_STRINGS = [
   'Weak areas will appear after your child completes quizzes',
   'No quiz',
-  'coming in Phase 9',
+  'coming soon',
   'No published lessons available',
   'No badges yet',
   'No discovery cards yet',
@@ -349,13 +349,13 @@ if (!emptyStatesMissing) {
 console.log('\nCheck 12: Screen-time controls correctly deferred')
 
 const screenTimeDeferred =
-  allPageSrc.includes('Phase 9') &&
+  allPageSrc.includes('coming soon') &&
   (allPageSrc.includes('Screen-time') || allPageSrc.includes('screen-time'))
 
 if (screenTimeDeferred) {
-  ok('Screen-time controls correctly marked as coming in Phase 9')
+  ok('Screen-time controls correctly marked as coming soon')
 } else {
-  fail('Screen-time controls must be labelled as coming in Phase 9')
+  fail('Screen-time controls must be marked as deferred (coming soon)')
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

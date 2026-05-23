@@ -58,8 +58,8 @@ export default async function ParentDashboardPage() {
         <div className="rounded-2xl border border-dashed border-muted/40 bg-surface p-6">
           <p className="font-heading font-semibold text-ink">Link your child&apos;s account</p>
           <p className="mb-4 mt-1 text-sm text-muted">
-            Your child registers separately at /register. Once they have an account, enter their
-            email below to connect it to yours.
+            Your child needs their own Decifer account. Ask them to sign up and choose
+            &quot;Student&quot;. Once they&apos;ve registered, enter their email below to connect the accounts.
           </p>
           <LinkChildForm />
         </div>
@@ -193,7 +193,7 @@ export default async function ParentDashboardPage() {
           Screen-time controls
         </h2>
         <p className="mt-1 text-sm text-muted">
-          Daily time limits and allowed hours are coming in Phase 9.
+          Daily time limits and allowed hours are coming soon.
         </p>
       </div>
 

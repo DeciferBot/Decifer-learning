@@ -352,7 +352,7 @@ export default async function ChildDetailPage({
       {/* Screen-time controls placeholder */}
       <Card title="Screen-time controls">
         <p className="text-sm text-muted">
-          Daily time limits and allowed hours are coming in Phase 9.
+          Daily time limits and allowed hours are coming soon.
         </p>
       </Card>
     </section>

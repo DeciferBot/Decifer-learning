@@ -67,6 +67,14 @@ export default function ContentQualityPage() {
       </section>
 
       <section className="space-y-4">
+        <h2 className="font-heading text-xl font-bold text-ink">What is currently available</h2>
+        <div className="text-sm text-muted space-y-2">
+          <p>Maths content for Year 3 and Year 7 is the most complete. English and Science content is progressively expanding: topics are published only once they have passed the full pipeline. Your child will only ever see content that is ready.</p>
+          <p>New topics and subjects are added as they clear all quality checks. The pipeline runs continuously, so the range of available topics grows over time without any code changes.</p>
+        </div>
+      </section>
+
+      <section className="space-y-4">
         <h2 className="font-heading text-xl font-bold text-ink">Ongoing monitoring</h2>
         <div className="text-sm text-muted space-y-2">
           <p>Every night, an automated check reviews all published questions. If a question has a high error rate (more than 60% of children getting it wrong) or high hint-3 usage (more than 50% of attempts using the biggest hint), it is automatically flagged and removed from the child-facing pool.</p>

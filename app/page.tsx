@@ -52,9 +52,9 @@ export default function Home({
             <span className="text-brand">talks back.</span>
           </h1>
           <p className="mx-auto mt-6 max-w-xl text-base text-muted md:text-lg">
-            Decifer Learning helps children build confidence through guided lessons,
-            practice, quizzes, discovery cards, rewards, and parent-visible progress.
-            Built for the UK National Curriculum.
+            Guided lessons, real feedback, and a clear path forward. Decifer helps
+            children build genuine confidence, structured around the UK National Curriculum
+            and visible to parents every step of the way.
           </p>
           <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <Link
@@ -276,11 +276,11 @@ export default function Home({
           <div className="mx-auto max-w-md px-4 text-center">
             <DeciferMark size="lg" className="mb-6 justify-center" />
             <h2 className="mb-3 font-heading text-2xl font-bold text-ink">
-              Ready to start?
+              Your child&apos;s learning journey starts here.
             </h2>
             <p className="mb-8 text-muted">
-              Join Decifer Learning and take the first step towards real confidence.
-              Free to start, no credit card required.
+              Set up takes two minutes. No credit card required. Your child can start
+              learning today.
             </p>
             <div className="flex flex-col gap-3">
               <Link
@@ -323,10 +323,10 @@ export default function Home({
 // ── Static content ──────────────────────────────────────────────────────────
 
 const HOW_IT_WORKS = [
-  { title: 'Learn the idea', body: 'Clear explanations with worked examples at the right level.' },
-  { title: 'Practise with guidance', body: 'Guided exercises that build confidence before the quiz.' },
-  { title: 'Take a quiz', body: 'Test real understanding, earn XP, and unlock rewards.' },
-  { title: 'Build confidence', body: 'Track progress every day, celebrate every milestone.' },
+  { title: 'Learn the idea', body: 'Clear explanations and worked examples at the right level. No pressure, no time limit.' },
+  { title: 'Practise with guidance', body: 'Guided exercises build the connection between understanding and doing.' },
+  { title: 'Take a quiz', body: 'Ten questions, three hint levels, and instant feedback. Retry as many times as needed.' },
+  { title: 'See the difference', body: 'Progress tracked daily. Parents see exactly where their child is improving.' },
 ]
 
 const JOURNEY_STEPS = [

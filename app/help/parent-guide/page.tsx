@@ -19,8 +19,8 @@ export default function ParentGuidePage() {
 
       <Section title="Getting started">
         <Steps items={[
-          { n: 1, title: 'Create your parent account', body: 'Register at decifer.app/register. Choose "Parent" when asked for your role.' },
-          { n: 2, title: 'Your child registers separately', body: 'Your child creates their own account at /register. They choose "Student", select their year group (Year 3 or Year 7), and pick a display name.' },
+          { n: 1, title: 'Create your parent account', body: 'Register on Decifer and choose "Parent" when asked for your role. Your account and your child\'s account are separate.' },
+          { n: 2, title: 'Your child registers separately', body: 'Your child creates their own Decifer account. They choose "Student", select their year group (Year 3 or Year 7), and pick a display name.' },
           { n: 3, title: 'Link the accounts', body: 'In your parent dashboard, enter your child\'s registered email address to link the accounts. You\'ll then be able to see their progress.' },
           { n: 4, title: 'Your child logs in and starts learning', body: 'From their account, they can see their topics, begin lessons, and work through practice and quizzes.' },
         ]} />

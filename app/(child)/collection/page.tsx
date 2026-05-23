@@ -1,7 +1,9 @@
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { getCurrentProfile } from '@/lib/profile'
 import { DiscoveryCard, type CardData } from '@/components/cards/DiscoveryCard'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 export const metadata = { title: 'My Collection — Decifer Learning' }
 
@@ -57,7 +59,19 @@ export default async function CollectionPage() {
       </div>
 
       {cards.length === 0 ? (
-        <p className="text-sm text-muted">No cards available yet — complete a quiz to discover your first card!</p>
+        <EmptyState
+          icon="🃏"
+          heading="No cards yet"
+          body="Complete a quiz to earn your first Discovery Card. Every quiz you pass drops one."
+          action={
+            <Link
+              href="/dashboard"
+              className="flex h-12 items-center justify-center rounded-xl bg-brand px-6 font-semibold text-white transition-colors hover:bg-brand-600"
+            >
+              Go to my topics
+            </Link>
+          }
+        />
       ) : (
         <div className="grid grid-cols-2 gap-3">
           {sorted.map((card) => (
