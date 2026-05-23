@@ -13,17 +13,20 @@ export default function GamificationPage() {
         </Link>
         <h1 className="font-heading text-3xl font-bold text-ink">Gamification explained</h1>
         <p className="mt-2 text-muted">
-          How XP, badges, streaks, shields, and Discovery Cards work — and what they&apos;re designed to do.
+          How XP, badges, streaks, shields, and Discovery Cards work, and what they are designed to do.
         </p>
       </div>
 
       <div className="rounded-2xl bg-brand-50 p-5">
         <p className="font-heading font-bold text-ink">The principle behind it all</p>
         <p className="mt-1 text-sm text-muted">
-          Every reward in Decifer is tied to <strong className="text-ink">learning effort and progress</strong>, not repetition or spending. The emotional loop we&apos;re building is simple:
+          Every reward in Decifer is tied to <strong className="text-ink">learning effort and progress</strong>, not repetition or spending. The emotional loop we are building is simple:
         </p>
         <p className="mt-3 font-heading font-semibold text-ink">
           I tried → I improved → I can see progress → I want to continue.
+        </p>
+        <p className="mt-3 text-sm text-muted">
+          Rewards recognise effort, accuracy, and progress. They are not bought, traded, or used to pressure children.
         </p>
       </div>
 
@@ -42,7 +45,7 @@ export default function GamificationPage() {
 
       <section className="space-y-4">
         <h2 className="font-heading text-xl font-bold text-ink">Badges 🏅</h2>
-        <p className="text-sm text-muted">Badges mark real achievements. They don&apos;t expire and can&apos;t be taken away.</p>
+        <p className="text-sm text-muted">Badges mark real achievements. They do not expire and cannot be taken away.</p>
         <div className="grid gap-3 sm:grid-cols-2">
           {BADGES.map((badge) => (
             <div key={badge.name} className="rounded-xl border border-black/5 bg-surface px-4 py-3 shadow-sm">
@@ -56,16 +59,16 @@ export default function GamificationPage() {
       <section className="space-y-4">
         <h2 className="font-heading text-xl font-bold text-ink">Streaks 🔥</h2>
         <div className="text-sm text-muted space-y-2">
-          <p>A streak represents the number of consecutive days you&apos;ve logged in and engaged with Decifer. It&apos;s a <strong className="text-ink">consistency signal</strong>, not a pressure mechanism.</p>
-          <p>If you miss a day, your streak resets — unless you have a Streak Shield. Losing a streak is not a punishment. Starting again is just as valid as continuing one.</p>
+          <p>A streak represents the number of consecutive days you have logged in and engaged with Decifer. It is a <strong className="text-ink">consistency signal</strong>, not a pressure mechanism.</p>
+          <p>If you miss a day, your streak resets unless you have a Streak Shield. Losing a streak is not a punishment. Starting again is just as valid as continuing one.</p>
         </div>
       </section>
 
       <section className="space-y-4">
         <h2 className="font-heading text-xl font-bold text-ink">Streak Shields 🛡️</h2>
         <div className="text-sm text-muted space-y-2">
-          <p>Streak Shields protect your streak from a single missed day. They&apos;re earned by completing quizzes and maintaining streaks — not bought or gifted.</p>
-          <p>You can hold multiple shields at once. They&apos;re used automatically when you miss a day, so your streak survives. Think of them as earned insurance, not a free pass.</p>
+          <p>Streak Shields protect your streak from a single missed day. They are earned by completing quizzes and maintaining streaks, not bought or gifted.</p>
+          <p>You can hold multiple shields at once. They are used automatically when you miss a day, so your streak survives. Think of them as earned insurance, not a free pass.</p>
         </div>
       </section>
 
@@ -82,7 +85,7 @@ export default function GamificationPage() {
           ))}
         </div>
         <p className="text-xs text-muted">
-          Legendary cards can only be won by defeating a Zone Guardian — there&apos;s one per zone.
+          Legendary cards can only be won by defeating a Zone Guardian. There is one per zone.
         </p>
       </section>
 
@@ -114,10 +117,10 @@ export default function GamificationPage() {
 }
 
 const XP_EARN = [
-  { icon: '✅', body: 'Correct answer in a quiz — XP awarded for every right answer.' },
-  { icon: '🎯', body: 'Perfect quiz with no hints — bonus XP for a clean run.' },
-  { icon: '🔥', body: 'Daily login — maintaining a streak earns a small daily bonus.' },
-  { icon: '💡', body: 'Using a hint — a small cost is deducted, but XP is still earned for correct answers.' },
+  { icon: '✅', body: 'Correct answer in a quiz: XP awarded for every right answer.' },
+  { icon: '🎯', body: 'Perfect quiz with no hints: bonus XP for a clean run.' },
+  { icon: '🔥', body: 'Daily login: maintaining a streak earns a small daily bonus.' },
+  { icon: '💡', body: 'Using a hint: a small cost is deducted, but XP is still earned for correct answers.' },
 ]
 
 const BADGES = [

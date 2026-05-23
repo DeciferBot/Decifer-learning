@@ -19,7 +19,7 @@ export default function ContentQualityPage() {
 
       <div className="rounded-2xl bg-brand-50 p-5 text-sm text-muted space-y-2">
         <p className="font-heading font-bold text-ink">The core principle</p>
-        <p>No question reaches a child that has not passed every stage of an automated quality pipeline. There is no shortcut, no override, and no guessing. <strong className="text-ink">Computations are always verified by code — never by AI alone.</strong></p>
+        <p>Content generation is restricted to approved curriculum source material, and questions must cite supporting sources before publication. <strong className="text-ink">Computations are verified by code, not by AI alone.</strong> Child-facing content is only published after it passes the required checks.</p>
       </div>
 
       <section className="space-y-4">
@@ -42,7 +42,7 @@ export default function ContentQualityPage() {
 
       <section className="space-y-4">
         <h2 className="font-heading text-xl font-bold text-ink">Verification by subject</h2>
-        <p className="text-sm text-muted">Different subjects use different verification tools. AI generates and explains — code verifies.</p>
+        <p className="text-sm text-muted">Different subjects use different verification tools. AI generates and explains; code verifies.</p>
         <div className="space-y-2">
           {VERIFIERS.map((v, i) => (
             <div key={i} className="flex items-start gap-3 rounded-xl border border-black/5 bg-surface px-4 py-3 text-sm shadow-sm">
@@ -95,21 +95,21 @@ export default function ContentQualityPage() {
 }
 
 const PIPELINE_STAGES = [
-  { title: 'RAG generation', body: 'Questions are generated using only curriculum-approved source material retrieved from a knowledge base. AI cannot invent facts — it must cite sources.' },
-  { title: 'Code verification', body: 'All mathematical and scientific calculations are verified by code — SymPy for maths, Pint for physics, ChemPy for chemistry, a local periodic table for element facts. If the calculation is wrong, the question fails.' },
+  { title: 'RAG generation', body: 'Questions are generated using only curriculum-approved source material retrieved from a knowledge base. Content generation is restricted to approved sources, and each question must cite the material it draws from.' },
+  { title: 'Code verification', body: 'All mathematical and scientific calculations are verified by code: SymPy for maths, Pint for physics, ChemPy for chemistry, a local periodic table for element facts. If the calculation is wrong, the question fails.' },
   { title: 'Consensus check', body: 'A second independent AI pass reviews the question at zero temperature and confirms the answer is correct, unambiguous, and at the right difficulty level.' },
   { title: 'Constitutional critique', body: 'A third pass checks the question against a written constitution covering age-appropriateness, cultural sensitivity, distractor plausibility, hint progression quality, and single-answer clarity.' },
   { title: 'Semantic deduplication', body: 'The question is compared against all existing published questions in the same topic. If it is too similar to an existing question, it is rejected to ensure children see a variety of questions.' },
-  { title: 'Confidence scoring and decision', body: 'A weighted score is calculated across all checks. Content must meet a subject-specific confidence threshold before it is published. Maths requires ≥ 85%, English comprehension and Biology require ≥ 90%.' },
+  { title: 'Confidence scoring and decision', body: 'A weighted score is calculated across all checks. Content must meet a subject-specific confidence threshold before it is published. Maths requires 85% or above; English comprehension and Biology require 90% or above.' },
 ]
 
 const VERIFIERS = [
-  { subject: 'Maths (arithmetic)', tool: 'Safe-eval whitelist — arithmetic is computed directly, not estimated.' },
-  { subject: 'Maths (algebra)', tool: 'SymPy — symbolic mathematics solver.' },
-  { subject: 'Physics', tool: 'Pint (units) + SymPy — unit-aware calculation checking.' },
-  { subject: 'Chemistry', tool: 'ChemPy + local periodic table — no AI guessing on element facts.' },
-  { subject: 'English grammar', tool: 'LanguageTool (en-GB) — grammar rule enforcement.' },
-  { subject: 'English comprehension', tool: 'Source grounding — answers must cite curriculum source chunks.' },
+  { subject: 'Maths (arithmetic)', tool: 'Safe-eval whitelist: arithmetic is computed directly, not estimated.' },
+  { subject: 'Maths (algebra)', tool: 'SymPy: symbolic mathematics solver.' },
+  { subject: 'Physics', tool: 'Pint (units) + SymPy: unit-aware calculation checking.' },
+  { subject: 'Chemistry', tool: 'ChemPy + local periodic table: element facts are checked against a fixed reference, not generated.' },
+  { subject: 'English grammar', tool: 'LanguageTool (en-GB): grammar rule enforcement.' },
+  { subject: 'English comprehension', tool: 'Source grounding: answers must cite curriculum source chunks.' },
 ]
 
 const STATUSES = [

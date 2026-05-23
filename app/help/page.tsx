@@ -42,14 +42,14 @@ export default function HelpPage() {
         <GuideCard
           icon="🎒"
           title="Student guide"
-          description="How to use Decifer — lessons, practice, quizzes, XP, cards, and streaks."
+          description="How to use Decifer: lessons, practice, quizzes, XP, cards, and streaks."
           href="/help/student-guide"
           audience="student"
         />
         <GuideCard
           icon="⭐"
           title="Gamification explained"
-          description="XP, badges, streaks, shields, and Discovery Cards — what they mean and how to earn them."
+          description="XP, badges, streaks, shields, and Discovery Cards: what they mean and how to earn them."
           href="/help/gamification"
           audience="student"
         />

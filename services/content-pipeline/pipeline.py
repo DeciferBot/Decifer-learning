@@ -73,6 +73,7 @@ _TIER_DESCRIPTIONS = {
 }
 
 _YEAR_GROUP_DISPLAY = {
+    "year-2": ("Year 2", "KS1"),
     "year-3": ("Year 3", "KS2"),
     "year-7": ("Year 7", "KS3"),
 }

@@ -10,7 +10,7 @@ import { XPBadge } from '@/components/ui/XPBadge'
 export const metadata = {
   title: 'Decifer Learning — UK National Curriculum for families',
   description:
-    'Guided lessons, practice, quizzes, and parent visibility — structured around the UK National Curriculum for Year 3 and Year 7.',
+    'AI-assisted feedback, game-like motivation, and quality-checked curriculum content for Year 3 and Year 7. Parents can see progress, confidence, and where support is needed.',
 }
 
 export default function Home({
@@ -67,7 +67,7 @@ export default function Home({
               </h1>
 
               <p className="mt-4 text-base leading-relaxed text-muted">
-                Decifer helps children learn through guided lessons, practice, quizzes, and instant feedback, structured around the UK National Curriculum. Parents get a clear view of progress, confidence, and where support is needed next.
+                Decifer combines AI-assisted feedback, game-like motivation, and quality-checked curriculum content, so children enjoy learning while parents can trust the progress.
               </p>
 
               {/* Trust chips */}
@@ -164,23 +164,23 @@ export default function Home({
               </div>
 
               <p className="text-center text-xs text-muted">
-                Example preview — real data shown once your child is active.
+                Example preview. Real data shown once your child is active.
               </p>
             </div>
           </div>
         </section>
 
-        {/* ── Parent problem ───────────────────────────────────────────────── */}
+        {/* ── Why Decifer is different ──────────────────────────────────────── */}
         <section className="bg-surface py-16">
           <div className="mx-auto max-w-5xl px-4">
             <h2 className="mb-2 text-center font-heading text-2xl font-bold text-ink md:text-3xl">
-              No more guessing where your child needs help.
+              Why Decifer is different
             </h2>
             <p className="mx-auto mb-10 max-w-lg text-center text-sm text-muted">
-              Decifer gives parents a real picture of their child&apos;s learning, not just a grade.
+              Children need learning that feels engaging. Parents need learning they can trust. Decifer brings both together.
             </p>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {PARENT_CARDS.map((card, i) => (
+              {DIFFERENTIATORS.map((card, i) => (
                 <div key={i} className="rounded-2xl border border-black/5 bg-background p-5">
                   <span className="mb-3 block text-2xl" aria-hidden>{card.icon}</span>
                   <p className="font-heading font-semibold text-ink">{card.title}</p>
@@ -191,8 +191,29 @@ export default function Home({
           </div>
         </section>
 
-        {/* ── How it works ────────────────────────────────────────────────── */}
+        {/* ── Parent problem ───────────────────────────────────────────────── */}
         <section className="py-16">
+          <div className="mx-auto max-w-5xl px-4">
+            <h2 className="mb-2 text-center font-heading text-2xl font-bold text-ink md:text-3xl">
+              No more guessing where your child needs help.
+            </h2>
+            <p className="mx-auto mb-10 max-w-lg text-center text-sm text-muted">
+              Decifer gives parents a real picture of their child&apos;s learning, not just a grade.
+            </p>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {PARENT_CARDS.map((card, i) => (
+                <div key={i} className="rounded-2xl border border-black/5 bg-surface p-5 shadow-sm">
+                  <span className="mb-3 block text-2xl" aria-hidden>{card.icon}</span>
+                  <p className="font-heading font-semibold text-ink">{card.title}</p>
+                  <p className="mt-1.5 text-sm leading-relaxed text-muted">{card.body}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── How it works ────────────────────────────────────────────────── */}
+        <section className="bg-surface py-16">
           <div className="mx-auto max-w-5xl px-4">
             <p className="mb-2 text-center text-xs font-bold uppercase tracking-widest text-brand">
               The learning loop
@@ -206,7 +227,7 @@ export default function Home({
 
             <div className="relative grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {HOW_IT_WORKS.map((step, i) => (
-                <div key={i} className="relative rounded-2xl border border-black/5 bg-surface p-5 shadow-sm">
+                <div key={i} className="relative rounded-2xl border border-black/5 bg-background p-5 shadow-sm">
                   <div className="mb-3 flex items-center gap-2">
                     <span className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-brand-50 font-heading text-sm font-black text-brand">
                       {i + 1}
@@ -239,11 +260,14 @@ export default function Home({
         </section>
 
         {/* ── Child / Parent split ─────────────────────────────────────────── */}
-        <section className="bg-surface py-16">
+        <section className="py-16">
           <div className="mx-auto max-w-5xl px-4">
-            <h2 className="mb-10 text-center font-heading text-2xl font-bold text-ink md:text-3xl">
+            <h2 className="mb-2 text-center font-heading text-2xl font-bold text-ink md:text-3xl">
               Built for children, visible to parents.
             </h2>
+            <p className="mx-auto mb-10 max-w-lg text-center text-sm text-muted">
+              Children feel progress. Parents see the learning behind it.
+            </p>
             <div className="grid gap-5 md:grid-cols-2">
 
               {/* Child column */}
@@ -272,9 +296,12 @@ export default function Home({
                 <p className="mb-1 text-xs font-bold uppercase tracking-widest text-brand">
                   For parents
                 </p>
-                <h3 className="mb-4 font-heading text-lg font-bold text-ink">
+                <h3 className="mb-2 font-heading text-lg font-bold text-ink">
                   A clear, honest view of progress.
                 </h3>
+                <p className="mb-4 text-xs leading-relaxed text-muted">
+                  Children see XP, badges, streaks, and topic progress. Parents see the learning behind those rewards, including scores, confidence, hint usage, and areas that need support.
+                </p>
                 <ul className="space-y-4">
                   {PARENT_FEATURES.map((f, i) => (
                     <li key={i} className="flex items-start gap-3">
@@ -298,7 +325,7 @@ export default function Home({
         </section>
 
         {/* ── Content quality ──────────────────────────────────────────────── */}
-        <section className="py-16">
+        <section className="bg-surface py-16">
           <div className="mx-auto max-w-3xl px-4">
             <div className="rounded-2xl border border-correct/20 bg-correct/5 px-6 py-6 md:px-8">
               <div className="flex items-start gap-4">
@@ -322,8 +349,63 @@ export default function Home({
           </div>
         </section>
 
-        {/* ── Topic preview ────────────────────────────────────────────────── */}
+        {/* ── Fun should never mean careless ───────────────────────────────── */}
+        <section className="py-16">
+          <div className="mx-auto max-w-5xl px-4">
+            <h2 className="mb-2 text-center font-heading text-2xl font-bold text-ink md:text-3xl">
+              Fun should never mean careless.
+            </h2>
+            <p className="mx-auto mb-10 max-w-xl text-center text-sm text-muted">
+              Learning can feel playful without becoming unreliable. Decifer uses AI-assisted feedback and game-like motivation, but every child-facing question must pass quality checks before it is published.
+            </p>
+            <div className="grid gap-4 sm:grid-cols-3">
+              {FUN_PILLARS.map((pillar, i) => (
+                <div key={i} className="rounded-2xl border border-black/5 bg-surface p-5 text-center shadow-sm">
+                  <span className="mb-3 block text-3xl" aria-hidden>{pillar.icon}</span>
+                  <p className="font-heading font-semibold text-ink">{pillar.label}</p>
+                  <p className="mt-1.5 text-xs leading-relaxed text-muted">{pillar.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── Comparison ───────────────────────────────────────────────────── */}
         <section className="bg-surface py-16">
+          <div className="mx-auto max-w-5xl px-4">
+            <h2 className="mb-2 text-center font-heading text-2xl font-bold text-ink md:text-3xl">
+              Not worksheets. Not a chatbot. A checked learning journey.
+            </h2>
+            <p className="mx-auto mb-10 max-w-lg text-center text-sm text-muted">
+              Decifer is designed to fill the gap between passive practice and unguided AI.
+            </p>
+            <div className="grid gap-4 sm:grid-cols-3">
+              {COMPARISON.map((col, i) => (
+                <div
+                  key={i}
+                  className={`rounded-2xl border p-5 ${i === 2 ? 'border-brand/30 bg-brand-50' : 'border-black/5 bg-background'}`}
+                >
+                  <p className={`mb-4 font-heading text-sm font-bold ${i === 2 ? 'text-brand' : 'text-muted'}`}>
+                    {col.label}
+                  </p>
+                  <ul className="space-y-2">
+                    {col.items.map((item, j) => (
+                      <li key={j} className="flex items-start gap-2 text-sm">
+                        <span className={`mt-0.5 flex-none ${i === 2 ? 'font-bold text-correct' : 'text-muted'}`}>
+                          {i === 2 ? '✓' : '·'}
+                        </span>
+                        <span className={i === 2 ? 'text-ink' : 'text-muted'}>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── Topic preview ────────────────────────────────────────────────── */}
+        <section className="py-16">
           <div className="mx-auto max-w-5xl px-4">
             <h2 className="mb-2 text-center font-heading text-2xl font-bold text-ink md:text-3xl">
               Example topics
@@ -338,7 +420,7 @@ export default function Home({
               {SAMPLE_TOPICS.map((topic, i) => (
                 <div
                   key={i}
-                  className="overflow-hidden rounded-2xl border border-black/5 bg-background shadow-sm"
+                  className="overflow-hidden rounded-2xl border border-black/5 bg-surface shadow-sm"
                 >
                   <div className="h-1.5 w-full" style={{ backgroundColor: topic.color }} aria-hidden />
                   <div className="p-4">
@@ -378,19 +460,22 @@ export default function Home({
         </section>
 
         {/* ── Progress and motivation ──────────────────────────────────────── */}
-        <section className="py-16">
+        <section className="bg-surface py-16">
           <div className="mx-auto max-w-5xl px-4">
             <h2 className="mb-2 text-center font-heading text-2xl font-bold text-ink md:text-3xl">
-              Progress that motivates.
+              Game-like motivation, without losing the learning.
             </h2>
-            <p className="mb-10 text-center text-sm text-muted">
-              Every step forward is recognised. Learning feels worthwhile here.
+            <p className="mb-2 text-center text-sm text-muted">
+              Decifer uses rewards to support consistency, not distract from learning. Children earn XP, build streaks, unlock badges, and collect Discovery Cards by completing real learning activity.
+            </p>
+            <p className="mb-10 text-center text-xs text-muted">
+              Rewards recognise effort, accuracy, and progress. They are not bought, traded, or used to pressure children.
             </p>
             <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
               {GAMIFICATION_ITEMS.map((item, i) => (
                 <div
                   key={i}
-                  className="rounded-2xl border border-black/5 bg-surface p-5 text-center shadow-sm"
+                  className="rounded-2xl border border-black/5 bg-background p-5 text-center shadow-sm"
                 >
                   <span className="mb-3 block text-3xl" aria-hidden>{item.icon}</span>
                   <p className="mb-1 font-heading font-semibold text-ink">{item.label}</p>
@@ -402,9 +487,9 @@ export default function Home({
         </section>
 
         {/* ── Content availability ────────────────────────────────────────── */}
-        <section className="bg-surface py-14">
+        <section className="py-14">
           <div className="mx-auto max-w-3xl px-4">
-            <div className="rounded-2xl border border-black/5 bg-background p-6 text-center shadow-sm md:p-8">
+            <div className="rounded-2xl border border-black/5 bg-surface p-6 text-center shadow-sm md:p-8">
               <p className="mb-2 text-xs font-bold uppercase tracking-widest text-muted">
                 What is available today
               </p>
@@ -416,13 +501,13 @@ export default function Home({
               </p>
               <div className="flex flex-wrap justify-center gap-3 text-sm">
                 <span className="flex items-center gap-1.5 rounded-full bg-maths/10 px-4 py-1.5 font-semibold text-maths">
-                  ✓ Maths — Year 3 and Year 7
+                  ✓ Maths: Year 3 and Year 7
                 </span>
                 <span className="flex items-center gap-1.5 rounded-full bg-english/10 px-4 py-1.5 font-semibold text-english">
-                  Expanding — English
+                  Expanding: English
                 </span>
                 <span className="flex items-center gap-1.5 rounded-full bg-science/10 px-4 py-1.5 font-semibold text-science">
-                  Expanding — Science
+                  Expanding: Science
                 </span>
               </div>
             </div>
@@ -430,7 +515,7 @@ export default function Home({
         </section>
 
         {/* ── Help and guides ──────────────────────────────────────────────── */}
-        <section className="py-16">
+        <section className="bg-surface py-16">
           <div className="mx-auto max-w-5xl px-4">
             <h2 className="mb-2 text-center font-heading text-2xl font-bold text-ink md:text-3xl">
               Help and guides
@@ -534,16 +619,39 @@ export default function Home({
 // ── Static content ─────────────────────────────────────────────────────────────
 
 const TRUST_CHIPS = [
-  '✅ UK National Curriculum',
-  '📊 Parent progress view',
-  '🎯 Guided lessons and quizzes',
-  '🔒 Quality-checked content',
+  '🤖 AI-assisted feedback',
+  '⭐ XP, streaks, badges, and cards',
+  '✅ Quality-checked content',
+  '📊 Parent-visible progress',
 ]
 
 const MOCK_STATS = [
   { label: 'Topics done', value: '4' },
   { label: 'Quiz avg', value: '82%' },
   { label: 'Streak', value: '5 days' },
+]
+
+const DIFFERENTIATORS = [
+  {
+    icon: '🤖',
+    title: 'AI that helps children understand',
+    body: 'Children get hints, feedback, and explanations as they learn. AI supports the journey inside a structured curriculum path.',
+  },
+  {
+    icon: '⭐',
+    title: 'Rewards that motivate effort',
+    body: 'XP, streaks, badges, progress rings, and Discovery Cards help children see effort turning into achievement.',
+  },
+  {
+    icon: '✅',
+    title: 'Accuracy before activity',
+    body: 'Questions are checked before they are published. Maths and science answers are verified by code where possible, and reading tasks must be grounded in approved material.',
+  },
+  {
+    icon: '📊',
+    title: 'Progress parents can use',
+    body: 'Parents see what was studied, how the child performed, where hints were used, and what needs more practice.',
+  },
 ]
 
 const PARENT_CARDS = [
@@ -666,6 +774,55 @@ const SAMPLE_TOPICS = [
     yearGroup: 'Year 7',
     color: '#FF8FAB',
     description: 'Explore inference, vocabulary, and deep understanding of texts.',
+  },
+]
+
+const FUN_PILLARS = [
+  {
+    icon: '🤖',
+    label: 'AI-assisted feedback',
+    desc: 'Hints, explanations, and feedback that help children understand, not just complete.',
+  },
+  {
+    icon: '🎮',
+    label: 'Game-like motivation',
+    desc: 'XP, streaks, badges, and Discovery Cards tied to real learning progress.',
+  },
+  {
+    icon: '✅',
+    label: 'Quality-checked content',
+    desc: 'Every question verified before publication. Accuracy is not optional.',
+  },
+]
+
+const COMPARISON = [
+  {
+    label: 'Worksheets',
+    items: [
+      'Static practice',
+      'Limited feedback',
+      'Parent checks manually',
+      'Hard to motivate daily use',
+    ],
+  },
+  {
+    label: 'Generic AI chatbot',
+    items: [
+      'Can answer questions',
+      'Not always curriculum structured',
+      'Accuracy can vary',
+      'Progress is hard to track',
+    ],
+  },
+  {
+    label: 'Decifer',
+    items: [
+      'Guided Learn, Practise, Quiz, Progress journey',
+      'AI-assisted hints and feedback',
+      'XP, badges, streaks, and Discovery Cards',
+      'Quality-checked content',
+      'Parent-visible progress',
+    ],
   },
 ]
 

@@ -89,7 +89,7 @@ const PARENT_FAQS = [
   },
   {
     q: 'What subjects are available?',
-    a: 'Maths, English, and Science. Maths is the most complete — topics are published as soon as they pass the full quality pipeline, so the range of available content grows over time. Your child will only see topics that are ready.',
+    a: 'Maths, English, and Science. Maths is the most complete: topics are published as soon as they pass the full quality pipeline, so the range of available content grows over time. Your child will only see topics that are ready.',
   },
   {
     q: 'How do screen-time controls work?',
@@ -104,7 +104,7 @@ const STUDENT_FAQS = [
   },
   {
     q: 'What do hints cost?',
-    a: 'Each hint costs a small number of XP points. Hint 1 costs the least and Hint 3 costs a bit more. But it\'s always worth using a hint if you\'re stuck — understanding the hint is better than guessing.',
+    a: 'Each hint costs a small number of XP points. Hint 1 costs the least and Hint 3 costs a bit more. It is always worth using a hint if you are stuck; understanding the hint is better than guessing.',
   },
   {
     q: 'Can I lose my Discovery Cards?',

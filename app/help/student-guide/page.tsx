@@ -35,7 +35,7 @@ export default function StudentGuidePage() {
         <h2 className="font-heading text-xl font-bold text-ink">Hints and hearts</h2>
         <div className="space-y-2 text-sm text-muted">
           <p>Every quiz question has <strong className="text-ink">three hints</strong>. Use them whenever you&apos;re stuck. Each hint costs a few points, but it&apos;s better to understand with help than to guess.</p>
-          <p>You start every quiz with <strong className="text-ink">three hearts</strong>. If you get three answers wrong in a row, you lose a heart. You can always retry a quiz — there&apos;s no permanent penalty.</p>
+          <p>You start every quiz with <strong className="text-ink">three hearts</strong>. If you get three answers wrong in a row, you lose a heart. You can always retry a quiz. There is no permanent penalty.</p>
           <p>You can earn <strong className="text-ink">Streak Shields</strong> by completing quizzes and keeping your streak going. A shield absorbs one heart loss, so keep them handy.</p>
         </div>
       </section>
@@ -55,7 +55,7 @@ export default function StudentGuidePage() {
       <section className="space-y-3">
         <h2 className="font-heading text-xl font-bold text-ink">Streaks</h2>
         <div className="rounded-2xl border border-black/5 bg-surface p-5 shadow-sm text-sm text-muted space-y-2">
-          <p>Your streak goes up by one every day you log in and learn something. Miss a day and your streak resets to zero — unless you have a Streak Shield, which saves it once.</p>
+          <p>Your streak goes up by one every day you log in and learn something. Miss a day and your streak resets to zero, unless you have a Streak Shield, which saves it once.</p>
           <p>A streak is not about pressure. It&apos;s about building a habit. Even a 5-day streak shows real commitment.</p>
         </div>
       </section>
@@ -72,7 +72,7 @@ export default function StudentGuidePage() {
       <section className="space-y-3">
         <h2 className="font-heading text-xl font-bold text-ink">The World Map</h2>
         <div className="rounded-2xl border border-black/5 bg-surface p-5 shadow-sm text-sm text-muted space-y-2">
-          <p>The World Map shows your zones and topic nodes. Each zone has a theme — like the <strong className="text-ink">Number Jungle</strong> for Year 3 Maths, or the <strong className="text-ink">Crystal Labyrinth</strong> for Year 7 Maths.</p>
+          <p>The World Map shows your zones and topic nodes. Each zone has a theme, like the <strong className="text-ink">Number Jungle</strong> for Year 3 Maths or the <strong className="text-ink">Crystal Labyrinth</strong> for Year 7 Maths.</p>
           <p>Topics unlock one after another. Complete a topic to unlock the next one. Complete all the topics in a zone to face the Zone Guardian.</p>
         </div>
       </section>
@@ -108,16 +108,16 @@ const THREE_STEPS = [
 ]
 
 const XP_RULES = [
-  { icon: '✅', body: 'Correct answer in a quiz — earn XP for every question you get right.' },
-  { icon: '🎯', body: 'Perfect quiz — bonus XP for completing a quiz without any wrong answers.' },
-  { icon: '💡', body: 'Using hints — hints cost a small amount of XP each, but that\'s okay.' },
-  { icon: '🔥', body: 'Daily login — keeping your streak going earns bonus XP every day.' },
+  { icon: '✅', body: 'Correct answer in a quiz: earn XP for every question you get right.' },
+  { icon: '🎯', body: 'Perfect quiz: bonus XP for completing a quiz without any wrong answers.' },
+  { icon: '💡', body: 'Using hints: hints cost a small amount of XP each, but that\'s okay.' },
+  { icon: '🔥', body: 'Daily login: keeping your streak going earns bonus XP every day.' },
 ]
 
 const TIPS = [
-  'Do the Learn step first — even if you think you already know the topic. It helps you spot the exact way Decifer frames questions.',
+  'Do the Learn step first, even if you think you already know the topic. It helps you spot the exact way Decifer frames questions.',
   'Use hints when you\'re stuck. That\'s what they\'re there for. Understanding the hint is better than guessing.',
   'Retry quizzes. Your highest score is what counts towards your progress, not your first attempt.',
-  'Check the World Map after each quiz — your next topic might just have unlocked.',
+  'Check the World Map after each quiz; your next topic might just have unlocked.',
   'A short session every day beats a long session once a week.',
 ]

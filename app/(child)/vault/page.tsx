@@ -95,14 +95,11 @@ export default async function VaultPage() {
             <span>{bandCfg.emoji}</span>
             <span>{bandCfg.label}</span>
           </div>
-          <div className="flex items-center gap-1 text-right">
-            <span className="font-heading text-xl font-bold text-brand">
-              {status.creditBalance}
-            </span>
-            <span className="text-xs text-muted">
-              {status.creditBalance === 1 ? 'credit' : 'credits'}
-            </span>
-          </div>
+          {status.creditBalance > 0 && !hasPendingRequest && (
+            <div className="inline-flex items-center gap-1 rounded-full bg-correct/15 px-3 py-1">
+              <span className="text-xs font-bold text-correct">🎁 Reward earned</span>
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-3 gap-2 text-center text-xs text-muted">

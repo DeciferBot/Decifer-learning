@@ -22,8 +22,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
               <span className="text-brand">talks back.</span>
             </h1>
             <p className="mt-4 text-muted">
-              Guided lessons, practice, quizzes, and discovery cards — built for the
-              UK National Curriculum. One topic at a time.
+              AI-assisted feedback, game-like motivation, and quality-checked curriculum content, one topic at a time.
             </p>
           </div>
 

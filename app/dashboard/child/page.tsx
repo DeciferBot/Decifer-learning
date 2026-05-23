@@ -143,8 +143,8 @@ export default async function ChildDashboardPage() {
             <div>
               <span className="font-heading text-sm font-semibold text-brand">Reward Vault</span>
               {vaultCredits > 0 && (
-                <span className="ml-2 rounded-full bg-brand px-2 py-0.5 text-xs font-bold text-white">
-                  {vaultCredits} credit{vaultCredits !== 1 ? 's' : ''}
+                <span className="ml-2 rounded-full bg-correct/20 px-2 py-0.5 text-xs font-bold text-correct">
+                  🎁 Reward ready
                 </span>
               )}
             </div>

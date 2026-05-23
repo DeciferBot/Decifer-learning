@@ -15,6 +15,9 @@ export default function ParentGuidePage() {
         <p className="mt-2 text-muted">
           Everything you need to set up Decifer for your family and support your child&apos;s learning.
         </p>
+        <p className="mt-3 rounded-xl border border-brand/20 bg-brand-50 px-4 py-3 text-sm text-muted">
+          Children feel progress. Parents see the learning behind it.
+        </p>
       </div>
 
       <Section title="Getting started">
@@ -44,7 +47,7 @@ export default function ParentGuidePage() {
         <Prose>
           <p>The parent dashboard shows you an overview of each linked child&apos;s learning.</p>
           <p><strong>Topics started</strong> tells you how many topics your child has begun. <strong>Topics mastered</strong> means they scored 70% or above on the quiz. <strong>Average accuracy</strong> is their overall score across all quiz attempts.</p>
-          <p>The <strong>Areas to strengthen</strong> section highlights topics where your child answered more questions incorrectly or needed the most help (Hint 3 — the biggest hint). This is not a failure signal — it&apos;s exactly the information that helps you give the right encouragement.</p>
+          <p>The <strong>Areas to strengthen</strong> section highlights topics where your child answered more questions incorrectly or needed the most help (Hint 3, the biggest hint). This is not a failure signal; it is exactly the information that helps you give the right encouragement.</p>
           <p><strong>Recommended next lesson</strong> suggests the most logical next step based on their current progress.</p>
         </Prose>
       </Section>
@@ -52,7 +55,7 @@ export default function ParentGuidePage() {
       <Section title="How content is structured">
         <Prose>
           <p>Decifer follows the UK National Curriculum. Year 3 content covers Key Stage 2 and Year 7 covers Key Stage 3. Subjects covered are Maths, English, and Science.</p>
-          <p>Every topic has three stages: <strong>Learn</strong> (read the explanation), <strong>Practise</strong> (guided exercises), and <strong>Quiz</strong> (test understanding). Children must complete Learn before Practise, and Practise before Quiz — though they can revisit any stage at any time.</p>
+          <p>Every topic has three stages: <strong>Learn</strong> (read the explanation), <strong>Practise</strong> (guided exercises), and <strong>Quiz</strong> (test understanding). Children must complete Learn before Practise, and Practise before Quiz, though they can revisit any stage at any time.</p>
         </Prose>
       </Section>
 
@@ -130,16 +133,16 @@ const PARENT_CAN_SEE = [
   { icon: '📊', title: 'Topics started and mastered', body: 'A clear count of how many topics your child has begun and completed.' },
   { icon: '🎯', title: 'Average quiz accuracy', body: 'Their overall score across all quiz attempts, as a percentage.' },
   { icon: '📈', title: 'Activity this week', body: 'Quizzes taken in the last 7 days so you know if they\'re keeping up their habit.' },
-  { icon: '⚠️', title: 'Areas to strengthen', body: 'Topics where your child struggled the most — shown as topics with high error rates.' },
+  { icon: '⚠️', title: 'Areas to strengthen', body: 'Topics where your child struggled the most, shown as topics with high error rates.' },
   { icon: '➡️', title: 'Recommended next lesson', body: 'The most logical next topic to continue, based on their progress.' },
-  { icon: '🏅', title: 'Badges and cards earned', body: 'A count of rewards earned — a quick signal of engagement and effort.' },
+  { icon: '🏅', title: 'Badges and cards earned', body: 'A count of rewards earned, a quick signal of engagement and effort.' },
 ]
 
 const SUPPORT_TIPS = [
   'Ask your child to show you their World Map and tell you about the zones they\'ve unlocked.',
-  'Celebrate when they earn a badge or a new Discovery Card — the reward is the recognition, not the card.',
+  'Celebrate when they earn a badge or a new Discovery Card; the reward is the recognition, not the card.',
   'If they\'re struggling in a topic shown in "Areas to strengthen", try reviewing the Learn page together.',
   'A 10-minute session every day builds more confidence than a longer session once a week.',
-  'Encourage streaks — even a 5-day streak is worth noticing and celebrating.',
+  'Encourage streaks; even a 5-day streak is worth noticing and celebrating.',
   'If your child is frustrated after a quiz, remind them that hints exist and the quiz can always be retried.',
 ]

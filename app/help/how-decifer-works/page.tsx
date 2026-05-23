@@ -23,8 +23,8 @@ export default function HowDeciferWorksPage() {
         <div className="flex items-start gap-6">
           <DeciferMark size="lg" />
           <div className="text-sm text-muted space-y-2">
-            <p>The name <strong className="text-ink">Decifer</strong> is a deliberate play on <em>decipher</em> — to understand, to decode, to make sense of something. That&apos;s exactly what learning feels like when it works.</p>
-            <p>The brand mark — the offset <strong className="text-ink">&lt; &gt;</strong> — represents two people in dialogue. The <strong className="text-ink">&lt;</strong> is the learner: asking, exploring, opening a question. The <strong className="text-ink">&gt;</strong> is the guide: responding, explaining, giving feedback.</p>
+            <p>The name <strong className="text-ink">Decifer</strong> is a deliberate play on <em>decipher</em>: to understand, to decode, to make sense of something. That&apos;s exactly what learning feels like when it works.</p>
+            <p>The brand mark, the offset <strong className="text-ink">&lt; &gt;</strong>, represents two people in dialogue. The <strong className="text-ink">&lt;</strong> is the learner: asking, exploring, opening a question. The <strong className="text-ink">&gt;</strong> is the guide: responding, explaining, giving feedback.</p>
             <p>The vertical offset shows that this is a conversation in motion, not a static exchange. Learning happens between those two brackets.</p>
           </div>
         </div>
@@ -57,7 +57,7 @@ export default function HowDeciferWorksPage() {
       <section className="space-y-4">
         <h2 className="font-heading text-xl font-bold text-ink">Spaced repetition</h2>
         <div className="text-sm text-muted space-y-2">
-          <p>After you pass a topic quiz, Decifer schedules it for review. The timing is based on the SM-2 spaced repetition algorithm — the same principle used by the most effective flashcard tools.</p>
+          <p>After you pass a topic quiz, Decifer schedules it for review. The timing is based on the SM-2 spaced repetition algorithm, the same principle used by the most effective flashcard tools.</p>
           <p>A &ldquo;Time to revisit&rdquo; card will appear on your dashboard when a topic is due for review. Revisiting is quicker than the original quiz and is the most effective way to make sure the learning sticks long-term.</p>
         </div>
       </section>
@@ -67,7 +67,7 @@ export default function HowDeciferWorksPage() {
         <div className="text-sm text-muted space-y-2">
           <p>All content follows the <strong className="text-ink">UK National Curriculum</strong>. Currently, Decifer covers Year 3 (KS2) and Year 7 (KS3). Subjects covered are Maths, English, and Science.</p>
           <p>Maths content is the most complete. English and Science content is progressively expanding as more topics pass the quality pipeline and are published.</p>
-          <p>Topics are grouped into zones. Each zone has a theme and a Zone Guardian boss. Complete all the topics in a zone to unlock the Guardian challenge — and a chance to earn a Legendary Discovery Card.</p>
+          <p>Topics are grouped into zones. Each zone has a theme and a Zone Guardian boss. Complete all the topics in a zone to unlock the Guardian challenge and earn a chance at a Legendary Discovery Card.</p>
         </div>
       </section>
 
@@ -104,7 +104,7 @@ const LOOP_STAGES = [
   {
     icon: '✏️',
     label: 'Practise',
-    body: 'Guided exercises let you apply the idea with support. Practise builds the connection between understanding and doing — which is what makes the quiz feel achievable rather than scary.',
+    body: 'Guided exercises let you apply the idea with support. Practise builds the connection between understanding and doing, which is what makes the quiz feel achievable rather than scary.',
   },
   {
     icon: '⚡',

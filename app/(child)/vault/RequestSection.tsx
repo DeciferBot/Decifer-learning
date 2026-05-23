@@ -146,7 +146,7 @@ export function RequestSection({ hasCredits, hasPendingRequest, pendingRequest, 
         onClick={() => setOpen(true)}
         className="flex w-full min-h-[52px] items-center justify-center rounded-2xl bg-brand px-5 font-heading text-sm font-bold text-white shadow-sm transition-colors hover:bg-brand-600 active:scale-[0.98]"
       >
-        🎁 Claim Your Reward
+        🎁 Ask for a reward
       </button>
 
       {open && (

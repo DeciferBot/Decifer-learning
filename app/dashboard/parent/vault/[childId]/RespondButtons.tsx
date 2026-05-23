@@ -26,7 +26,10 @@ export function RespondButtons({ requestId, childName }: Props) {
         body: JSON.stringify({
           requestId,
           action: selectedAction,
-          note: note || undefined,
+          // counter_offer uses rewardLabel input as the suggestion note
+          note: selectedAction === 'counter_offer'
+            ? (rewardLabel || undefined)
+            : (note || undefined),
           rewardType: selectedAction === 'approve' ? 'family' : undefined,
           rewardLabel: selectedAction === 'approve' && rewardLabel ? rewardLabel : undefined,
         }),

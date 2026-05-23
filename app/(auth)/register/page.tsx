@@ -10,7 +10,7 @@ export default function RegisterPage() {
     <div>
       <h2 className="font-heading text-2xl font-bold text-ink">Create your account.</h2>
       <p className="mt-1.5 text-sm text-muted">
-        Student or parent, you&apos;ll be ready in two minutes.
+        Create a parent or student account in two minutes. Parents can link a child account after registration.
       </p>
       <RegisterForm />
       <p className="mt-6 text-center text-sm text-muted">
