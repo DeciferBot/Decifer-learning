@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 import uuid
+from datetime import datetime, timezone
 from typing import Optional
 
 import numpy as np
@@ -76,7 +77,7 @@ def retrieve_chunks(
             if query_embedding is not None:
                 cur.execute(
                     """
-                    SELECT id, chunk_text, source_name
+                    SELECT id, chunk_text, source_name, subject, year_group
                     FROM curriculum_chunks
                     WHERE subject = %s AND year_group = %s
                       AND embedding IS NOT NULL
@@ -88,7 +89,7 @@ def retrieve_chunks(
             else:
                 cur.execute(
                     """
-                    SELECT id, chunk_text, source_name
+                    SELECT id, chunk_text, source_name, subject, year_group
                     FROM curriculum_chunks
                     WHERE subject = %s AND year_group = %s
                     LIMIT %s
@@ -138,28 +139,6 @@ def bulk_upsert_chunks(chunks: list[dict]) -> tuple[int, int]:
 
 # ── Deduplication ─────────────────────────────────────────────────────────
 
-def get_published_embeddings(topic_id: str) -> list[np.ndarray]:
-    """Return embeddings of all published questions for a topic (for dedup)."""
-    with get_connection() as conn:
-        register_vector(conn)
-        with conn.cursor() as cur:
-            cur.execute(
-                """
-                SELECT embedding FROM curriculum_chunks
-                WHERE id IN (
-                    SELECT unnest(source_chunk_ids::uuid[])
-                    FROM quiz_questions
-                    WHERE topic_id = %s AND status = 'published'
-                )
-                """,
-                (topic_id,),
-            )
-            # We actually embed question_text, not source chunks. Use a simpler approach:
-            # store the question embedding in a side-channel or re-embed on the fly.
-            # For Phase 3, we embed question_text separately below.
-            return []
-
-
 def get_published_question_texts(topic_id: str) -> list[dict]:
     """Return id + question_text for all published questions in a topic."""
     conn = get_connection()
@@ -186,9 +165,14 @@ def write_question(
     question_data: dict,
     status: str,
     confidence_score: float,
+    generator_version: str = "",
+    verifier_version: str = "",
 ) -> str:
-    """Insert a quiz_question row. Returns the new question id."""
+    """Insert a quiz_question row with provenance fields. Returns the new question id."""
     question_id = str(uuid.uuid4())
+    published_at = datetime.now(timezone.utc) if status == "published" else None
+    question_metadata = question_data.get("question_metadata")
+
     conn = get_connection()
     try:
         with conn.cursor() as cur:
@@ -198,12 +182,14 @@ def write_question(
                     id, topic_id, tier, question_text, question_type,
                     correct_answer, distractors,
                     hint_1, hint_2, hint_3, explanation,
-                    source_chunk_ids, confidence_score, status
+                    source_chunk_ids, confidence_score, status,
+                    question_metadata, generator_version, verifier_version, published_at
                 ) VALUES (
                     %s, %s, %s::\"Tier\", %s, %s,
                     %s, %s,
                     %s, %s, %s, %s,
-                    %s, %s, %s::\"ContentStatus\"
+                    %s, %s, %s::\"ContentStatus\",
+                    %s, %s, %s, %s
                 )
                 """,
                 (
@@ -221,6 +207,10 @@ def write_question(
                     json.dumps(question_data.get("source_chunk_ids", [])),
                     confidence_score,
                     status,
+                    json.dumps(question_metadata) if question_metadata is not None else None,
+                    generator_version or config.PIPELINE_VERSION,
+                    verifier_version,
+                    published_at,
                 ),
             )
         conn.commit()
@@ -238,5 +228,202 @@ def count_published_questions(topic_id: str) -> int:
                 (topic_id,),
             )
             return cur.fetchone()[0]
+    finally:
+        conn.close()
+
+
+# ── Pipeline run tracking ─────────────────────────────────────────────────
+
+def create_pipeline_run(
+    run_type: str,
+    year_group: str,
+    subject: str,
+    topic_id: Optional[str] = None,
+    tier: Optional[str] = None,
+) -> str:
+    """Create a pipeline_runs row and return its id."""
+    run_id = str(uuid.uuid4())
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO pipeline_runs (
+                    id, run_type, year_group, subject, topic_id, tier,
+                    status, pipeline_version
+                ) VALUES (%s, %s, %s, %s, %s, %s, 'running', %s)
+                """,
+                (run_id, run_type, year_group, subject, topic_id, tier, config.PIPELINE_VERSION),
+            )
+        conn.commit()
+    finally:
+        conn.close()
+    return run_id
+
+
+def complete_pipeline_run(
+    run_id: str,
+    items_attempted: int,
+    items_published: int,
+    items_staged: int,
+    items_failed: int,
+    error_log: list[str],
+    success: bool = True,
+) -> None:
+    """Mark a pipeline_runs row as completed or failed."""
+    status = "completed" if success else "failed"
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                UPDATE pipeline_runs SET
+                    status = %s,
+                    items_attempted = %s,
+                    items_published = %s,
+                    items_staged = %s,
+                    items_failed = %s,
+                    error_log = %s,
+                    completed_at = now()
+                WHERE id = %s
+                """,
+                (
+                    status,
+                    items_attempted,
+                    items_published,
+                    items_staged,
+                    items_failed,
+                    json.dumps(error_log),
+                    run_id,
+                ),
+            )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def get_pipeline_run(run_id: str) -> Optional[dict]:
+    conn = get_connection()
+    try:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("SELECT * FROM pipeline_runs WHERE id = %s", (run_id,))
+            row = cur.fetchone()
+    finally:
+        conn.close()
+    return dict(row) if row else None
+
+
+def list_pipeline_runs(limit: int = 50) -> list[dict]:
+    conn = get_connection()
+    try:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute(
+                "SELECT * FROM pipeline_runs ORDER BY started_at DESC LIMIT %s",
+                (limit,),
+            )
+            return [dict(r) for r in cur.fetchall()]
+    finally:
+        conn.close()
+
+
+def cancel_pipeline_run(run_id: str) -> bool:
+    """Mark a running pipeline run as cancelled. Returns True if updated."""
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                UPDATE pipeline_runs SET status = 'cancelled', completed_at = now()
+                WHERE id = %s AND status = 'running'
+                """,
+                (run_id,),
+            )
+            updated = cur.rowcount > 0
+        conn.commit()
+    finally:
+        conn.close()
+    return updated
+
+
+# ── Generation error tracking ─────────────────────────────────────────────
+
+def write_generation_error(
+    pipeline_run_id: Optional[str],
+    topic_id: Optional[str],
+    question_type: Optional[str],
+    tier: Optional[str],
+    stage_failed: Optional[int],
+    error_message: str,
+    raw_llm_output: Optional[dict] = None,
+) -> str:
+    """Write a generation_errors row. Returns the new error id."""
+    error_id = str(uuid.uuid4())
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO generation_errors (
+                    id, pipeline_run_id, topic_id, question_type, tier,
+                    stage_failed, error_message, raw_llm_output
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                """,
+                (
+                    error_id,
+                    pipeline_run_id,
+                    topic_id,
+                    question_type,
+                    tier,
+                    stage_failed,
+                    error_message,
+                    json.dumps(raw_llm_output) if raw_llm_output is not None else None,
+                ),
+            )
+        conn.commit()
+    finally:
+        conn.close()
+    return error_id
+
+
+# ── Coverage dashboard queries ────────────────────────────────────────────
+
+def get_topic_coverage(year_group: Optional[str] = None, subject: Optional[str] = None) -> list[dict]:
+    """Return topic coverage stats for the admin coverage dashboard."""
+    conn = get_connection()
+    try:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            params = []
+            where_clauses = []
+            if year_group:
+                where_clauses.append("yg.label = %s")
+                params.append(year_group)
+            if subject:
+                where_clauses.append("s.name = %s")
+                params.append(subject)
+
+            where_sql = ("WHERE " + " AND ".join(where_clauses)) if where_clauses else ""
+
+            cur.execute(
+                f"""
+                SELECT
+                    t.id,
+                    t.title,
+                    t.is_published,
+                    yg.label AS year_group,
+                    s.name   AS subject,
+                    COUNT(CASE WHEN qq.status = 'published' THEN 1 END) AS published_questions,
+                    COUNT(CASE WHEN qq.status = 'staged'    THEN 1 END) AS staged_questions,
+                    COUNT(CASE WHEN qq.status = 'flagged'   THEN 1 END) AS flagged_questions
+                FROM topics t
+                JOIN year_groups yg ON yg.id = t.year_group_id
+                JOIN subjects    s  ON s.id  = t.subject_id
+                LEFT JOIN quiz_questions qq ON qq.topic_id = t.id
+                {where_sql}
+                GROUP BY t.id, t.title, t.is_published, yg.label, s.name
+                ORDER BY s.name, yg.label, t.order_index
+                """,
+                params,
+            )
+            return [dict(r) for r in cur.fetchall()]
     finally:
         conn.close()

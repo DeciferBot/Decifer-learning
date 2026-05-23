@@ -39,10 +39,12 @@ export default async function PractisePage({ params }: { params: { id: string } 
 
   if (!topic) notFound()
 
+  // Phase 11A: filter status='published' so only approved practice games reach children.
   const { data: game } = await supabase
     .from('practice_games')
     .select('id, game_type, config_json')
     .eq('topic_id', params.id)
+    .eq('status', 'published')
     .maybeSingle<GameRow>()
 
   if (!game || game.game_type !== 'fill_blank') notFound()

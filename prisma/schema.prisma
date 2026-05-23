@@ -195,6 +195,11 @@ model LearnContent {
   examples_json        Json?
   foundation_audio_url String?
   status               ContentStatus @default(staged)
+  // Phase 11A provenance fields
+  confidence_score     Float?
+  source_chunk_ids     Json?
+  generator_version    String?
+  published_at         DateTime?
 
   topic Topic @relation(fields: [topic_id], references: [id])
 
@@ -202,10 +207,12 @@ model LearnContent {
 }
 
 model PracticeGame {
-  id          String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  topic_id    String @db.Uuid
+  id          String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  topic_id    String        @db.Uuid
   game_type   String
   config_json Json
+  // Phase 11A: published gate for child-facing queries
+  status      ContentStatus @default(staged)
 
   topic Topic @relation(fields: [topic_id], references: [id])
 
@@ -229,6 +236,11 @@ model QuizQuestion {
   status            ContentStatus @default(staged)
   source_chunk_ids  Json?
   created_at        DateTime      @default(now())
+  // Phase 11A provenance fields
+  question_metadata Json?
+  generator_version String?
+  verifier_version  String?
+  published_at      DateTime?
 
   topic           Topic           @relation(fields: [topic_id], references: [id])
   quiz_answers    QuizAnswer[]
@@ -236,6 +248,46 @@ model QuizQuestion {
 
   @@index([topic_id, status, tier])
   @@map("quiz_questions")
+}
+
+// ---------- Pipeline tracking (Phase 11A) ----------
+
+model PipelineRun {
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  run_type         String
+  year_group       String
+  subject          String
+  topic_id         String?   @db.Uuid
+  tier             String?
+  status           String    @default("running")
+  items_attempted  Int       @default(0)
+  items_published  Int       @default(0)
+  items_staged     Int       @default(0)
+  items_failed     Int       @default(0)
+  error_log        Json      @default("[]")
+  started_at       DateTime  @default(now())
+  completed_at     DateTime?
+  pipeline_version String?
+
+  generation_errors GenerationError[]
+
+  @@map("pipeline_runs")
+}
+
+model GenerationError {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  pipeline_run_id  String?  @db.Uuid
+  topic_id         String?  @db.Uuid
+  question_type    String?
+  tier             String?
+  stage_failed     Int?
+  error_message    String
+  raw_llm_output   Json?
+  created_at       DateTime @default(now())
+
+  pipeline_run PipelineRun? @relation(fields: [pipeline_run_id], references: [id])
+
+  @@map("generation_errors")
 }
 
 // ---------- Gamification ----------
