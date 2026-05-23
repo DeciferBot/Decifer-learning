@@ -57,8 +57,9 @@ def _lt_errors(text: str) -> list[dict]:
         return [
             {
                 "offset": m.offset,
-                "length": m.errorLength,
-                "rule": m.ruleId,
+                # language_tool_python ≥ 3.x uses snake_case attributes
+                "length": getattr(m, "error_length", None) or getattr(m, "errorLength", 0),
+                "rule": getattr(m, "rule_id", None) or getattr(m, "ruleId", ""),
                 "message": m.message,
             }
             for m in matches
@@ -127,8 +128,8 @@ def _verify_intentional_error_question(data: dict, qtype: str) -> Tuple[bool, st
         return False, "question_metadata.instruction_text is missing"
     if not stimulus_text:
         return False, "question_metadata.stimulus_text is missing"
-    if not intentional_error_type:
-        return False, "question_metadata.intentional_error_type is missing"
+    # intentional_error_type is OPTIONAL: null/absent means this is an identification
+    # question (e.g. "which word is the conjunction?") where the stimulus is correct English.
 
     # instruction_text must be grammatically correct
     instr_errors = _lt_errors(str(instruction_text))
@@ -140,6 +141,14 @@ def _verify_intentional_error_question(data: dict, qtype: str) -> Tuple[bool, st
     ok, detail = _check_prose_fields(data)
     if not ok:
         return False, detail
+
+    # If no intentional_error_type → identification question; stimulus must be clean
+    if not intentional_error_type:
+        stim_errors = _lt_errors(str(stimulus_text))
+        if stim_errors:
+            detail = "; ".join(e["message"] for e in stim_errors[:3])
+            return False, f"Grammar error in stimulus_text (identification question, no error expected): {detail}"
+        return True, f"{qtype} identification question verified (no intentional error)"
 
     # Validate stimulus_text against intentional_error_span
     error_span = metadata.get("intentional_error_span")

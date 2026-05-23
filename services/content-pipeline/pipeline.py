@@ -199,10 +199,12 @@ Valid question_type values:
   english_literary_analysis — literary analysis (REQUIRES source_chunk_ids)
 
 For english_grammar and english_spelling, include question_metadata with:
-  instruction_text: grammatically correct instruction to the pupil
-  stimulus_text: the text shown to the child (may contain intentional error)
-  intentional_error_type: e.g. "missing_comma", "wrong_verb_tense", "misspelled_word"
-  intentional_error_span: {{"start": <char_offset>, "end": <char_offset>}} (0-indexed, within stimulus_text)
+  instruction_text: grammatically correct instruction to the pupil (e.g. "Which word in this sentence is a conjunction?")
+  stimulus_text: the text shown to the child
+  intentional_error_type: e.g. "missing_comma", "wrong_verb_tense", "misspelled_word" — set to null if no error
+  intentional_error_span: {{"start": <char_offset>, "end": <char_offset>}} (0-indexed, exclusive end) — ONLY include this if stimulus_text contains a deliberate error; set to null for identification/selection questions where there is no error in the stimulus
+
+IMPORTANT: For identification questions (e.g. "which word is a conjunction?"), the stimulus_text is correct English — set intentional_error_type and intentional_error_span to null.
 
 Return ONLY valid JSON with this exact structure (no extra text, no markdown fences):
 {{
@@ -218,8 +220,8 @@ Return ONLY valid JSON with this exact structure (no extra text, no markdown fen
   "question_metadata": {{
     "instruction_text": "<instruction (for grammar/spelling only)>",
     "stimulus_text": "<stimulus text (for grammar/spelling only)>",
-    "intentional_error_type": "<error type (for grammar/spelling only)>",
-    "intentional_error_span": {{"start": 0, "end": 0}}
+    "intentional_error_type": null,
+    "intentional_error_span": null
   }}
 }}
 
@@ -639,11 +641,18 @@ def stage6_score(
         result.log_stage(f"  RAG grounding OK: {len(source_chunk_ids)} chunk(s) cited")
 
     # Confidence scoring
+    # Weights: computation=60, consensus=25, RAG grounding bonus=+5 (for RAG-required types),
+    # constitutional=−10/violation, dedup=−20, structure=−30.
+    # RAG bonus aligns the max achievable score (90) with the 90-threshold for biology/science
+    # factual types that cannot be computationally verified (CLAUDE.md §8).
     score = 0.0
     if verified:
         score += 60
     if consensus_passed:
         score += 25
+    # +5 RAG grounding bonus for types where source_chunk_ids is confirmed non-empty
+    if qtype in config.RAG_REQUIRED_TYPES and source_chunk_ids:
+        score += 5
     score -= len(violations) * 10
     if is_duplicate:
         score -= 20
