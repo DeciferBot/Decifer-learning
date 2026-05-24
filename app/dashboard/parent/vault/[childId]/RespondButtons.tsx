@@ -49,9 +49,9 @@ export function RespondButtons({ requestId, childName, status }: Props) {
   if (status === 'counter_offered') {
     return (
       <div className="rounded-2xl border border-maths/20 bg-maths/5 p-4 space-y-1.5">
-        <p className="font-heading text-sm font-bold text-maths">Waiting for {childName}</p>
+        <p className="font-heading text-sm font-bold text-maths">Waiting for child response</p>
         <p className="text-sm text-muted">
-          {childName} can accept or dismiss your suggestion from their Reward Vault page.
+          Your child can accept or dismiss this counter-offer.
         </p>
       </div>
     )

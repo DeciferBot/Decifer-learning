@@ -3,6 +3,7 @@ import { RegisterForm } from './RegisterForm'
 
 export const metadata = {
   title: 'Create account — Decifer Learning',
+  robots: { index: false, follow: false },
 }
 
 export default function RegisterPage() {

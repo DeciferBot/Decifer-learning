@@ -146,7 +146,12 @@ Return ONLY valid JSON with this exact structure (no extra text, no markdown fen
 }}"""
 
 
-def _build_english_prompt(topic: dict, tier: str, chunks: list[dict]) -> str:
+def _build_english_prompt(
+    topic: dict,
+    tier: str,
+    chunks: list[dict],
+    existing_questions: list[dict] | None = None,
+) -> str:
     year_label, key_stage = _YEAR_GROUP_DISPLAY.get(
         topic["year_group_label"], (topic["year_group_label"], "")
     )
@@ -172,6 +177,35 @@ def _build_english_prompt(topic: dict, tier: str, chunks: list[dict]) -> str:
             "questions, source_chunk_ids MUST be non-empty or the question will be rejected. "
             "Use english_grammar or english_spelling instead, or wait for curriculum chunks to be seeded."
         )
+
+    # Diversity hint: tell the LLM what answers/stimuli already exist so it varies
+    if existing_questions:
+        used_answers = list({
+            q.get("correct_answer", "").strip()
+            for q in existing_questions
+            if q.get("correct_answer")
+        })
+        used_stimuli = list({
+            (q.get("question_metadata") or {}).get("stimulus_text", "").strip()
+            for q in existing_questions
+            if (q.get("question_metadata") or {}).get("stimulus_text")
+        })
+        diversity_lines = []
+        if used_answers:
+            diversity_lines.append(
+                "IMPORTANT — DIVERSITY: The following correct_answer values have already been used. "
+                "Generate a question with a DIFFERENT correct_answer:\n  "
+                + ", ".join(f'"{a}"' for a in used_answers[:10])
+            )
+        if used_stimuli:
+            diversity_lines.append(
+                "The following stimulus_text sentences have already been used. "
+                "Do NOT reuse them — create a DIFFERENT sentence:\n  "
+                + "\n  ".join(f'"{s}"' for s in used_stimuli[:8])
+            )
+        diversity_section = "\n\n" + "\n\n".join(diversity_lines) if diversity_lines else ""
+    else:
+        diversity_section = ""
 
     return f"""You are an expert UK English curriculum writer generating quiz questions for {year_label} pupils ({key_stage}, UK National Curriculum).
 
@@ -205,6 +239,11 @@ For english_grammar and english_spelling, include question_metadata with:
   intentional_error_type: e.g. "missing_comma", "wrong_verb_tense", "misspelled_word" — set to null if no error
   intentional_error_span: {{"start": <char_offset>, "end": <char_offset>}} (0-indexed, exclusive end) — ONLY include this if stimulus_text contains a deliberate error; set to null for identification/selection questions where there is no error in the stimulus
 
+CRITICAL — QUESTION_TEXT FORMAT: For english_grammar and english_spelling, question_text MUST include the stimulus sentence directly, e.g.:
+  "Which word is the conjunction in this sentence?\n\n'She wore her coat because it was cold.'"
+  "Find the grammar mistake in this sentence:\n\n'He go to school yesterday.'"
+Never write a question_text that only says "Which word is the conjunction?" without showing the sentence — the child cannot answer without seeing it.
+
 IMPORTANT: For identification questions (e.g. "which word is a conjunction?"), the stimulus_text is correct English — set intentional_error_type and intentional_error_span to null.
 
 Return ONLY valid JSON with this exact structure (no extra text, no markdown fences):
@@ -226,7 +265,7 @@ Return ONLY valid JSON with this exact structure (no extra text, no markdown fen
   }}
 }}
 
-For comprehension/vocabulary/literary_analysis, omit question_metadata or set it to null."""
+For comprehension/vocabulary/literary_analysis, omit question_metadata or set it to null.{diversity_section}"""
 
 
 def _build_science_prompt(topic: dict, tier: str, chunks: list[dict]) -> str:
@@ -305,11 +344,21 @@ Return ONLY valid JSON (no extra text, no markdown fences):
 }}"""
 
 
-def _build_generation_prompt(topic: dict, tier: str, chunks: list[dict]) -> str:
-    """Dispatch to subject-specific prompt builder."""
+def _build_generation_prompt(
+    topic: dict,
+    tier: str,
+    chunks: list[dict],
+    existing_questions: list[dict] | None = None,
+) -> str:
+    """Dispatch to subject-specific prompt builder.
+
+    existing_questions: list of {question_text, correct_answer, question_metadata}
+    for published questions in this topic. Passed to English prompts as a diversity
+    hint so the LLM avoids regenerating near-duplicate questions.
+    """
     subject = topic.get("subject_name", "").lower()
     if "english" in subject:
-        return _build_english_prompt(topic, tier, chunks)
+        return _build_english_prompt(topic, tier, chunks, existing_questions=existing_questions)
     if "science" in subject:
         return _build_science_prompt(topic, tier, chunks)
     return _build_maths_prompt(topic, tier, chunks)
@@ -397,7 +446,14 @@ def stage1_generate(topic: dict, tier: str, result: PipelineResult) -> Optional[
     chunks = db.retrieve_chunks(topic["subject_name"], topic["year_group_label"], query_embedding)
     result.log_stage(f"  retrieved {len(chunks)} curriculum chunks for {topic['subject_name']}")
 
-    prompt = _build_generation_prompt(topic, tier, chunks)
+    # For English topics, pass published questions as a diversity hint so the LLM
+    # avoids generating near-duplicate questions (e.g. same conjunction word repeated).
+    subject = topic.get("subject_name", "").lower()
+    existing_questions: list[dict] | None = None
+    if "english" in subject:
+        existing_questions = db.get_published_questions_full(topic["id"])
+
+    prompt = _build_generation_prompt(topic, tier, chunks, existing_questions=existing_questions)
 
     for attempt in range(3):
         try:

@@ -4,6 +4,7 @@ import { ResetPasswordForm } from './ResetPasswordForm'
 
 export const metadata = {
   title: 'Set new password — Decifer Learning',
+  robots: { index: false, follow: false },
 }
 
 export default function ResetPasswordPage() {

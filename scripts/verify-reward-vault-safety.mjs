@@ -336,6 +336,28 @@ check('24', 'Respond route validates note max 280 chars with NOTE_TOO_LONG error
   return src.includes('280') && src.includes('NOTE_TOO_LONG')
 })
 
+// ── 25. Stage 1.4 — fulfilment does not touch any learning table ─────────────
+
+check('25', 'Stage 1.4: markFulfilled does not write to quiz_attempts, session_answers, lesson tables, or profile.total_points', () => {
+  const src = read('lib/vault/requests.ts')
+  const markIdx = src.indexOf('async function markFulfilled')
+  const afterMark = src.slice(markIdx, markIdx + 900)
+  const forbidden = [
+    'total_points',
+    'point_events',
+    'topic_progress',
+    'quiz_attempts',
+    'quizAttempts',
+    'session_answers',
+    'sessionAnswers',
+    'profile_badges',
+    'profileBadges',
+    'lesson_progress',
+    'lessonProgress',
+  ]
+  return forbidden.every((token) => !afterMark.includes(token))
+})
+
 // ── Report ────────────────────────────────────────────────────────────────────
 
 const totalChecks = pass.length + fail.length

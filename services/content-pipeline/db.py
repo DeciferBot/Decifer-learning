@@ -157,6 +157,31 @@ def get_published_question_texts(topic_id: str) -> list[dict]:
         conn.close()
 
 
+def get_published_questions_full(topic_id: str) -> list[dict]:
+    """Return question_text, correct_answer, and question_metadata for all published questions.
+
+    Used by the English prompt builder to inject a diversity hint — the LLM is told
+    which answers and stimulus sentences already exist so it generates distinct questions.
+    Capped at 20 rows to keep prompt size manageable.
+    """
+    conn = get_connection()
+    try:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute(
+                """
+                SELECT question_text, correct_answer, question_metadata
+                FROM quiz_questions
+                WHERE topic_id = %s AND status = 'published'
+                ORDER BY created_at DESC
+                LIMIT 20
+                """,
+                (topic_id,),
+            )
+            return [dict(r) for r in cur.fetchall()]
+    finally:
+        conn.close()
+
+
 # ── Question write-back ────────────────────────────────────────────────────
 
 def write_question(

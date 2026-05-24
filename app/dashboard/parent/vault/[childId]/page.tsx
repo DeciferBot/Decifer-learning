@@ -26,10 +26,12 @@ const ACTIVE_STATUS_LABELS: Record<string, { label: string; colour: string; bg: 
 }
 
 const HISTORY_STATUS: Record<string, { label: string; colour: string }> = {
-  approved:  { label: 'Approved — to give', colour: 'text-correct font-semibold' },
-  rejected:  { label: 'Declined',           colour: 'text-muted' },
-  cancelled: { label: 'Withdrawn',          colour: 'text-muted' },
-  completed: { label: 'Done ✓',             colour: 'text-science font-semibold' },
+  approved:   { label: 'Approved, ready to give', colour: 'text-correct font-semibold' },
+  rejected:   { label: 'Declined',                colour: 'text-muted' },
+  cancelled:  { label: 'Closed',                  colour: 'text-muted' },
+  withdrawn:  { label: 'Closed',                  colour: 'text-muted' },
+  dismissed:  { label: 'Closed',                  colour: 'text-muted' },
+  completed:  { label: 'Done',                    colour: 'text-science font-semibold' },
 }
 
 type Params = { params: { childId: string } }
@@ -219,8 +221,8 @@ export default async function ParentVaultPage({ params }: Params) {
                 <li key={r.id} className="text-sm space-y-1.5">
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <span className={HISTORY_STATUS[r.status]?.colour ?? 'text-ink'}>
-                        {HISTORY_STATUS[r.status]?.label ?? r.status.replace(/_/g, ' ')}
+                      <span className={HISTORY_STATUS[r.status]?.colour ?? 'text-muted'}>
+                        {HISTORY_STATUS[r.status]?.label ?? 'Closed'}
                       </span>
                       {r.reward_label && (
                         <span className="ml-1 text-muted">· {r.reward_label}</span>

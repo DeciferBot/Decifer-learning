@@ -1,6 +1,6 @@
 {
   "name": "decifer-learning",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "private": true,
   "description": "Decifer Learning — UK National Curriculum PWA. See CLAUDE.md.",
   "scripts": {
@@ -19,9 +19,12 @@
     "verify-lesson-store-safety": "node --env-file=.env.local scripts/verify-lesson-store-safety.mjs"
   },
   "dependencies": {
+    "@next/third-parties": "^16.2.6",
     "@prisma/client": "^5.22.0",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.106.0",
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
     "framer-motion": "^11.11.0",
     "idb": "^8.0.0",
     "next": "14.2.35",

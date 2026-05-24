@@ -212,26 +212,33 @@ export default async function ParentDashboardPage() {
                 Weak areas will appear after your child completes quizzes.
               </p>
             )}
+
+            {/* Reward Vault — standing entry point */}
+            <Link
+              href={`/dashboard/parent/vault/${child.profileId}`}
+              className="flex items-center justify-between gap-3 rounded-xl border border-black/5 bg-black/[0.02] px-4 py-3 hover:bg-black/[0.04]"
+            >
+              <div>
+                <p className="font-heading text-sm font-semibold text-ink">🎁 Reward Vault</p>
+                <p className="mt-0.5 text-xs text-muted">
+                  Review reward requests and family-approved milestones.
+                </p>
+              </div>
+              {vault.pendingRequestCount > 0 && (
+                <span className="flex-none rounded-full bg-brand px-2 py-0.5 text-xs font-bold text-white">
+                  {vault.pendingRequestCount} pending
+                </span>
+              )}
+            </Link>
           </div>
 
           {/* Footer links */}
-          <div className="flex items-center justify-between gap-3 border-t border-black/5 px-5 py-3">
+          <div className="border-t border-black/5 px-5 py-3">
             <Link
               href={`/dashboard/parent/children/${child.profileId}`}
               className="text-sm font-semibold text-maths hover:underline"
             >
               View full report →
-            </Link>
-            <Link
-              href={`/dashboard/parent/vault/${child.profileId}`}
-              className="flex items-center gap-1 text-sm font-semibold text-muted hover:text-ink"
-            >
-              🎁 Reward Vault
-              {vault.pendingRequestCount > 0 && (
-                <span className="ml-1 rounded-full bg-brand px-1.5 py-0.5 text-xs font-bold text-white">
-                  {vault.pendingRequestCount}
-                </span>
-              )}
             </Link>
           </div>
         </div>
