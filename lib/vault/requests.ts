@@ -160,9 +160,10 @@ export async function respondToRequest(
   const action = input.action
 
   // Validate allowed transitions
-  if (request.status === 'pending') {
+  // Parents can act on both pending and deferred requests.
+  if (request.status === 'pending' || request.status === 'deferred') {
     if (!isParent || !['approve', 'reject', 'defer', 'counter_offer'].includes(action)) {
-      throw new VaultError('INVALID_TRANSITION', `Action '${action}' is not allowed on a pending request`)
+      throw new VaultError('INVALID_TRANSITION', `Action '${action}' is not allowed on a ${request.status} request`)
     }
   } else if (request.status === 'counter_offered') {
     if (!isChild || !['accept_counter', 'dismiss_counter'].includes(action)) {

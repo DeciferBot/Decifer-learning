@@ -237,6 +237,18 @@ check('C22', 'Parent vault page renders FulfillButton for approved requests', ()
   )
 })
 
+// ── Step 7b: Parent can act on deferred requests (pilot path: defer → counter_offer) ───
+
+check('C25', 'respondToRequest allows parent actions on deferred requests (not just pending)', () => {
+  const src = read('lib/vault/requests.ts')
+  // The transition guard must cover deferred as well as pending
+  return (
+    src.includes("request.status === 'pending' || request.status === 'deferred'") ||
+    src.includes("['pending', 'deferred'].includes(request.status)") ||
+    src.includes('"pending" || request.status === "deferred"')
+  )
+})
+
 // ── Step 8: Note validation ───────────────────────────────────────────────────
 
 check('C23', 'Respond route validates note max 280 chars before processing', () => {
