@@ -24,7 +24,7 @@ const STATUS_COPY: Record<string, { label: string; description: string; colour: 
   },
   deferred: {
     label: 'Saved for later',
-    description: 'Your parent has saved your request to respond to soon.',
+    description: 'Your parent has seen your request and will get back to you soon — hang tight!',
     colour: 'text-muted',
   },
   counter_offered: {
@@ -122,9 +122,11 @@ export function RequestSection({ hasCredits, hasPendingRequest, pendingRequest, 
 
   if (!hasCredits) {
     return (
-      <div className="rounded-2xl border border-black/5 bg-surface p-5 shadow-sm">
-        <p className="text-sm text-muted text-center">
-          Earn your next milestone to unlock a reward credit.
+      <div className="rounded-2xl border border-black/5 bg-surface p-5 shadow-sm text-center space-y-1">
+        <p className="text-2xl" aria-hidden>🔒</p>
+        <p className="text-sm font-semibold text-ink">Keep going to unlock a reward</p>
+        <p className="text-xs text-muted">
+          Reach your next milestone and a reward will be waiting for you.
         </p>
       </div>
     )

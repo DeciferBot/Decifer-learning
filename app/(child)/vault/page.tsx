@@ -84,9 +84,39 @@ export default async function VaultPage() {
       <div>
         <h1 className="font-heading text-2xl font-bold text-ink">Reward Vault</h1>
         <p className="mt-1 text-sm text-muted">
-          Reach milestones to earn reward credits — then claim a reward with your parent.
+          Keep learning to reach milestones — then ask your parent for a reward.
         </p>
       </div>
+
+      {/* ── How it works (shown until first milestone is reached) ────────── */}
+      {status.currentBand === 'none' && (
+        <div className="rounded-2xl border border-black/5 bg-surface p-5 shadow-sm">
+          <p className="text-xs font-bold uppercase tracking-widest text-muted mb-3">How it works</p>
+          <ol className="space-y-3">
+            <li className="flex items-start gap-3">
+              <span className="flex-none text-lg" aria-hidden>📚</span>
+              <div>
+                <p className="text-sm font-semibold text-ink">Learn and complete topics</p>
+                <p className="text-xs text-muted">Every quiz you pass earns you XP and gets you closer to a milestone.</p>
+              </div>
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="flex-none text-lg" aria-hidden>🏆</span>
+              <div>
+                <p className="text-sm font-semibold text-ink">Reach a milestone</p>
+                <p className="text-xs text-muted">Hit Bronze, Silver, Gold, or Platinum to unlock a reward.</p>
+              </div>
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="flex-none text-lg" aria-hidden>🎁</span>
+              <div>
+                <p className="text-sm font-semibold text-ink">Ask your parent</p>
+                <p className="text-xs text-muted">Send a request and your parent will decide on the reward — together.</p>
+              </div>
+            </li>
+          </ol>
+        </div>
+      )}
 
       {/* ── Current status card ──────────────────────────────────────────── */}
       <div className="rounded-2xl border border-black/5 bg-surface p-5 shadow-sm space-y-3">

@@ -6,6 +6,8 @@ import { prisma } from '@/lib/prisma'
 import { getVaultStatus } from '@/lib/vault/status'
 import { getOrCreateParentSettings } from '@/lib/vault/settings'
 import { RespondButtons } from './RespondButtons'
+import { FulfillButton } from './FulfillButton'
+import { RewardSettingsForm } from './RewardSettingsForm'
 
 export const metadata = { title: 'Reward Vault — Decifer Learning' }
 
@@ -15,6 +17,13 @@ const BAND_CONFIG: Record<string, { label: string; emoji: string }> = {
   silver:   { label: 'Silver Achiever',  emoji: '🥈' },
   gold:     { label: 'Gold Champion',    emoji: '🥇' },
   platinum: { label: 'Platinum Master',  emoji: '💎' },
+}
+
+const HISTORY_STATUS: Record<string, { label: string; colour: string }> = {
+  approved:  { label: 'Approved — to give', colour: 'text-correct font-semibold' },
+  rejected:  { label: 'Declined',           colour: 'text-muted' },
+  cancelled: { label: 'Withdrawn',          colour: 'text-muted' },
+  completed: { label: 'Done ✓',             colour: 'text-science font-semibold' },
 }
 
 type Params = { params: { childId: string } }
@@ -84,6 +93,29 @@ export default async function ParentVaultPage({ params }: Params) {
         <h1 className="font-heading text-xl font-bold text-ink">{childName}&apos;s Reward Vault</h1>
       </div>
 
+      {/* ── How it works ─────────────────────────────────────────────────── */}
+      <div className="rounded-2xl border border-black/5 bg-surface p-5 shadow-sm">
+        <p className="text-xs font-bold uppercase tracking-widest text-muted mb-3">How rewards work</p>
+        <ol className="space-y-2">
+          <li className="flex items-start gap-2 text-sm text-muted">
+            <span className="flex-none font-bold text-ink">1.</span>
+            <span><span className="text-ink">{childName}</span> earns milestones by completing topics and quizzes.</span>
+          </li>
+          <li className="flex items-start gap-2 text-sm text-muted">
+            <span className="flex-none font-bold text-ink">2.</span>
+            <span>When a milestone is reached, they can send you a reward request.</span>
+          </li>
+          <li className="flex items-start gap-2 text-sm text-muted">
+            <span className="flex-none font-bold text-ink">3.</span>
+            <span>You decide — approve, suggest something different, save for later, or decline.</span>
+          </li>
+          <li className="flex items-start gap-2 text-sm text-muted">
+            <span className="flex-none font-bold text-ink">4.</span>
+            <span>Once you&apos;ve given the reward, come back and tap <strong className="text-ink">Mark as done</strong>.</span>
+          </li>
+        </ol>
+      </div>
+
       {/* ── Vault summary ────────────────────────────────────────────────── */}
       {vaultStatus && (
         <div className="rounded-2xl border border-black/5 bg-surface p-5 shadow-sm">
@@ -92,14 +124,13 @@ export default async function ParentVaultPage({ params }: Params) {
               <span className="text-lg">{bandCfg.emoji}</span>
               <span className="font-heading text-sm font-semibold text-ink">{bandCfg.label}</span>
             </div>
-            <div className="text-right">
-              <span className="font-heading text-xl font-bold text-brand">
-                {vaultStatus.creditBalance}
+            {vaultStatus.creditBalance > 0 ? (
+              <span className="rounded-full bg-correct/15 px-3 py-1 text-xs font-bold text-correct">
+                🎁 {vaultStatus.creditBalance === 1 ? 'Reward available' : `${vaultStatus.creditBalance} rewards available`}
               </span>
-              <span className="ml-1 text-xs text-muted">
-                {vaultStatus.creditBalance === 1 ? 'credit' : 'credits'}
-              </span>
-            </div>
+            ) : (
+              <span className="text-xs text-muted">No reward ready yet</span>
+            )}
           </div>
           <div className="mt-3 grid grid-cols-3 gap-2 text-center text-xs text-muted">
             <div>
@@ -136,8 +167,13 @@ export default async function ParentVaultPage({ params }: Params) {
           <RespondButtons requestId={activeRequest.id} childName={childName} />
         </div>
       ) : (
-        <div className="rounded-2xl border border-black/5 bg-surface p-5 text-center text-sm text-muted">
-          No pending reward request from {childName}.
+        <div className="rounded-2xl border border-black/5 bg-surface p-5 text-center space-y-1">
+          <p className="text-sm text-muted">
+            {childName} hasn&apos;t sent a reward request yet.
+          </p>
+          <p className="text-xs text-muted">
+            When they do, it will appear here for you to respond to.
+          </p>
         </div>
       )}
 
@@ -145,12 +181,7 @@ export default async function ParentVaultPage({ params }: Params) {
       <div className="rounded-2xl border border-black/5 bg-surface p-5 shadow-sm space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="font-heading text-sm font-semibold text-ink">Family reward ideas</h2>
-          <Link
-            href={`/api/vault/parent/settings/${params.childId}`}
-            className="text-xs text-muted hover:text-ink"
-          >
-            Edit via API
-          </Link>
+          <RewardSettingsForm childId={params.childId} initialOptions={familyOptions} />
         </div>
         {familyOptions.length > 0 ? (
           <ul className="space-y-1.5">
@@ -162,7 +193,7 @@ export default async function ParentVaultPage({ params }: Params) {
             ))}
           </ul>
         ) : (
-          <p className="text-sm text-muted">No reward ideas set yet.</p>
+          <p className="text-sm text-muted">No reward ideas set yet — add some using &ldquo;Edit ideas&rdquo; above.</p>
         )}
       </div>
 
@@ -170,21 +201,38 @@ export default async function ParentVaultPage({ params }: Params) {
       {requestHistory.filter(r => !['pending', 'deferred', 'counter_offered'].includes(r.status)).length > 0 && (
         <div className="rounded-2xl border border-black/5 bg-surface p-5 shadow-sm space-y-3">
           <h2 className="font-heading text-sm font-semibold text-ink">History</h2>
-          <ul className="space-y-2">
+          <ul className="space-y-3">
             {requestHistory
               .filter(r => !['pending', 'deferred', 'counter_offered'].includes(r.status))
               .map((r) => (
-                <li key={r.id} className="flex items-start justify-between gap-2 text-sm">
-                  <div>
-                    <span className="font-semibold text-ink capitalize">{r.status.replace('_', ' ')}</span>
-                    {r.reward_label && <span className="ml-1 text-muted">· {r.reward_label}</span>}
-                    {r.child_message && (
-                      <p className="text-xs text-muted italic mt-0.5">&ldquo;{r.child_message}&rdquo;</p>
-                    )}
+                <li key={r.id} className="text-sm space-y-1.5">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <span className={HISTORY_STATUS[r.status]?.colour ?? 'text-ink'}>
+                        {HISTORY_STATUS[r.status]?.label ?? r.status.replace(/_/g, ' ')}
+                      </span>
+                      {r.reward_label && (
+                        <span className="ml-1 text-muted">· {r.reward_label}</span>
+                      )}
+                      {r.child_message && (
+                        <p className="text-xs text-muted italic mt-0.5">&ldquo;{r.child_message}&rdquo;</p>
+                      )}
+                      {r.parent_response_note && r.status !== 'approved' && (
+                        <p className="text-xs text-muted mt-0.5">Your note: {r.parent_response_note}</p>
+                      )}
+                    </div>
+                    <span className="flex-none text-xs text-muted">
+                      {new Date(r.created_at).toLocaleDateString('en-GB')}
+                    </span>
                   </div>
-                  <span className="flex-none text-xs text-muted">
-                    {new Date(r.created_at).toLocaleDateString('en-GB')}
-                  </span>
+                  {r.status === 'approved' && (
+                    <div className="space-y-1.5">
+                      <p className="text-xs text-muted">
+                        Once you&apos;ve given this reward, tap the button below.
+                      </p>
+                      <FulfillButton requestId={r.id} />
+                    </div>
+                  )}
                 </li>
               ))}
           </ul>

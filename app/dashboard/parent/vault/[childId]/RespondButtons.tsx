@@ -51,14 +51,16 @@ export function RespondButtons({ requestId, childName }: Props) {
         <p className="font-heading text-sm font-bold text-correct">Approve {childName}&apos;s request</p>
         <input
           type="text"
-          placeholder="Reward label (e.g. Movie night at home)"
+          maxLength={120}
+          placeholder="What's the reward? (e.g. Movie night at home)"
           className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-brand focus:outline-none"
           value={rewardLabel}
           onChange={(e) => setRewardLabel(e.target.value)}
         />
         <input
           type="text"
-          placeholder="Note to child (optional)"
+          maxLength={280}
+          placeholder="Note to your child (optional)"
           className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-brand focus:outline-none"
           value={note}
           onChange={(e) => setNote(e.target.value)}
@@ -80,6 +82,7 @@ export function RespondButtons({ requestId, childName }: Props) {
         <p className="font-heading text-sm font-bold text-maths">Suggest an alternative</p>
         <input
           type="text"
+          maxLength={280}
           placeholder="Your suggestion (e.g. Trip to the park)"
           className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-brand focus:outline-none"
           value={rewardLabel}
@@ -106,7 +109,8 @@ export function RespondButtons({ requestId, childName }: Props) {
         <p className="font-heading text-sm font-bold text-incorrect">Decline this request</p>
         <input
           type="text"
-          placeholder="Note to child (optional)"
+          maxLength={280}
+          placeholder="Note to your child (optional)"
           className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-brand focus:outline-none"
           value={note}
           onChange={(e) => setNote(e.target.value)}

@@ -1,10 +1,10 @@
 /**
  * Reward Vault Stage 1 — closure gate verification script.
  *
- * Runs 22 structural, language, permission, and logic checks
+ * Runs 25 structural, language, permission, and logic checks
  * without hitting the network. All checks are static (file reads).
  *
- * Pass rate: 22/22 required to close Stage 1.
+ * Pass rate: 25/25 required to close Stage 1.1.
  *
  * Run: node --env-file=.env.local scripts/verify-reward-vault-safety.mjs
  */
@@ -316,6 +316,24 @@ check('22', 'Physical rewards are locked out in respond route and settings inter
   const interfaceBlock = settingsSrc.match(/interface ParentSettingsUpdate\s*\{[^}]+\}/)?.[0] ?? ''
   const settingsOk = !interfaceBlock.includes('physical')
   return respondOk && settingsOk
+})
+
+// ── 23. Fulfill endpoint is parent-only and calls markFulfilled ───────────────
+
+check('23', 'Fulfill endpoint exists, is parent-only, and calls markFulfilled', () => {
+  const src = read('app/api/vault/parent/fulfill/route.ts')
+  return (
+    src.includes('markFulfilled') &&
+    (src.includes("getUserRole(user) !== 'parent'") || src.includes("=== 'parent'")) &&
+    src.includes('Unauthorized')
+  )
+})
+
+// ── 24. Parent respond route validates note length ────────────────────────────
+
+check('24', 'Respond route validates note max 280 chars with NOTE_TOO_LONG error', () => {
+  const src = read('app/api/vault/parent/respond/route.ts')
+  return src.includes('280') && src.includes('NOTE_TOO_LONG')
 })
 
 // ── Report ────────────────────────────────────────────────────────────────────

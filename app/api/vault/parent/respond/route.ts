@@ -39,6 +39,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'requestId and action are required' }, { status: 400 })
   }
 
+  if (note !== undefined && note.length > 280) {
+    return NextResponse.json(
+      { error: 'Note must be 280 characters or fewer', code: 'NOTE_TOO_LONG' },
+      { status: 422 },
+    )
+  }
+
   const callerProfile = await prisma.profile.findUnique({
     where: { user_id: user.id },
     select: { id: true },
