@@ -1,8 +1,8 @@
 {
   "name": "decifer-learning",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "private": true,
-  "description": "Decifer Learning \u2014 UK National Curriculum PWA. See CLAUDE.md.",
+  "description": "Decifer Learning — UK National Curriculum PWA. See CLAUDE.md.",
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
