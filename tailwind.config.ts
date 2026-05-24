@@ -12,10 +12,10 @@ const config: Config = {
         surface: '#FFFFFF',
         // DECIFER master mark orange — consistent across all products
         mark: '#F05A28',
-        // Brand accent — orange
-        brand: '#F97316',
-        'brand-50': '#FFF7ED',
-        'brand-600': '#EA580C',
+        // Brand accent — aligned to DECIFER mark orange
+        brand: '#F05A28',
+        'brand-50': '#FEF0E8',
+        'brand-600': '#CC4A21',
         // Subject colours
         maths: '#6C9EFF',
         english: '#FF8FAB',
@@ -31,6 +31,18 @@ const config: Config = {
         // Typography
         ink: '#2D3748',
         muted: '#718096',
+        // State colours
+        success: '#0dc47c',
+        warning: '#f59e0b',
+        error: '#ef4444',
+        info: '#3b82f6',
+      },
+      borderRadius: {
+        sm: '0.375rem',
+        md: '0.5rem',
+        lg: '0.75rem',
+        xl: '1rem',
+        '2xl': '1.5rem',
       },
       fontFamily: {
         heading: ['var(--font-nunito)', 'ui-sans-serif', 'system-ui', 'sans-serif'],

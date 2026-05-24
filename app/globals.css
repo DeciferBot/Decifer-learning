@@ -5,10 +5,10 @@
 :root {
   --background: #FAFBFF;
   --surface: #FFFFFF;
-  /* Brand accent */
-  --brand: #F97316;
-  --brand-50: #FFF7ED;
-  --brand-600: #EA580C;
+  /* Brand accent — aligned to DECIFER mark orange */
+  --brand: #F05A28;
+  --brand-50: #FEF0E8;
+  --brand-600: #CC4A21;
   /* Subject colours */
   --maths: #6C9EFF;
   --english: #FF8FAB;
@@ -24,6 +24,17 @@
   /* Typography */
   --text-primary: #2D3748;
   --text-muted: #718096;
+  /* State colours */
+  --color-success: #0dc47c;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+  /* Radius scale */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
 }
 
 html,
@@ -70,4 +81,17 @@ body {
 }
 .learn-content em {
   font-style: italic;
+}
+
+/* ── Motion: respect user preference ───────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
