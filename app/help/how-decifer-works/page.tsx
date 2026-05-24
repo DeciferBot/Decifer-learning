@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { DeciferMark } from '@/components/ui/DeciferMark'
+import { DeciferLogo } from '@/components/ui/DeciferLogo'
 
 export const metadata = {
   title: 'How Decifer works — Decifer Learning',
@@ -21,7 +21,7 @@ export default function HowDeciferWorksPage() {
       <section className="space-y-4">
         <h2 className="font-heading text-xl font-bold text-ink">The name and the mark</h2>
         <div className="flex items-start gap-6">
-          <DeciferMark size="lg" />
+          <DeciferLogo size="lg" product="Learning" />
           <div className="text-sm text-muted space-y-2">
             <p>The name <strong className="text-ink">Decifer</strong> is a deliberate play on <em>decipher</em>: to understand, to decode, to make sense of something. That&apos;s exactly what learning feels like when it works.</p>
             <p>The brand mark, the offset <strong className="text-ink">&lt; &gt;</strong>, represents two people in dialogue. The <strong className="text-ink">&lt;</strong> is the learner: asking, exploring, opening a question. The <strong className="text-ink">&gt;</strong> is the guide: responding, explaining, giving feedback.</p>

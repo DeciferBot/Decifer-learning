@@ -1,8 +1,8 @@
 import Link from 'next/link'
-import { DeciferMark } from '@/components/ui/DeciferMark'
+import { DeciferLogo } from '@/components/ui/DeciferLogo'
 
 export const metadata = {
-  title: 'Help — Decifer Learning',
+  title: 'Help — DECIFER Learning',
 }
 
 export default function HelpLayout({ children }: { children: React.ReactNode }) {
@@ -11,7 +11,7 @@ export default function HelpLayout({ children }: { children: React.ReactNode }) 
       <nav className="sticky top-0 z-10 border-b border-black/5 bg-background/90 backdrop-blur-sm">
         <div className="mx-auto flex h-14 max-w-3xl items-center justify-between px-4">
           <Link href="/">
-            <DeciferMark size="sm" />
+            <DeciferLogo size="sm" product="Learning" />
           </Link>
           <div className="flex items-center gap-2">
             <Link

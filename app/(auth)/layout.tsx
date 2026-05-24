@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { DeciferMark } from '@/components/ui/DeciferMark'
+import { DeciferLogo } from '@/components/ui/DeciferLogo'
 
 // Auth layout: centred card on mobile, split panel on desktop.
 // Left panel shows brand identity and learning journey context.
@@ -12,7 +12,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       {/* ── Left panel (desktop only) ─────────────────────────────────────── */}
       <aside className="hidden md:flex md:w-[45%] md:flex-col md:justify-between bg-brand-50 px-10 py-12">
         <Link href="/" aria-label="Decifer Learning home">
-          <DeciferMark size="md" />
+          <DeciferLogo size="md" product="Learning" />
         </Link>
 
         <div className="space-y-8">
@@ -51,7 +51,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
         {/* Mobile-only brand mark */}
         <Link href="/" className="mb-6 md:hidden" aria-label="Decifer Learning home">
-          <DeciferMark size="md" />
+          <DeciferLogo size="md" product="Learning" />
         </Link>
 
         <div className="w-full max-w-sm">

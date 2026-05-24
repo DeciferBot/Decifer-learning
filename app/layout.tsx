@@ -16,14 +16,20 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'Decifer Learning',
+  title: 'DECIFER Learning',
   description: 'UK National Curriculum learning adventure.',
-  applicationName: 'Decifer Learning',
+  applicationName: 'DECIFER Learning',
   manifest: '/manifest.json',
+  icons: {
+    icon: [
+      { url: '/brand/decifer-favicon.svg', type: 'image/svg+xml' },
+    ],
+    apple: '/brand/decifer-app-icon.svg',
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Decifer Learning',
+    title: 'DECIFER Learning',
   },
   formatDetection: {
     telephone: false,
@@ -31,7 +37,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: '#6C9EFF',
+  themeColor: '#F05A28',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,

@@ -1,13 +1,13 @@
 {
-  "name": "Decifer Learning",
-  "short_name": "Decifer",
+  "name": "DECIFER Learning",
+  "short_name": "DECIFER",
   "description": "UK National Curriculum learning adventure.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#FAFBFF",
-  "theme_color": "#6C9EFF",
+  "theme_color": "#F05A28",
   "lang": "en-GB",
   "icons": [
     {

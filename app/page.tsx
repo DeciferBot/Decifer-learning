@@ -2,13 +2,13 @@ import Link from 'next/link'
 import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
 import { RecoveryRedirect } from './RecoveryRedirect'
-import { DeciferMark } from '@/components/ui/DeciferMark'
+import { DeciferLogo } from '@/components/ui/DeciferLogo'
 import { GuideCard } from '@/components/ui/GuideCard'
 import { ProgressRing } from '@/components/ui/ProgressRing'
 import { XPBadge } from '@/components/ui/XPBadge'
 
 export const metadata = {
-  title: 'Decifer Learning — UK National Curriculum for families',
+  title: 'DECIFER Learning — UK National Curriculum for families',
   description:
     'AI-assisted feedback, game-like motivation, and quality-checked curriculum content for Year 3 and Year 7. Parents can see progress, confidence, and where support is needed.',
 }
@@ -33,7 +33,7 @@ export default function Home({
         {/* ── Nav ─────────────────────────────────────────────────────────── */}
         <nav className="sticky top-0 z-20 border-b border-black/5 bg-background/90 backdrop-blur-sm">
           <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
-            <DeciferMark size="sm" />
+            <DeciferLogo size="sm" product="Learning" />
             <div className="flex items-center gap-2">
               <Link
                 href="/login"
@@ -573,7 +573,7 @@ export default function Home({
         {/* ── Final CTA ────────────────────────────────────────────────────── */}
         <section className="bg-brand-50 py-16">
           <div className="mx-auto max-w-md px-4 text-center">
-            <DeciferMark size="lg" className="mb-6 justify-center" />
+            <DeciferLogo size="lg" product="Learning" className="mb-6 justify-center" />
             <h2 className="mb-3 font-heading text-2xl font-bold text-ink">
               Start with one topic. See progress from the first session.
             </h2>
@@ -600,7 +600,7 @@ export default function Home({
         {/* ── Footer ───────────────────────────────────────────────────────── */}
         <footer className="border-t border-black/5 bg-surface py-8">
           <div className="mx-auto flex max-w-5xl flex-col items-center gap-4 px-4 text-center sm:flex-row sm:justify-between">
-            <DeciferMark size="xs" />
+            <DeciferLogo size="xs" product="Learning" />
             <p className="text-xs text-muted">UK National Curriculum. For families.</p>
             <nav className="flex gap-4 text-xs text-muted" aria-label="Footer navigation">
               <Link href="/help" className="hover:text-ink">Help</Link>

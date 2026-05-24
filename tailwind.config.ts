@@ -10,6 +10,8 @@ const config: Config = {
       colors: {
         background: '#FAFBFF',
         surface: '#FFFFFF',
+        // DECIFER master mark orange — consistent across all products
+        mark: '#F05A28',
         // Brand accent — orange
         brand: '#F97316',
         'brand-50': '#FFF7ED',
