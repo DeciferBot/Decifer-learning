@@ -284,6 +284,54 @@ check('C24', 'Child vault pages contain no credit/wallet/spend/price/cost/paymen
   return true
 })
 
+// ── Stage 1.4 polish checks ───────────────────────────────────────────────────
+
+check('C26', 'RespondButtons renders waiting state for counter_offered — not action buttons', () => {
+  const src = read('app/dashboard/parent/vault/[childId]/RespondButtons.tsx')
+  return (
+    src.includes("status === 'counter_offered'") &&
+    src.includes('Waiting for')
+  )
+})
+
+check('C27', 'counter_offered status shows polished label in parent vault page and dashboard', () => {
+  const vaultPage = read('app/dashboard/parent/vault/[childId]/page.tsx')
+  const dashboard = read('app/dashboard/parent/page.tsx')
+  return (
+    vaultPage.includes('Waiting for child') &&
+    dashboard.includes('Waiting for child')
+  )
+})
+
+check('C28', 'Parent dashboard has standing Reward Vault entry point using child.profileId', () => {
+  const src = read('app/dashboard/parent/page.tsx')
+  return (
+    src.includes('Reward Vault') &&
+    src.includes('vault/') &&
+    src.includes('child.profileId')
+  )
+})
+
+check('C29', 'Stage 1.4 parent UI files contain no forbidden commerce strings', () => {
+  const files = [
+    'app/dashboard/parent/vault/[childId]/RespondButtons.tsx',
+    'app/dashboard/parent/vault/[childId]/page.tsx',
+    'app/dashboard/parent/page.tsx',
+  ]
+  const forbidden = ['shopify', 'amazon', 'payment', 'wallet', 'delivery', 'cash', 'buy now', 'purchase']
+  return files.every((f) => {
+    const src = read(f).toLowerCase()
+    return forbidden.every((word) => !src.includes(word))
+  })
+})
+
+check('C30', 'Parent vault UI uses label maps — no raw status.replace for display', () => {
+  const vaultPage = read('app/dashboard/parent/vault/[childId]/page.tsx')
+  const dashboard = read('app/dashboard/parent/page.tsx')
+  const replacePtn = /status\.replace\(['"]_['"]/
+  return !replacePtn.test(vaultPage) && !replacePtn.test(dashboard)
+})
+
 // ── Report ────────────────────────────────────────────────────────────────────
 
 const totalChecks = pass.length + fail.length

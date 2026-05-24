@@ -6,9 +6,10 @@ import { useState } from 'react'
 interface Props {
   requestId: string
   childName: string
+  status: string
 }
 
-export function RespondButtons({ requestId, childName }: Props) {
+export function RespondButtons({ requestId, childName, status }: Props) {
   const router = useRouter()
   const [action, setAction] = useState<'approve' | 'reject' | 'counter_offer' | null>(null)
   const [note, setNote] = useState('')
@@ -43,6 +44,17 @@ export function RespondButtons({ requestId, childName }: Props) {
     } finally {
       setSubmitting(false)
     }
+  }
+
+  if (status === 'counter_offered') {
+    return (
+      <div className="rounded-2xl border border-maths/20 bg-maths/5 p-4 space-y-1.5">
+        <p className="font-heading text-sm font-bold text-maths">Waiting for {childName}</p>
+        <p className="text-sm text-muted">
+          {childName} can accept or dismiss your suggestion from their Reward Vault page.
+        </p>
+      </div>
+    )
   }
 
   if (action === 'approve') {

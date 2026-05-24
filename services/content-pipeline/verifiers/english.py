@@ -77,15 +77,22 @@ def _overlaps(err: dict, span_start: int, span_end: int) -> bool:
 
 # ── Core field grammar checks ─────────────────────────────────────────────
 
-def _check_prose_fields(data: dict) -> Tuple[bool, str]:
-    """All prose fields (except intentional-error stimulus) should be grammatically clean."""
+def _check_prose_fields(data: dict, check_correct_answer: bool = True) -> Tuple[bool, str]:
+    """All prose fields (except intentional-error stimulus) should be grammatically clean.
+
+    check_correct_answer=False skips LT on correct_answer — use this for grammar/spelling
+    questions where correct_answer is a word, phrase, or clause (not a full sentence) and
+    therefore legitimately lacks a capital letter or ending punctuation.
+    """
     fields_to_check = {
-        "correct_answer": data.get("correct_answer", ""),
         "explanation": data.get("explanation", ""),
         "hint_1": data.get("hint_1", ""),
         "hint_2": data.get("hint_2", ""),
         "hint_3": data.get("hint_3", ""),
     }
+    if check_correct_answer:
+        fields_to_check["correct_answer"] = data.get("correct_answer", "")
+
     for field_name, text in fields_to_check.items():
         if not text:
             continue
@@ -137,8 +144,11 @@ def _verify_intentional_error_question(data: dict, qtype: str) -> Tuple[bool, st
         detail = "; ".join(e["message"] for e in instr_errors[:3])
         return False, f"Grammar error in instruction_text: {detail}"
 
-    # prose fields (answer, explanation, hints) must be clean
-    ok, detail = _check_prose_fields(data)
+    # prose fields (explanation, hints) must be clean.
+    # correct_answer is NOT checked by LT here — for grammar/spelling questions it is
+    # a word, phrase, or clause (e.g. "because", "Tom's cat") that legitimately lacks
+    # a capital letter. Stage 3 consensus validates the answer's correctness instead.
+    ok, detail = _check_prose_fields(data, check_correct_answer=False)
     if not ok:
         return False, detail
 

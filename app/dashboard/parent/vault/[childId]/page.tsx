@@ -19,6 +19,12 @@ const BAND_CONFIG: Record<string, { label: string; emoji: string }> = {
   platinum: { label: 'Platinum Master',  emoji: '💎' },
 }
 
+const ACTIVE_STATUS_LABELS: Record<string, { label: string; colour: string; bg: string }> = {
+  pending:         { label: 'Waiting for parent', colour: 'text-points-gold', bg: 'bg-points-gold/20' },
+  deferred:        { label: 'Deferred',           colour: 'text-muted',       bg: 'bg-black/5'        },
+  counter_offered: { label: 'Waiting for child',  colour: 'text-maths',       bg: 'bg-maths/15'       },
+}
+
 const HISTORY_STATUS: Record<string, { label: string; colour: string }> = {
   approved:  { label: 'Approved — to give', colour: 'text-correct font-semibold' },
   rejected:  { label: 'Declined',           colour: 'text-muted' },
@@ -154,9 +160,14 @@ export default async function ParentVaultPage({ params }: Params) {
         <div className="rounded-2xl border border-brand/20 bg-brand/5 p-5 shadow-sm space-y-3">
           <div className="flex items-start justify-between gap-2">
             <h2 className="font-heading text-base font-bold text-ink">Reward Request</h2>
-            <span className="rounded-full bg-points-gold/20 px-2 py-0.5 text-xs font-bold text-points-gold capitalize">
-              {activeRequest.status.replace('_', ' ')}
-            </span>
+            {(() => {
+              const s = ACTIVE_STATUS_LABELS[activeRequest.status]
+              return s ? (
+                <span className={`rounded-full ${s.bg} px-2 py-0.5 text-xs font-bold ${s.colour}`}>
+                  {s.label}
+                </span>
+              ) : null
+            })()}
           </div>
           <div className="space-y-1 text-sm text-muted">
             <p>Milestone: <span className="font-semibold text-ink capitalize">{activeRequest.milestone_band}</span></p>
@@ -164,7 +175,7 @@ export default async function ParentVaultPage({ params }: Params) {
               <p className="mt-2 text-sm italic text-ink">&ldquo;{activeRequest.child_message}&rdquo;</p>
             )}
           </div>
-          <RespondButtons requestId={activeRequest.id} childName={childName} />
+          <RespondButtons requestId={activeRequest.id} childName={childName} status={activeRequest.status} />
         </div>
       ) : (
         <div className="rounded-2xl border border-black/5 bg-surface p-5 text-center space-y-1">

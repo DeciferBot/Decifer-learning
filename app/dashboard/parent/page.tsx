@@ -19,6 +19,12 @@ import { LinkChildForm } from '@/components/parent/LinkChildForm'
 
 export const metadata = { title: 'Parent dashboard — Decifer Learning' }
 
+const VAULT_STATUS_LABELS: Record<string, { label: string; colour: string; bg: string }> = {
+  pending:         { label: 'Waiting for parent', colour: 'text-points-gold', bg: 'bg-points-gold/20' },
+  deferred:        { label: 'Deferred',           colour: 'text-muted',       bg: 'bg-black/5'        },
+  counter_offered: { label: 'Waiting for child',  colour: 'text-maths',       bg: 'bg-maths/15'       },
+}
+
 export default async function ParentDashboardPage() {
   const supabase = createSupabaseServerClient()
   const {
@@ -99,7 +105,7 @@ export default async function ParentDashboardPage() {
       )}
 
       {/* Child cards */}
-      {childData.map(({ child, progress, weakAreas, recommended }) => (
+      {childData.map(({ child, progress, weakAreas, recommended, vault }) => (
         <div
           key={child.profileId}
           className="rounded-2xl border border-black/5 bg-surface shadow-sm"
@@ -208,13 +214,24 @@ export default async function ParentDashboardPage() {
             )}
           </div>
 
-          {/* Footer link */}
-          <div className="border-t border-black/5 px-5 py-3">
+          {/* Footer links */}
+          <div className="flex items-center justify-between gap-3 border-t border-black/5 px-5 py-3">
             <Link
               href={`/dashboard/parent/children/${child.profileId}`}
               className="text-sm font-semibold text-maths hover:underline"
             >
               View full report →
+            </Link>
+            <Link
+              href={`/dashboard/parent/vault/${child.profileId}`}
+              className="flex items-center gap-1 text-sm font-semibold text-muted hover:text-ink"
+            >
+              🎁 Reward Vault
+              {vault.pendingRequestCount > 0 && (
+                <span className="ml-1 rounded-full bg-brand px-1.5 py-0.5 text-xs font-bold text-white">
+                  {vault.pendingRequestCount}
+                </span>
+              )}
             </Link>
           </div>
         </div>
@@ -236,9 +253,14 @@ export default async function ParentDashboardPage() {
                   <p className="font-heading text-sm font-bold text-ink">{req.childName}</p>
                   <p className="text-xs text-muted capitalize">{req.milestoneBand} milestone · {req.xpAtRequest.toLocaleString()} XP · {req.topicsAtRequest} topics</p>
                 </div>
-                <span className="rounded-full bg-points-gold/20 px-2 py-0.5 text-xs font-bold text-points-gold capitalize">
-                  {req.status.replace('_', ' ')}
-                </span>
+                {(() => {
+                  const s = VAULT_STATUS_LABELS[req.status]
+                  return s ? (
+                    <span className={`rounded-full ${s.bg} px-2 py-0.5 text-xs font-bold ${s.colour}`}>
+                      {s.label}
+                    </span>
+                  ) : null
+                })()}
               </div>
               {req.childMessage && (
                 <p className="text-sm text-ink italic">&ldquo;{req.childMessage}&rdquo;</p>
