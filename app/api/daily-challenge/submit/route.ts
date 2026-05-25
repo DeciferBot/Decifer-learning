@@ -20,7 +20,7 @@ export async function POST(req: Request) {
 
   const profile = await prisma.profile.findUnique({
     where:  { user_id: user.id },
-    select: { id: true },
+    select: { id: true, year_group_id: true },
   })
   if (!profile) {
     return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
@@ -34,12 +34,25 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Invalid body' }, { status: 400 })
   }
 
-  const challenge = await prisma.dailyChallenge.findUnique({
-    where:  { id: body.challengeId },
+  // Scope challenge to the child's year group — prevent cross-year-group submission
+  const challenge = await prisma.dailyChallenge.findFirst({
+    where: {
+      id:            body.challengeId,
+      ...(profile.year_group_id ? { year_group_id: profile.year_group_id } : {}),
+    },
     select: { id: true, question_ids: true, is_flare: true },
   })
   if (!challenge) {
     return NextResponse.json({ error: 'Challenge not found' }, { status: 404 })
+  }
+
+  // Idempotency: one submission per child per challenge
+  const idempotencyReason = `daily_challenge:${challenge.id}`
+  const alreadySubmitted = await prisma.pointEvent.findFirst({
+    where: { profile_id: profile.id, reason: idempotencyReason },
+  })
+  if (alreadySubmitted) {
+    return NextResponse.json({ error: 'Already submitted', code: 'ALREADY_SUBMITTED' }, { status: 422 })
   }
 
   const questionIds = challenge.question_ids as string[]
@@ -68,7 +81,7 @@ export async function POST(req: Request) {
     data: {
       profile_id: profile.id,
       amount:     points,
-      reason:     challenge.is_flare ? 'daily_challenge_flare' : 'daily_challenge',
+      reason:     idempotencyReason,   // daily_challenge:<challengeId> — also serves as idempotency key
     },
   }).catch(() => {})
 

@@ -30,9 +30,9 @@ export async function POST(req: Request, { params }: Params) {
     return NextResponse.json({ error: 'Reason must be 280 characters or fewer', code: 'REASON_TOO_LONG' }, { status: 422 })
   }
 
-  // Verify question exists
-  const q = await prisma.quizQuestion.findUnique({
-    where:  { id: params.questionId },
+  // Verify question exists and is published (children can only report live questions)
+  const q = await prisma.quizQuestion.findFirst({
+    where:  { id: params.questionId, status: 'published' },
     select: { id: true },
   })
   if (!q) return NextResponse.json({ error: 'Question not found' }, { status: 404 })
@@ -61,13 +61,28 @@ export async function PATCH(req: Request, { params }: Params) {
   const supabase = createSupabaseServerClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  if (getUserRole(user) !== 'admin') {
+
+  // Admin check against the profiles table (not user_metadata, which is user-writable)
+  const adminProfile = await prisma.profile.findUnique({
+    where:  { user_id: user.id },
+    select: { role: true },
+  })
+  if (adminProfile?.role !== 'admin') {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
   const body = await req.json() as { reportId: string; action: 'reviewed' | 'dismissed' | 'flag_question' }
   if (!body.reportId || !['reviewed', 'dismissed', 'flag_question'].includes(body.action)) {
     return NextResponse.json({ error: 'Invalid body' }, { status: 400 })
+  }
+
+  // Cross-check: verify the report belongs to the question in the URL
+  const report = await prisma.questionReport.findUnique({
+    where:  { id: body.reportId },
+    select: { question_id: true },
+  })
+  if (!report || report.question_id !== params.questionId) {
+    return NextResponse.json({ error: 'Report not found for this question' }, { status: 404 })
   }
 
   await prisma.$transaction(async (tx) => {

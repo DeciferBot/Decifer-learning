@@ -37,14 +37,18 @@ export async function POST(req: Request, { params }: { params: { zoneId: string 
     return NextResponse.json({ error: 'Invalid body' }, { status: 400 })
   }
 
-  const zone = await prisma.zone.findUnique({
-    where: { id: params.zoneId },
+  const profile = await prisma.profile.findUnique({ where: { user_id: user.id } })
+  if (!profile) return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
+
+  // Scope zone to the child's year group — prevent cross-year-group submissions
+  const zone = await prisma.zone.findFirst({
+    where: {
+      id: params.zoneId,
+      ...(profile.year_group_id ? { year_group_id: profile.year_group_id } : {}),
+    },
     select: { id: true },
   })
   if (!zone) return NextResponse.json({ error: 'Zone not found' }, { status: 404 })
-
-  const profile = await prisma.profile.findUnique({ where: { user_id: user.id } })
-  if (!profile) return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
 
   const totalQuestions = answers.length
   const correctCount = answers.filter((a) => a.wasCorrect).length

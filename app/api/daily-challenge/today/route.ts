@@ -46,7 +46,7 @@ export async function GET() {
       id: true,
       question_text: true,
       question_type: true,
-      correct_answer: true,
+      // correct_answer intentionally omitted — scored server-side in /submit
       distractors: true,
       hint_1: true,
       tier: true,

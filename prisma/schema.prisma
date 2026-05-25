@@ -315,6 +315,7 @@ model PointEvent {
 
   profile Profile @relation(fields: [profile_id], references: [id])
 
+  @@index([profile_id, created_at])
   @@map("point_events")
 }
 

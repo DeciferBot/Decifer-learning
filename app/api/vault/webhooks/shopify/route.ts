@@ -5,18 +5,22 @@
 // SAFETY: never exposes order data to child routes. Writes to reward_fulfilments only.
 
 import { NextResponse } from 'next/server'
-import { createHmac } from 'crypto'
+import { createHmac, timingSafeEqual } from 'crypto'
 import { prisma } from '@/lib/prisma'
 
 const WEBHOOK_SECRET = process.env.SHOPIFY_WEBHOOK_SECRET ?? ''
 
-/** Validate Shopify HMAC-SHA256 signature. Returns true if valid. */
+/** Validate Shopify HMAC-SHA256 signature using a timing-safe comparison. */
 function validateSignature(rawBody: string, hmacHeader: string): boolean {
-  if (!WEBHOOK_SECRET) return false
+  if (!WEBHOOK_SECRET || !hmacHeader) return false
   const computed = createHmac('sha256', WEBHOOK_SECRET)
     .update(rawBody, 'utf8')
     .digest('base64')
-  return computed === hmacHeader
+  try {
+    return timingSafeEqual(Buffer.from(computed), Buffer.from(hmacHeader))
+  } catch {
+    return false   // buffers differ in length — definitely invalid
+  }
 }
 
 export async function POST(req: Request) {

@@ -68,13 +68,20 @@ export async function GET() {
     })
   }
 
-  // Always include self
+  // Always include self — but still respect the leaderboard_visible parent control
   if (!profileMap.has(profile.id)) {
     const self = await prisma.profile.findUnique({
       where:  { id: profile.id },
-      select: { display_name: true, total_points: true, streak_days: true, avatar_config: true },
+      select: {
+        display_name:    true,
+        total_points:    true,
+        streak_days:     true,
+        avatar_config:   true,
+        parent_controls: { select: { leaderboard_visible: true } },
+      },
     })
-    if (self) {
+    // If a parent explicitly hid this child, honour it even on their own view
+    if (self && self.parent_controls?.leaderboard_visible !== false) {
       const cfg = self.avatar_config as { base?: string } | null
       profileMap.set(profile.id, {
         id:           profile.id,

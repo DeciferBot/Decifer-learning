@@ -2,14 +2,19 @@
 
 import { NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
-import { getUserRole } from '@/lib/auth/roles'
 import { prisma } from '@/lib/prisma'
 
 export async function GET() {
   const supabase = createSupabaseServerClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  if (getUserRole(user) !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
+  // Admin check via profiles table — user_metadata.role is user-writable and cannot be trusted
+  const adminProfile = await prisma.profile.findUnique({
+    where:  { user_id: user.id },
+    select: { role: true },
+  })
+  if (adminProfile?.role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const [
     questionCounts,

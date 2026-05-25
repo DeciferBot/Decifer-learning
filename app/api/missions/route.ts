@@ -65,7 +65,7 @@ export async function POST(req: Request) {
 
   const profile = await prisma.profile.findUnique({
     where:  { user_id: user.id },
-    select: { id: true, role: true, total_points: true, year_group_id: true },
+    select: { id: true, role: true, total_points: true, year_group_id: true, streak_days: true },
   })
   if (!profile || profile.role !== 'child') {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
@@ -79,9 +79,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Already have active missions', code: 'TOO_MANY_MISSIONS' }, { status: 422 })
   }
 
-  // Pick the next topic they haven't completed
+  // Pick the next topic they haven't completed — scoped to their year group
   const nextTopic = await prisma.topicProgress.findFirst({
-    where:   { profile_id: profile.id, status: { not: 'completed' } },
+    where: {
+      profile_id: profile.id,
+      status:     { not: 'completed' },
+      ...(profile.year_group_id ? { topic: { year_group_id: profile.year_group_id } } : {}),
+    },
     select:  { topic_id: true },
     orderBy: { topic_id: 'asc' },
   })
