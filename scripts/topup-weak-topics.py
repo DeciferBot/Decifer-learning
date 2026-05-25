@@ -65,29 +65,31 @@ TIERS = ["sprout", "explorer", "lightning"]
 # Format: slug → optional override tier list (None = all 3 tiers)
 # Remove slugs once they've passed the gate.
 #
-# Status after main batches (2026-05-24):
-#   Y3 English: apostrophes=0, conjunctions=3, verb-tenses=4, prefixes-suffixes=1 → all need top-up
-#               (caused by LanguageTool capitalisation bug on correct_answer — fixed in english.py)
-#   Y3 Science: plants-parts-functions=6 → needs top-up
-#   Y7 English: grammar-standard-english=7, vocabulary-word-families=6, literature-character=3
-#   Y2: all topics at 0 (batch running — add weak ones here after Y2 completes)
-#   Y7 Science: batch in progress (add weak topics here after Y7 completes)
+# Status after batches (2026-05-25):
+#   Y3 English: apostrophes=0, conjunctions=13✓Q, verb-tenses=9, prefixes-suffixes=5
+#   Y3 Science: plants-parts-functions=6
+#   Y7 English: standard-english=7, vocabulary-word-families=6, literature-character=3
+#   Y7 Science: elements-compounds=0, particles-states=0, energy-stores=0,
+#               forces-motion=0, space-solar=0
+#   Y2: all 15 topics at 0 (handled by separate Y2 batch script)
 WEAK_TOPICS: dict[str, list[str] | None] = {
-    # ── Y3 English (LanguageTool capitalisation bug, now fixed) ──────────────
-    "y3-english-grammar-conjunctions":       None,
-    "y3-english-grammar-verb-tenses":        None,
-    "y3-english-grammar-apostrophes":        None,
-    "y3-english-spelling-prefixes-suffixes": None,
+    # ── Y3 English ───────────────────────────────────────────────────────────
+    "y3-english-grammar-conjunctions":       None,  # 13 Q — needs LC only (topup skips if ≥10)
+    "y3-english-grammar-verb-tenses":        None,  # 9 Q
+    "y3-english-grammar-apostrophes":        None,  # 0 Q
+    "y3-english-spelling-prefixes-suffixes": None,  # 5 Q
     # ── Y3 Science ───────────────────────────────────────────────────────────
-    "y3-science-plants-parts-functions":     None,
+    "y3-science-plants-parts-functions":     None,  # 6 Q
     # ── Y7 English (low-yield question types) ────────────────────────────────
-    "y7-english-grammar-standard-english":   None,
-    "y7-english-vocabulary-word-families":   None,
-    "y7-english-literature-character":       None,
-    # ── Y7 Science weak topics (fill in after Y7 batch completes) ────────────
-    # "y7-science-xxx":                      None,
-    # ── Y2 weak topics (fill in after Y2 batch completes) ────────────────────
-    # "y2-english-xxx":                      None,
+    "y7-english-grammar-standard-english":   None,  # 7 Q
+    "y7-english-vocabulary-word-families":   None,  # 6 Q
+    "y7-english-literature-character":       None,  # 3 Q
+    # ── Y7 Science (batch produced 0 for these topics) ───────────────────────
+    "y7-science-elements-compounds-mixtures": None,  # 0 Q
+    "y7-science-particles-states-of-matter":  None,  # 0 Q
+    "y7-science-energy-stores-transfers":     None,  # 0 Q
+    "y7-science-forces-motion":               None,  # 0 Q
+    "y7-science-space-solar-system":          None,  # 0 Q
 }
 
 # ── DB helpers ─────────────────────────────────────────────────────────────────
