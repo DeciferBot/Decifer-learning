@@ -62,6 +62,7 @@ if not os.environ.get("DATABASE_URL"):
 pipeline_dir = Path(__file__).parent.parent / "services" / "content-pipeline"
 sys.path.insert(0, str(pipeline_dir))
 import config
+import db
 
 DATABASE_URL = os.environ["DATABASE_URL"]
 ANTHROPIC_API_KEY = os.environ["ANTHROPIC_API_KEY"]
@@ -308,6 +309,11 @@ def main():
             new_id = insert_learn_content(topic["id"], html)
             log.info(f"    ✓ Inserted learn_content id={new_id}")
             ok_count += 1
+
+            # Auto-promote if this topic now meets the gate
+            promoted = db.promote_ready_topics([topic["id"]])
+            if promoted:
+                print(f"  🌟 Promoted to is_published=true: {promoted[0]['title']}")
 
         except Exception as exc:
             log.error(f"    ✗ Failed: {exc}", exc_info=True)

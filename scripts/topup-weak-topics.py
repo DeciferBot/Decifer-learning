@@ -208,6 +208,10 @@ def main():
 
         if before >= MIN_TARGET:
             gate = check_gate(topic["id"])
+            # Still attempt promote in case learn_content was added since last run
+            promoted = db.promote_ready_topics([topic["id"]])
+            if promoted:
+                print(f"  🌟 Promoted to is_published=true: {promoted[0]['title']}")
             gate_str = "✅ PASS" if gate["gate_passes"] else f"🔒 HOLD (q={gate['published_questions']}, lc={gate['published_learn_content']})"
             log.info(f"  Already at {before} published — {gate_str}. Skipping.")
             summary.append({"slug": slug, "title": topic["title"], "status": "ALREADY_OK", "gate": gate})
