@@ -35,3 +35,4 @@ __pycache__/
 .venv/
 services/content-pipeline/.venv/
 services/content-pipeline/__pycache__/
+.claude/scheduled_tasks.lock
