@@ -229,7 +229,7 @@ export default function Home({
                   href="/help/parent-guide"
                   className="mt-6 inline-flex min-h-[44px] items-center rounded-xl border border-brand/30 px-5 text-sm font-semibold text-brand transition-colors hover:bg-brand/5"
                 >
-                  Read the parent guide →
+                  Read the parent guide{' '}<span aria-hidden="true">→</span>
                 </Link>
               </div>
             </div>
@@ -434,7 +434,7 @@ export default function Home({
           <div className="mx-auto flex max-w-5xl flex-col items-center gap-4 px-4 text-center sm:flex-row sm:justify-between">
             <DeciferLogo size="xs" product="Learning" />
             <p className="text-xs text-muted">UK National Curriculum. For families.</p>
-            <nav className="flex gap-4 text-xs text-muted" aria-label="Footer navigation">
+            <nav className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs text-muted sm:justify-start" aria-label="Footer navigation">
               <Link href="/help" className="hover:text-ink">Help</Link>
               <Link href="/help/parent-guide" className="hover:text-ink">Parents</Link>
               <Link href="/help/faq" className="hover:text-ink">FAQ</Link>

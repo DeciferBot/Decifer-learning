@@ -22,6 +22,15 @@ export function HeroMockup() {
     const el = ref.current
     if (!el) return
 
+    // Respect prefers-reduced-motion: skip the count-up and show final values
+    // immediately. The CSS global collapses transitions, but the rAF loop is
+    // JavaScript-driven and must be guarded here explicitly.
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setRingPercent(TARGET_PERCENT)
+      setBarPercent(TARGET_PERCENT)
+      return
+    }
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && !animated.current) {
