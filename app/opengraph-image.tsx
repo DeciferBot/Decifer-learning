@@ -14,20 +14,20 @@ export default async function Image() {
           height: '100%',
           display: 'flex',
           fontFamily: 'system-ui, -apple-system, sans-serif',
-          overflow: 'hidden',
         }}
       >
-        {/* Orange left accent bar */}
+        {/* Orange left bar */}
         <div
           style={{
-            width: 8,
+            width: 10,
             height: '100%',
-            background: 'linear-gradient(180deg, #F05A28 0%, #f47040 100%)',
+            background: '#F05A28',
             flexShrink: 0,
+            display: 'flex',
           }}
         />
 
-        {/* Main content */}
+        {/* Content */}
         <div
           style={{
             flex: 1,
@@ -37,7 +37,7 @@ export default async function Image() {
             padding: '64px 72px',
           }}
         >
-          {/* Top: brand */}
+          {/* Brand row */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div
               style={{
@@ -48,6 +48,7 @@ export default async function Image() {
                 fontSize: 22,
                 fontWeight: 800,
                 letterSpacing: '0.06em',
+                display: 'flex',
               }}
             >
               DECIFER
@@ -58,49 +59,62 @@ export default async function Image() {
                 fontSize: 22,
                 fontWeight: 700,
                 letterSpacing: '0.03em',
+                display: 'flex',
               }}
             >
               Learning
             </div>
           </div>
 
-          {/* Centre: headline */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+          {/* Headline */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div
               style={{
-                color: '#0f1623',
-                fontSize: 68,
-                fontWeight: 800,
-                lineHeight: 1.08,
-                letterSpacing: '-0.025em',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 0,
               }}
             >
-              Build confidence,
-              <br />
-              <span style={{ color: '#F05A28' }}>one topic at a time.</span>
+              <span
+                style={{
+                  color: '#0f1623',
+                  fontSize: 68,
+                  fontWeight: 800,
+                  lineHeight: 1.08,
+                  letterSpacing: '-0.025em',
+                  display: 'flex',
+                }}
+              >
+                Build confidence,
+              </span>
+              <span
+                style={{
+                  color: '#F05A28',
+                  fontSize: 68,
+                  fontWeight: 800,
+                  lineHeight: 1.08,
+                  letterSpacing: '-0.025em',
+                  display: 'flex',
+                }}
+              >
+                one topic at a time.
+              </span>
             </div>
             <div
               style={{
                 color: '#5a6379',
-                fontSize: 26,
+                fontSize: 25,
                 fontWeight: 400,
-                lineHeight: 1.45,
-                maxWidth: 640,
+                maxWidth: 620,
+                display: 'flex',
               }}
             >
-              AI-assisted learning for the UK National Curriculum.
-              Game-like motivation for Year 3 and Year 7.
+              AI-assisted UK National Curriculum for Year 3 and Year 7.
             </div>
           </div>
 
-          {/* Bottom: year badges + domain */}
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-            }}
-          >
+          {/* Bottom pills + domain */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ display: 'flex', gap: 10 }}>
               {['Year 3', 'Year 7', 'Parents', 'Progress'].map((label) => (
                 <div
@@ -113,13 +127,14 @@ export default async function Image() {
                     color: '#CC4A21',
                     fontSize: 17,
                     fontWeight: 600,
+                    display: 'flex',
                   }}
                 >
                   {label}
                 </div>
               ))}
             </div>
-            <div style={{ color: '#9ba3b8', fontSize: 19, fontWeight: 500 }}>
+            <div style={{ color: '#9ba3b8', fontSize: 18, fontWeight: 500, display: 'flex' }}>
               deciferlearning.com
             </div>
           </div>
