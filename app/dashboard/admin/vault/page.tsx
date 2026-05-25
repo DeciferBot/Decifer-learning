@@ -30,7 +30,15 @@ export default async function AdminVaultPage() {
     <section className="space-y-6">
       <div className="flex items-center justify-between gap-3">
         <h1 className="font-heading text-2xl font-bold text-ink">Reward Vault</h1>
-        <Link href="/dashboard/admin" className="text-sm text-muted hover:text-ink">← Admin</Link>
+        <div className="flex items-center gap-3">
+          <a
+            href="/api/admin/vault/requests?format=csv&limit=1000"
+            className="rounded-xl border border-black/10 px-3 py-1.5 text-xs font-semibold text-muted hover:border-brand/40 hover:text-brand"
+          >
+            ↓ Export CSV
+          </a>
+          <Link href="/dashboard/admin" className="text-sm text-muted hover:text-ink">← Admin</Link>
+        </div>
       </div>
 
       {/* ── Stats ──────────────────────────────────────────────────────────── */}

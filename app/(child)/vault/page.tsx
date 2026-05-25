@@ -68,7 +68,7 @@ export default async function VaultPage() {
   const progress = status.progressToNext
 
   const hasPendingRequest = status.pendingRequest !== null && (
-    ['pending', 'deferred', 'counter_offered'].includes(status.pendingRequest.status)
+    ['pending', 'deferred', 'counter_offered', 'approved'].includes(status.pendingRequest.status)
   )
 
   // Serialise dates for the client component
@@ -210,7 +210,11 @@ export default async function VaultPage() {
         </div>
       )}
 
-      {!next && status.currentBand !== 'none' && (
+      {/* Only shown when the child has genuinely reached the top band (Platinum).
+          If next=null at a lower band it means the year group has fewer published topics
+          than the next milestone requires — that is a content-availability gap, not
+          completion. Showing "All milestones reached" in that case is misleading. */}
+      {status.currentBand === 'platinum' && (
         <div className="rounded-2xl border border-black/5 bg-surface p-5 text-center">
           <p className="text-2xl mb-2">🏆</p>
           <p className="font-heading font-bold text-ink">All milestones reached!</p>

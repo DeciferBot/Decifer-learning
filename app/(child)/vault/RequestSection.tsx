@@ -16,21 +16,30 @@ interface Props {
   familyRewardOptions: Array<{ label: string }>
 }
 
-const STATUS_COPY: Record<string, { label: string; description: string; colour: string }> = {
+const STATUS_COPY: Record<string, { label: string; description: string; colour: string; icon: string }> = {
   pending: {
     label: 'Waiting for parent',
     description: "Your request has been sent. We'll let you know when your parent responds.",
     colour: 'text-points-gold',
+    icon: '⏳',
   },
   deferred: {
     label: 'Saved for later',
     description: 'Your parent has seen your request and will get back to you soon — hang tight!',
     colour: 'text-muted',
+    icon: '⏳',
   },
   counter_offered: {
     label: 'Parent has a suggestion',
     description: 'Your parent has a different reward idea for you. See the message below.',
     colour: 'text-maths',
+    icon: '⏳',
+  },
+  approved: {
+    label: 'Your reward is approved! 🎁',
+    description: 'Amazing work — your parent has approved your reward. Ask them about it when you next see them!',
+    colour: 'text-correct',
+    icon: '🎉',
   },
 }
 
@@ -64,13 +73,14 @@ export function RequestSection({ hasCredits, hasPendingRequest, pendingRequest, 
     }
   }
 
-  // Show pending request status card if one exists
+  // Show pending request status card if one exists (includes approved state)
   if (hasPendingRequest && pendingRequest) {
     const info = STATUS_COPY[pendingRequest.status]
+    const isApproved = pendingRequest.status === 'approved'
     return (
-      <div className="rounded-2xl border border-black/5 bg-surface p-5 shadow-sm space-y-3">
+      <div className={`rounded-2xl border p-5 shadow-sm space-y-3 ${isApproved ? 'border-correct/30 bg-correct/5' : 'border-black/5 bg-surface'}`}>
         <div className="flex items-center gap-2">
-          <span className="text-lg">⏳</span>
+          <span className="text-lg">{info?.icon ?? '⏳'}</span>
           <span className={`font-heading text-sm font-bold ${info?.colour ?? 'text-ink'}`}>
             {info?.label ?? pendingRequest.status}
           </span>

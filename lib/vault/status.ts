@@ -135,7 +135,7 @@ export async function getVaultStatus(profileId: string): Promise<VaultStatus> {
     prisma.rewardRequest.findFirst({
       where: {
         child_profile_id: profileId,
-        status: { in: ['pending', 'deferred', 'counter_offered'] },
+        status: { in: ['pending', 'deferred', 'counter_offered', 'approved'] },
       },
       orderBy: { created_at: 'desc' },
     }),
