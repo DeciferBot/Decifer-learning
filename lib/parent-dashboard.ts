@@ -628,6 +628,62 @@ export async function getChildVaultSummary(childProfileId: string): Promise<Chil
   }
 }
 
+// ── Weekly digest summary (PLI v2) ──────────────────────────────────────────
+
+export interface WeeklyDigestSummary {
+  quizAttempts:    number
+  activeDays:      number
+  passRate:        number | null   // 0-100
+  avgScore:        number | null   // 0-100
+  pointsThisWeek:  number
+  topicsCompleted: number
+  topSignal:       { title: string; recommendedAction: string } | null
+}
+
+export async function getChildWeeklyDigestSummary(
+  childProfileId: string,
+): Promise<WeeklyDigestSummary> {
+  const weekAgo = new Date()
+  weekAgo.setDate(weekAgo.getDate() - 7)
+  weekAgo.setHours(0, 0, 0, 0)
+
+  const [attempts, completedCount, pointsAgg] = await Promise.all([
+    prisma.quizAttempt.findMany({
+      where:  { profile_id: childProfileId, created_at: { gte: weekAgo } },
+      select: { score: true, created_at: true },
+    }),
+    prisma.topicProgress.count({
+      where: { profile_id: childProfileId, completed_at: { gte: weekAgo } },
+    }),
+    prisma.pointEvent.aggregate({
+      where: { profile_id: childProfileId, created_at: { gte: weekAgo } },
+      _sum:  { amount: true },
+    }),
+  ])
+
+  const passRate = attempts.length > 0
+    ? Math.round((attempts.filter((a) => a.score >= 0.7).length / attempts.length) * 100)
+    : null
+
+  const avgScore = attempts.length > 0
+    ? Math.round((attempts.reduce((s, a) => s + a.score, 0) / attempts.length) * 100)
+    : null
+
+  const activeDays = new Set(
+    attempts.map((a) => a.created_at.toISOString().slice(0, 10)),
+  ).size
+
+  return {
+    quizAttempts:   attempts.length,
+    activeDays,
+    passRate,
+    avgScore,
+    pointsThisWeek: pointsAgg._sum.amount ?? 0,
+    topicsCompleted: completedCount,
+    topSignal:      null,   // kept lightweight — full signals via /api/parent/digest
+  }
+}
+
 export async function getPendingVaultRequests(parentProfileId: string): Promise<PendingVaultRequest[]> {
   const requests = await prisma.rewardRequest.findMany({
     where: {

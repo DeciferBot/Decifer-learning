@@ -14,6 +14,7 @@ import {
   getRecommendedNextLesson,
   getChildVaultSummary,
   getPendingVaultRequests,
+  getChildWeeklyDigestSummary,
 } from '@/lib/parent-dashboard'
 import { LinkChildForm } from '@/components/parent/LinkChildForm'
 
@@ -39,13 +40,14 @@ export default async function ParentDashboardPage() {
   // Fetch per-child data in parallel
   const childData = await Promise.all(
     children.map(async (child) => {
-      const [progress, weakAreas, recommended, vault] = await Promise.all([
+      const [progress, weakAreas, recommended, vault, digest] = await Promise.all([
         getChildProgressSummary(child.profileId),
         getChildWeakAreas(child.profileId, 2),
         getRecommendedNextLesson(child.profileId, child.yearGroupLabel),
         getChildVaultSummary(child.profileId).catch(() => ({ creditBalance: 0, currentBand: 'none', pendingRequestCount: 0 })),
+        getChildWeeklyDigestSummary(child.profileId).catch(() => null),
       ])
-      return { child, progress, weakAreas, recommended, vault }
+      return { child, progress, weakAreas, recommended, vault, digest }
     }),
   )
 
@@ -105,7 +107,7 @@ export default async function ParentDashboardPage() {
       )}
 
       {/* Child cards */}
-      {childData.map(({ child, progress, weakAreas, recommended, vault }) => (
+      {childData.map(({ child, progress, weakAreas, recommended, vault, digest }) => (
         <div
           key={child.profileId}
           className="rounded-2xl border border-black/5 bg-surface shadow-sm"
@@ -213,6 +215,48 @@ export default async function ParentDashboardPage() {
               </p>
             )}
 
+            {/* ── Weekly digest (PLI v2) ───────────────────────────── */}
+            {digest && (
+              <div className="rounded-xl border border-black/5 bg-black/[0.02] px-4 py-3 space-y-2">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-bold uppercase tracking-wide text-muted">This week</p>
+                  <Link
+                    href={`/dashboard/parent/children/${child.profileId}`}
+                    className="text-xs text-brand hover:underline"
+                  >
+                    Full report →
+                  </Link>
+                </div>
+                <div className="grid grid-cols-4 gap-2 text-center">
+                  <div>
+                    <p className="font-heading text-lg font-bold text-ink">{digest.quizAttempts}</p>
+                    <p className="text-xs text-muted">quizzes</p>
+                  </div>
+                  <div>
+                    <p className="font-heading text-lg font-bold text-ink">{digest.activeDays}</p>
+                    <p className="text-xs text-muted">active days</p>
+                  </div>
+                  <div>
+                    <p className={`font-heading text-lg font-bold ${digest.passRate !== null && digest.passRate >= 70 ? 'text-correct' : digest.passRate !== null ? 'text-incorrect' : 'text-ink'}`}>
+                      {digest.passRate !== null ? `${digest.passRate}%` : '—'}
+                    </p>
+                    <p className="text-xs text-muted">pass rate</p>
+                  </div>
+                  <div>
+                    <p className="font-heading text-lg font-bold text-points-gold">
+                      {digest.pointsThisWeek > 0 ? `+${digest.pointsThisWeek.toLocaleString()}` : '—'}
+                    </p>
+                    <p className="text-xs text-muted">points</p>
+                  </div>
+                </div>
+                {digest.topicsCompleted > 0 && (
+                  <p className="text-xs text-science">
+                    ✓ {digest.topicsCompleted} topic{digest.topicsCompleted > 1 ? 's' : ''} completed this week
+                  </p>
+                )}
+              </div>
+            )}
+
             {/* Reward Vault — standing entry point */}
             <Link
               href={`/dashboard/parent/vault/${child.profileId}`}
@@ -283,15 +327,27 @@ export default async function ParentDashboardPage() {
         </div>
       )}
 
-      {/* Screen-time controls placeholder */}
-      <div className="rounded-2xl border border-black/5 bg-surface px-5 py-4 shadow-sm">
-        <h2 className="font-heading text-sm font-semibold uppercase tracking-wide text-muted">
-          Screen-time controls
-        </h2>
-        <p className="mt-1 text-sm text-muted">
-          Daily time limits and allowed hours are coming soon.
-        </p>
-      </div>
+      {/* Screen-time controls — per-child links */}
+      {children.length > 0 && (
+        <div className="rounded-2xl border border-black/5 bg-surface px-5 py-4 shadow-sm space-y-3">
+          <h2 className="font-heading text-sm font-semibold uppercase tracking-wide text-muted">
+            Screen-time &amp; settings
+          </h2>
+          {children.map((child) => (
+            <Link
+              key={child.profileId}
+              href={`/dashboard/parent/children/${child.profileId}`}
+              className="flex items-center justify-between rounded-xl border border-black/5 bg-black/[0.02] px-4 py-3 hover:bg-black/[0.04]"
+            >
+              <div>
+                <p className="font-heading text-sm font-semibold text-ink">{child.displayName}</p>
+                <p className="text-xs text-muted">Set daily limit, leaderboard visibility</p>
+              </div>
+              <span className="text-xs text-muted">→</span>
+            </Link>
+          ))}
+        </div>
+      )}
 
       {/* Add another child — shown only when at least one child is already linked */}
       {children.length > 0 && (

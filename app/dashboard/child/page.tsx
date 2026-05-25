@@ -151,6 +151,43 @@ export default async function ChildDashboardPage() {
         </Link>
       </div>
 
+      {/* ── Activities ──────────────────────────────────────────────────── */}
+      <div className="space-y-2">
+        <h2 className="font-heading text-xs font-bold uppercase tracking-widest text-muted">
+          Activities
+        </h2>
+        <div className="grid grid-cols-2 gap-2">
+          <Link
+            href="/daily-challenge"
+            className="flex min-h-[56px] flex-col justify-center rounded-2xl border border-black/5 bg-surface px-4 py-3 shadow-sm transition-colors hover:bg-black/[0.03]"
+          >
+            <span className="font-heading text-sm font-semibold text-ink">🌟 Daily Challenge</span>
+            <span className="text-xs text-muted">3 questions · earn points</span>
+          </Link>
+          <Link
+            href="/missions"
+            className="flex min-h-[56px] flex-col justify-center rounded-2xl border border-black/5 bg-surface px-4 py-3 shadow-sm transition-colors hover:bg-black/[0.03]"
+          >
+            <span className="font-heading text-sm font-semibold text-ink">🎯 Missions</span>
+            <span className="text-xs text-muted">Goals to level up</span>
+          </Link>
+          <Link
+            href="/leaderboard"
+            className="flex min-h-[56px] flex-col justify-center rounded-2xl border border-black/5 bg-surface px-4 py-3 shadow-sm transition-colors hover:bg-black/[0.03]"
+          >
+            <span className="font-heading text-sm font-semibold text-ink">🏆 Leaderboard</span>
+            <span className="text-xs text-muted">Family ranking</span>
+          </Link>
+          <Link
+            href="/customise"
+            className="flex min-h-[56px] flex-col justify-center rounded-2xl border border-black/5 bg-surface px-4 py-3 shadow-sm transition-colors hover:bg-black/[0.03]"
+          >
+            <span className="font-heading text-sm font-semibold text-ink">🎨 Customise</span>
+            <span className="text-xs text-muted">Avatar · theme · buddy</span>
+          </Link>
+        </div>
+      </div>
+
       {/* ── Vault teaser ─────────────────────────────────────────────────── */}
       {vaultBand !== 'none' || vaultCredits > 0 ? (
         <Link
