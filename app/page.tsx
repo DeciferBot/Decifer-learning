@@ -438,6 +438,8 @@ export default function Home({
               <Link href="/help" className="hover:text-ink">Help</Link>
               <Link href="/help/parent-guide" className="hover:text-ink">Parents</Link>
               <Link href="/help/faq" className="hover:text-ink">FAQ</Link>
+              <Link href="/legal/privacy" className="hover:text-ink">Privacy</Link>
+              <Link href="/legal/terms" className="hover:text-ink">Terms</Link>
               <Link href="/login" className="hover:text-ink">Sign in</Link>
             </nav>
           </div>
