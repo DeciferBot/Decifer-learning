@@ -109,6 +109,11 @@ OPENAI_API_KEY                # embeddings (RAG + dedup). Omit only if a local e
 # App + microservice
 PIPELINE_SERVICE_URL          # Python FastAPI URL on Cloud Run (worker platform)
 NEXT_PUBLIC_APP_URL           # canonical site URL — used for PWA + share links
+
+# Reward Vault Stage 3 — Shopify integration (optional; absent = manual fulfilment)
+SHOPIFY_STORE_DOMAIN          # e.g. yourstore.myshopify.com (no https://)
+SHOPIFY_ADMIN_ACCESS_TOKEN    # Shopify Admin API access token (Custom App → API credentials)
+SHOPIFY_WEBHOOK_SECRET        # HMAC secret for validating webhook payloads
 ```
 
 `.env.local` for dev; Vercel project env for prod; GCP Secret Manager for the pipeline service (Cloud Run). **Do not add new env vars without updating this section first.**

@@ -9,6 +9,8 @@ import { RespondButtons } from './RespondButtons'
 import { FulfillButton } from './FulfillButton'
 import { RewardSettingsForm } from './RewardSettingsForm'
 import { PhysicalRewardsToggle } from './PhysicalRewardsToggle'
+import { DeliveryAddressForm } from './DeliveryAddressForm'
+import type { DeliveryAddress } from '@/lib/vault/settings'
 
 export const metadata = { title: 'Reward Vault — Decifer Learning' }
 
@@ -89,6 +91,7 @@ export default async function ParentVaultPage({ params }: Params) {
   ])
 
   const physicalEnabled = parentSettings.physical_rewards_enabled
+  const deliveryAddress = (parentSettings.delivery_address as DeliveryAddress | null) ?? null
 
   // Load catalogue items (name + category only — price not surfaced in parent UI) when physical is enabled
   const catalogueItems = physicalEnabled
@@ -238,8 +241,12 @@ export default async function ParentVaultPage({ params }: Params) {
           )}
         </div>
 
-        {/* Physical prizes toggle */}
-        <div className="border-t border-black/5 pt-4">
+        {/* Physical prizes — delivery address + toggle */}
+        <div className="border-t border-black/5 pt-4 space-y-3">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-widest text-muted mb-2">Physical prizes</p>
+            <DeliveryAddressForm childId={params.childId} initialAddress={deliveryAddress} />
+          </div>
           <PhysicalRewardsToggle childId={params.childId} initialEnabled={physicalEnabled} />
         </div>
       </div>

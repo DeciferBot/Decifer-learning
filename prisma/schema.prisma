@@ -68,6 +68,9 @@ model Profile {
   session_answers  SessionAnswer[]
   child_missions   ChildMission[]
 
+  // PLI v1
+  learning_events                 LearningEvent[]
+
   // Reward Vault
   vault_status                    ChildVaultStatus?
   vault_milestone_events          VaultMilestoneEvent[]
@@ -603,6 +606,7 @@ model VaultParentSettings {
   allowed_categories       String[] @default([])
   family_reward_options    Json     @default("[]")
   max_requests_per_month   Int      @default(1)
+  delivery_address         Json?
   created_at               DateTime @default(now())
   updated_at               DateTime @updatedAt
 
@@ -688,6 +692,31 @@ model RewardFulfilment {
   request RewardRequest @relation(fields: [request_id], references: [id])
 
   @@map("reward_fulfilments")
+}
+
+// ---------- Learning Events (PLI v1) ----------
+// Lightweight behavioural events used by the parent signal engine.
+// All writes go through lib/learning-events.ts — never from untrusted client input directly.
+
+model LearningEvent {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  profile_id      String   @db.Uuid
+  event_type      String   // lesson_opened | lesson_completed | lesson_repeated | lesson_exited_early
+                           // | lesson_active_time_recorded | practice_started | practice_completed
+                           // | quiz_started | quiz_completed | quiz_abandoned
+                           // | recommendation_shown | recommendation_clicked | recommendation_ignored
+  subject_id      String?  @db.Uuid
+  topic_id        String?  @db.Uuid
+  lesson_id       String?  @db.Uuid
+  quiz_attempt_id String?  @db.Uuid
+  metadata        Json     @default("{}")
+  occurred_at     DateTime @default(now())
+
+  profile Profile @relation(fields: [profile_id], references: [id], onDelete: Cascade)
+
+  @@index([profile_id, event_type, occurred_at(sort: Desc)])
+  @@index([profile_id, topic_id, occurred_at(sort: Desc)])
+  @@map("learning_events")
 }
 
 // ---------- Daily challenge cache ----------

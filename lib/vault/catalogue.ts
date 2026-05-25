@@ -15,6 +15,7 @@ export interface CatalogueItem {
   price_pence: number
   image_url: string | null
   is_active: boolean
+  shopify_variant_id: string | null
   created_at: Date
 }
 
@@ -24,6 +25,7 @@ export interface CatalogueItemCreate {
   category?: string
   min_milestone?: string
   price_pence?: number
+  shopify_variant_id?: string
 }
 
 export interface CatalogueItemUpdate {
@@ -33,6 +35,7 @@ export interface CatalogueItemUpdate {
   min_milestone?: string | null
   price_pence?: number
   is_active?: boolean
+  shopify_variant_id?: string | null
 }
 
 /** Active items only — for parent approve flow. Never call from child routes. */
@@ -50,6 +53,7 @@ export async function getActiveCatalogueItems(): Promise<CatalogueItem[]> {
     price_pence: row.price_pence,
     image_url: row.image_url,
     is_active: row.is_active,
+    shopify_variant_id: row.shopify_variant_id,
     created_at: row.created_at,
   }))
 }
@@ -68,6 +72,7 @@ export async function getAllCatalogueItems(): Promise<CatalogueItem[]> {
     price_pence: row.price_pence,
     image_url: row.image_url,
     is_active: row.is_active,
+    shopify_variant_id: row.shopify_variant_id,
     created_at: row.created_at,
   }))
 }
@@ -92,6 +97,7 @@ export async function createCatalogueItem(data: CatalogueItemCreate): Promise<Ca
       min_milestone: data.min_milestone || null,
       price_pence: data.price_pence ?? 0,
       is_active: true,
+      ...(data.shopify_variant_id && { shopify_variant_id: data.shopify_variant_id.trim() }),
     },
   })
   return {
@@ -103,6 +109,7 @@ export async function createCatalogueItem(data: CatalogueItemCreate): Promise<Ca
     price_pence: row.price_pence,
     image_url: row.image_url,
     is_active: row.is_active,
+    shopify_variant_id: row.shopify_variant_id,
     created_at: row.created_at,
   }
 }
@@ -128,12 +135,13 @@ export async function updateCatalogueItem(
   }
 
   const data: Record<string, unknown> = {}
-  if (updates.name !== undefined)          data.name = updates.name
-  if (updates.description !== undefined)   data.description = updates.description
-  if (updates.category !== undefined)      data.category = updates.category
-  if (updates.min_milestone !== undefined) data.min_milestone = updates.min_milestone
-  if (updates.price_pence !== undefined)   data.price_pence = updates.price_pence
-  if (updates.is_active !== undefined)     data.is_active = updates.is_active
+  if (updates.name !== undefined)              data.name = updates.name
+  if (updates.description !== undefined)       data.description = updates.description
+  if (updates.category !== undefined)          data.category = updates.category
+  if (updates.min_milestone !== undefined)     data.min_milestone = updates.min_milestone
+  if (updates.price_pence !== undefined)       data.price_pence = updates.price_pence
+  if (updates.is_active !== undefined)         data.is_active = updates.is_active
+  if (updates.shopify_variant_id !== undefined) data.shopify_variant_id = updates.shopify_variant_id
 
   const row = await prisma.rewardCatalog.update({ where: { id }, data })
   return {
@@ -145,6 +153,7 @@ export async function updateCatalogueItem(
     price_pence: row.price_pence,
     image_url: row.image_url,
     is_active: row.is_active,
+    shopify_variant_id: row.shopify_variant_id,
     created_at: row.created_at,
   }
 }

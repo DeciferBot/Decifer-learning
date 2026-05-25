@@ -312,13 +312,16 @@ check('C28', 'Parent dashboard has standing Reward Vault entry point using child
   )
 })
 
-check('C29', 'Stage 1.4 parent UI files contain no forbidden commerce strings', () => {
+check('C29', 'Stage 1.4/3 parent UI files contain no forbidden commerce strings', () => {
   const files = [
     'app/dashboard/parent/vault/[childId]/RespondButtons.tsx',
     'app/dashboard/parent/vault/[childId]/page.tsx',
     'app/dashboard/parent/page.tsx',
   ]
-  const forbidden = ['shopify', 'amazon', 'payment', 'wallet', 'delivery', 'cash', 'buy now', 'purchase']
+  // Stage 3 note: 'delivery' is intentionally present in page.tsx (DeliveryAddressForm for
+  // physical reward address collection — parent-only, never child-facing). It is no longer
+  // forbidden for parent pages; child-facing separation is covered by checks C18 and C31.
+  const forbidden = ['shopify', 'amazon', 'payment', 'wallet', 'cash', 'buy now', 'purchase']
   return files.every((f) => {
     const src = read(f).toLowerCase()
     return forbidden.every((word) => !src.includes(word))
@@ -371,6 +374,46 @@ check('C34', 'RespondButtons supports physical tab with catalogue item selection
     src.includes('catalogueItems') &&
     src.includes("rewardType: 'physical'") &&
     src.includes('Pick a prize')
+  )
+})
+
+// ── Stage 3: Shopify integration cycle ───────────────────────────────────────
+
+check('C35', 'ShopifyAdapter implements CommerceAdapter interface with createOrder + getOrderStatus', () => {
+  const src = read('lib/vault/shopify-adapter.ts')
+  return (
+    src.includes('implements CommerceAdapter') &&
+    src.includes('createOrder') &&
+    src.includes('getOrderStatus') &&
+    src.includes('draft_orders')
+  )
+})
+
+check('C36', 'requests.ts stores shopify_order_id and shopify_order_url in RewardFulfilment on physical approve', () => {
+  const src = read('lib/vault/requests.ts')
+  return (
+    src.includes('shopify_order_id') &&
+    src.includes('shopify_order_url') &&
+    src.includes('commerceResult.externalOrderId')
+  )
+})
+
+check('C37', 'Shopify webhook route exists and handles orders/fulfilled + draft_orders/completed', () => {
+  if (!exists('app/api/vault/webhooks/shopify/route.ts')) return false
+  const src = read('app/api/vault/webhooks/shopify/route.ts')
+  return (
+    src.includes('orders/fulfilled') &&
+    src.includes('draft_orders/completed') &&
+    src.includes('rewardFulfilment.updateMany')
+  )
+})
+
+check('C38', 'Parent vault page shows DeliveryAddressForm for Stage 3 address collection', () => {
+  const src = read('app/dashboard/parent/vault/[childId]/page.tsx')
+  return (
+    src.includes('DeliveryAddressForm') &&
+    src.includes('deliveryAddress') &&
+    src.includes('delivery_address')
   )
 })
 

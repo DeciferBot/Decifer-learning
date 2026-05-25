@@ -3,6 +3,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { getUserRole } from '@/lib/auth/roles'
 import { prisma } from '@/lib/prisma'
 import { getOrCreateParentSettings, updateParentSettings } from '@/lib/vault/settings'
+import type { DeliveryAddress } from '@/lib/vault/settings'
 
 type Params = { params: { childId: string } }
 
@@ -55,7 +56,12 @@ export async function PATCH(req: Request, { params }: Params) {
     return NextResponse.json({ error: 'Only parent accounts can update vault settings' }, { status: 403 })
   }
 
-  let body: { familyRewardOptions?: Array<{ label: string }>; maxRequestsPerMonth?: number; physicalRewardsEnabled?: boolean }
+  let body: {
+    familyRewardOptions?: Array<{ label: string }>
+    maxRequestsPerMonth?: number
+    physicalRewardsEnabled?: boolean
+    deliveryAddress?: DeliveryAddress | null
+  }
   try {
     body = await req.json()
   } catch {

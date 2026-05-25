@@ -206,36 +206,40 @@ check('16', 'respond route blocks unauthenticated and non-parent/child access', 
   )
 })
 
-// ── 17. NullCommerceAdapter is the only active adapter ───────────────────────
+// ── 17. CommerceAdapter has both Null and Shopify; env-var selection ─────────
 
-check('17', 'NullCommerceAdapter is the only active adapter — no ShopifyAdapter import', () => {
-  // No Shopify adapter file should exist
+check('17', 'Stage 3: ShopifyAdapter exists alongside NullCommerceAdapter; selection is env-var-based', () => {
+  // Both adapters must exist
   const shopifyExists = exists('lib/vault/shopify-adapter.ts')
-  // commerce-adapter must export NullCommerceAdapter
-  const src = read('lib/vault/commerce-adapter.ts')
-  return !shopifyExists && src.includes('NullCommerceAdapter')
+  const nullSrc = read('lib/vault/commerce-adapter.ts')
+  // requests.ts must use env-var-based factory, not hardcoded NullCommerceAdapter
+  const requestsSrc = read('lib/vault/requests.ts')
+  return (
+    shopifyExists &&
+    nullSrc.includes('NullCommerceAdapter') &&
+    requestsSrc.includes('SHOPIFY_ADMIN_ACCESS_TOKEN') &&
+    requestsSrc.includes('getCommerceAdapter')
+  )
 })
 
-// ── 18. No Shopify imports exist anywhere in the codebase ────────────────────
+// ── 18. Child-facing routes do not import ShopifyAdapter ─────────────────────
 
-check('18', 'No Shopify imports (non-comment) in lib/vault or app/api/vault', () => {
-  const files = [
+check('18', 'Child-facing routes and lib files do not import ShopifyAdapter or @shopify', () => {
+  const childFacingFiles = [
     'lib/vault/milestone-engine.ts',
     'lib/vault/status.ts',
-    'lib/vault/requests.ts',
     'lib/vault/settings.ts',
     'lib/vault/admin.ts',
     'lib/vault/commerce-adapter.ts',
     'app/api/vault/status/route.ts',
     'app/api/vault/request/route.ts',
-    'app/api/vault/parent/respond/route.ts',
     'app/api/vault/parent/requests/route.ts',
     'app/api/admin/vault/requests/route.ts',
   ]
-  return files.every((f) => {
+  return childFacingFiles.every((f) => {
     const importLines = read(f).split('\n')
       .filter(l => l.trimStart().startsWith('import'))
-    return !importLines.some(l => /shopify/i.test(l) || l.includes('@shopify'))
+    return !importLines.some(l => /shopify-adapter/i.test(l) || l.includes('@shopify'))
   })
 })
 
@@ -355,6 +359,44 @@ check('25', 'Stage 1.4: markFulfilled does not write to quiz_attempts, session_a
     'lessonProgress',
   ]
   return forbidden.every((token) => !afterMark.includes(token))
+})
+
+// ── 29. Shopify webhook validates HMAC signature ─────────────────────────────
+
+check('29', 'Shopify webhook handler validates HMAC-SHA256 signature before processing', () => {
+  const src = read('app/api/vault/webhooks/shopify/route.ts')
+  return (
+    src.includes('x-shopify-hmac-sha256') &&
+    src.includes('createHmac') &&
+    src.includes('SHOPIFY_WEBHOOK_SECRET') &&
+    src.includes('Invalid signature')
+  )
+})
+
+// ── 30. Webhook never writes to learning tables ───────────────────────────────
+
+check('30', 'Shopify webhook handler writes to reward_fulfilments only — no learning table writes', () => {
+  const src = read('app/api/vault/webhooks/shopify/route.ts')
+  const forbidden = [
+    'total_points', 'point_events', 'topic_progress', 'quiz_attempts',
+    'profile_badges', 'session_answers', 'lesson_progress',
+  ]
+  return forbidden.every((token) => !src.includes(token))
+})
+
+// ── 31. DeliveryAddress never exposed to child routes ────────────────────────
+
+check('31', 'delivery_address and DeliveryAddress not accessible from child vault routes or pages', () => {
+  const childRoutes = [
+    'app/api/vault/status/route.ts',
+    'app/api/vault/request/route.ts',
+    'app/(child)/vault/page.tsx',
+    'app/(child)/vault/RequestSection.tsx',
+  ]
+  return childRoutes.every((f) => {
+    const src = read(f)
+    return !src.includes('delivery_address') && !src.includes('DeliveryAddress')
+  })
 })
 
 // ── 26. Catalogue module has child-safety comment ────────────────────────────

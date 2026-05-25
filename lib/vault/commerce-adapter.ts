@@ -1,12 +1,26 @@
-// Reward Vault — commerce adapter interface and Stage 1 null implementation.
-// Stage 3 adds ShopifyAdapter in lib/vault/shopify-adapter.ts implementing this interface.
-// NEVER import Shopify or Amazon libraries here or in any Stage 1 file.
+// Reward Vault — commerce adapter interface.
+// Stage 1-2: NullCommerceAdapter (manual fulfilment, no-op).
+// Stage 3: ShopifyAdapter in lib/vault/shopify-adapter.ts — same interface, zero routing changes.
+
+/** Delivery address for physical reward fulfilment. UK-centric (postcode / country). */
+export interface DeliveryAddress {
+  firstName: string
+  lastName: string
+  address1: string
+  address2?: string
+  city: string
+  postcode: string
+  country: string   // ISO 3166-1 alpha-2, e.g. 'GB'
+}
 
 export interface ApprovedRequest {
   requestId: string
   childProfileId: string
   rewardLabel: string | null
   milestoneBand: string
+  // Stage 3+ fields — optional; NullCommerceAdapter ignores these
+  shopifyVariantId?: string | null
+  deliveryAddress?: DeliveryAddress | null
 }
 
 export interface CommerceOrderResult {

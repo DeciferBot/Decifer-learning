@@ -4,8 +4,18 @@
 
 import { prisma } from '@/lib/prisma'
 import { NullCommerceAdapter } from './commerce-adapter'
+import type { DeliveryAddress } from './commerce-adapter'
 
-const commerce = new NullCommerceAdapter()
+function getCommerceAdapter() {
+  if (process.env.SHOPIFY_ADMIN_ACCESS_TOKEN && process.env.SHOPIFY_STORE_DOMAIN) {
+    // Dynamic import to avoid loading Shopify code in non-physical paths
+    const { ShopifyAdapter } = require('./shopify-adapter') as typeof import('./shopify-adapter')
+    return new ShopifyAdapter(process.env.SHOPIFY_STORE_DOMAIN, process.env.SHOPIFY_ADMIN_ACCESS_TOKEN)
+  }
+  return new NullCommerceAdapter()
+}
+
+const commerce = getCommerceAdapter()
 
 export class VaultError extends Error {
   constructor(
@@ -180,13 +190,40 @@ export async function respondToRequest(
     const effectiveRewardType = action === 'approve' ? (parentInput.rewardType ?? 'family') : 'family'
     const isPhysical = effectiveRewardType === 'physical'
 
-    // Commerce adapter call (NullCommerceAdapter — no-op for family; physical creates a
-    // RewardFulfilment tracking row so admin can update its status)
-    await commerce.createOrder({
+    // For physical rewards, load Shopify context (variant ID + delivery address)
+    let shopifyVariantId: string | null = null
+    let deliveryAddress: DeliveryAddress | null = null
+    if (isPhysical) {
+      const labelToLookup = parentInput.rewardLabel ?? request.reward_label
+      const [parentSettings, catalogueItem] = await Promise.all([
+        prisma.vaultParentSettings.findUnique({
+          where: {
+            parent_profile_id_child_profile_id: {
+              parent_profile_id: request.parent_profile_id,
+              child_profile_id:  request.child_profile_id,
+            },
+          },
+          select: { delivery_address: true },
+        }),
+        labelToLookup
+          ? prisma.rewardCatalog.findFirst({
+              where: { name: labelToLookup, is_active: true },
+              select: { shopify_variant_id: true },
+            })
+          : null,
+      ])
+      shopifyVariantId = catalogueItem?.shopify_variant_id ?? null
+      deliveryAddress = (parentSettings?.delivery_address as DeliveryAddress | null) ?? null
+    }
+
+    // Commerce adapter call — NullCommerceAdapter is a no-op; ShopifyAdapter creates a draft order
+    const commerceResult = await commerce.createOrder({
       requestId: request.id,
       childProfileId: request.child_profile_id,
       rewardLabel: parentInput.rewardLabel ?? request.reward_label,
       milestoneBand: request.milestone_band,
+      shopifyVariantId,
+      deliveryAddress,
     })
 
     return prisma.$transaction(async (tx) => {
@@ -202,11 +239,20 @@ export async function respondToRequest(
         },
       })
 
-      // For physical rewards, create a fulfilment tracking row (admin manages its status)
+      // For physical rewards, create/update fulfilment row with Shopify order data
       if (isPhysical) {
+        const shopifyOrderUrl = commerceResult.externalOrderId && process.env.SHOPIFY_STORE_DOMAIN
+          ? `https://${process.env.SHOPIFY_STORE_DOMAIN}/admin/draft_orders/${commerceResult.externalOrderId}`
+          : null
+
         await tx.rewardFulfilment.upsert({
           where: { request_id: requestId },
-          create: { request_id: requestId, status: 'approved' },
+          create: {
+            request_id:       requestId,
+            status:           'approved',
+            shopify_order_id: commerceResult.externalOrderId,
+            shopify_order_url: shopifyOrderUrl,
+          },
           update: {},
         })
       }

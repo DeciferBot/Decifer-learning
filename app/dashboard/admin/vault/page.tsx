@@ -115,6 +115,16 @@ export default async function AdminVaultPage() {
                     <span className={`rounded-full px-2 py-0.5 text-xs font-bold capitalize ${FULFILMENT_COLOUR[r.fulfilmentStatus] ?? 'bg-black/5 text-muted'}`}>
                       Fulfilment: {r.fulfilmentStatus}
                     </span>
+                    {r.shopifyOrderUrl && (
+                      <a
+                        href={r.shopifyOrderUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-brand hover:underline"
+                      >
+                        Shopify ↗
+                      </a>
+                    )}
                   </div>
                 )}
               </li>

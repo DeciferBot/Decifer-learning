@@ -3,11 +3,15 @@
 // SAFETY: no imports from lib/points, lib/sm2, lib/cards, lib/adaptive.
 
 import { prisma } from '@/lib/prisma'
+import type { DeliveryAddress } from './commerce-adapter'
+
+export type { DeliveryAddress }
 
 export interface ParentSettingsUpdate {
   familyRewardOptions?: Array<{ label: string }>
   maxRequestsPerMonth?: number
   physicalRewardsEnabled?: boolean
+  deliveryAddress?: DeliveryAddress | null
 }
 
 export async function getOrCreateParentSettings(
@@ -65,6 +69,9 @@ export async function updateParentSettings(
   }
   if (updates.physicalRewardsEnabled !== undefined) {
     data.physical_rewards_enabled = updates.physicalRewardsEnabled
+  }
+  if (updates.deliveryAddress !== undefined) {
+    data.delivery_address = updates.deliveryAddress
   }
 
   return prisma.vaultParentSettings.upsert({
