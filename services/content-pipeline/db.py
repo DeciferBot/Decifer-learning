@@ -78,6 +78,9 @@ def promote_ready_topics(topic_ids: list[str]) -> list[dict]:
     if not topic_ids:
         return []
 
+    # topics.id is a uuid column. Cast the parameter so both str inputs (from
+    # HTTP requests / Pydantic models) and uuid.UUID inputs (from psycopg2 rows)
+    # work without bespoke conversion in callers.
     conn = get_connection()
     try:
         with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
@@ -85,15 +88,15 @@ def promote_ready_topics(topic_ids: list[str]) -> list[dict]:
                 """
                 UPDATE topics t
                 SET is_published = TRUE
-                WHERE t.id = ANY(%s)
+                WHERE t.id = ANY(%s::uuid[])
                   AND t.is_published = FALSE
                   AND (SELECT COUNT(*) FROM learn_content
                        WHERE topic_id = t.id AND status = 'published') >= 1
                   AND (SELECT COUNT(*) FROM quiz_questions
                        WHERE topic_id = t.id AND status = 'published') >= 10
-                RETURNING t.id, t.title
+                RETURNING t.id::text AS id, t.title
                 """,
-                (topic_ids,),
+                ([str(t) for t in topic_ids],),
             )
             promoted = [dict(r) for r in cur.fetchall()]
             conn.commit()
