@@ -486,11 +486,13 @@ def stage1_generate(topic: dict, tier: str, result: PipelineResult) -> Optional[
     chunks = db.retrieve_chunks(topic["subject_name"], topic["year_group_label"], query_embedding)
     result.log_stage(f"  retrieved {len(chunks)} curriculum chunks for {topic['subject_name']}")
 
-    # For English topics, pass published questions as a diversity hint so the LLM
-    # avoids generating near-duplicate questions (e.g. same conjunction word repeated).
+    # Pass published questions as a diversity hint for English AND Science topics.
+    # English: avoids regenerating the same grammar example / conjunction word.
+    # Science: avoids the dedup loop where the LLM keeps generating the same
+    #          root/anchorage question when the topic is partially saturated.
     subject = topic.get("subject_name", "").lower()
     existing_questions: list[dict] | None = None
-    if "english" in subject:
+    if "english" in subject or "science" in subject:
         existing_questions = db.get_published_questions_full(topic["id"])
 
     prompt = _build_generation_prompt(topic, tier, chunks, existing_questions=existing_questions)
