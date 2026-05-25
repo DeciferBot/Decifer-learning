@@ -19,6 +19,7 @@ export interface AdminRequestRow {
   respondedAt: Date | null
   xpAtRequest: number
   topicsAtRequest: number
+  fulfilmentStatus: string | null
 }
 
 export interface AdminVaultStats {
@@ -55,6 +56,7 @@ export async function getAllRequests(options?: {
       topics_at_request: true,
       child: { select: { display_name: true } },
       parent: { select: { display_name: true } },
+      fulfilment: { select: { status: true } },
     },
   })
 
@@ -73,6 +75,7 @@ export async function getAllRequests(options?: {
     respondedAt: r.responded_at,
     xpAtRequest: r.xp_at_request,
     topicsAtRequest: r.topics_at_request,
+    fulfilmentStatus: r.fulfilment?.status ?? null,
   }))
 }
 

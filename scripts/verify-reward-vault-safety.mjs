@@ -302,20 +302,19 @@ check('21', 'Child vault page has no "credit balance", "spend", "price", "wallet
   return true
 })
 
-// ── 22. Physical rewards remain disabled in Stage 1 ──────────────────────────
+// ── 22. Physical rewards gated by parent settings (Stage 2) ──────────────────
 
-check('22', 'Physical rewards are locked out in respond route and settings interface', () => {
+check('22', 'Physical rewards gated by parent settings — PHYSICAL_DISABLED returned when not enabled', () => {
   const respondRoute = read('app/api/vault/parent/respond/route.ts')
   const settingsSrc = read('lib/vault/settings.ts')
-  // Respond route must explicitly block physical reward_type
-  const respondOk =
+  // Respond route still gates physical with PHYSICAL_DISABLED (but now checks settings, not blanket block)
+  const hasPhysicalGate =
     respondRoute.includes("rewardType === 'physical'") &&
     respondRoute.includes('PHYSICAL_DISABLED')
-  // Settings interface (ParentSettingsUpdate) must not expose physical_rewards_enabled
-  // Check only the interface definition block, not comments
-  const interfaceBlock = settingsSrc.match(/interface ParentSettingsUpdate\s*\{[^}]+\}/)?.[0] ?? ''
-  const settingsOk = !interfaceBlock.includes('physical')
-  return respondOk && settingsOk
+  // Settings interface must now include physicalRewardsEnabled (Stage 2 feature flag)
+  // Direct include check — regex would break on nested generics like Array<{ label: string }>
+  const hasSettingField = settingsSrc.includes('physicalRewardsEnabled')
+  return hasPhysicalGate && hasSettingField
 })
 
 // ── 23. Fulfill endpoint is parent-only and calls markFulfilled ───────────────
@@ -358,10 +357,44 @@ check('25', 'Stage 1.4: markFulfilled does not write to quiz_attempts, session_a
   return forbidden.every((token) => !afterMark.includes(token))
 })
 
+// ── 26. Catalogue module has child-safety comment ────────────────────────────
+
+check('26', 'lib/vault/catalogue.ts has safety comment blocking child-facing imports', () => {
+  const src = read('lib/vault/catalogue.ts')
+  return (
+    src.includes('Child-facing code must never import this module') ||
+    src.includes('child-facing code must never import')
+  )
+})
+
+// ── 27. Admin catalogue routes are admin-only ─────────────────────────────────
+
+check('27', 'Admin catalogue API routes require admin role', () => {
+  const getRoute = read('app/api/admin/vault/catalogue/route.ts')
+  const patchRoute = read('app/api/admin/vault/catalogue/[itemId]/route.ts')
+  return (
+    (getRoute.includes("getUserRole(user) !== 'admin'") || getRoute.includes("=== 'admin'")) &&
+    (patchRoute.includes("getUserRole(user) !== 'admin'") || patchRoute.includes("=== 'admin'"))
+  )
+})
+
+// ── 28. price_pence not exposed in parent or child UI ────────────────────────
+
+check('28', 'price_pence not present in RespondButtons or child vault pages', () => {
+  const respondButtons = read('app/dashboard/parent/vault/[childId]/RespondButtons.tsx')
+  const childVault = read('app/(child)/vault/page.tsx')
+  const requestSection = read('app/(child)/vault/RequestSection.tsx')
+  return (
+    !respondButtons.includes('price_pence') &&
+    !childVault.includes('price_pence') &&
+    !requestSection.includes('price_pence')
+  )
+})
+
 // ── Report ────────────────────────────────────────────────────────────────────
 
 const totalChecks = pass.length + fail.length
-console.log('\n── Reward Vault Stage 1 Closure Gate ──\n')
+console.log('\n── Reward Vault Stage 2 Safety Gate ──\n')
 for (const p of pass) {
   console.log(`  ✓ [${p.id.padEnd(3)}] ${p.description}`)
 }

@@ -8,6 +8,7 @@ import { getOrCreateParentSettings } from '@/lib/vault/settings'
 import { RespondButtons } from './RespondButtons'
 import { FulfillButton } from './FulfillButton'
 import { RewardSettingsForm } from './RewardSettingsForm'
+import { PhysicalRewardsToggle } from './PhysicalRewardsToggle'
 
 export const metadata = { title: 'Reward Vault — Decifer Learning' }
 
@@ -32,6 +33,12 @@ const HISTORY_STATUS: Record<string, { label: string; colour: string }> = {
   withdrawn:  { label: 'Closed',                  colour: 'text-muted' },
   dismissed:  { label: 'Closed',                  colour: 'text-muted' },
   completed:  { label: 'Done',                    colour: 'text-science font-semibold' },
+}
+
+const FULFILMENT_LABEL: Record<string, string> = {
+  approved:   '📦 Awaiting dispatch',
+  dispatched: '🚚 On its way',
+  delivered:  '✓ Delivered',
 }
 
 type Params = { params: { childId: string } }
@@ -72,12 +79,25 @@ export default async function ParentVaultPage({ params }: Params) {
         child_message: true,
         parent_response_note: true,
         reward_label: true,
+        reward_type: true,
         credits_used: true,
         created_at: true,
         responded_at: true,
+        fulfilment: { select: { status: true } },
       },
     }),
   ])
+
+  const physicalEnabled = parentSettings.physical_rewards_enabled
+
+  // Load catalogue items (name + category only — price not surfaced in parent UI) when physical is enabled
+  const catalogueItems = physicalEnabled
+    ? await prisma.rewardCatalog.findMany({
+        where: { is_active: true },
+        orderBy: [{ category: 'asc' }, { name: 'asc' }],
+        select: { id: true, name: true, category: true },
+      })
+    : []
 
   const activeRequest = requestHistory.find(
     (r) => ['pending', 'deferred', 'counter_offered'].includes(r.status),
@@ -177,7 +197,13 @@ export default async function ParentVaultPage({ params }: Params) {
               <p className="mt-2 text-sm italic text-ink">&ldquo;{activeRequest.child_message}&rdquo;</p>
             )}
           </div>
-          <RespondButtons requestId={activeRequest.id} childName={childName} status={activeRequest.status} />
+          <RespondButtons
+            requestId={activeRequest.id}
+            childName={childName}
+            status={activeRequest.status}
+            physicalRewardsEnabled={physicalEnabled}
+            catalogueItems={catalogueItems}
+          />
         </div>
       ) : (
         <div className="rounded-2xl border border-black/5 bg-surface p-5 text-center space-y-1">
@@ -190,24 +216,32 @@ export default async function ParentVaultPage({ params }: Params) {
         </div>
       )}
 
-      {/* ── Family reward options ─────────────────────────────────────────── */}
-      <div className="rounded-2xl border border-black/5 bg-surface p-5 shadow-sm space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="font-heading text-sm font-semibold text-ink">Family reward ideas</h2>
-          <RewardSettingsForm childId={params.childId} initialOptions={familyOptions} />
+      {/* ── Reward settings ──────────────────────────────────────────────── */}
+      <div className="rounded-2xl border border-black/5 bg-surface p-5 shadow-sm space-y-4">
+        {/* Family reward ideas */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="font-heading text-sm font-semibold text-ink">Family reward ideas</h2>
+            <RewardSettingsForm childId={params.childId} initialOptions={familyOptions} />
+          </div>
+          {familyOptions.length > 0 ? (
+            <ul className="space-y-1.5">
+              {familyOptions.map((opt) => (
+                <li key={opt.label} className="flex items-center gap-2 text-sm text-ink">
+                  <span className="h-1.5 w-1.5 rounded-full bg-brand flex-none" aria-hidden />
+                  {opt.label}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-muted">No reward ideas set yet — add some using &ldquo;Edit ideas&rdquo; above.</p>
+          )}
         </div>
-        {familyOptions.length > 0 ? (
-          <ul className="space-y-1.5">
-            {familyOptions.map((opt) => (
-              <li key={opt.label} className="flex items-center gap-2 text-sm text-ink">
-                <span className="h-1.5 w-1.5 rounded-full bg-brand flex-none" aria-hidden />
-                {opt.label}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-sm text-muted">No reward ideas set yet — add some using &ldquo;Edit ideas&rdquo; above.</p>
-        )}
+
+        {/* Physical prizes toggle */}
+        <div className="border-t border-black/5 pt-4">
+          <PhysicalRewardsToggle childId={params.childId} initialEnabled={physicalEnabled} />
+        </div>
       </div>
 
       {/* ── Request history ───────────────────────────────────────────────── */}
@@ -238,12 +272,23 @@ export default async function ParentVaultPage({ params }: Params) {
                       {new Date(r.created_at).toLocaleDateString('en-GB')}
                     </span>
                   </div>
-                  {r.status === 'approved' && (
+                  {r.status === 'approved' && r.reward_type !== 'physical' && (
                     <div className="space-y-1.5">
                       <p className="text-xs text-muted">
                         Once you&apos;ve given this reward, tap the button below.
                       </p>
                       <FulfillButton requestId={r.id} />
+                    </div>
+                  )}
+                  {r.status === 'approved' && r.reward_type === 'physical' && (
+                    <div className="space-y-1.5">
+                      {r.fulfilment?.status ? (
+                        <p className="text-xs font-semibold text-brand">
+                          {FULFILMENT_LABEL[r.fulfilment.status] ?? `📦 ${r.fulfilment.status}`}
+                        </p>
+                      ) : (
+                        <p className="text-xs text-muted">Physical prize — awaiting dispatch from your family catalogue.</p>
+                      )}
                     </div>
                   )}
                 </li>

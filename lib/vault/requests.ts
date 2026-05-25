@@ -177,24 +177,41 @@ export async function respondToRequest(
   const now = new Date()
 
   if (action === 'approve' || action === 'accept_counter') {
-    // Commerce adapter call (NullCommerceAdapter in Stage 1 — no-op)
+    const effectiveRewardType = action === 'approve' ? (parentInput.rewardType ?? 'family') : 'family'
+    const isPhysical = effectiveRewardType === 'physical'
+
+    // Commerce adapter call (NullCommerceAdapter — no-op for family; physical creates a
+    // RewardFulfilment tracking row so admin can update its status)
     await commerce.createOrder({
       requestId: request.id,
       childProfileId: request.child_profile_id,
-      rewardLabel: request.reward_label,
+      rewardLabel: parentInput.rewardLabel ?? request.reward_label,
       milestoneBand: request.milestone_band,
     })
 
-    return prisma.rewardRequest.update({
-      where: { id: requestId },
-      data: {
-        status: 'approved',
-        responded_by_profile_id: responderProfileId,
-        responded_at: now,
-        ...(parentInput.note !== undefined && { parent_response_note: parentInput.note }),
-        ...(action === 'approve' && parentInput.rewardType && { reward_type: parentInput.rewardType }),
-        ...(action === 'approve' && parentInput.rewardLabel && { reward_label: parentInput.rewardLabel }),
-      },
+    return prisma.$transaction(async (tx) => {
+      const updated = await tx.rewardRequest.update({
+        where: { id: requestId },
+        data: {
+          status: 'approved',
+          responded_by_profile_id: responderProfileId,
+          responded_at: now,
+          ...(parentInput.note !== undefined && { parent_response_note: parentInput.note }),
+          ...(action === 'approve' && parentInput.rewardType && { reward_type: parentInput.rewardType }),
+          ...(action === 'approve' && parentInput.rewardLabel && { reward_label: parentInput.rewardLabel }),
+        },
+      })
+
+      // For physical rewards, create a fulfilment tracking row (admin manages its status)
+      if (isPhysical) {
+        await tx.rewardFulfilment.upsert({
+          where: { request_id: requestId },
+          create: { request_id: requestId, status: 'approved' },
+          update: {},
+        })
+      }
+
+      return updated
     })
   }
 

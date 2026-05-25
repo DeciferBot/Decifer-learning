@@ -52,12 +52,30 @@ export async function POST(req: Request) {
   })
   if (!callerProfile) return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
 
-  // physical rewards are locked in Stage 1
+  // physical: gate on parent settings for this parent-child pair
   if (rewardType === 'physical') {
-    return NextResponse.json(
-      { error: 'Physical rewards are not available yet', code: 'PHYSICAL_DISABLED' },
-      { status: 422 },
-    )
+    const req = await prisma.rewardRequest.findUnique({
+      where: { id: requestId },
+      select: { parent_profile_id: true, child_profile_id: true },
+    })
+    if (!req) {
+      return NextResponse.json({ error: 'Request not found', code: 'REQUEST_NOT_FOUND' }, { status: 404 })
+    }
+    const settings = await prisma.vaultParentSettings.findUnique({
+      where: {
+        parent_profile_id_child_profile_id: {
+          parent_profile_id: req.parent_profile_id,
+          child_profile_id: req.child_profile_id,
+        },
+      },
+      select: { physical_rewards_enabled: true },
+    })
+    if (!settings?.physical_rewards_enabled) {
+      return NextResponse.json(
+        { error: 'Physical rewards are not enabled for this child', code: 'PHYSICAL_DISABLED' },
+        { status: 422 },
+      )
+    }
   }
 
   const input =

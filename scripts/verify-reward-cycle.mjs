@@ -332,6 +332,48 @@ check('C30', 'Parent vault UI uses label maps — no raw status.replace for disp
   return !replacePtn.test(vaultPage) && !replacePtn.test(dashboard)
 })
 
+// ── Stage 2: Physical prize cycle ────────────────────────────────────────────
+
+check('C31', 'Catalogue seed script exists with expected UK prize items', () => {
+  const src = read('scripts/seed-vault-catalogue.mjs')
+  return (
+    src.includes('Stationery') &&
+    src.includes('Book token') &&
+    src.includes('Science kit') &&
+    src.includes('Museum')
+  )
+})
+
+check('C32', 'respondToRequest creates RewardFulfilment row for physical approvals', () => {
+  const src = read('lib/vault/requests.ts')
+  return (
+    src.includes("isPhysical") &&
+    src.includes('rewardFulfilment') &&
+    src.includes("status: 'approved'")
+  )
+})
+
+check('C33', 'Admin fulfilment route exists and is admin-only with status machine', () => {
+  if (!exists('app/api/admin/vault/fulfilment/[requestId]/route.ts')) return false
+  const src = read('app/api/admin/vault/fulfilment/[requestId]/route.ts')
+  return (
+    src.includes("getUserRole(user) !== 'admin'") &&
+    src.includes('INVALID_TRANSITION') &&
+    src.includes("'dispatched'") &&
+    src.includes("'delivered'")
+  )
+})
+
+check('C34', 'RespondButtons supports physical tab with catalogue item selection', () => {
+  const src = read('app/dashboard/parent/vault/[childId]/RespondButtons.tsx')
+  return (
+    src.includes('physicalRewardsEnabled') &&
+    src.includes('catalogueItems') &&
+    src.includes("rewardType: 'physical'") &&
+    src.includes('Pick a prize')
+  )
+})
+
 // ── Report ────────────────────────────────────────────────────────────────────
 
 const totalChecks = pass.length + fail.length

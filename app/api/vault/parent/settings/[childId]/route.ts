@@ -55,7 +55,7 @@ export async function PATCH(req: Request, { params }: Params) {
     return NextResponse.json({ error: 'Only parent accounts can update vault settings' }, { status: 403 })
   }
 
-  let body: { familyRewardOptions?: Array<{ label: string }>; maxRequestsPerMonth?: number }
+  let body: { familyRewardOptions?: Array<{ label: string }>; maxRequestsPerMonth?: number; physicalRewardsEnabled?: boolean }
   try {
     body = await req.json()
   } catch {

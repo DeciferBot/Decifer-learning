@@ -26,11 +26,23 @@ export default async function AdminVaultPage() {
     cancelled:      'bg-black/10 text-muted',
   }
 
+  const FULFILMENT_COLOUR: Record<string, string> = {
+    approved:   'bg-points-gold/20 text-points-gold',
+    dispatched: 'bg-brand/15 text-brand',
+    delivered:  'bg-correct/20 text-correct',
+  }
+
   return (
     <section className="space-y-6">
       <div className="flex items-center justify-between gap-3">
         <h1 className="font-heading text-2xl font-bold text-ink">Reward Vault</h1>
         <div className="flex items-center gap-3">
+          <Link
+            href="/dashboard/admin/vault/catalogue"
+            className="rounded-xl border border-black/10 px-3 py-1.5 text-xs font-semibold text-muted hover:border-brand/40 hover:text-brand"
+          >
+            🎁 Catalogue
+          </Link>
           <a
             href="/api/admin/vault/requests?format=csv&limit=1000"
             className="rounded-xl border border-black/10 px-3 py-1.5 text-xs font-semibold text-muted hover:border-brand/40 hover:text-brand"
@@ -75,9 +87,16 @@ export default async function AdminVaultPage() {
                     <span className="mx-1 text-muted">→</span>
                     <span className="text-sm text-muted">{r.parentName}</span>
                   </div>
-                  <span className={`rounded-full px-2 py-0.5 text-xs font-bold capitalize ${STATUS_COLOUR[r.status] ?? 'bg-black/5 text-muted'}`}>
-                    {r.status.replace('_', ' ')}
-                  </span>
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                    {r.rewardType === 'physical' && (
+                      <span className="rounded-full bg-science/15 px-2 py-0.5 text-xs font-bold text-science">
+                        📦 Physical
+                      </span>
+                    )}
+                    <span className={`rounded-full px-2 py-0.5 text-xs font-bold capitalize ${STATUS_COLOUR[r.status] ?? 'bg-black/5 text-muted'}`}>
+                      {r.status.replace('_', ' ')}
+                    </span>
+                  </div>
                 </div>
                 <div className="flex items-center gap-3 text-xs text-muted">
                   <span className="capitalize">{r.milestoneBand} milestone</span>
@@ -90,6 +109,13 @@ export default async function AdminVaultPage() {
                 )}
                 {r.rewardLabel && (
                   <p className="text-xs text-ink">Reward: {r.rewardLabel}</p>
+                )}
+                {r.fulfilmentStatus && (
+                  <div className="flex items-center gap-2">
+                    <span className={`rounded-full px-2 py-0.5 text-xs font-bold capitalize ${FULFILMENT_COLOUR[r.fulfilmentStatus] ?? 'bg-black/5 text-muted'}`}>
+                      Fulfilment: {r.fulfilmentStatus}
+                    </span>
+                  </div>
                 )}
               </li>
             ))}

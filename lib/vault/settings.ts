@@ -7,7 +7,7 @@ import { prisma } from '@/lib/prisma'
 export interface ParentSettingsUpdate {
   familyRewardOptions?: Array<{ label: string }>
   maxRequestsPerMonth?: number
-  // physical_rewards_enabled stays false in Stage 1 — not exposed here
+  physicalRewardsEnabled?: boolean
 }
 
 export async function getOrCreateParentSettings(
@@ -62,6 +62,9 @@ export async function updateParentSettings(
   }
   if (updates.maxRequestsPerMonth !== undefined) {
     data.max_requests_per_month = updates.maxRequestsPerMonth
+  }
+  if (updates.physicalRewardsEnabled !== undefined) {
+    data.physical_rewards_enabled = updates.physicalRewardsEnabled
   }
 
   return prisma.vaultParentSettings.upsert({
