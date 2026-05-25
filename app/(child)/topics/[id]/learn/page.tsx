@@ -8,6 +8,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server'
 
 type TopicRow = { id: string; title: string }
 type ContentRow = { id: string; body_html: string }
+type PracticeRow = { id: string }
 
 export async function generateMetadata({ params }: { params: { id: string } }) {
   return { title: 'Learn — Decifer Learning' }
@@ -34,6 +35,20 @@ export default async function LearnPage({ params }: { params: { id: string } }) 
 
   if (!content) notFound()
 
+  // Skip the Practise step when no published practice_game exists for this topic.
+  const { data: practice } = await supabase
+    .from('practice_games')
+    .select('id')
+    .eq('topic_id', params.id)
+    .eq('status', 'published')
+    .maybeSingle<PracticeRow>()
+  const hasPractice = practice !== null
+
+  const nextHref = hasPractice
+    ? `/topics/${params.id}/practise`
+    : `/topics/${params.id}/quiz`
+  const nextLabel = hasPractice ? 'Start Practising →' : 'Start Quiz →'
+
   return (
     <div className="space-y-5">
       <nav className="flex items-center gap-2 text-sm text-muted" aria-label="breadcrumb">
@@ -44,8 +59,12 @@ export default async function LearnPage({ params }: { params: { id: string } }) 
 
       <div className="flex gap-2">
         <span className="rounded-full bg-maths px-3 py-1 text-xs font-bold text-white">1 Learn</span>
-        <span className="rounded-full bg-black/10 px-3 py-1 text-xs font-bold text-muted">2 Practise</span>
-        <span className="rounded-full bg-black/10 px-3 py-1 text-xs font-bold text-muted">3 Quiz</span>
+        {hasPractice && (
+          <span className="rounded-full bg-black/10 px-3 py-1 text-xs font-bold text-muted">2 Practise</span>
+        )}
+        <span className="rounded-full bg-black/10 px-3 py-1 text-xs font-bold text-muted">
+          {hasPractice ? '3 Quiz' : '2 Quiz'}
+        </span>
       </div>
 
       <h1 className="font-heading text-2xl font-bold text-ink">{topic.title}</h1>
@@ -59,10 +78,10 @@ export default async function LearnPage({ params }: { params: { id: string } }) 
 
       <div className="flex justify-end">
         <Link
-          href={`/topics/${params.id}/practise`}
+          href={nextHref}
           className="inline-flex min-h-[48px] items-center gap-2 rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white shadow-sm transition-opacity hover:opacity-90"
         >
-          Start Practising →
+          {nextLabel}
         </Link>
       </div>
     </div>

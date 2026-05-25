@@ -13,7 +13,13 @@ import { getVaultStatus } from '@/lib/vault/status'
 export const metadata = { title: 'Dashboard — Decifer Learning' }
 
 type SubjectRow = { name: string; colour_token: string }
-type TopicRow = { id: string; title: string; order_index: number; subjects: SubjectRow }
+type TopicRow = {
+  id: string
+  title: string
+  order_index: number
+  subjects: SubjectRow
+  hasPractice: boolean
+}
 
 export default async function ChildDashboardPage() {
   const supabase = createSupabaseServerClient()
@@ -25,17 +31,30 @@ export default async function ChildDashboardPage() {
   const displayName = profile?.display_name ?? (user ? getUserDisplayName(user) : 'Explorer')
   const yearGroup = MVP_YEAR_GROUPS.find((y) => y.label === profile?.year_group_label)
 
-  // Fetch published topics for this child's year group.
+  // Fetch published topics for this child's year group, plus a flag for whether
+  // each one has a published practice_game. The Practise step is hidden when
+  // no game exists so "publish as available" can surface Learn+Quiz immediately.
   // RLS: topics_select_published filters to is_published=true at DB level.
   let topics: TopicRow[] = []
   if (profile?.year_group_id) {
-    const { data } = await supabase
-      .from('topics')
-      .select('id, title, order_index, subjects(name, colour_token)')
-      .eq('year_group_id', profile.year_group_id)
-      .eq('is_published', true)
-      .order('order_index')
-    topics = (data as TopicRow[] | null) ?? []
+    const rows = await prisma.topic.findMany({
+      where: { year_group_id: profile.year_group_id, is_published: true },
+      select: {
+        id: true,
+        title: true,
+        order_index: true,
+        subject: { select: { name: true, colour_token: true } },
+        _count: { select: { practice_games: { where: { status: 'published' } } } },
+      },
+      orderBy: { order_index: 'asc' },
+    })
+    topics = rows.map((t) => ({
+      id: t.id,
+      title: t.title,
+      order_index: t.order_index,
+      subjects: { name: t.subject.name, colour_token: t.subject.colour_token },
+      hasPractice: t._count.practice_games > 0,
+    }))
   }
 
   // Card count for collection teaser
@@ -204,19 +223,21 @@ export default async function ChildDashboardPage() {
 
                 <h3 className="mb-4 font-heading text-lg font-bold text-ink">{topic.title}</h3>
 
-                <div className="grid grid-cols-3 gap-2">
+                <div className={`grid gap-2 ${topic.hasPractice ? 'grid-cols-3' : 'grid-cols-2'}`}>
                   <Link
                     href={`/topics/${topic.id}/learn`}
                     className="flex min-h-[48px] items-center justify-center rounded-xl bg-maths/10 px-3 py-2 text-sm font-bold text-maths transition-colors hover:bg-maths/20"
                   >
                     📖 Learn
                   </Link>
-                  <Link
-                    href={`/topics/${topic.id}/practise`}
-                    className="flex min-h-[48px] items-center justify-center rounded-xl bg-science/10 px-3 py-2 text-sm font-bold text-science transition-colors hover:bg-science/20"
-                  >
-                    ✏️ Practise
-                  </Link>
+                  {topic.hasPractice && (
+                    <Link
+                      href={`/topics/${topic.id}/practise`}
+                      className="flex min-h-[48px] items-center justify-center rounded-xl bg-science/10 px-3 py-2 text-sm font-bold text-science transition-colors hover:bg-science/20"
+                    >
+                      ✏️ Practise
+                    </Link>
+                  )}
                   <Link
                     href={`/topics/${topic.id}/quiz`}
                     className="flex min-h-[48px] items-center justify-center rounded-xl bg-lightning/20 px-3 py-2 text-sm font-bold text-ink transition-colors hover:bg-lightning/30"

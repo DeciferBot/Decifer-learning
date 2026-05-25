@@ -168,6 +168,11 @@ class QuestionResult(BaseModel):
     output_tokens: int = 0
 
 
+class PromotedTopic(BaseModel):
+    id: str
+    title: str
+
+
 class GenerateResponse(BaseModel):
     topic_id: str
     tier: str
@@ -180,11 +185,13 @@ class GenerateResponse(BaseModel):
     model: str
     pipeline_version: str
     results: list[QuestionResult]
+    promoted_topics: list[PromotedTopic] = []
 
 
 @app.post("/generate", response_model=GenerateResponse)
 def generate(req: GenerateRequest) -> GenerateResponse:
     import pipeline as pl
+    import db as _db
     import config
 
     if req.tier not in ("sprout", "explorer", "lightning"):
@@ -198,6 +205,11 @@ def generate(req: GenerateRequest) -> GenerateResponse:
     counts = {"published": 0, "staged": 0, "regenerating": 0, "failed": 0}
     for r in results:
         counts[r.status] = counts.get(r.status, 0) + 1
+
+    # Publish-as-available: flip is_published if this topic just crossed the gate.
+    promoted = _db.promote_ready_topics([req.topic_id])
+    if promoted:
+        log.info(f"Auto-promoted {len(promoted)} topic(s): {[p['title'] for p in promoted]}")
 
     return GenerateResponse(
         topic_id=req.topic_id,
@@ -221,6 +233,7 @@ def generate(req: GenerateRequest) -> GenerateResponse:
             )
             for r in results
         ],
+        promoted_topics=[PromotedTopic(id=p["id"], title=p["title"]) for p in promoted],
     )
 
 
@@ -253,6 +266,7 @@ class GenerateBatchResponse(BaseModel):
     total_staged: int
     total_failed: int
     results: list[BatchItemResult]
+    promoted_topics: list[PromotedTopic] = []
 
 
 @app.post("/generate/batch", response_model=GenerateBatchResponse)
@@ -342,11 +356,19 @@ def generate_batch(req: GenerateBatchRequest) -> GenerateBatchResponse:
             ))
             total_failed += item.count
 
+    # Publish-as-available: flip is_published on any of this batch's topics
+    # that just crossed the readiness gate. Idempotent and scoped to batch.
+    touched_topic_ids = list({item.topic_id for item in req.items})
+    promoted = _db.promote_ready_topics(touched_topic_ids)
+    if promoted:
+        log.info(f"Auto-promoted {len(promoted)} topic(s): {[p['title'] for p in promoted]}")
+
     return GenerateBatchResponse(
         total_published=total_published,
         total_staged=total_staged,
         total_failed=total_failed,
         results=batch_results,
+        promoted_topics=[PromotedTopic(id=p["id"], title=p["title"]) for p in promoted],
     )
 
 

@@ -236,6 +236,12 @@ def main():
         after = gate["published_questions"]
         gate_str = "✅ PASS" if gate["gate_passes"] else f"🔒 HOLD (q={after}/10, lc={gate['published_learn_content']}/1)"
         print(f"  After: {after} published (+{after - before} added) | Gate: {gate_str}")
+
+        # Publish-as-available: flip topics.is_published the moment a topic crosses the gate.
+        promoted = db.promote_ready_topics([topic["id"]])
+        if promoted:
+            print(f"  🌟 Promoted to is_published=true: {promoted[0]['title']}")
+
         summary.append({"slug": slug, "title": topic["title"],
                         "status": "PASS" if gate["gate_passes"] else "HOLD",
                         "gate": gate, "before": before, "after": after})

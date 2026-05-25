@@ -57,6 +57,51 @@ def get_topic(topic_id: str) -> Optional[dict]:
     return dict(row) if row else None
 
 
+# ── Publish-as-available auto-promotion ───────────────────────────────────
+
+def promote_ready_topics(topic_ids: list[str]) -> list[dict]:
+    """
+    Auto-promote topics to is_published=true once they hit the readiness gate
+    (CLAUDE.md Phase 3/11): >= 1 published learn_content AND >= 10 published
+    quiz_questions. Practice games are optional — the UI hides Practise when
+    no game exists.
+
+    Idempotent. Never flips a topic back to false. Only inspects the given
+    topic_ids (typically the topics touched by the just-finished batch) so we
+    don't scan the whole topics table on every batch.
+
+    Mirrors scripts/publish-ready-topics.ts (the manual runner). Keep the
+    thresholds in sync if either changes.
+
+    Returns [{id, title}] for newly promoted topics.
+    """
+    if not topic_ids:
+        return []
+
+    conn = get_connection()
+    try:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute(
+                """
+                UPDATE topics t
+                SET is_published = TRUE
+                WHERE t.id = ANY(%s)
+                  AND t.is_published = FALSE
+                  AND (SELECT COUNT(*) FROM learn_content
+                       WHERE topic_id = t.id AND status = 'published') >= 1
+                  AND (SELECT COUNT(*) FROM quiz_questions
+                       WHERE topic_id = t.id AND status = 'published') >= 10
+                RETURNING t.id, t.title
+                """,
+                (topic_ids,),
+            )
+            promoted = [dict(r) for r in cur.fetchall()]
+            conn.commit()
+    finally:
+        conn.close()
+    return promoted
+
+
 # ── Curriculum chunks ─────────────────────────────────────────────────────
 
 def retrieve_chunks(
