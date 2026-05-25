@@ -538,6 +538,7 @@ header('22. Batch/topup scripts use pipeline lock (no unguarded parallel runs)')
     'scripts/generate-batch-y7.py',
     'scripts/topup-weak-topics.py',
     'scripts/generate-learn-content.py',
+    'scripts/recover-weak-topics.py',
   ]
   for (const script of batchScripts) {
     const content = readFile(script)

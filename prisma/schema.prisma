@@ -79,6 +79,7 @@ model Profile {
   reward_requests_responded       RewardRequest[]        @relation("RespondedByProfile")
   vault_parent_settings_as_parent VaultParentSettings[]  @relation("ParentVaultSettings")
   vault_parent_settings_as_child  VaultParentSettings[]  @relation("ChildVaultSettings")
+  question_reports                QuestionReport[]
 
   @@map("profiles")
 }
@@ -257,6 +258,7 @@ model QuizQuestion {
   topic           Topic           @relation(fields: [topic_id], references: [id])
   quiz_answers    QuizAnswer[]
   session_answers SessionAnswer[]
+  reports         QuestionReport[]
 
   @@index([topic_id, status, tier])
   @@map("quiz_questions")
@@ -732,4 +734,22 @@ model DailyChallenge {
 
   @@unique([date, year_group_id])
   @@map("daily_challenges")
+}
+
+// ---------- Question reports (Phase 12 — "Report a problem") ----------
+
+model QuestionReport {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  question_id String   @db.Uuid
+  profile_id  String   @db.Uuid
+  reason      String
+  status      String   @default("open")
+  created_at  DateTime @default(now())
+
+  question QuizQuestion @relation(fields: [question_id], references: [id], onDelete: Cascade)
+  profile  Profile      @relation(fields: [profile_id], references: [id], onDelete: Cascade)
+
+  @@index([question_id])
+  @@index([status])
+  @@map("question_reports")
 }

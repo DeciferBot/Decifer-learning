@@ -5,6 +5,7 @@ import { getUserRole } from '@/lib/auth/roles'
 import { prisma } from '@/lib/prisma'
 import { getVaultStatus } from '@/lib/vault/status'
 import { getOrCreateParentSettings } from '@/lib/vault/settings'
+import { getRewardSuggestions } from '@/lib/vault/suggestions'
 import { RespondButtons } from './RespondButtons'
 import { FulfillButton } from './FulfillButton'
 import { RewardSettingsForm } from './RewardSettingsForm'
@@ -101,6 +102,9 @@ export default async function ParentVaultPage({ params }: Params) {
         select: { id: true, name: true, category: true },
       })
     : []
+
+  // Stage 4: smart reward suggestions from PLI signals (non-blocking)
+  const rewardSuggestions = await getRewardSuggestions(params.childId).catch(() => [])
 
   const activeRequest = requestHistory.find(
     (r) => ['pending', 'deferred', 'counter_offered'].includes(r.status),
@@ -216,6 +220,34 @@ export default async function ParentVaultPage({ params }: Params) {
           <p className="text-xs text-muted">
             When they do, it will appear here for you to respond to.
           </p>
+        </div>
+      )}
+
+      {/* ── Smart reward suggestions (Stage 4 — PLI signals) ────────────── */}
+      {rewardSuggestions.length > 0 && (
+        <div className="rounded-2xl border border-black/5 bg-surface p-5 shadow-sm space-y-3">
+          <p className="text-xs font-bold uppercase tracking-widest text-muted">
+            Suggested rewards for {childName}
+          </p>
+          <p className="text-xs text-muted">Based on {childName}&apos;s recent learning activity.</p>
+          <div className="space-y-2">
+            {rewardSuggestions.map((s) => (
+              <div key={s.catalogueItemId} className="flex items-start gap-3 rounded-xl border border-black/5 bg-black/[0.02] p-3">
+                <span className="flex-none text-base">
+                  {s.category === 'Books' ? '📚' :
+                   s.category === 'Science' ? '🔬' :
+                   s.category === 'Games' ? '🎲' :
+                   s.category === 'Art' ? '🎨' :
+                   s.category === 'Stationery' ? '✏️' :
+                   s.category === 'Experiences' ? '🎟️' : '🎁'}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-ink">{s.name}</p>
+                  <p className="text-xs text-muted mt-0.5">{s.reason}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 

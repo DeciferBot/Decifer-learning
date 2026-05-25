@@ -21,6 +21,7 @@ import {
 } from '@/lib/parent-dashboard'
 import { getSignalsForChild } from '@/lib/learning-signals-runner'
 import type { LearningSignal } from '@/lib/learning-signals'
+import { ScreenTimeControls } from './ScreenTimeControls'
 
 export const metadata = { title: 'Child report — Decifer Learning' }
 
@@ -100,6 +101,12 @@ export default async function ChildDetailPage({
     getStrongestTopics(childProfile.id, 5),
     getSignalsForChild(childProfile.id),
   ])
+
+  // Screen-time controls (parallel with the rest)
+  const parentControls = await prisma.parentControl.findUnique({
+    where:  { child_profile_id: childProfile.id },
+    select: { daily_time_limit_minutes: true, leaderboard_visible: true },
+  })
 
   // Curriculum coverage for most recent topic (sequential — depends on recentTopicId)
   const curriculumCoverage = recentTopicId
@@ -483,11 +490,13 @@ export default async function ChildDetailPage({
         )}
       </Card>
 
-      {/* ── Screen-time controls placeholder ───────────────────────────────── */}
+      {/* ── Screen-time controls ────────────────────────────────────────────── */}
       <Card title="Screen-time controls">
-        <p className="text-sm text-muted">
-          Daily time limits and allowed hours are coming soon.
-        </p>
+        <ScreenTimeControls
+          childId={childProfile.id}
+          initialLimit={parentControls?.daily_time_limit_minutes ?? 60}
+          leaderboardVisible={parentControls?.leaderboard_visible ?? true}
+        />
       </Card>
     </section>
   )

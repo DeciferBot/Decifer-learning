@@ -1,6 +1,6 @@
 {
   "name": "decifer-learning",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "private": true,
   "description": "Decifer Learning — UK National Curriculum PWA. See CLAUDE.md.",
   "scripts": {
@@ -16,7 +16,10 @@
     "verify-phase8": "node scripts/verify-phase8.mjs",
     "verify-phase8a": "node scripts/verify-phase8a.mjs",
     "verify-parent-dashboard-safety": "node scripts/verify-parent-dashboard-safety.mjs",
-    "verify-lesson-store-safety": "node --env-file=.env.local scripts/verify-lesson-store-safety.mjs"
+    "verify-lesson-store-safety": "node --env-file=.env.local scripts/verify-lesson-store-safety.mjs",
+    "verify-pli": "node scripts/verify-parent-learning-intelligence.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@next/third-parties": "^16.2.6",
@@ -36,13 +39,15 @@
     "@types/node": "^20.16.0",
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.0",
+    "@vitest/coverage-v8": "^4.1.7",
     "autoprefixer": "^10.4.20",
     "eslint": "^8.57.0",
     "eslint-config-next": "14.2.35",
     "postcss": "^8.4.47",
     "prisma": "^5.22.0",
     "tailwindcss": "^3.4.13",
-    "typescript": "^5.6.0"
+    "typescript": "^5.6.0",
+    "vitest": "^4.1.7"
   },
   "engines": {
     "node": ">=18.17"

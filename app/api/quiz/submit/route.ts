@@ -59,6 +59,29 @@ export async function POST(req: Request) {
   const profile = await prisma.profile.findUnique({ where: { user_id: user.id } })
   if (!profile) return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
 
+  // ── Screen-time enforcement (Phase 9) ─────────────────────────────────────
+  // Sum today's quiz time and block if the parent-set daily limit is exceeded.
+  const controls = await prisma.parentControl.findUnique({
+    where:  { child_profile_id: profile.id },
+    select: { daily_time_limit_minutes: true },
+  })
+  if (controls) {
+    const limitSeconds = controls.daily_time_limit_minutes * 60
+    const todayStart   = new Date(); todayStart.setHours(0, 0, 0, 0)
+    const { _sum } = await prisma.quizAttempt.aggregate({
+      where:  { profile_id: profile.id, created_at: { gte: todayStart } },
+      _sum:   { time_taken_seconds: true },
+    })
+    const usedSeconds = _sum.time_taken_seconds ?? 0
+    if (usedSeconds >= limitSeconds) {
+      return NextResponse.json(
+        { error: 'Daily screen-time limit reached', code: 'SCREEN_TIME_LIMIT', limitMinutes: controls.daily_time_limit_minutes },
+        { status: 422 },
+      )
+    }
+  }
+  // ── End screen-time enforcement ───────────────────────────────────────────
+
   const totalQuestions = answers.length
   const correctCount = answers.filter((a) => a.wasCorrect).length
   const scoreFraction = correctCount / totalQuestions
