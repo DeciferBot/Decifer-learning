@@ -6,6 +6,7 @@ import { calcQuizPoints, scoreToSm2Quality } from '@/lib/points'
 import { sm2 } from '@/lib/sm2'
 import { pickRarity } from '@/lib/cards'
 import { checkAndUpdateMilestone } from '@/lib/vault/status'
+import { recordLearningEvent } from '@/lib/learning-events'
 
 type AnswerInput = {
   questionId: string
@@ -210,6 +211,31 @@ export async function POST(req: Request) {
   if (passed) {
     void checkAndUpdateMilestone(profile.id).catch(() => {})
   }
+
+  // PLI v1: record quiz_completed event (non-blocking, never fails the quiz response)
+  void (async () => {
+    try {
+      const topicRow = await prisma.topic.findUnique({
+        where: { id: topicId },
+        select: { subject_id: true },
+      })
+      await recordLearningEvent({
+        profileId:  profile.id,
+        eventType:  'quiz_completed',
+        topicId,
+        subjectId:  topicRow?.subject_id ?? null,
+        metadata: {
+          score:          Math.round(scoreFraction * 100),
+          passed,
+          hintsUsed:      hintsUsedCount,
+          timeSecs:       timeTakenSeconds ?? 0,
+          heartsRemaining,
+        },
+      })
+    } catch {
+      // event tracking must never break quiz submission
+    }
+  })()
 
   return NextResponse.json({
     points,

@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { LessonEventTracker, LessonCompleteCTA } from '@/components/learn/LessonEventTracker'
 
 // RLS policy "topics_select_published" (is_published=true) is enforced at DB level.
 // RLS policy "learn_content_select_published" + FORCE RLS (status='published') is enforced at DB level.
@@ -19,10 +20,10 @@ export default async function LearnPage({ params }: { params: { id: string } }) 
 
   const { data: topic } = await supabase
     .from('topics')
-    .select('id, title')
+    .select('id, title, subject_id')
     .eq('id', params.id)
     .eq('is_published', true)
-    .maybeSingle<TopicRow>()
+    .maybeSingle<TopicRow & { subject_id: string }>()
 
   if (!topic) notFound()
 
@@ -51,6 +52,13 @@ export default async function LearnPage({ params }: { params: { id: string } }) 
 
   return (
     <div className="space-y-5">
+      {/* PLI v1: fire lesson_opened on mount, record active time on unmount */}
+      <LessonEventTracker
+        topicId={topic.id}
+        lessonId={topic.id}
+        subjectId={topic.subject_id ?? null}
+      />
+
       <nav className="flex items-center gap-2 text-sm text-muted" aria-label="breadcrumb">
         <Link href="/dashboard/child" className="hover:text-ink">Home</Link>
         <span aria-hidden>/</span>
@@ -77,12 +85,16 @@ export default async function LearnPage({ params }: { params: { id: string } }) 
       </div>
 
       <div className="flex justify-end">
-        <Link
+        {/* PLI v1: records lesson_completed before navigating */}
+        <LessonCompleteCTA
           href={nextHref}
+          topicId={topic.id}
+          lessonId={topic.id}
+          subjectId={topic.subject_id ?? null}
           className="inline-flex min-h-[48px] items-center gap-2 rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white shadow-sm transition-opacity hover:opacity-90"
         >
           {nextLabel}
-        </Link>
+        </LessonCompleteCTA>
       </div>
     </div>
   )

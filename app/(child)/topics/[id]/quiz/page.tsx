@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma'
 import { getCurrentProfile } from '@/lib/profile'
 import { QuizShell, type QuizQuestion } from '@/components/quiz/QuizShell'
 import { selectQuizQuestions } from '@/lib/adaptive'
+import { QuizEventTracker } from '@/components/quiz/QuizEventTracker'
 
 // RLS: topics_select_published (is_published=true)
 // RLS: quiz_questions_select_published (status='published') + FORCE RLS
@@ -20,10 +21,10 @@ export default async function QuizPage({ params }: { params: { id: string } }) {
 
   const { data: topic } = await supabase
     .from('topics')
-    .select('id, title')
+    .select('id, title, subject_id')
     .eq('id', params.id)
     .eq('is_published', true)
-    .maybeSingle<{ id: string; title: string }>()
+    .maybeSingle<{ id: string; title: string; subject_id: string }>()
 
   if (!topic) notFound()
 
@@ -64,6 +65,9 @@ export default async function QuizPage({ params }: { params: { id: string } }) {
 
   return (
     <div className="space-y-5">
+      {/* PLI v1: fires quiz_started event; quiz_completed is recorded in /api/quiz/submit */}
+      <QuizEventTracker topicId={topic.id} subjectId={topic.subject_id ?? null} />
+
       <nav className="flex items-center gap-2 text-sm text-muted" aria-label="breadcrumb">
         <Link href="/dashboard/child" className="hover:text-ink">Home</Link>
         <span aria-hidden>/</span>

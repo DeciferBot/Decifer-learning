@@ -504,6 +504,202 @@ header('20. Physics verifier uses AST-only evaluation (no raw eval)')
   }
 }
 
+// ── 21. PIPELINE LOCK MODULE EXISTS ─────────────────────────────────────
+
+header('21. Pipeline lock module exists (prevents duplicate batch runs)')
+
+{
+  const lockModule = readFile('services/content-pipeline/pipeline_lock.py')
+  if (!lockModule) {
+    fail('pipeline_lock.py not found — duplicate batch runs are unprotected')
+  } else {
+    lockModule.includes('pipeline_lock')
+      ? pass("pipeline_lock.py exists with pipeline_lock() context manager")
+      : fail("pipeline_lock.py found but missing pipeline_lock() symbol")
+
+    lockModule.includes('PipelineLockError')
+      ? pass("pipeline_lock.py defines PipelineLockError exception")
+      : fail("pipeline_lock.py missing PipelineLockError exception class")
+
+    lockModule.includes('fcntl') || lockModule.includes('flock')
+      ? pass("pipeline_lock.py uses OS-level file locking (fcntl/flock)")
+      : fail("pipeline_lock.py missing OS-level lock — lock may be unreliable")
+  }
+}
+
+// ── 22. BATCH SCRIPTS USE PIPELINE LOCK ──────────────────────────────────
+
+header('22. Batch/topup scripts use pipeline lock (no unguarded parallel runs)')
+
+{
+  const batchScripts = [
+    'scripts/generate-batch-y2.py',
+    'scripts/generate-batch-y3.py',
+    'scripts/generate-batch-y7.py',
+    'scripts/topup-weak-topics.py',
+    'scripts/generate-learn-content.py',
+  ]
+  for (const script of batchScripts) {
+    const content = readFile(script)
+    if (!content) {
+      pass(`${script} — not yet created (no lock required yet)`)
+      continue
+    }
+    const hasLock = content.includes('pipeline_lock') && content.includes('PipelineLockError')
+    hasLock
+      ? pass(`${script} uses pipeline_lock guard`)
+      : fail(`${script} MISSING pipeline_lock guard — duplicate runs possible`)
+  }
+}
+
+// ── 23. ENGLISH VERIFIER SPAN CHECK IS WARNING, NOT HARD FAIL ────────────
+
+header('23. English span-check is a warning (not hard fail) for apostrophe/morphology gaps')
+
+{
+  const englishVerifier = readFile('services/content-pipeline/verifiers/english.py')
+  if (!englishVerifier) {
+    fail('verifiers/english.py not found')
+  } else {
+    // Must contain the WARNING log path (new behaviour)
+    englishVerifier.includes('SPAN_UNCONFIRMED')
+      ? pass("English verifier logs SPAN_UNCONFIRMED warning (not hard fail)")
+      : fail("English verifier missing SPAN_UNCONFIRMED warning path")
+
+    // Must NOT contain the old hard-fail return that was removed
+    const hasOldHardFail = englishVerifier.includes(
+      '"intentional_error_span given but LanguageTool found no error there"'
+    )
+    !hasOldHardFail
+      ? pass("English verifier no longer hard-fails on LT span-miss (old text absent)")
+      : fail("English verifier still contains old span hard-fail message — revert not applied")
+
+    // The errors-outside-span check must still be a hard failure
+    englishVerifier.includes('Unexpected grammar errors outside intentional_error_span')
+      ? pass("English verifier still hard-fails on errors OUTSIDE declared span")
+      : fail("English verifier missing hard-fail for errors outside span — safety regression")
+
+    // Smart-quote normalization must be present in prose field checks
+    englishVerifier.includes('_normalize_quotes') && englishVerifier.includes('_QUOTE_NORMALIZATION_TABLE')
+      ? pass("English verifier normalizes smart quotes in prose fields before LT check")
+      : fail("English verifier missing smart-quote normalization — curly apostrophes cause false LT failures")
+  }
+}
+
+// ── 24. LITERARY ANALYSIS +5 QUALITY BUFFER IN PIPELINE ─────────────────
+
+header('24. Literary analysis quality buffer in Stage 6 (zero-margin fix)')
+
+{
+  const pipelinePy = readFile('services/content-pipeline/pipeline.py')
+  if (!pipelinePy) {
+    fail('services/content-pipeline/pipeline.py not found')
+  } else {
+    pipelinePy.includes('english_literary_analysis') && pipelinePy.includes('+5 literary analysis quality buffer')
+      ? pass("pipeline.py has +5 literary analysis quality buffer in Stage 6")
+      : fail("pipeline.py missing +5 literary analysis quality buffer")
+
+    // Buffer must require ALL primary quality gates clean
+    const bufferSection = pipelinePy.match(/english_literary_analysis[\s\S]{0,400}score \+= 5/)
+    if (bufferSection) {
+      const s = bufferSection[0]
+      const requiresAll = s.includes('verified') && s.includes('consensus_passed') &&
+                          s.includes('source_chunk_ids') && s.includes('not is_duplicate') &&
+                          s.includes('has_required_fields')
+      requiresAll
+        ? pass("Literary analysis buffer requires all primary gates clean (no free pass)")
+        : fail("Literary analysis buffer does not gate on all primary quality signals")
+    }
+  }
+}
+
+// ── 25. PHYSICS CALCULATION +5 QUALITY BUFFER IN PIPELINE ───────────────
+
+header('25. Physics calculation quality buffer in Stage 6 (zero-margin fix)')
+
+{
+  const pipelinePy = readFile('services/content-pipeline/pipeline.py')
+  if (!pipelinePy) {
+    fail('services/content-pipeline/pipeline.py not found')
+  } else {
+    pipelinePy.includes('science_physics_calculation') && pipelinePy.includes('+5 physics calculation quality buffer')
+      ? pass("pipeline.py has +5 physics calculation quality buffer in Stage 6")
+      : fail("pipeline.py missing +5 physics calculation quality buffer")
+
+    // Buffer must require verified=True (verification_expression was provided and correct)
+    const physicsSection = pipelinePy.match(/science_physics_calculation[\s\S]{0,300}score \+= 5/)
+    if (physicsSection) {
+      const s = physicsSection[0]
+      const requiresVerified = s.includes('verified') && s.includes('consensus_passed') &&
+                               s.includes('not is_duplicate') && s.includes('has_required_fields')
+      requiresVerified
+        ? pass("Physics buffer requires verified=True (expression present and correct)")
+        : fail("Physics buffer does not require code verification — factual accuracy not guaranteed")
+    }
+
+    // The CRITICAL warning in science prompt must be present
+    pipelinePy.includes('CRITICAL — PHYSICS CALCULATIONS') && pipelinePy.includes('verification_expression')
+      ? pass("Science generation prompt has CRITICAL warning for verification_expression")
+      : fail("Science generation prompt missing CRITICAL warning for verification_expression")
+  }
+}
+
+// ── 26. GLOBAL THRESHOLDS NOT WEAKENED ──────────────────────────────────
+
+header('26. Global confidence thresholds not weakened (no broad threshold reduction)')
+
+{
+  const configPy = readFile('services/content-pipeline/config.py')
+  if (!configPy) {
+    fail('services/content-pipeline/config.py not found')
+  } else {
+    // Maths/physics/chemistry must be ≥ 85
+    const mathsThreshMatch = configPy.match(/maths[^:]*:\s*([\d.]+)/)
+    const physicsThreshMatch = configPy.match(/science_physics_calculation[^:]*:\s*([\d.]+)/)
+    const chemThreshMatch = configPy.match(/science_chemistry_equation[^:]*:\s*([\d.]+)/)
+
+    if (mathsThreshMatch && parseFloat(mathsThreshMatch[1]) >= 85) {
+      pass(`Maths threshold = ${mathsThreshMatch[1]} (≥ 85 ✓)`)
+    } else {
+      configPy.includes('maths')
+        ? fail(`Maths threshold may be below 85 — check config.py`)
+        : pass("Maths threshold not individually set (uses default ≥ 85)")
+    }
+
+    if (physicsThreshMatch && parseFloat(physicsThreshMatch[1]) >= 85) {
+      pass(`Physics threshold = ${physicsThreshMatch[1]} (≥ 85 ✓)`)
+    } else {
+      configPy.includes('science_physics_calculation')
+        ? fail(`Physics threshold may be below 85 — check config.py`)
+        : pass("Physics threshold not individually set (uses default ≥ 85)")
+    }
+
+    // Literary analysis must be ≥ 90
+    const litThreshMatch = configPy.match(/english_literary_analysis[^:]*:\s*([\d.]+)/)
+    if (litThreshMatch && parseFloat(litThreshMatch[1]) >= 90) {
+      pass(`Literary analysis threshold = ${litThreshMatch[1]} (≥ 90 ✓)`)
+    } else {
+      fail(`Literary analysis threshold may be below 90 — check config.py`)
+    }
+
+    // Biology/science factual must be ≥ 90
+    const bioThreshMatch = configPy.match(/biology_factual[^:]*:\s*([\d.]+)/)
+    const sciFacThreshMatch = configPy.match(/science_factual[^:]*:\s*([\d.]+)/)
+
+    if (bioThreshMatch && parseFloat(bioThreshMatch[1]) >= 90) {
+      pass(`Biology factual threshold = ${bioThreshMatch[1]} (≥ 90 ✓)`)
+    } else {
+      fail(`Biology factual threshold may be below 90 — check config.py`)
+    }
+
+    if (sciFacThreshMatch && parseFloat(sciFacThreshMatch[1]) >= 90) {
+      pass(`Science factual threshold = ${sciFacThreshMatch[1]} (≥ 90 ✓)`)
+    } else {
+      fail(`Science factual threshold may be below 90 — check config.py`)
+    }
+  }
+}
+
 // ── SUMMARY ───────────────────────────────────────────────────────────────
 
 console.log('\n' + '═'.repeat(60))

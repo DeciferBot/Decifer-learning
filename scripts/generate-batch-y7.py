@@ -239,4 +239,13 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    import sys as _sys
+    from pathlib import Path as _Path
+    sys.path.insert(0, str(_Path(__file__).parent.parent / "services" / "content-pipeline"))
+    from pipeline_lock import pipeline_lock, PipelineLockError
+    try:
+        with pipeline_lock("batch-year-7"):
+            main()
+    except PipelineLockError as _e:
+        print(_e)
+        _sys.exit(1)

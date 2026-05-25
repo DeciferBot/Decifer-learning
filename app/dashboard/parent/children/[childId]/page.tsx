@@ -1,6 +1,6 @@
-// Per-child detail page — full progress report for a linked child.
+// Per-child detail page — full progress report including PLI v1 Learning Map.
 // Security: verifies parent→child link before returning any data.
-// No fake data, no AI generation, no seed imports.
+// No fake data, no AI generation, no diagnosis language.
 
 import Link from 'next/link'
 import { redirect, notFound } from 'next/navigation'
@@ -16,7 +16,11 @@ import {
   getEarnedBadges,
   getCardCollectionSummary,
   getMostRecentTopicId,
+  getProgressBySubject,
+  getStrongestTopics,
 } from '@/lib/parent-dashboard'
+import { getSignalsForChild } from '@/lib/learning-signals-runner'
+import type { LearningSignal } from '@/lib/learning-signals'
 
 export const metadata = { title: 'Child report — Decifer Learning' }
 
@@ -27,6 +31,17 @@ const RARITY_LABEL: Record<string, string> = {
   rare: 'Rare',
   uncommon: 'Uncommon',
   common: 'Common',
+}
+
+const CONFIDENCE_LABEL: Record<string, string> = {
+  early:    'Early signal',
+  moderate: 'Moderate signal',
+  strong:   'Strong signal',
+}
+const CONFIDENCE_COLOUR: Record<string, string> = {
+  early:    'text-muted bg-black/[0.04]',
+  moderate: 'text-points-gold bg-points-gold/10',
+  strong:   'text-incorrect bg-incorrect/10',
 }
 
 export default async function ChildDetailPage({
@@ -62,16 +77,29 @@ export default async function ChildDetailPage({
   const keyStage = childProfile.year_group?.key_stage ?? null
 
   // Fetch all child data in parallel
-  const [progress, weakAreas, recentActivity, badges, cards, recentTopicId, recommended] =
-    await Promise.all([
-      getChildProgressSummary(childProfile.id),
-      getChildWeakAreas(childProfile.id),
-      getRecentActivity(childProfile.id),
-      getEarnedBadges(childProfile.id),
-      getCardCollectionSummary(childProfile.id),
-      getMostRecentTopicId(childProfile.id),
-      getRecommendedNextLesson(childProfile.id, yearGroupLabel),
-    ])
+  const [
+    progress,
+    weakAreas,
+    recentActivity,
+    badges,
+    cards,
+    recentTopicId,
+    recommended,
+    subjectProgress,
+    strongTopics,
+    signals,
+  ] = await Promise.all([
+    getChildProgressSummary(childProfile.id),
+    getChildWeakAreas(childProfile.id),
+    getRecentActivity(childProfile.id),
+    getEarnedBadges(childProfile.id),
+    getCardCollectionSummary(childProfile.id),
+    getMostRecentTopicId(childProfile.id),
+    getRecommendedNextLesson(childProfile.id, yearGroupLabel),
+    getProgressBySubject(childProfile.id),
+    getStrongestTopics(childProfile.id, 5),
+    getSignalsForChild(childProfile.id),
+  ])
 
   // Curriculum coverage for most recent topic (sequential — depends on recentTopicId)
   const curriculumCoverage = recentTopicId
@@ -82,6 +110,9 @@ export default async function ChildDetailPage({
     recommended?.subjectSlug && recommended.topicSlug && recommended.lessonSlug
       ? `/learn/${recommended.subjectSlug}/${recommended.topicSlug}/${recommended.lessonSlug}`
       : null
+
+  // Only show signals that have enough evidence
+  const actionableSignals = signals.slice(0, 5)
 
   return (
     <section className="space-y-5">
@@ -118,40 +149,158 @@ export default async function ChildDetailPage({
         </div>
       </div>
 
-      {/* Progress overview */}
-      <Card title="Progress overview">
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <Stat label="Topics started" value={progress.topicsStarted} />
-          <Stat label="Topics mastered" value={progress.topicsCompleted} />
-          <Stat label="Quizzes taken" value={progress.quizAttempts} />
-          <Stat
-            label="This week"
-            value={progress.quizzesThisWeek}
-            sub={progress.quizzesThisWeek === 1 ? 'quiz' : 'quizzes'}
-          />
-        </div>
-        {progress.averageScore !== null ? (
-          <div className="mt-4 rounded-xl bg-science/10 px-4 py-3 text-sm">
-            <span className="font-semibold text-ink">
-              {Math.round(progress.averageScore * 100)}% average accuracy
-            </span>
+      {/* ════════════════════════════════════════════════════════════════════
+          LEARNING MAP — PLI v1
+          ════════════════════════════════════════════════════════════════════ */}
+      <div className="rounded-2xl border border-maths/20 bg-maths/5 px-5 py-4 shadow-sm">
+        <p className="mb-1 text-xs font-bold uppercase tracking-widest text-maths">
+          Learning map
+        </p>
+        <h2 className="mb-4 font-heading text-lg font-bold text-ink">
+          How {childProfile.display_name} is moving through the curriculum
+        </h2>
+
+        {/* 1 ── Progress by subject */}
+        {subjectProgress.length > 0 ? (
+          <div className="mb-5 space-y-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted">
+              Progress by subject
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {subjectProgress.map((s) => (
+                <div
+                  key={s.subjectId}
+                  className="rounded-xl border border-black/5 bg-surface px-4 py-3"
+                >
+                  <div className="mb-2 flex items-center gap-2">
+                    <span
+                      className="h-2.5 w-2.5 flex-none rounded-full"
+                      style={{ backgroundColor: s.colourToken }}
+                      aria-hidden
+                    />
+                    <span className="font-heading text-sm font-bold text-ink">{s.subjectName}</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-center">
+                    <div className="rounded-lg bg-black/[0.03] px-2 py-2">
+                      <p className="font-heading text-lg font-bold text-ink">{s.topicsStarted}</p>
+                      <p className="text-xs text-muted">topics started</p>
+                    </div>
+                    <div className="rounded-lg bg-black/[0.03] px-2 py-2">
+                      <p className="font-heading text-lg font-bold text-ink">{s.topicsCompleted}</p>
+                      <p className="text-xs text-muted">completed</p>
+                    </div>
+                  </div>
+                  {s.averageScore !== null && (
+                    <p className="mt-2 text-xs text-muted">
+                      {Math.round(s.averageScore * 100)}% average accuracy
+                      {s.totalQuizAttempts > 0 ? ` across ${s.totalQuizAttempts} quiz${s.totalQuizAttempts === 1 ? '' : 'zes'}` : ''}
+                    </p>
+                  )}
+                  {s.lastActivityAt && (
+                    <p className="mt-0.5 text-xs text-muted">
+                      Last activity: {formatDate(s.lastActivityAt)}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         ) : (
-          <p className="mt-4 text-sm text-muted">
-            Average accuracy will appear after your child completes quizzes.
+          <p className="mb-4 text-sm text-muted">
+            Subject progress will appear after {childProfile.display_name} completes topics.
           </p>
         )}
-        <div className="mt-3 flex gap-4 text-sm text-muted">
-          {progress.badgeCount > 0 && (
-            <span>🏅 {progress.badgeCount} badge{progress.badgeCount === 1 ? '' : 's'}</span>
-          )}
-          {progress.cardCount > 0 && (
-            <span>🃏 {progress.cardCount} discovery card{progress.cardCount === 1 ? '' : 's'}</span>
-          )}
-        </div>
-      </Card>
 
-      {/* Recommended next lesson */}
+        {/* 2 ── Doing well so far */}
+        {strongTopics.length > 0 && (
+          <div className="mb-5">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-correct">
+              Doing well so far
+            </p>
+            <ul className="space-y-2">
+              {strongTopics.map((t) => (
+                <li key={t.topicId} className="rounded-xl border border-correct/15 bg-correct/5 px-4 py-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <p className="font-heading text-sm font-semibold text-ink">{t.topicTitle}</p>
+                      <p className="text-xs text-muted">{t.subjectName}</p>
+                    </div>
+                    <span className={`flex-none rounded-full px-2 py-0.5 text-xs font-bold ${
+                      t.signal === 'strong' ? 'bg-correct/20 text-correct' : 'bg-black/[0.06] text-muted'
+                    }`}>
+                      {t.signal === 'strong' ? 'Strong signal' : 'Early signal'}
+                    </span>
+                  </div>
+                  <p className="mt-1.5 text-xs text-muted">
+                    {t.repetitions >= 2
+                      ? `Repeated successfully across ${t.repetitions + 1} review attempts — last score ${Math.round(t.lastScore * 100)}%.`
+                      : `Completed with ${Math.round(t.lastScore * 100)}% on the last attempt.`}
+                    {t.completedAt ? ` ${formatDate(t.completedAt)}.` : ''}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* 3 ── Needs support */}
+        {weakAreas.length > 0 ? (
+          <div className="mb-5">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-incorrect">
+              Needs support
+            </p>
+            <ul className="space-y-2">
+              {weakAreas.map((area) => (
+                <li key={area.topicId} className="rounded-xl border border-incorrect/15 bg-incorrect/5 px-4 py-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <p className="font-heading text-sm font-semibold text-ink">{area.topicTitle}</p>
+                      <p className="text-xs text-muted">{area.subjectName}</p>
+                    </div>
+                    <span className={`flex-none rounded-full px-2 py-0.5 text-xs font-bold ${CONFIDENCE_COLOUR[area.signal]}`}>
+                      {CONFIDENCE_LABEL[area.signal]}
+                    </span>
+                  </div>
+                  <p className="mt-1.5 text-xs text-muted">
+                    Lower accuracy in this topic across {area.totalAnswered} answers
+                    ({Math.round(area.errorRate * 100)}% incorrect).
+                  </p>
+                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-black/[0.06]">
+                    <div
+                      className="h-full rounded-full bg-incorrect/60"
+                      style={{ width: `${Math.round(area.errorRate * 100)}%` }}
+                    />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : progress.quizAttempts > 0 ? (
+          <p className="mb-4 text-sm text-correct">
+            No topics with lower accuracy detected yet. Keep going.
+          </p>
+        ) : null}
+
+        {/* 4 ── Learning signals */}
+        {actionableSignals.length > 0 && (
+          <div>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
+              Learning patterns
+            </p>
+            <ul className="space-y-3">
+              {actionableSignals.map((signal) => (
+                <SignalCard key={signal.id} signal={signal} />
+              ))}
+            </ul>
+            <p className="mt-3 text-xs text-muted">
+              Patterns are based on quiz results, lesson activity, and progress data. They may suggest
+              a direction — they do not diagnose or predict.
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* ── Recommended next lesson ─────────────────────────────────────────── */}
       <Card title="Recommended next lesson">
         {recommended ? (
           <div className="space-y-2">
@@ -180,40 +329,40 @@ export default async function ChildDetailPage({
         )}
       </Card>
 
-      {/* Weak areas */}
-      <Card title="Areas to strengthen">
-        {weakAreas.length > 0 ? (
-          <ul className="space-y-3">
-            {weakAreas.map((area) => (
-              <li key={area.topicId}>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="font-semibold text-ink">{area.topicTitle}</span>
-                  <span className="text-muted">
-                    {Math.round((1 - area.errorRate) * 100)}% correct out of {area.totalAnswered}{' '}
-                    questions
-                  </span>
-                </div>
-                <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-black/[0.06]">
-                  <div
-                    className="h-full rounded-full bg-incorrect/60"
-                    style={{ width: `${Math.round(area.errorRate * 100)}%` }}
-                  />
-                </div>
-              </li>
-            ))}
-          </ul>
-        ) : progress.quizAttempts > 0 ? (
-          <p className="text-sm text-science">
-            Great work — no struggle areas detected yet. Keep it up!
-          </p>
+      {/* ── Progress overview ───────────────────────────────────────────────── */}
+      <Card title="Progress overview">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <Stat label="Topics started" value={progress.topicsStarted} />
+          <Stat label="Topics mastered" value={progress.topicsCompleted} />
+          <Stat label="Quizzes taken" value={progress.quizAttempts} />
+          <Stat
+            label="This week"
+            value={progress.quizzesThisWeek}
+            sub={progress.quizzesThisWeek === 1 ? 'quiz' : 'quizzes'}
+          />
+        </div>
+        {progress.averageScore !== null ? (
+          <div className="mt-4 rounded-xl bg-science/10 px-4 py-3 text-sm">
+            <span className="font-semibold text-ink">
+              {Math.round(progress.averageScore * 100)}% average accuracy
+            </span>
+          </div>
         ) : (
-          <p className="text-sm text-muted">
-            Weak areas will appear after your child completes quizzes.
+          <p className="mt-4 text-sm text-muted">
+            Average accuracy will appear after {childProfile.display_name} completes quizzes.
           </p>
         )}
+        <div className="mt-3 flex gap-4 text-sm text-muted">
+          {progress.badgeCount > 0 && (
+            <span>🏅 {progress.badgeCount} badge{progress.badgeCount === 1 ? '' : 's'}</span>
+          )}
+          {progress.cardCount > 0 && (
+            <span>🃏 {progress.cardCount} discovery card{progress.cardCount === 1 ? '' : 's'}</span>
+          )}
+        </div>
       </Card>
 
-      {/* Curriculum coverage */}
+      {/* ── Curriculum coverage ─────────────────────────────────────────────── */}
       <Card title="Curriculum coverage">
         {curriculumCoverage ? (
           <div className="space-y-3">
@@ -221,18 +370,9 @@ export default async function ChildDetailPage({
             {curriculumCoverage.totalOutcomes > 0 ? (
               <>
                 <div className="grid grid-cols-3 gap-3 text-center">
-                  <Stat
-                    label="Outcomes mapped"
-                    value={curriculumCoverage.mappedOutcomes}
-                  />
-                  <Stat
-                    label="Verified"
-                    value={curriculumCoverage.verifiedOutcomes}
-                  />
-                  <Stat
-                    label="Total"
-                    value={curriculumCoverage.totalOutcomes}
-                  />
+                  <Stat label="Outcomes mapped" value={curriculumCoverage.mappedOutcomes} />
+                  <Stat label="Verified" value={curriculumCoverage.verifiedOutcomes} />
+                  <Stat label="Total" value={curriculumCoverage.totalOutcomes} />
                 </div>
                 {curriculumCoverage.isCurriculumComplete ? (
                   <p className="rounded-xl bg-science/10 px-4 py-2 text-sm font-semibold text-science">
@@ -252,12 +392,12 @@ export default async function ChildDetailPage({
           </div>
         ) : (
           <p className="text-sm text-muted">
-            Curriculum coverage will appear as your child progresses through topics.
+            Curriculum coverage will appear as {childProfile.display_name} progresses through topics.
           </p>
         )}
       </Card>
 
-      {/* Recent activity */}
+      {/* ── Recent activity ─────────────────────────────────────────────────── */}
       <Card title="Recent quiz sessions">
         {recentActivity.length > 0 ? (
           <ul className="divide-y divide-black/[0.04]">
@@ -288,7 +428,7 @@ export default async function ChildDetailPage({
         )}
       </Card>
 
-      {/* Badges earned */}
+      {/* ── Badges ──────────────────────────────────────────────────────────── */}
       <Card title="Badges earned">
         {badges.length > 0 ? (
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -299,18 +439,12 @@ export default async function ChildDetailPage({
               >
                 {badge.iconUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={badge.iconUrl}
-                    alt={badge.name}
-                    className="mb-1 h-8 w-8 object-contain"
-                  />
+                  <img src={badge.iconUrl} alt={badge.name} className="mb-1 h-8 w-8 object-contain" />
                 ) : (
                   <span className="mb-1 text-2xl">🏅</span>
                 )}
                 <p className="text-xs font-semibold text-ink">{badge.name}</p>
-                {badge.description && (
-                  <p className="mt-0.5 text-xs text-muted">{badge.description}</p>
-                )}
+                {badge.description && <p className="mt-0.5 text-xs text-muted">{badge.description}</p>}
               </li>
             ))}
           </ul>
@@ -321,7 +455,7 @@ export default async function ChildDetailPage({
         )}
       </Card>
 
-      {/* Discovery cards */}
+      {/* ── Discovery cards ─────────────────────────────────────────────────── */}
       <Card title="Discovery cards">
         {cards.total > 0 ? (
           <div className="space-y-2">
@@ -349,13 +483,40 @@ export default async function ChildDetailPage({
         )}
       </Card>
 
-      {/* Screen-time controls placeholder */}
+      {/* ── Screen-time controls placeholder ───────────────────────────────── */}
       <Card title="Screen-time controls">
         <p className="text-sm text-muted">
           Daily time limits and allowed hours are coming soon.
         </p>
       </Card>
     </section>
+  )
+}
+
+// ── Signal card ───────────────────────────────────────────────────────────────
+
+function SignalCard({ signal }: { signal: LearningSignal }) {
+  const badgeClass = CONFIDENCE_COLOUR[signal.confidence] ?? 'bg-black/[0.05] text-muted'
+  const badgeLabel = CONFIDENCE_LABEL[signal.confidence] ?? signal.confidence
+
+  return (
+    <li className="rounded-xl border border-black/5 bg-surface px-4 py-3">
+      <div className="mb-1 flex items-start justify-between gap-2">
+        <p className="font-heading text-sm font-semibold text-ink">{signal.title}</p>
+        <span className={`flex-none rounded-full px-2 py-0.5 text-xs font-bold ${badgeClass}`}>
+          {badgeLabel}
+        </span>
+      </div>
+      <p className="text-xs text-muted">{signal.evidenceSummary}</p>
+      {signal.whatThisMayMean && (
+        <p className="mt-1.5 text-xs text-ink">{signal.whatThisMayMean}</p>
+      )}
+      {signal.recommendedAction && (
+        <p className="mt-2 rounded-lg bg-maths/8 px-3 py-2 text-xs font-medium text-maths">
+          Next step: {signal.recommendedAction}
+        </p>
+      )}
+    </li>
   )
 }
 

@@ -328,4 +328,13 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    import sys as _sys
+    pipeline_dir = Path(__file__).parent.parent / "services" / "content-pipeline"
+    _sys.path.insert(0, str(pipeline_dir))
+    from pipeline_lock import pipeline_lock, PipelineLockError
+    try:
+        with pipeline_lock("learn-content"):
+            main()
+    except PipelineLockError as _e:
+        print(_e)
+        _sys.exit(1)

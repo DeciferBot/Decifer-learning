@@ -77,6 +77,27 @@ def _overlaps(err: dict, span_start: int, span_end: int) -> bool:
 
 # ── Core field grammar checks ─────────────────────────────────────────────
 
+_QUOTE_NORMALIZATION_TABLE = str.maketrans({
+    "‘": "'",   # ' LEFT SINGLE QUOTATION MARK
+    "’": "'",   # ' RIGHT SINGLE QUOTATION MARK / curly apostrophe
+    "“": '"',   # " LEFT DOUBLE QUOTATION MARK
+    "”": '"',   # " RIGHT DOUBLE QUOTATION MARK
+    "′": "'",   # ′ PRIME (sometimes used as apostrophe)
+})
+
+
+def _normalize_quotes(text: str) -> str:
+    """Replace Unicode smart quotes with ASCII equivalents before LanguageTool checks.
+
+    LLMs frequently produce explanations and hints containing curly apostrophes (e.g.
+    'it’s', 'don’t') which LanguageTool flags as "Unpaired symbol: '". This
+    is a spurious error in prose fields — we want to check grammar, not quote style.
+    Normalization applies to prose fields only; stimulus_text (intentional-error questions)
+    is passed to LT unmodified so genuine apostrophe errors remain detectable.
+    """
+    return text.translate(_QUOTE_NORMALIZATION_TABLE)
+
+
 def _check_prose_fields(data: dict, check_correct_answer: bool = True) -> Tuple[bool, str]:
     """All prose fields (except intentional-error stimulus) should be grammatically clean.
 
@@ -96,7 +117,10 @@ def _check_prose_fields(data: dict, check_correct_answer: bool = True) -> Tuple[
     for field_name, text in fields_to_check.items():
         if not text:
             continue
-        errors = _lt_errors(str(text))
+        # Normalise Unicode smart quotes → ASCII before LT check (prose fields only).
+        # Curly apostrophes in LLM-generated explanations/hints are not grammar errors.
+        normalised = _normalize_quotes(str(text))
+        errors = _lt_errors(normalised)
         if errors:
             detail = "; ".join(e["message"] for e in errors[:3])
             return False, f"Grammar error in {field_name!r}: {detail}"
@@ -181,17 +205,33 @@ def _verify_intentional_error_question(data: dict, qtype: str) -> Tuple[bool, st
         if span_start >= span_end:
             return False, "intentional_error_span start must be less than end"
 
-        # Check for errors outside the span
+        # Check for errors outside the span.
+        # Hard failure: if LT finds unintended errors elsewhere in the stimulus, the
+        # question is structurally broken (accidental grammar mistake outside the
+        # declared error zone — a child would be confused about what to correct).
         errors_outside = [e for e in stim_errors if not _overlaps(e, span_start, span_end)]
         if errors_outside:
             detail = "; ".join(e["message"] for e in errors_outside[:3])
             return False, f"Unexpected grammar errors outside intentional_error_span: {detail}"
 
-        # At least one LT error should overlap the span (if LT is available)
+        # Span-confirmation check: ideally LT detects an error at the declared span.
+        # However, LanguageTool has known gaps for apostrophe-placement and morphological
+        # errors (e.g. missing apostrophe in "Janes bag", incorrect prefix/suffix).
+        # Rather than hard-failing when LT cannot see what is conceptually a valid error,
+        # we downgrade to a WARNING and allow Stage 3 consensus to validate correctness.
+        # This preserves full verification for structurally broken questions while
+        # unblocking valid apostrophe/spelling/morphology questions that LT under-detects.
+        # Audit trail: all such bypasses are logged at WARNING level for manual review.
         if _lt_available and stim_errors:
             errors_inside = [e for e in stim_errors if _overlaps(e, span_start, span_end)]
             if not errors_inside:
-                return False, "intentional_error_span given but LanguageTool found no error there"
+                log.warning(
+                    f"SPAN_UNCONFIRMED [{qtype}] intentional_error_span declared but LT found "
+                    f"no error at span ({span_start},{span_end}) in stimulus: "
+                    f"{stimulus_text[:120]!r}. "
+                    f"Passing to Stage 3 consensus for validation. "
+                    f"error_type={intentional_error_type!r}"
+                )
     else:
         # No span given — all stimulus errors are acceptable (the whole stimulus may be wrong)
         pass

@@ -65,31 +65,35 @@ TIERS = ["sprout", "explorer", "lightning"]
 # Format: slug → optional override tier list (None = all 3 tiers)
 # Remove slugs once they've passed the gate.
 #
-# Status after batches (2026-05-25):
-#   Y3 English: apostrophes=0, conjunctions=13✓Q, verb-tenses=9, prefixes-suffixes=5
-#   Y3 Science: plants-parts-functions=6
-#   Y7 English: standard-english=7, vocabulary-word-families=6, literature-character=3
-#   Y7 Science: elements-compounds=0, particles-states=0, energy-stores=0,
-#               forces-motion=0, space-solar=0
+# Status after topup run 2026-05-26:
+#   Y3 English: apostrophes=10✓Q (needs LC), conjunctions=13✓Q, verb-tenses=10✓Q,
+#               prefixes-suffixes=6Q STUCK (LLM generates wrong type; fixed in pipeline.py 2026-05-26)
+#   Y3 Science: plants-parts-functions=8→? (pending topup)
+#   Y7 English: standard-english=13✓Q, vocabulary-word-families=9→? (pending),
+#               literature-character=4→? (pending, +5 buffer applied)
+#   Y7 Science: elements-compounds=15✓Q, particles-states=15✓Q, energy-stores=10✓Q,
+#               forces-motion=7→? (pending, physics prompt + buffer fixed),
+#               space-solar=9→? (pending)
 #   Y2: all 15 topics at 0 (handled by separate Y2 batch script)
 WEAK_TOPICS: dict[str, list[str] | None] = {
     # ── Y3 English ───────────────────────────────────────────────────────────
-    "y3-english-grammar-conjunctions":       None,  # 13 Q — needs LC only (topup skips if ≥10)
-    "y3-english-grammar-verb-tenses":        None,  # 9 Q
-    "y3-english-grammar-apostrophes":        None,  # 0 Q
-    "y3-english-spelling-prefixes-suffixes": None,  # 5 Q
+    # conjunctions=13Q, verb-tenses=10Q, apostrophes=10Q — all at ≥10Q, will skip quickly
+    "y3-english-grammar-conjunctions":       None,  # 13Q ✓ — ALREADY_OK, skipped
+    "y3-english-grammar-verb-tenses":        None,  # 10Q ✓ — ALREADY_OK, skipped
+    "y3-english-grammar-apostrophes":        None,  # 10Q ✓ — ALREADY_OK, skipped
+    "y3-english-spelling-prefixes-suffixes": None,  # 6Q — needs type fix (done in pipeline.py)
     # ── Y3 Science ───────────────────────────────────────────────────────────
-    "y3-science-plants-parts-functions":     None,  # 6 Q
+    "y3-science-plants-parts-functions":     None,  # 8Q → check after topup
     # ── Y7 English (low-yield question types) ────────────────────────────────
-    "y7-english-grammar-standard-english":   None,  # 7 Q
-    "y7-english-vocabulary-word-families":   None,  # 6 Q
-    "y7-english-literature-character":       None,  # 3 Q
-    # ── Y7 Science (batch produced 0 for these topics) ───────────────────────
-    "y7-science-elements-compounds-mixtures": None,  # 0 Q
-    "y7-science-particles-states-of-matter":  None,  # 0 Q
-    "y7-science-energy-stores-transfers":     None,  # 0 Q
-    "y7-science-forces-motion":               None,  # 0 Q
-    "y7-science-space-solar-system":          None,  # 0 Q
+    "y7-english-grammar-standard-english":   None,  # 13Q ✓ — ALREADY_OK, skipped
+    "y7-english-vocabulary-word-families":   None,  # 9Q → needs 1 more
+    "y7-english-literature-character":       None,  # 4Q → needs 6 more (+5 buffer applied)
+    # ── Y7 Science ───────────────────────────────────────────────────────────
+    "y7-science-elements-compounds-mixtures": None,  # 15Q ✓ — ALREADY_OK, skipped
+    "y7-science-particles-states-of-matter":  None,  # 15Q ✓ — ALREADY_OK, skipped
+    "y7-science-energy-stores-transfers":     None,  # 10Q ✓ — ALREADY_OK, skipped
+    "y7-science-forces-motion":               None,  # 7Q → needs 3 more (physics prompt fixed)
+    "y7-science-space-solar-system":          None,  # 9Q → needs 1 more
 }
 
 # ── DB helpers ─────────────────────────────────────────────────────────────────
@@ -266,4 +270,11 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    import sys as _sys
+    from pipeline_lock import pipeline_lock, PipelineLockError
+    try:
+        with pipeline_lock("topup"):
+            main()
+    except PipelineLockError as _e:
+        print(_e)
+        _sys.exit(1)

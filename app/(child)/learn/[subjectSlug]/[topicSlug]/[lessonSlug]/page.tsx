@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { getPublishedLesson } from '@/lib/lesson-store'
 import { prisma } from '@/lib/prisma'
+import { LessonEventTracker, LessonCompleteCTA } from '@/components/learn/LessonEventTracker'
 
 type Props = {
   params: { subjectSlug: string; topicSlug: string; lessonSlug: string }
@@ -62,8 +63,21 @@ export default async function LessonDetailPage({ params }: Props) {
     select: { body_html: true },
   })
 
+  // PLI v1: resolve subject_id for event tracking (needed by LessonEventTracker)
+  const topicRow = await prisma.topic.findUnique({
+    where: { id: lesson.topic_id },
+    select: { subject_id: true },
+  })
+
   return (
     <div className="space-y-6">
+      {/* PLI v1: fire lesson_opened on mount, record active time on unmount */}
+      <LessonEventTracker
+        topicId={lesson.topic_id}
+        lessonId={lesson.id}
+        subjectId={topicRow?.subject_id ?? null}
+      />
+
       <nav className="flex items-center gap-2 text-sm text-muted" aria-label="breadcrumb">
         <Link href="/learn" className="hover:text-ink">Learn</Link>
         <span aria-hidden>/</span>
@@ -108,12 +122,16 @@ export default async function LessonDetailPage({ params }: Props) {
       )}
 
       <div className="flex justify-end">
-        <Link
+        {/* PLI v1: records lesson_completed before navigating to practice */}
+        <LessonCompleteCTA
           href={`/topics/${lesson.topic_id}/practise`}
+          topicId={lesson.topic_id}
+          lessonId={lesson.id}
+          subjectId={topicRow?.subject_id ?? null}
           className="inline-flex min-h-[48px] items-center gap-2 rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white shadow-sm transition-opacity hover:opacity-90"
         >
           Start Practising →
-        </Link>
+        </LessonCompleteCTA>
       </div>
     </div>
   )
