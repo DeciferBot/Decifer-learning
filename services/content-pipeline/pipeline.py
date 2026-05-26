@@ -938,6 +938,47 @@ def run_one(
     return last_result
 
 
+def regenerate_question(flagged_row: dict) -> "PipelineResult":
+    """Re-run the pipeline to replace a single flagged question.
+
+    The original flagged question is moved to 'regenerating' immediately so
+    it disappears from the child-facing pool. A new question is generated for
+    the same topic + tier via the full 6-stage pipeline. If generation
+    succeeds the new question is written with status 'published'/'staged'. The
+    original row is then moved to 'staged' for the one-time admin spot-check.
+    If generation fails the original is left in 'regenerating' (the nightly
+    cron will retry it the next day).
+    """
+    question_id = str(flagged_row["id"])
+    topic_id    = str(flagged_row["topic_id"])
+    tier        = flagged_row["tier"]
+
+    # Step 1: hide the flagged question from children
+    db.mark_question_regenerating(question_id)
+    log.info(f"regenerate_question: {question_id} → regenerating")
+
+    # Step 2: fetch full topic metadata (same path as run_one)
+    topic = db.get_topic(topic_id)
+    if topic is None:
+        result = PipelineResult()
+        result.status = "failed"
+        result.log_stage(f"Topic {topic_id!r} not found — cannot regenerate")
+        return result
+
+    # Step 3: run the full 6-stage pipeline for one new question slot
+    result = run_one(topic, tier)
+
+    # Step 4: move original to staged regardless of outcome; the new question
+    # (if published) is already visible. If generation failed, leaving the
+    # original as 'staged' lets an admin review it rather than silently losing it.
+    db.mark_question_staged(question_id)
+    log.info(
+        f"regenerate_question: original {question_id} → staged; "
+        f"new question status={result.status}"
+    )
+    return result
+
+
 def run_for_topic(
     topic_id: str,
     tier: str,

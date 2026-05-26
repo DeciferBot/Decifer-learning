@@ -105,6 +105,62 @@ def promote_ready_topics(topic_ids: list[str]) -> list[dict]:
     return promoted
 
 
+# ── Flagged question regeneration ────────────────────────────────────────
+
+def get_flagged_questions(limit: int = 20) -> list[dict]:
+    """Return up to `limit` quiz_questions with status='flagged', joined with their topic."""
+    conn = get_connection()
+    try:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute(
+                """
+                SELECT qq.id, qq.topic_id, qq.tier, qq.question_text,
+                       t.title AS topic_title,
+                       yg.label AS year_group_label, yg.key_stage,
+                       s.name   AS subject_name
+                FROM quiz_questions qq
+                JOIN topics      t  ON t.id  = qq.topic_id
+                JOIN year_groups yg ON yg.id = t.year_group_id
+                JOIN subjects    s  ON s.id  = t.subject_id
+                WHERE qq.status = 'flagged'
+                ORDER BY qq.created_at ASC
+                LIMIT %s
+                """,
+                (limit,),
+            )
+            return [dict(r) for r in cur.fetchall()]
+    finally:
+        conn.close()
+
+
+def mark_question_regenerating(question_id: str) -> None:
+    """Set a single question's status to 'regenerating' so it disappears from child view."""
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                "UPDATE quiz_questions SET status = 'regenerating' WHERE id = %s",
+                (question_id,),
+            )
+            conn.commit()
+    finally:
+        conn.close()
+
+
+def mark_question_staged(question_id: str) -> None:
+    """Move a question to 'staged' for one-time admin spot-check after regeneration."""
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                "UPDATE quiz_questions SET status = 'staged' WHERE id = %s",
+                (question_id,),
+            )
+            conn.commit()
+    finally:
+        conn.close()
+
+
 # ── Curriculum chunks ─────────────────────────────────────────────────────
 
 def retrieve_chunks(

@@ -399,3 +399,57 @@ def cancel_pipeline_run(run_id: str) -> dict:
             detail=f"Pipeline run {run_id!r} not found or not in 'running' state",
         )
     return {"status": "cancelled", "run_id": run_id}
+
+
+# ── /pipeline/regenerate-flagged ─────────────────────────────────────────────
+#
+# Phase 12: Admin-triggered regeneration of questions with status='flagged'.
+# Picks up to `limit` flagged questions (default 20), sets each to 'regenerating',
+# re-runs them through the 6-stage pipeline, then writes the new status back.
+# Circuit breaker: questions that have been regenerated ≥5 times are set to
+# 'staged' (not re-queued) so they go through the one-time spot-check path.
+
+class RegenerateFlaggedResponse(BaseModel):
+    triggered: int
+    results: list[QuestionResult]
+
+
+@app.post("/pipeline/regenerate-flagged", response_model=RegenerateFlaggedResponse)
+def regenerate_flagged(limit: int = 20) -> RegenerateFlaggedResponse:
+    """Re-run the pipeline for all questions with status='flagged'. Max `limit` per call."""
+    import pipeline as pl
+    import db as _db
+
+    if not (1 <= limit <= 50):
+        raise HTTPException(status_code=400, detail="limit must be 1–50")
+
+    flagged = _db.get_flagged_questions(limit=limit)
+    if not flagged:
+        return RegenerateFlaggedResponse(triggered=0, results=[])
+
+    log.info(f"/pipeline/regenerate-flagged: processing {len(flagged)} flagged questions")
+
+    results: list[QuestionResult] = []
+    for q in flagged:
+        try:
+            result = pl.regenerate_question(q)
+            results.append(QuestionResult(
+                question_id=result.question_id,
+                status=result.status,
+                confidence_score=result.confidence_score,
+                stage_log=result.stage_log,
+                input_tokens=result.input_tokens,
+                output_tokens=result.output_tokens,
+            ))
+        except Exception as exc:
+            log.exception(f"Error regenerating question {q.get('id')}: {exc}")
+            results.append(QuestionResult(
+                question_id=str(q.get("id", "")),
+                status="failed",
+                confidence_score=0.0,
+                stage_log=[f"exception: {exc}"],
+                input_tokens=0,
+                output_tokens=0,
+            ))
+
+    return RegenerateFlaggedResponse(triggered=len(flagged), results=results)

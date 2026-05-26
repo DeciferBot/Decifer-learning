@@ -7,6 +7,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { getUserRole } from '@/lib/auth/roles'
 import Link from 'next/link'
 import { MonitoringActions } from './MonitoringActions'
+import { RegenerateButton } from './RegenerateButton'
 
 export const metadata = { title: 'Monitoring — Admin' }
 export const dynamic  = 'force-dynamic'
@@ -31,9 +32,12 @@ export default async function MonitoringPage() {
 
   return (
     <section className="space-y-6 max-w-3xl mx-auto px-4 pb-10">
-      <div className="flex items-center justify-between pt-2">
+      <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
         <h1 className="font-heading text-2xl font-bold text-ink">Monitoring</h1>
-        <Link href="/dashboard/admin" className="text-sm text-muted hover:text-ink">← Admin</Link>
+        <div className="flex flex-wrap items-center gap-3">
+          <RegenerateButton />
+          <Link href="/dashboard/admin" className="text-sm text-muted hover:text-ink">← Admin</Link>
+        </div>
       </div>
 
       {/* Stats */}

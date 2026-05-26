@@ -96,6 +96,7 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
+  viewportFit: 'cover', // exposes safe-area-inset-* env vars for bottom tab bar on iOS
 }
 
 export default function RootLayout({

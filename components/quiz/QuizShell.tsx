@@ -8,6 +8,7 @@ import { HintButton } from './HintButton'
 import { HeartsDisplay } from './HeartsDisplay'
 import { CardReveal } from '@/components/cards/CardReveal'
 import { BadgePopup } from '@/components/quiz/BadgePopup'
+import { ReportProblemButton } from './ReportProblemButton'
 import type { DroppedCard, EarnedBadge } from '@/app/api/quiz/submit/route'
 
 export type QuizQuestion = {
@@ -468,14 +469,15 @@ export function QuizShell({
           </AnimatePresence>
 
           {answered && !heartsDead && (
-            <motion.button
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              onClick={next}
-              className="mt-4 min-h-[48px] w-full rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white transition-opacity hover:opacity-90"
-            >
-              {qIndex + 1 < questions.length ? 'Next Question →' : 'See Results'}
-            </motion.button>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-4 space-y-1">
+              <button
+                onClick={next}
+                className="min-h-[48px] w-full rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white transition-opacity hover:opacity-90"
+              >
+                {qIndex + 1 < questions.length ? 'Next Question →' : 'See Results'}
+              </button>
+              <ReportProblemButton questionId={q.id} />
+            </motion.div>
           )}
         </motion.div>
       </AnimatePresence>
