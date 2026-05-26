@@ -302,18 +302,29 @@ HINTS: hint_1 general, hint_2 more specific, hint_3 closest without giving the a
 EXPLANATION: Clear explanation of why the correct answer is right.
 
 Valid question_type values:
-  english_grammar          — question about a grammar rule (uses intentional error in stimulus)
+  english_grammar          — question about a grammar rule (uses intentional error or identification)
   english_spelling         — question about a spelling mistake (uses intentional error in stimulus)
+  english_phonics          — phoneme/digraph/trigraph identification or matching
   english_comprehension    — comprehension question (REQUIRES source_chunk_ids)
-  english_vocabulary       — vocabulary question (REQUIRES source_chunk_ids)
-  english_literary_analysis — literary analysis (REQUIRES source_chunk_ids)
+  english_vocabulary       — vocabulary/word-meaning question (REQUIRES source_chunk_ids)
+  english_literary_analysis — literary analysis of a SPECIFIC text or author (REQUIRES source_chunk_ids)
 
 QUESTION TYPE SELECTION — match the topic:
+  Topics about phonics (phonemes, digraphs, trigraphs, grapheme-phoneme correspondences,
+    split digraphs, blending, phoneme isolation) → use english_phonics
   Topics about spelling (prefixes, suffixes, homophones, word endings, misspelling) → use english_spelling
-  Topics about grammar (conjunctions, apostrophes, verb tenses, punctuation, sentence types) → use english_grammar
+  Topics about grammar (conjunctions, apostrophes, verb tenses, punctuation, sentence types,
+    subjunctive, passive voice, formal/informal register) → use english_grammar
+  Topics about narrative writing TECHNIQUES (story structure, descriptive techniques,
+    foreshadowing, varied sentence length, figurative language as technique definitions)
+    → use english_grammar (for structural rule questions) or english_vocabulary
+      (for "what does X technique mean?" questions)
+    → ONLY use english_literary_analysis if the question analyses a SPECIFIC text or author
+  Topics about etymology/word roots (Latin roots, Greek prefixes, morphology, word families)
+    → use english_vocabulary (the verifier automatically suppresses false spelling flags
+      on foreign-language root words)
   Topics about reading/comprehension → use english_comprehension
-  Topics about vocabulary/word meanings (without spelling/grammar focus) → use english_vocabulary
-  Topics about literary analysis (character, theme, author intent) → use english_literary_analysis
+  Topics about literary analysis (character, theme, author intent in a SPECIFIC text) → use english_literary_analysis
 
 For english_vocabulary questions about word roots, prefixes, or word families:
   PREFERRED: Ask "What does the root/prefix X mean?" with 4 different meaning choices — always unambiguous.
@@ -326,10 +337,18 @@ For english_grammar and english_spelling, include question_metadata with:
   intentional_error_type: e.g. "missing_comma", "wrong_verb_tense", "misspelled_word" — set to null if no error
   intentional_error_span: {{"start": <char_offset>, "end": <char_offset>}} (0-indexed, exclusive end) — ONLY include this if stimulus_text contains a deliberate error; set to null for identification/selection questions where there is no error in the stimulus
 
-CRITICAL — QUESTION_TEXT FORMAT: For english_grammar and english_spelling, question_text MUST include the stimulus sentence directly, e.g.:
+For english_phonics, include question_metadata with:
+  instruction_text: grammatically correct instruction (e.g. "What sound do these letters make?")
+  stimulus_text: the grapheme(s) or word shown to the child (e.g. "sh", "igh", "phone")
+  intentional_error_type: null (phonics questions identify correct sounds, not errors)
+  intentional_error_span: null
+
+CRITICAL — QUESTION_TEXT FORMAT: For english_grammar, english_spelling, and english_phonics,
+question_text MUST include the stimulus sentence or grapheme directly, e.g.:
   "Which word is the conjunction in this sentence?\n\n'She wore her coat because it was cold.'"
   "Find the grammar mistake in this sentence:\n\n'He go to school yesterday.'"
-Never write a question_text that only says "Which word is the conjunction?" without showing the sentence — the child cannot answer without seeing it.
+  "What sound does this digraph make?\n\n'sh'"
+Never write a question_text that omits what the child needs to see to answer.
 
 IMPORTANT: For identification questions (e.g. "which word is a conjunction?"), the stimulus_text is correct English — set intentional_error_type and intentional_error_span to null.
 
@@ -345,8 +364,8 @@ Return ONLY valid JSON with this exact structure (no extra text, no markdown fen
   "explanation": "<clear explanation>",
   "source_chunk_ids": [],
   "question_metadata": {{
-    "instruction_text": "<instruction (for grammar/spelling only)>",
-    "stimulus_text": "<stimulus text (for grammar/spelling only)>",
+    "instruction_text": "<instruction (for grammar/spelling/phonics only)>",
+    "stimulus_text": "<stimulus text (for grammar/spelling/phonics only)>",
     "intentional_error_type": null,
     "intentional_error_span": null
   }}
@@ -608,8 +627,8 @@ def stage1_generate(topic: dict, tier: str, result: PipelineResult) -> Optional[
 
 _MATHS_TYPES = {"maths_arithmetic", "maths_algebra", "maths_geometry"}
 _ENGLISH_TYPES = {
-    "english_grammar", "english_spelling", "english_comprehension",
-    "english_vocabulary", "english_literary_analysis",
+    "english_grammar", "english_spelling", "english_phonics",
+    "english_comprehension", "english_vocabulary", "english_literary_analysis",
 }
 _PHYSICS_TYPES = {"science_physics_calculation"}
 _CHEMISTRY_TYPES = {"science_chemistry_equation", "chemistry_element_fact", "biology_factual", "science_factual"}

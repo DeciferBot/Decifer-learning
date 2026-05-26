@@ -6,8 +6,10 @@ Stage 2: code verification — CLAUDE.md §9.
 Supported question types:
   english_grammar          — intentional-error questions; uses question_metadata
   english_spelling         — intentional-error questions; uses question_metadata
+  english_phonics          — phoneme/digraph identification; skips LT on phoneme content
   english_comprehension    — RAG-grounded; grammar sanity on prose fields
-  english_vocabulary       — RAG-grounded; grammar sanity on prose fields
+  english_vocabulary       — RAG-grounded; grammar sanity on prose fields (spelling
+                             suppressed so Latin/Greek root words are not false-flagged)
   english_literary_analysis — RAG-grounded; grammar sanity on prose fields
 
 Returns (verified: bool, detail: str). Never raises; failures return False + reason.
@@ -24,7 +26,7 @@ from typing import Tuple
 
 log = logging.getLogger("verifier.english")
 
-VERIFIER_VERSION = "1.0.0"
+VERIFIER_VERSION = "1.1.0"
 
 # ── LanguageTool helper ───────────────────────────────────────────────────
 
@@ -105,12 +107,42 @@ def _normalize_quotes(text: str) -> str:
     """Replace Unicode smart quotes with ASCII equivalents before LanguageTool checks.
 
     LLMs frequently produce explanations and hints containing curly apostrophes (e.g.
-    'it’s', 'don’t') which LanguageTool flags as "Unpaired symbol: '". This
+    ‘it’s’, ‘don’t’) which LanguageTool flags as "Unpaired symbol: ‘". This
     is a spurious error in prose fields — we want to check grammar, not quote style.
     Normalization applies to prose fields only; stimulus_text (intentional-error questions)
     is passed to LT unmodified so genuine apostrophe errors remain detectable.
     """
     return text.translate(_QUOTE_NORMALIZATION_TABLE)
+
+
+# ── Prose-field style suppression ─────────────────────────────────────────
+
+# LT message fragments that are false positives in educational prose fields
+# (explanations, hints, correct_answer).  These are style/typography suggestions,
+# not grammar errors, and are legitimately triggered by curriculum content:
+#
+#   "This word is normally spelled as one"
+#       — "semi-colon", "run-on" etc. are both spellings in British educational use
+#   "Unpaired symbol"
+#       — parenthetical examples "(1) A colon introduces..." are pedagogically valid
+#   "Use a comma before" / "Consider adding a comma"
+#       — compound-sentence comma style rules; not hard grammar errors
+#
+# These suppressions apply ONLY to prose fields (explanation, hints, correct_answer).
+# They are NOT applied to stimulus_text (intentional-error questions) or
+# instruction_text, where genuine punctuation/style mistakes must still be caught.
+_PROSE_SUPPRESSED_MESSAGE_FRAGMENTS: frozenset[str] = frozenset({
+    "This word is normally spelled as one",
+    "Unpaired symbol",
+    "Use a comma before",
+    "Consider adding a comma",
+})
+
+
+def _suppress_prose_error(err: dict) -> bool:
+    """Return True if this LT error is a false positive in educational prose fields."""
+    msg = err.get("message", "")
+    return any(fragment in msg for fragment in _PROSE_SUPPRESSED_MESSAGE_FRAGMENTS)
 
 
 def _check_prose_fields(
@@ -145,6 +177,8 @@ def _check_prose_fields(
         # Curly apostrophes in LLM-generated explanations/hints are not grammar errors.
         normalised = _normalize_quotes(str(text))
         errors = _lt_errors(normalised, ignore_spelling=ignore_spelling)
+        # Suppress style/typography false positives in prose fields.
+        errors = [e for e in errors if not _suppress_prose_error(e)]
         if errors:
             detail = "; ".join(e["message"] for e in errors[:3])
             return False, f"Grammar error in {field_name!r}: {detail}"
@@ -272,6 +306,64 @@ def _verify_intentional_error_question(data: dict, qtype: str) -> Tuple[bool, st
     return True, f"{qtype} intentional-error question verified"
 
 
+# ── Phonics handler ───────────────────────────────────────────────────────
+
+def _verify_phonics_question(data: dict) -> Tuple[bool, str]:
+    """
+    For english_phonics questions.
+
+    Phonics content (phoneme notation, digraph/trigraph examples, grapheme-phoneme
+    correspondences) is structurally incompatible with LanguageTool:
+      • Phoneme symbols (/ʃ/, /f/, /ɪ/) do not form standard English sentences.
+      • Grapheme examples ("sh", "igh", "ph") are not dictionary words.
+      • Identification stimuli may intentionally not start with an uppercase letter
+        (e.g., the stimulus IS the grapheme: "sh").
+
+    Rules:
+      - question_metadata must be present.
+      - stimulus_text is NOT checked by LanguageTool (phoneme/grapheme notation).
+      - correct_answer is NOT checked by LanguageTool (phoneme/grapheme response).
+      - instruction_text is checked with spelling rules suppressed (phoneme notation
+        in instruction text such as "the /sh/ sound" must not be false-flagged).
+      - explanation and hints are checked with spelling rules suppressed.
+    """
+    metadata = data.get("question_metadata")
+    if not isinstance(metadata, dict):
+        return False, "question_metadata missing or not a dict"
+
+    instruction_text = metadata.get("instruction_text")
+    if not instruction_text:
+        return False, "question_metadata.instruction_text is missing"
+    stimulus_text = metadata.get("stimulus_text")
+    if not stimulus_text:
+        return False, "question_metadata.stimulus_text is missing"
+
+    # instruction_text: grammar check, spelling rules suppressed.
+    # Phoneme notation like "/sh/ sound" or "the igh trigraph" triggers false spelling flags.
+    instr_errors = _lt_errors(str(instruction_text), ignore_spelling=True)
+    instr_errors = [e for e in instr_errors if not _suppress_prose_error(e)]
+    if instr_errors:
+        detail = "; ".join(e["message"] for e in instr_errors[:3])
+        return False, f"Grammar error in instruction_text: {detail}"
+
+    # stimulus_text: skip entirely. Phoneme/grapheme notation is inherently non-standard:
+    # stimuli like "sh", "/f/ as in fox", or "Write a word with the igh pattern" cannot
+    # be validated by LT without producing irrelevant false positives.
+
+    # correct_answer: skip. It is a phoneme (/f/) or grapheme (ph), not a sentence.
+
+    # Prose fields: grammar check, spelling rules suppressed.
+    ok, detail = _check_prose_fields(
+        data,
+        check_correct_answer=False,
+        ignore_spelling=True,
+    )
+    if not ok:
+        return False, detail
+
+    return True, "english_phonics question verified"
+
+
 # ── Comprehension / vocabulary / literary analysis handler ────────────────
 
 def _verify_rag_only_question(data: dict, qtype: str) -> Tuple[bool, str]:
@@ -298,10 +390,15 @@ def _verify_rag_only_question(data: dict, qtype: str) -> Tuple[bool, str]:
                 detail = "; ".join(e["message"] for e in stim_errors[:3])
                 return False, f"Grammar error in question_metadata.stimulus_text: {detail}"
 
-    # question_text itself (top-level)
+    # question_text itself (top-level).
+    # For english_vocabulary, suppress spelling rules: etymology questions naturally
+    # contain Latin/Greek root words (aqua, terra, bene, spec) that LT flags as
+    # "Possible spelling mistake". Consensus (Stage 3) validates factual correctness.
     question_text = data.get("question_text", "")
     if question_text:
-        qt_errors = _lt_errors(str(question_text))
+        qt_ignore_spelling = (qtype == "english_vocabulary")
+        qt_errors = _lt_errors(str(question_text), ignore_spelling=qt_ignore_spelling)
+        qt_errors = [e for e in qt_errors if not _suppress_prose_error(e)]
         if qt_errors:
             detail = "; ".join(e["message"] for e in qt_errors[:3])
             return False, f"Grammar error in question_text: {detail}"
@@ -326,6 +423,9 @@ def verify(question_data: dict) -> Tuple[bool, str]:
 
     if qtype in ("english_grammar", "english_spelling"):
         return _verify_intentional_error_question(question_data, qtype)
+
+    if qtype == "english_phonics":
+        return _verify_phonics_question(question_data)
 
     if qtype in ("english_comprehension", "english_vocabulary", "english_literary_analysis"):
         return _verify_rag_only_question(question_data, qtype)
@@ -422,9 +522,9 @@ def _run_tests() -> None:
         expect_pass=True,
     )
 
-    # 5. Missing intentional_error_type fails
+    # 5. Missing instruction_text in english_spelling fails (structural, no LT needed)
     check(
-        "missing intentional_error_type fails",
+        "missing instruction_text in english_spelling fails",
         {
             "question_type": "english_spelling",
             "question_text": "Find the spelling mistake.",
@@ -434,9 +534,101 @@ def _run_tests() -> None:
             "hint_2": "Count the syllables.",
             "hint_3": "The correct spelling is b-e-a-u-t-i-f-u-l.",
             "question_metadata": {
-                "instruction_text": "Find and correct the spelling mistake in the sentence.",
-                "stimulus_text": "The beatiful flower bloomed in spring.",
+                "stimulus_text": "The beautiful flower bloomed in spring.",
+                "intentional_error_type": "misspelled_word",
             },
+        },
+        expect_pass=False,
+    )
+
+    # 6. english_phonics with phoneme notation passes
+    check(
+        "english_phonics with phoneme notation in stimulus passes",
+        {
+            "question_type": "english_phonics",
+            "question_text": "What sound does the digraph 'sh' make?",
+            "correct_answer": "/sh/",
+            "distractors": ["/s/", "/h/", "/ch/"],
+            "explanation": "The digraph 'sh' makes the /sh/ sound, as in 'ship' or 'shop'.",
+            "hint_1": "Look at what two letters make this sound together.",
+            "hint_2": "Think of the word 'ship' and what sound it starts with.",
+            "hint_3": "The sh digraph makes a sound like hushing someone.",
+            "question_metadata": {
+                "instruction_text": "What sound does this digraph make?",
+                "stimulus_text": "sh",
+                "intentional_error_type": None,
+                "intentional_error_span": None,
+            },
+        },
+        expect_pass=True,
+    )
+
+    # 7. english_phonics without question_metadata fails
+    check(
+        "english_phonics without question_metadata fails",
+        {
+            "question_type": "english_phonics",
+            "question_text": "What sound does 'sh' make?",
+            "correct_answer": "/sh/",
+            "explanation": "The digraph sh makes a hushing sound.",
+            "hint_1": "Listen carefully.",
+            "hint_2": "Think of the word ship.",
+            "hint_3": "It sounds like hushing.",
+        },
+        expect_pass=False,
+    )
+
+    # 8. english_vocabulary with Latin etymology roots in question_text passes
+    check(
+        "english_vocabulary with Latin root in question_text passes (spelling suppressed)",
+        {
+            "question_type": "english_vocabulary",
+            "question_text": "What does the Latin root 'aqua' mean?",
+            "correct_answer": "Water",
+            "distractors": ["Fire", "Earth", "Air"],
+            "explanation": "The Latin root 'aqua' means water. It appears in English words like aquarium and aquatic.",
+            "hint_1": "Think about words that relate to water.",
+            "hint_2": "An aquarium contains water for fish.",
+            "hint_3": "The word 'aquatic' relates to living in water.",
+            "source_chunk_ids": ["chunk-1"],
+        },
+        expect_pass=True,
+    )
+
+    # 9. english_grammar with semi-colon in explanation passes
+    # (LT "This word is normally spelled as one" is suppressed for prose fields)
+    check(
+        "english_grammar with semi-colon in explanation passes (LT style suppressed)",
+        {
+            "question_type": "english_grammar",
+            "question_text": "Which sentence correctly uses a semi-colon?\n\n'I went to the shops; I bought milk.'",
+            "correct_answer": "I went to the shops; I bought milk.",
+            "distractors": [
+                "I went to the shops, I bought milk.",
+                "I went to the shops. I bought milk.",
+                "I went to the shops: I bought milk.",
+            ],
+            "explanation": "A semi-colon joins two closely related independent clauses. Both parts are complete sentences.",
+            "hint_1": "A semi-colon is stronger than a comma.",
+            "hint_2": "Both parts must be complete sentences on their own.",
+            "hint_3": "Look for the sentence where both halves make sense alone.",
+            "question_metadata": {
+                "instruction_text": "Which sentence correctly uses a semi-colon?",
+                "stimulus_text": "I went to the shops; I bought milk.",
+                "intentional_error_type": None,
+                "intentional_error_span": None,
+            },
+        },
+        expect_pass=True,
+    )
+
+    # 10. Unknown question type fails closed
+    check(
+        "unknown question type fails closed",
+        {
+            "question_type": "english_unknown_type",
+            "question_text": "Test question.",
+            "correct_answer": "Test answer.",
         },
         expect_pass=False,
     )
@@ -444,6 +636,61 @@ def _run_tests() -> None:
     total = len(results)
     passed = sum(1 for _, ok in results if ok)
     print(f"\n=== {passed}/{total} tests passed ===\n")
+
+    # LT-specific test: only meaningful when LT is available
+    _get_lt()  # initialise so _lt_available reflects current state
+    if _lt_available:
+        lt_results: list[Tuple[str, bool]] = []
+
+        def lt_check(label: str, data: dict, expect_pass: bool) -> None:
+            ok, detail = verify(data)
+            passed = ok == expect_pass
+            lt_results.append((label, passed))
+            status = "PASS" if passed else "FAIL"
+            print(f"  {status}: [LT] {label} — {detail}")
+
+        print("=== LanguageTool-specific tests (LT is available) ===\n")
+
+        # Suppression is narrow: a genuine subject-verb error in explanation still fails
+        lt_check(
+            "genuine subject-verb error in explanation still fails",
+            {
+                "question_type": "english_grammar",
+                "question_text": "Which word is the conjunction?",
+                "correct_answer": "because",
+                "explanation": "She have gone to the shop. The conjunction is because.",
+                "hint_1": "Conjunctions join clauses.",
+                "hint_2": "It connects two parts of the sentence.",
+                "hint_3": "Look for the joining word.",
+                "question_metadata": {
+                    "instruction_text": "Which word is the conjunction in this sentence?",
+                    "stimulus_text": "She stayed inside because it was raining.",
+                    "intentional_error_type": None,
+                    "intentional_error_span": None,
+                },
+            },
+            expect_pass=False,
+        )
+
+        # Normal comprehension still catches grammar errors in prose
+        lt_check(
+            "genuine grammar error in comprehension explanation still fails",
+            {
+                "question_type": "english_comprehension",
+                "question_text": "What did the character do at the start?",
+                "correct_answer": "She went to the forest.",
+                "explanation": "She have went to the forest to find food.",
+                "hint_1": "Read the first paragraph.",
+                "hint_2": "The character is looking for something.",
+                "hint_3": "The answer is in the first two sentences.",
+                "source_chunk_ids": ["chunk-1"],
+            },
+            expect_pass=False,
+        )
+
+        lt_total = len(lt_results)
+        lt_passed = sum(1 for _, ok in lt_results if ok)
+        print(f"\n=== LT tests: {lt_passed}/{lt_total} passed ===\n")
 
 
 if __name__ == "__main__":
