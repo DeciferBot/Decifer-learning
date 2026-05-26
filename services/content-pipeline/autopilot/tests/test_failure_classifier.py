@@ -174,3 +174,43 @@ class TestConfidence:
     def test_catch_all_has_low_confidence(self):
         c = classify("")
         assert c.confidence <= 0.35
+
+
+# ── Regression: score-before-RAG rule ordering ────────────────────────────────
+
+class TestScoreBeforeRAGOrdering:
+    """
+    The pipeline emits "Stage 6: score=XX below threshold or RAG grounding failed"
+    for ANY stage-6 failure. This message matches both the QUALITY_TOO_LOW rule
+    (score present) and the NEEDS_RAG_ENRICHMENT rule (rag grounding phrase).
+    The QUALITY_TOO_LOW rule must fire first because a score number in the
+    message is strong evidence the topic was attempted and scored low — not that
+    chunks are missing (topics that actually lack chunks never reach Stage 6).
+    """
+
+    _PIPELINE_MSG = "Stage 6: score={score} below threshold or RAG grounding failed"
+
+    def test_score_65_routes_to_quality_not_rag(self):
+        """The canonical pipeline Stage 6 message → QUALITY_TOO_LOW, not NEEDS_RAG_ENRICHMENT."""
+        c = classify(self._PIPELINE_MSG.format(score=65.0))
+        assert c.action == FailureAction.QUALITY_TOO_LOW, (
+            f"Expected QUALITY_TOO_LOW but got {c.action}. "
+            "Likely rule-order regression: RAG rule fired before QUALITY rule."
+        )
+
+    def test_score_70_routes_to_quality_not_rag(self):
+        c = classify(self._PIPELINE_MSG.format(score=70))
+        assert c.action == FailureAction.QUALITY_TOO_LOW
+
+    def test_score_80_routes_to_quality_not_rag(self):
+        c = classify(self._PIPELINE_MSG.format(score=80))
+        assert c.action == FailureAction.QUALITY_TOO_LOW
+
+    def test_bare_rag_grounding_still_routes_to_rag(self):
+        """A message with only 'RAG grounding failed' (no score) → NEEDS_RAG_ENRICHMENT."""
+        c = classify("Stage 1: RAG grounding failed — source_chunk_ids empty")
+        assert c.action == FailureAction.NEEDS_RAG_ENRICHMENT
+
+    def test_source_chunk_ids_empty_routes_to_rag(self):
+        c = classify("source_chunk_ids is empty for topic y7-english-literature-character")
+        assert c.action == FailureAction.NEEDS_RAG_ENRICHMENT

@@ -121,6 +121,16 @@ def _decide(topic: TopicCoverage) -> QueueDecision:
         reason = f"{topic.state.value} ({topic.recent_errors} errors): {c.action.value} → {strategy}"
         return QueueDecision(topic.topic_id, slug, "enqueue", strategy, priority, reason)
 
+    # NEED_Q with action=generate_learn_content — has enough Q, missing learn content
+    if topic.state == CoverageState.NEED_Q and topic.recommended_action == "generate_learn_content":
+        reason = f"NEED_Q: {topic.pub_q}/{MIN_QUESTIONS} Q published but no learn_content — generating LC"
+        return QueueDecision(topic.topic_id, slug, "enqueue", "learn_content", 1, reason)
+
+    # NEED_Q with action=promote — has Q+LC but not published yet
+    if topic.state == CoverageState.NEED_Q and topic.recommended_action == "promote":
+        reason = f"NEED_Q: {topic.pub_q}/{MIN_QUESTIONS} Q + LC present but not published — promoting"
+        return QueueDecision(topic.topic_id, slug, "enqueue", "promote", 1, reason)
+
     # EMPTY without RAG chunks
     if topic.state == CoverageState.EMPTY and topic.chunk_count == 0:
         return QueueDecision(topic.topic_id, slug, "skip", strategy, priority,

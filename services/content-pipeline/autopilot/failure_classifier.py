@@ -108,7 +108,25 @@ _RULES: list[tuple[str, str, FailureAction, float, str, str]] = [
         "Possible LT false positive in prose field. Check question_type routing.",
     ),
 
-    # ── RAG grounding failures ────────────────────────────────────────────────
+    # ── Score / quality too low — MUST come before RAG rule ─────────────────
+    # The pipeline emits "score=XX below threshold or RAG grounding failed".
+    # A score number in the message is strong evidence of a quality failure, not
+    # a missing-chunks failure. This rule fires before the RAG rule so the more
+    # informative classification wins.
+    (
+        r"score\s*=\s*[0-9]+[\.\d]*\s*below"
+        r"|score_too_low|confidence.*below|threshold.*not.*met"
+        r"|below.*threshold|quality.*score|constitutional.*violation"
+        r"|narrative.*score|literary.*score",
+        r"",
+        FailureAction.QUALITY_TOO_LOW,
+        0.88,
+        "retry",
+        "Confidence score below publish threshold. "
+        "May improve with a diversity-boosted prompt or different generation strategy.",
+    ),
+
+    # ── RAG grounding failures (explicit, no score present) ──────────────────
     (
         r"source_chunk_ids.*empty|source_chunk_ids.*null|rag.*grounding"
         r"|no.*chunks.*found|grounding.*required|chunk.*not.*found"
@@ -119,19 +137,6 @@ _RULES: list[tuple[str, str, FailureAction, float, str, str]] = [
         "enrich",
         "source_chunk_ids is empty. Seed more curriculum_chunks for this "
         "subject+year_group before retrying.",
-    ),
-
-    # ── Score / quality too low ───────────────────────────────────────────────
-    (
-        r"score_too_low|confidence.*below|threshold.*not.*met"
-        r"|score.*[0-9]+.*below|quality.*score|constitutional.*violation"
-        r"|narrative.*score|literary.*score",
-        r"",
-        FailureAction.QUALITY_TOO_LOW,
-        0.85,
-        "retry",
-        "Confidence score below publish threshold. "
-        "May improve with better RAG grounding or a different generation strategy.",
     ),
 
     # ── Near-duplicate / dedup loop ───────────────────────────────────────────
