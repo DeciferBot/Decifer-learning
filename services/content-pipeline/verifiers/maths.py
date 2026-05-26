@@ -70,9 +70,11 @@ def safe_eval(expression: str) -> float:
 def _parse_numeric(answer: str) -> float:
     """Extract the numeric value from an answer string.
 
-    Handles: '56', 'x = 5', '48 cm²', '3/4', '-3.5'
+    Handles: '56', 'x = 5', '48 cm²', '3/4', '-3.5', '4,800,000'
     """
     s = answer.strip()
+    # Strip thousand-separators before regex so "4,800,000" → "4800000"
+    s = s.replace(",", "")
     # "x = 5" or "= -3"
     m = re.search(r"=\s*(-?[\d.]+(?:/[\d.]+)?)", s)
     if m:

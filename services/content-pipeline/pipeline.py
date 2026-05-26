@@ -141,13 +141,23 @@ HINTS — strictly follow this progression (constitutional requirement — viola
 
 EXPLANATION: Full step-by-step working that arrives at the correct answer.
 
+ANSWER FORMAT — critical for automatic verification:
+  correct_answer must be the exact numeric value that verification_expression evaluates to — same scale, no abbreviation.
+  • WRONG: correct_answer="4" when expression evaluates to 4000000 (scale mismatch → rejected)
+  • WRONG: correct_answer="3.8" when expression evaluates to 3800000 (scale mismatch → rejected)
+  • WRONG: correct_answer="4,800,000" (commas cause parse failure → rejected)
+  • RIGHT: correct_answer="4000000" when expression evaluates to 4000000
+  • RIGHT: correct_answer="-3.85" when expression evaluates to -3.85
+  For large rounding answers: write the full integer, e.g. "3800000", "5000000", not "3.8" or "5 million".
+  For answers with units: put the unit suffix after the number, e.g. "-7°C", "8.5°C", "48 cm²".
+
 Valid question_type values: maths_arithmetic, maths_algebra, maths_geometry
 
 Return ONLY valid JSON with this exact structure (no extra text, no markdown fences):
 {{
   "question_text": "<the question>",
   "question_type": "<maths_arithmetic | maths_algebra | maths_geometry>",
-  "correct_answer": "<answer as a string>",
+  "correct_answer": "<exact numeric value — same scale as verification_expression; no commas; no abbreviation>",
   "distractors": ["<wrong1>", "<wrong2>", "<wrong3>"],
   "hint_1": "<conceptual nudge — no specific numbers>",
   "hint_2": "<method step — no final answer>",
