@@ -129,6 +129,7 @@ TIERS = ["sprout", "explorer", "lightning"]
 MAX_PER_TIER = 20        # maximum generation attempts per tier per topic
 BUFFER = 5               # extra attempts above the computed needed count
 WASTE_THRESHOLD = 5      # same-blocker failures before stopping a topic+tier
+DEDUP_WASTE_THRESHOLD = 15  # higher threshold for dedup_failed — diversity issue, not prompt error
 
 VALID_STRATEGIES = ("spelling", "science_diversity", "physics", "literature", "topup")
 
@@ -525,7 +526,8 @@ def _recover_topic(
             # Token-waste protection: stop if same blocker dominates
             if blocker_counter:
                 dominant_blocker, dominant_count = blocker_counter.most_common(1)[0]
-                if dominant_count >= WASTE_THRESHOLD:
+                threshold = DEDUP_WASTE_THRESHOLD if dominant_blocker == "dedup_failed" else WASTE_THRESHOLD
+                if dominant_count >= threshold:
                     log.warning(
                         f"  [{tier:9s}] WASTE_PROTECTION: dominant_blocker={dominant_blocker!r} "
                         f"appeared {dominant_count} times — stopping tier. "
@@ -589,8 +591,10 @@ def _recover_topic(
             f"pre_rejected={tier_pre_rejected}  blockers={dict(blocker_counter)}"
         )
 
-        if waste_blocked:
+        if waste_blocked and summary.get("waste_dominant_blocker") != "dedup_failed":
             break
+        elif waste_blocked:
+            waste_blocked = False  # dedup block is tier-local; next tier may generate different structures
 
     after = count_published(tid)
     added = after - before
