@@ -64,16 +64,19 @@ function classifyTopic(t) {
   const chunks  = Number(t.chunk_count  ?? 0)
   const isPub   = Boolean(t.is_published)
 
-  if (errors >= BLOCKED_THRESHOLD)
-    return { state: 'BLOCKED',               action: 'manual_review' }
-  if (flagQ > 0 && isPub)
-    return { state: 'QUARANTINED',           action: 'regenerate_flagged' }
+  // Content-readiness checks come BEFORE error-count check.
+  // A topic that already has 10Q + LC + is_published is LIVE regardless
+  // of accumulated generation errors. Matches coverage_scanner.py priority order.
   if (pubQ >= MIN_QUESTIONS && pubLC >= MIN_LEARN_CONTENT && isPub)
-    return { state: 'LIVE',                  action: 'monitor' }
+    return flagQ > 0
+      ? { state: 'QUARANTINED', action: 'regenerate_flagged' }
+      : { state: 'LIVE',        action: 'monitor' }
   if (pubQ >= MIN_QUESTIONS && pubLC >= MIN_LEARN_CONTENT && !isPub)
     return { state: 'NEED_Q',               action: 'promote' }
   if (pubQ >= MIN_QUESTIONS && pubLC === 0)
     return { state: 'NEED_Q',               action: 'generate_learn_content' }
+  if (errors >= BLOCKED_THRESHOLD)
+    return { state: 'BLOCKED',               action: 'manual_review' }
   if (pubQ > 0 && flagQ > 0 && !isPub)
     return { state: 'WEAK',                  action: 'regenerate_flagged' }
   if (pubQ > 0 && pubQ < MIN_QUESTIONS && chunks > 0)
