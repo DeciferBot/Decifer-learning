@@ -41,6 +41,7 @@ CONFIDENCE_THRESHOLDS: dict[str, float] = {
     # English — computationally verifiable
     "english_grammar":             85.0,
     "english_spelling":            85.0,
+    "english_phonics":             85.0,
     # English — RAG-only
     "english_comprehension":       90.0,
     "english_vocabulary":          90.0,

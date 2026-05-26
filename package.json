@@ -19,7 +19,10 @@
     "verify-lesson-store-safety": "node --env-file=.env.local scripts/verify-lesson-store-safety.mjs",
     "verify-pli": "node scripts/verify-parent-learning-intelligence.mjs",
     "verify-autopilot-safety": "node scripts/verify-autopilot-safety.mjs",
+    "verify-autopilot-2b2-safety": "node scripts/verify-autopilot-2b2-safety.mjs",
     "learning:autopilot:plan": "node --env-file=.env.local scripts/learning-autopilot-plan.mjs",
+    "learning:autopilot:queue": "/root/pipeline-venv/bin/python3 scripts/learning-autopilot-queue.py",
+    "learning:autopilot:run": "/root/pipeline-venv/bin/python3 scripts/learning-autopilot-run.py",
     "test": "vitest run",
     "test:watch": "vitest"
   },
