@@ -47,14 +47,20 @@ def _get_lt():
         return None
 
 
-def _lt_errors(text: str) -> list[dict]:
-    """Return LanguageTool errors as a list of dicts with offset, length, rule."""
+def _lt_errors(text: str, ignore_spelling: bool = False) -> list[dict]:
+    """Return LanguageTool errors as a list of dicts with offset, length, rule.
+
+    ignore_spelling=True filters out MORFOLOGIK_RULE_EN* and EN_SPELL* matches.
+    Use for english_spelling question prose fields where prefix/suffix morphemes
+    (un-, dis-, pre-) legitimately trigger "Possible spelling mistake" false positives.
+    Grammar, punctuation, and style rules are still enforced when ignore_spelling=True.
+    """
     lt = _get_lt()
     if lt is None or not text:
         return []
     try:
         matches = lt.check(text)
-        return [
+        errors = [
             {
                 "offset": m.offset,
                 # language_tool_python ≥ 3.x uses snake_case attributes
@@ -64,6 +70,15 @@ def _lt_errors(text: str) -> list[dict]:
             }
             for m in matches
         ]
+        if ignore_spelling:
+            errors = [
+                e for e in errors
+                if not (
+                    e["rule"].startswith("MORFOLOGIK_RULE_EN")
+                    or e["rule"].startswith("EN_SPELL")
+                )
+            ]
+        return errors
     except Exception as exc:
         log.warning(f"LanguageTool check error: {exc}")
         return []
@@ -98,12 +113,21 @@ def _normalize_quotes(text: str) -> str:
     return text.translate(_QUOTE_NORMALIZATION_TABLE)
 
 
-def _check_prose_fields(data: dict, check_correct_answer: bool = True) -> Tuple[bool, str]:
+def _check_prose_fields(
+    data: dict,
+    check_correct_answer: bool = True,
+    ignore_spelling: bool = False,
+) -> Tuple[bool, str]:
     """All prose fields (except intentional-error stimulus) should be grammatically clean.
 
     check_correct_answer=False skips LT on correct_answer — use this for grammar/spelling
     questions where correct_answer is a word, phrase, or clause (not a full sentence) and
     therefore legitimately lacks a capital letter or ending punctuation.
+
+    ignore_spelling=True suppresses MORFOLOGIK/EN_SPELL rules on prose fields.
+    Use for english_spelling questions where explanation and hints contain prefix/suffix
+    morphemes that LanguageTool incorrectly flags as spelling mistakes. Grammar,
+    punctuation, and style rules continue to be enforced.
     """
     fields_to_check = {
         "explanation": data.get("explanation", ""),
@@ -120,7 +144,7 @@ def _check_prose_fields(data: dict, check_correct_answer: bool = True) -> Tuple[
         # Normalise Unicode smart quotes → ASCII before LT check (prose fields only).
         # Curly apostrophes in LLM-generated explanations/hints are not grammar errors.
         normalised = _normalize_quotes(str(text))
-        errors = _lt_errors(normalised)
+        errors = _lt_errors(normalised, ignore_spelling=ignore_spelling)
         if errors:
             detail = "; ".join(e["message"] for e in errors[:3])
             return False, f"Grammar error in {field_name!r}: {detail}"
@@ -172,7 +196,16 @@ def _verify_intentional_error_question(data: dict, qtype: str) -> Tuple[bool, st
     # correct_answer is NOT checked by LT here — for grammar/spelling questions it is
     # a word, phrase, or clause (e.g. "because", "Tom's cat") that legitimately lacks
     # a capital letter. Stage 3 consensus validates the answer's correctness instead.
-    ok, detail = _check_prose_fields(data, check_correct_answer=False)
+    #
+    # For english_spelling specifically: suppress MORFOLOGIK spelling-check rules on
+    # prose fields. Prefix/suffix morphemes (un-, dis-, pre-, anti-) in explanations
+    # and hints trigger "Possible spelling mistake" false positives — they are not
+    # standalone dictionary words. Grammar and punctuation checks remain active.
+    ok, detail = _check_prose_fields(
+        data,
+        check_correct_answer=False,
+        ignore_spelling=(qtype == "english_spelling"),
+    )
     if not ok:
         return False, detail
 

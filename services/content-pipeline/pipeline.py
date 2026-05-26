@@ -125,11 +125,19 @@ QUESTION: Clear, unambiguous, appropriate for {year_label}. One correct answer.
 
 DISTRACTORS: Exactly 3 wrong answers. Each must be plausible (a common mistake), but clearly wrong on careful inspection.
 
-HINTS — strictly follow this progression:
-  hint_1: A general strategy or reminder (does NOT reference the specific numbers in the question).
-  hint_2: A more specific step that moves toward the answer WITHOUT revealing it.
-  hint_3: ONE clear step that leads directly to the answer (still does not state the answer itself).
-  RULE: No hint may state the correct answer directly.
+HINTS — strictly follow this progression (constitutional requirement — violations cause rejection):
+  hint_1: Conceptual nudge only. Name the operation or concept needed. Do NOT use the question's specific numbers.
+           Example: "Think about what multiplication means — groups of equal size."
+  hint_2: Method step only. Describe the first step of the working without computing it.
+           Example: "Start by working out how many groups there are."
+  hint_3: Final strategy or check only. Tell the child what to verify or how to check, WITHOUT performing
+           the calculation, WITHOUT stating the final number, WITHOUT naming the correct option.
+           Example: "Check: does your answer give the right number of groups when you divide back?"
+  ABSOLUTE RULES — breaking any of these causes the question to be rejected:
+    • No hint may contain the final answer or its numeric equivalent.
+    • No hint may name which distractor option is correct.
+    • hint_3 must leave at least one full calculation step for the child to complete.
+    • hint_3 must NOT phrase the working so that only one possible answer remains obvious.
 
 EXPLANATION: Full step-by-step working that arrives at the correct answer.
 
@@ -141,9 +149,9 @@ Return ONLY valid JSON with this exact structure (no extra text, no markdown fen
   "question_type": "<maths_arithmetic | maths_algebra | maths_geometry>",
   "correct_answer": "<answer as a string>",
   "distractors": ["<wrong1>", "<wrong2>", "<wrong3>"],
-  "hint_1": "<general strategy>",
-  "hint_2": "<specific step>",
-  "hint_3": "<final step, leaves one calculation>",
+  "hint_1": "<conceptual nudge — no specific numbers>",
+  "hint_2": "<method step — no final answer>",
+  "hint_3": "<check or verify strategy — must NOT state or imply the final answer>",
   "explanation": "<complete step-by-step working>",
   "source_chunk_ids": [],
   "verification_expression": "<for maths_arithmetic and maths_geometry: Python expression evaluating to the numeric value of correct_answer>",
@@ -245,6 +253,11 @@ QUESTION TYPE SELECTION — match the topic:
   Topics about reading/comprehension → use english_comprehension
   Topics about vocabulary/word meanings (without spelling/grammar focus) → use english_vocabulary
   Topics about literary analysis (character, theme, author intent) → use english_literary_analysis
+
+For english_vocabulary questions about word roots, prefixes, or word families:
+  PREFERRED: Ask "What does the root/prefix X mean?" with 4 different meaning choices — always unambiguous.
+  If asking "Which word contains root X?": ALL 3 distractors MUST be words that do NOT share that root.
+  NEVER generate a question where 2 or more answer options share the same root being tested — consensus will reject it as ambiguous.
 
 For english_grammar and english_spelling, include question_metadata with:
   instruction_text: grammatically correct instruction to the pupil (e.g. "Which word in this sentence is a conjunction?")
