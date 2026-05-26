@@ -23,6 +23,12 @@ import sys
 import logging
 from pathlib import Path
 
+# ── Pipeline stop guard ───────────────────────────────────────────────────────
+_STOP_GUARD = Path(__file__).resolve().parent.parent / ".PIPELINE_STOP"
+if _STOP_GUARD.exists():
+    print("PIPELINE STOP ACTIVE: Decifer Learning content generation is disabled")
+    sys.exit(0)
+
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
 log = logging.getLogger("generate-controlled-11b-do")
 

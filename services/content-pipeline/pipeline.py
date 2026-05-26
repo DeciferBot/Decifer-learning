@@ -17,13 +17,19 @@ from __future__ import annotations
 
 import json
 import logging
+import os
+import sys
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Optional
 
 import numpy as np
 
 import config
 import db
+
+# Path to optional stop sentinel: <repo-root>/.PIPELINE_STOP
+_STOP_GUARD = Path(__file__).resolve().parent.parent.parent / ".PIPELINE_STOP"
 from verifiers import maths as maths_verifier
 from verifiers import english as english_verifier
 from verifiers import physics as physics_verifier
@@ -989,6 +995,10 @@ def run_for_topic(
 
     Emits a structured summary via the pipeline.cost logger.
     """
+    if _STOP_GUARD.exists():
+        raise RuntimeError(
+            "PIPELINE STOP ACTIVE: Decifer Learning content generation is disabled"
+        )
     topic = db.get_topic(topic_id)
     if topic is None:
         raise ValueError(f"Topic {topic_id!r} not found")

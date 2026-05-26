@@ -11,7 +11,16 @@
 // Run after every pipeline batch:
 //   $ set -a && source .env.local && set +a && npx tsx scripts/publish-ready-topics.ts
 
+import { existsSync } from 'fs'
+import { resolve } from 'path'
 import { prisma } from '../lib/prisma'
+
+// ── Pipeline stop guard ───────────────────────────────────────────────────────
+const _stopGuard = resolve(__dirname, '..', '.PIPELINE_STOP')
+if (existsSync(_stopGuard)) {
+  console.log('PIPELINE STOP ACTIVE: Decifer Learning content generation is disabled')
+  process.exit(0)
+}
 
 const MIN_QUIZ_QUESTIONS = 10
 const MIN_LEARN_CONTENT = 1

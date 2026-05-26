@@ -11,7 +11,16 @@
  * Example: npx tsx --env-file=.env.local scripts/publish-topic.ts y3-english-grammar-conjunctions
  */
 
+import { existsSync } from 'fs'
+import { resolve } from 'path'
 import { PrismaClient } from '@prisma/client'
+
+// ── Pipeline stop guard ───────────────────────────────────────────────────────
+const _stopGuard = resolve(__dirname, '..', '.PIPELINE_STOP')
+if (existsSync(_stopGuard)) {
+  console.log('PIPELINE STOP ACTIVE: Decifer Learning content generation is disabled')
+  process.exit(0)
+}
 
 const prisma = new PrismaClient()
 

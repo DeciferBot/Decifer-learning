@@ -76,6 +76,12 @@ from datetime import datetime
 from difflib import SequenceMatcher
 from pathlib import Path
 
+# ── Pipeline stop guard ───────────────────────────────────────────────────────
+_STOP_GUARD = Path(__file__).resolve().parent.parent / ".PIPELINE_STOP"
+if _STOP_GUARD.exists():
+    print("PIPELINE STOP ACTIVE: Decifer Learning content generation is disabled")
+    sys.exit(0)
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s %(levelname)s %(name)s: %(message)s",
