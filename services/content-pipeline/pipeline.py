@@ -171,20 +171,26 @@ HINTS — strictly follow this progression (constitutional requirement — viola
     • No hint may name which distractor option is correct.
     • hint_3 must leave at least one full calculation step for the child to complete.
     • hint_3 must NOT phrase the working so that only one possible answer remains obvious.
+    • Directional comparisons in hints must be arithmetically true: do NOT say "less than X" if the answer
+      is greater than X; do NOT say "more than X" if the answer is smaller than X; do NOT say "half of X"
+      unless the answer is exactly X/2. Verify the relationship before writing it.
 
 EXPLANATION: Full step-by-step working that arrives at the correct answer.
 
 ANSWER FORMAT — critical for automatic verification:
 
   For maths_arithmetic and maths_geometry:
-  correct_answer must be the exact numeric value that verification_expression evaluates to — same scale, no abbreviation.
-  • WRONG: correct_answer="4" when expression evaluates to 4000000 (scale mismatch → rejected)
-  • WRONG: correct_answer="3.8" when expression evaluates to 3800000 (scale mismatch → rejected)
-  • WRONG: correct_answer="4,800,000" (commas cause parse failure → rejected)
-  • RIGHT: correct_answer="4000000" when expression evaluates to 4000000
-  • RIGHT: correct_answer="-3.85" when expression evaluates to -3.85
+  correct_answer must be a PURE NUMERIC STRING — no currency symbols, no units, no percent sign, no commas.
+  The question_text may contain real-world context (£, %, cm, kg, etc.) but correct_answer must be float-parseable.
+  • WRONG: correct_answer="£52"       (currency symbol → Stage 2 rejected)
+  • WRONG: correct_answer="52%"       (percent sign → Stage 2 rejected)
+  • WRONG: correct_answer="52 cm"     (unit suffix → Stage 2 rejected)
+  • WRONG: correct_answer="1,250"     (comma → Stage 2 rejected)
+  • WRONG: correct_answer="4" when verification_expression evaluates to 4000000 (scale mismatch → rejected)
+  • WRONG: correct_answer="3.8" when verification_expression evaluates to 3800000 (scale mismatch → rejected)
+  • RIGHT: correct_answer="52"        correct_answer="0.25"   correct_answer="1250"
+  • RIGHT: correct_answer="4000000"   correct_answer="-3.85"  correct_answer="48"
   For large rounding answers: write the full integer, e.g. "3800000", "5000000", not "3.8" or "5 million".
-  For answers with units: put the unit suffix after the number, e.g. "-7°C", "8.5°C", "48 cm²".
 
   For maths_algebra:
   correct_answer must be the VALUE OF THE VARIABLE at the solution — NOT any constant that appears in the equation.
@@ -202,7 +208,7 @@ Return ONLY valid JSON with this exact structure (no extra text, no markdown fen
 {{
   "question_text": "<the question>",
   "question_type": "<maths_arithmetic | maths_algebra | maths_geometry>",
-  "correct_answer": "<arithmetic/geometry: exact numeric value matching verification_expression | algebra: numeric value of the VARIABLE (e.g. '4' for n+10=14, not '14'); no commas>",
+  "correct_answer": "<arithmetic/geometry: pure numeric string matching verification_expression — no £$€, no %, no units, no commas | algebra: numeric value of the VARIABLE (e.g. '4' for n+10=14, not '14')>",
   "distractors": ["<wrong1>", "<wrong2>", "<wrong3>"],
   "hint_1": "<conceptual nudge — no specific numbers>",
   "hint_2": "<method step — no final answer>",
