@@ -164,7 +164,7 @@ Return ONLY valid JSON with this exact structure (no extra text, no markdown fen
   "hint_3": "<check or verify strategy — must NOT state or imply the final answer>",
   "explanation": "<complete step-by-step working>",
   "source_chunk_ids": [],
-  "verification_expression": "<for maths_arithmetic and maths_geometry: Python expression evaluating to the numeric value of correct_answer>",
+  "verification_expression": "<for maths_arithmetic and maths_geometry: Python arithmetic expression evaluating to the numeric value of correct_answer; prefer writing the literal result (e.g. '4000000') over function calls (e.g. 'round(3847291,-6)'); only round() is supported if a function call is unavoidable>",
   "verification_equation": "<for maths_algebra ONLY: SymPy expression equal to 0 at the solution>",
   "verification_variable": "<for maths_algebra ONLY: variable name>"
 }}"""

@@ -51,6 +51,16 @@ def _eval_node(node: ast.expr) -> float:
         if fn is None:
             raise ValueError(f"unsupported unary op: {type(node.op).__name__}")
         return fn(_eval_node(node.operand))
+    if isinstance(node, ast.Call):
+        # Whitelist: only round() is permitted in verification expressions
+        if not (isinstance(node.func, ast.Name) and node.func.id == "round"):
+            fname = getattr(node.func, "id", "?")
+            raise ValueError(f"only round() is allowed; got {fname!r}")
+        if len(node.args) not in (1, 2):
+            raise ValueError("round() takes 1 or 2 arguments")
+        val = _eval_node(node.args[0])
+        ndigits = int(_eval_node(node.args[1])) if len(node.args) == 2 else 0
+        return float(round(val, ndigits))
     raise ValueError(f"unsupported AST node: {type(node).__name__}")
 
 
