@@ -18,6 +18,8 @@
     "verify-parent-dashboard-safety": "node scripts/verify-parent-dashboard-safety.mjs",
     "verify-lesson-store-safety": "node --env-file=.env.local scripts/verify-lesson-store-safety.mjs",
     "verify-pli": "node scripts/verify-parent-learning-intelligence.mjs",
+    "verify-autopilot-safety": "node scripts/verify-autopilot-safety.mjs",
+    "learning:autopilot:plan": "node --env-file=.env.local scripts/learning-autopilot-plan.mjs",
     "test": "vitest run",
     "test:watch": "vitest"
   },

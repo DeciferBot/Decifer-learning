@@ -138,6 +138,18 @@ _PROSE_SUPPRESSED_MESSAGE_FRAGMENTS: frozenset[str] = frozenset({
     "Consider adding a comma",
 })
 
+# LT rule IDs suppressed in punctuation demonstration STIMULUS text.
+# These are style suggestions that fire on valid punctuation examples —
+# e.g. a correctly-used colon in a list-introduction sentence that LT treats as a
+# style issue when the INTENTIONAL error is elsewhere in the sentence.
+_PUNCTUATION_DEMO_SUPPRESSED_RULES: frozenset[str] = frozenset({
+    "COMMA_COMPOUND_SENTENCE",
+    "COMMA_COMPOUND_SENTENCE_2",
+    "EN_COMPOUNDS",
+    "COMMA_BEFORE_AND_OR",
+    "OXFORD_SPELLING_COMMA",
+})
+
 
 def _suppress_prose_error(err: dict) -> bool:
     """Return True if this LT error is a false positive in educational prose fields."""
@@ -364,6 +376,133 @@ def _verify_phonics_question(data: dict) -> Tuple[bool, str]:
     return True, "english_phonics question verified"
 
 
+# ── Punctuation demonstration handler ────────────────────────────────────
+
+def _verify_punctuation_question(data: dict) -> Tuple[bool, str]:
+    """
+    For english_punctuation questions.
+
+    Punctuation demonstration questions ask children to identify or supply a
+    missing/incorrect punctuation mark.  The stimulus may contain CORRECT
+    punctuation elsewhere in the sentence (e.g. a colon correctly introducing
+    a list, while a missing comma is the intentional error).
+
+    LT style rules about comma placement and colon usage fire on such stimuli
+    as false positives — the colon is not an error, it is pedagogically intended.
+
+    Rules:
+      - Structure identical to grammar/spelling intentional-error questions.
+      - instruction_text must pass LT (correct English required).
+      - stimulus errors OUTSIDE intentional_error_span are checked, but LT rules
+        in _PUNCTUATION_DEMO_SUPPRESSED_RULES are suppressed to avoid flagging
+        valid punctuation used as teaching examples elsewhere in the sentence.
+      - Prose fields (hints, explanation) checked normally via _check_prose_fields.
+    """
+    metadata = data.get("question_metadata")
+    if not isinstance(metadata, dict):
+        return False, "question_metadata missing or not a dict"
+
+    instruction_text = metadata.get("instruction_text")
+    stimulus_text    = metadata.get("stimulus_text")
+    if not instruction_text:
+        return False, "question_metadata.instruction_text is missing"
+    if not stimulus_text:
+        return False, "question_metadata.stimulus_text is missing"
+
+    instr_errors = _lt_errors(str(instruction_text))
+    if instr_errors:
+        detail = "; ".join(e["message"] for e in instr_errors[:3])
+        return False, f"Grammar error in instruction_text: {detail}"
+
+    error_span = metadata.get("intentional_error_span")
+    stim_errors = _lt_errors(str(stimulus_text))
+
+    if error_span is not None:
+        if not isinstance(error_span, dict):
+            return False, "intentional_error_span must be a dict with 'start' and 'end'"
+        span_start = error_span.get("start")
+        span_end   = error_span.get("end")
+        if span_start is None or span_end is None:
+            return False, "intentional_error_span must have 'start' and 'end' keys"
+        try:
+            span_start = int(span_start)
+            span_end   = int(span_end)
+        except (TypeError, ValueError):
+            return False, "intentional_error_span start/end must be integers"
+        if span_start >= span_end:
+            return False, "intentional_error_span start must be less than end"
+
+        # Filter: errors outside the span, with punctuation style rules suppressed.
+        errors_outside = [
+            e for e in stim_errors
+            if not _overlaps(e, span_start, span_end)
+            and e["rule"] not in _PUNCTUATION_DEMO_SUPPRESSED_RULES
+            and not _suppress_prose_error(e)
+        ]
+        if errors_outside:
+            detail = "; ".join(e["message"] for e in errors_outside[:3])
+            return False, f"Unexpected grammar errors outside intentional_error_span: {detail}"
+
+    ok, detail = _check_prose_fields(data, check_correct_answer=False)
+    if not ok:
+        return False, detail
+
+    return True, "english_punctuation question verified"
+
+
+# ── Etymology handler ──────────────────────────────────────────────────────
+
+def _verify_etymology_question(data: dict) -> Tuple[bool, str]:
+    """
+    For english_etymology questions.
+
+    Etymology questions ask about word origins (Latin/Greek roots, prefixes,
+    suffixes).  The correct_answer, hints, and explanation routinely contain
+    Latin/Greek root words (aqua, terra, phon, graph, bene, spec, etc.) which
+    LanguageTool's MORFOLOGIK rule flags as "Possible spelling mistake".
+
+    These are not errors — they are the subject of the question.
+
+    Rules:
+      - Factual grounding handled by Stage 6 (RAG).
+      - Stage 2 validates prose field grammar only.
+      - MORFOLOGIK / EN_SPELL spelling rules are suppressed on ALL fields:
+        correct_answer, hints, and explanation may contain Latin/Greek root words.
+      - Grammar, punctuation, and syntax rules remain active.
+    """
+    # question_text: check for grammar errors (suppress spelling for root words)
+    question_text = data.get("question_text", "")
+    if question_text:
+        qt_errors = _lt_errors(_normalize_quotes(str(question_text)), ignore_spelling=True)
+        qt_errors = [e for e in qt_errors if not _suppress_prose_error(e)]
+        if qt_errors:
+            detail = "; ".join(e["message"] for e in qt_errors[:3])
+            return False, f"Grammar error in question_text: {detail}"
+
+    # Metadata fields (instruction/stimulus) if present
+    metadata = data.get("question_metadata") or {}
+    if isinstance(metadata, dict):
+        for meta_field in ("instruction_text", "stimulus_text"):
+            text = metadata.get(meta_field, "")
+            if text:
+                errs = _lt_errors(_normalize_quotes(str(text)), ignore_spelling=True)
+                errs = [e for e in errs if not _suppress_prose_error(e)]
+                if errs:
+                    detail = "; ".join(e["message"] for e in errs[:3])
+                    return False, f"Grammar error in question_metadata.{meta_field}: {detail}"
+
+    # Prose fields: spelling suppressed for root words
+    ok, detail = _check_prose_fields(
+        data,
+        check_correct_answer=False,   # correct_answer is often a root word, not a sentence
+        ignore_spelling=True,
+    )
+    if not ok:
+        return False, detail
+
+    return True, "english_etymology question verified (spelling rules suppressed for root words)"
+
+
 # ── Comprehension / vocabulary / literary analysis handler ────────────────
 
 def _verify_rag_only_question(data: dict, qtype: str) -> Tuple[bool, str]:
@@ -426,6 +565,12 @@ def verify(question_data: dict) -> Tuple[bool, str]:
 
     if qtype == "english_phonics":
         return _verify_phonics_question(question_data)
+
+    if qtype == "english_punctuation":
+        return _verify_punctuation_question(question_data)
+
+    if qtype == "english_etymology":
+        return _verify_etymology_question(question_data)
 
     if qtype in ("english_comprehension", "english_vocabulary", "english_literary_analysis"):
         return _verify_rag_only_question(question_data, qtype)
