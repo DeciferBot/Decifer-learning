@@ -129,18 +129,23 @@ def _classify(row: dict) -> TopicCoverage:
     chunk_count = int(row["chunk_count"] or 0)
     last_error  = row.get("last_error")
 
-    # Priority-ordered classification
-    if errors >= BLOCKED_ERROR_THRESHOLD:
-        state  = CoverageState.BLOCKED
-        action = "manual_review"
+    # Priority-ordered classification.
+    #
+    # Content-readiness checks (LIVE / promote / generate_learn_content) come
+    # BEFORE the BLOCKED check.  A topic that has already reached the publish
+    # gate (10Q + LC + is_published) is LIVE regardless of how many generation
+    # errors accumulated on the way there.  Putting BLOCKED first would hide
+    # live topics behind their error history and cause the autopilot to keep
+    # trying to generate more questions for topics that are already complete.
 
-    elif flagged_q > 0 and is_pub:
-        state  = CoverageState.QUARANTINED
-        action = "regenerate_flagged"
-
-    elif pub_q >= MIN_QUESTIONS and pub_lc >= MIN_LEARN_CONTENT and is_pub:
-        state  = CoverageState.LIVE
-        action = "monitor"
+    if pub_q >= MIN_QUESTIONS and pub_lc >= MIN_LEARN_CONTENT and is_pub:
+        if flagged_q > 0:
+            # Published but has flagged questions — monitor via anomaly detection
+            state  = CoverageState.QUARANTINED
+            action = "regenerate_flagged"
+        else:
+            state  = CoverageState.LIVE
+            action = "monitor"
 
     elif pub_q >= MIN_QUESTIONS and pub_lc >= MIN_LEARN_CONTENT and not is_pub:
         # Q and LC present but topic not promoted yet
@@ -151,6 +156,11 @@ def _classify(row: dict) -> TopicCoverage:
         # Has enough Q but missing learn content
         state  = CoverageState.NEED_Q
         action = "generate_learn_content"
+
+    elif errors >= BLOCKED_ERROR_THRESHOLD:
+        # Too many recent errors and not yet at the content threshold → blocked
+        state  = CoverageState.BLOCKED
+        action = "manual_review"
 
     elif pub_q > 0 and flagged_q > 0 and not is_pub:
         state  = CoverageState.WEAK
