@@ -22,6 +22,9 @@ export interface VaultStatus {
   nextMilestone: NextMilestoneSummary | null
   progressToNext: MilestoneProgress
   currentXP: number
+  effectiveXP: number
+  hintPenaltyXP: number
+  totalHintsUsed: number
   currentTopicsCompleted: number
   currentBadgeCount: number
   currentStreak: number
@@ -86,7 +89,7 @@ async function loadLearningSnapshot(profileId: string): Promise<LearningSnapshot
   })
   if (!profile) throw new Error(`Profile ${profileId} not found`)
 
-  const [topicsCompleted, publishedTopicsForYearGroup, guardianBadge] = await Promise.all([
+  const [topicsCompleted, publishedTopicsForYearGroup, guardianBadge, hintsAggregate] = await Promise.all([
     prisma.topicProgress.count({ where: { profile_id: profileId, status: 'completed' } }),
     profile.year_group_id
       ? prisma.topic.count({
@@ -98,7 +101,13 @@ async function loadLearningSnapshot(profileId: string): Promise<LearningSnapshot
       where: { profile_id: profileId },
       include: { badge: { select: { trigger_rule: true } } },
     }),
+    prisma.quizAttempt.aggregate({
+      where: { profile_id: profileId },
+      _sum: { hints_used: true },
+    }),
   ])
+
+  const totalHintsUsed = hintsAggregate._sum.hints_used ?? 0
 
   const guardianWin =
     guardianBadge !== null &&
@@ -120,6 +129,7 @@ async function loadLearningSnapshot(profileId: string): Promise<LearningSnapshot
 
   return {
     totalPoints: profile.total_points,
+    totalHintsUsed,
     topicsCompleted,
     badgeCount: profile.profile_badges.length,
     guardianWin: hasGuardianWin,
@@ -175,6 +185,9 @@ export async function getVaultStatus(profileId: string): Promise<VaultStatus> {
     nextMilestone: nextMilestoneSummary,
     progressToNext: result.progressToNext,
     currentXP: snapshot.totalPoints,
+    effectiveXP: result.effectiveXP,
+    hintPenaltyXP: result.hintPenaltyXP,
+    totalHintsUsed: snapshot.totalHintsUsed,
     currentTopicsCompleted: snapshot.topicsCompleted,
     currentBadgeCount: snapshot.badgeCount,
     currentStreak: await prisma.profile

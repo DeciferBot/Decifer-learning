@@ -134,7 +134,7 @@ export default async function VaultPage() {
 
         <div className="grid grid-cols-3 gap-2 text-center text-xs text-muted">
           <div>
-            <div className="font-heading text-base font-bold text-ink">{status.currentXP.toLocaleString()}</div>
+            <div className="font-heading text-base font-bold text-ink">{status.effectiveXP.toLocaleString()}</div>
             <div>XP</div>
           </div>
           <div>
@@ -146,6 +146,18 @@ export default async function VaultPage() {
             <div>badges</div>
           </div>
         </div>
+
+        {/* Hint penalty callout — only shown when there is a meaningful penalty */}
+        {status.hintPenaltyXP > 0 && (
+          <div className="flex items-start gap-2 rounded-xl bg-incorrect/10 px-3 py-2">
+            <span className="flex-none text-sm" aria-hidden>💡</span>
+            <p className="text-xs text-incorrect leading-snug">
+              <span className="font-semibold">−{status.hintPenaltyXP} XP hint penalty.</span>{' '}
+              You used {status.totalHintsUsed} hint{status.totalHintsUsed !== 1 ? 's' : ''} across your quizzes.
+              Try answering without hints to reach rewards faster!
+            </p>
+          </div>
+        )}
       </div>
 
       {/* ── Request section ──────────────────────────────────────────────── */}
@@ -165,13 +177,13 @@ export default async function VaultPage() {
           </div>
 
           <div className="space-y-3">
-            {/* XP */}
+            {/* XP — uses effective (hint-penalised) XP so the bar matches milestone gates */}
             <div className="space-y-1">
               <div className="flex justify-between text-xs text-muted">
                 <span>XP</span>
-                <span>{status.currentXP.toLocaleString()} / {next.xpRequired.toLocaleString()}</span>
+                <span>{status.effectiveXP.toLocaleString()} / {next.xpRequired.toLocaleString()}</span>
               </div>
-              <ProgressBar current={status.currentXP} total={next.xpRequired} />
+              <ProgressBar current={status.effectiveXP} total={next.xpRequired} />
               {progress.xpNeeded > 0 && (
                 <p className="text-xs text-muted">{progress.xpNeeded.toLocaleString()} XP to go</p>
               )}

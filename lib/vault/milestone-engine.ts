@@ -4,6 +4,12 @@
 
 export type MilestoneBand = 'none' | 'bronze' | 'silver' | 'gold' | 'platinum'
 
+// XP deducted from milestone progress per hint used (across all quizzes).
+// On top of the per-question deduction already applied in lib/points.ts.
+export const MILESTONE_HINT_PENALTY_PER_HINT = 5
+// Maximum fraction of totalPoints that the hint penalty can consume.
+export const MILESTONE_HINT_PENALTY_CAP = 0.3
+
 export interface MilestoneConfig {
   band: string
   display_name: string
@@ -18,10 +24,23 @@ export interface MilestoneConfig {
 
 export interface LearningSnapshot {
   totalPoints: number
+  totalHintsUsed: number
   topicsCompleted: number
   badgeCount: number
   guardianWin: boolean
   publishedTopicsForYearGroup: number
+}
+
+/** XP deducted from milestone eligibility due to hint usage. */
+export function calcHintPenaltyXP(totalPoints: number, totalHintsUsed: number): number {
+  const raw = totalHintsUsed * MILESTONE_HINT_PENALTY_PER_HINT
+  const cap = Math.floor(totalPoints * MILESTONE_HINT_PENALTY_CAP)
+  return Math.min(raw, cap)
+}
+
+/** Effective XP used for milestone band qualification. */
+export function effectiveXP(totalPoints: number, totalHintsUsed: number): number {
+  return Math.max(0, totalPoints - calcHintPenaltyXP(totalPoints, totalHintsUsed))
 }
 
 export interface MilestoneProgress {
@@ -39,6 +58,8 @@ export interface MilestoneResult {
   creditsToAward: number
   nextMilestone: MilestoneConfig | null
   progressToNext: MilestoneProgress
+  effectiveXP: number
+  hintPenaltyXP: number
 }
 
 function bandOrder(band: string): number {
@@ -47,11 +68,13 @@ function bandOrder(band: string): number {
 }
 
 function childQualifiesForBand(
+  xp: number,
   snapshot: LearningSnapshot,
   milestone: MilestoneConfig,
 ): boolean {
   if (!milestone.is_active) return false
-  if (snapshot.totalPoints < milestone.xp_required) return false
+  // Milestone XP gate uses effective XP (hint-penalised), not raw points.
+  if (xp < milestone.xp_required) return false
 
   // Year-group safety rule: if fewer published topics than required, band is unreachable
   if (
@@ -74,12 +97,15 @@ export function computeMilestone(
     .filter((m) => m.is_active)
     .sort((a, b) => a.order_index - b.order_index)
 
-  // Find highest band the child qualifies for
+  const penalty = calcHintPenaltyXP(snapshot.totalPoints, snapshot.totalHintsUsed)
+  const xp = effectiveXP(snapshot.totalPoints, snapshot.totalHintsUsed)
+
+  // Find highest band the child qualifies for (using hint-penalised XP)
   let highestBand: MilestoneBand = 'none'
   let creditsToAward = 0
 
   for (const milestone of sorted) {
-    if (childQualifiesForBand(snapshot, milestone)) {
+    if (childQualifiesForBand(xp, snapshot, milestone)) {
       if (bandOrder(milestone.band) > bandOrder(highestBand)) {
         highestBand = milestone.band as MilestoneBand
         creditsToAward = milestone.credits_awarded
@@ -101,11 +127,11 @@ export function computeMilestone(
 
   const progressToNext: MilestoneProgress = nextMilestone
     ? {
-        xpNeeded: Math.max(0, nextMilestone.xp_required - snapshot.totalPoints),
+        xpNeeded: Math.max(0, nextMilestone.xp_required - xp),
         topicsNeeded: Math.max(0, nextMilestone.topics_required - snapshot.topicsCompleted),
         badgesNeeded: Math.max(0, nextMilestone.badges_required - snapshot.badgeCount),
         guardianRequired: nextMilestone.guardian_required,
-        xpTotal: snapshot.totalPoints,
+        xpTotal: xp,
         topicsTotal: snapshot.topicsCompleted,
       }
     : {
@@ -113,7 +139,7 @@ export function computeMilestone(
         topicsNeeded: 0,
         badgesNeeded: 0,
         guardianRequired: false,
-        xpTotal: snapshot.totalPoints,
+        xpTotal: xp,
         topicsTotal: snapshot.topicsCompleted,
       }
 
@@ -123,6 +149,8 @@ export function computeMilestone(
     creditsToAward,
     nextMilestone,
     progressToNext,
+    effectiveXP: xp,
+    hintPenaltyXP: penalty,
   }
 }
 
