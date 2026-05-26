@@ -86,7 +86,12 @@ _YEAR_GROUP_DISPLAY = {
 
 # ── Subject-aware prompt builders ─────────────────────────────────────────
 
-def _build_maths_prompt(topic: dict, tier: str, chunks: list[dict]) -> str:
+def _build_maths_prompt(
+    topic: dict,
+    tier: str,
+    chunks: list[dict],
+    existing_questions: list[dict] | None = None,
+) -> str:
     year_label, key_stage = _YEAR_GROUP_DISPLAY.get(
         topic["year_group_label"], (topic["year_group_label"], "")
     )
@@ -109,6 +114,34 @@ def _build_maths_prompt(topic: dict, tier: str, chunks: list[dict]) -> str:
             "Use your mathematical knowledge to generate a correct and age-appropriate question. "
             "Set source_chunk_ids to []."
         )
+
+    if existing_questions:
+        used_answers = list({
+            q.get("correct_answer", "").strip()
+            for q in existing_questions
+            if q.get("correct_answer")
+        })
+        used_texts = [q.get("question_text", "").strip() for q in existing_questions if q.get("question_text")]
+        forbidden_lines = []
+        if used_texts:
+            forbidden_lines += [f'  FORBIDDEN: "{t[:100]}"' for t in used_texts[:8]]
+        if used_answers:
+            forbidden_lines.append(
+                "  FORBIDDEN correct_answer values (already used): "
+                + ", ".join(f'"{a}"' for a in used_answers[:12])
+            )
+        if forbidden_lines:
+            diversity_end = (
+                "\n\n⚠ MANDATORY DIVERSITY CHECK — READ BEFORE GENERATING:\n"
+                "The following questions ALREADY EXIST and must NOT be regenerated (auto-rejected if duplicate):\n"
+                + "\n".join(forbidden_lines)
+                + "\nYour question MUST have a different algebraic structure, different numbers, "
+                "and a different correct_answer to all of the above."
+            )
+        else:
+            diversity_end = ""
+    else:
+        diversity_end = ""
 
     return f"""You are an expert UK mathematics curriculum writer generating quiz questions for {year_label} pupils ({key_stage}, UK National Curriculum).
 
@@ -142,6 +175,8 @@ HINTS — strictly follow this progression (constitutional requirement — viola
 EXPLANATION: Full step-by-step working that arrives at the correct answer.
 
 ANSWER FORMAT — critical for automatic verification:
+
+  For maths_arithmetic and maths_geometry:
   correct_answer must be the exact numeric value that verification_expression evaluates to — same scale, no abbreviation.
   • WRONG: correct_answer="4" when expression evaluates to 4000000 (scale mismatch → rejected)
   • WRONG: correct_answer="3.8" when expression evaluates to 3800000 (scale mismatch → rejected)
@@ -151,13 +186,23 @@ ANSWER FORMAT — critical for automatic verification:
   For large rounding answers: write the full integer, e.g. "3800000", "5000000", not "3.8" or "5 million".
   For answers with units: put the unit suffix after the number, e.g. "-7°C", "8.5°C", "48 cm²".
 
+  For maths_algebra:
+  correct_answer must be the VALUE OF THE VARIABLE at the solution — NOT any constant that appears in the equation.
+  The verification_equation must be a SymPy expression equal to 0 when the variable takes that value.
+  • WRONG: question "Solve n + 10 = 14, find n" → correct_answer="14"  (14 is the RHS, NOT the answer)
+  • WRONG: question "Solve n + 10 = 14, find n" → correct_answer="10"  (10 is a coefficient, NOT the answer)
+  • RIGHT:  question "Solve n + 10 = 14, find n" → correct_answer="4",  verification_equation="n + 10 - 14", verification_variable="n"
+  • RIGHT:  question "Solve 3x - 6 = 9, find x" → correct_answer="5",  verification_equation="3*x - 6 - 9",  verification_variable="x"
+  Double-check: substitute correct_answer back into verification_equation — the result must equal 0.
+
 Valid question_type values: maths_arithmetic, maths_algebra, maths_geometry
+{diversity_end}
 
 Return ONLY valid JSON with this exact structure (no extra text, no markdown fences):
 {{
   "question_text": "<the question>",
   "question_type": "<maths_arithmetic | maths_algebra | maths_geometry>",
-  "correct_answer": "<exact numeric value — same scale as verification_expression; no commas; no abbreviation>",
+  "correct_answer": "<arithmetic/geometry: exact numeric value matching verification_expression | algebra: numeric value of the VARIABLE (e.g. '4' for n+10=14, not '14'); no commas>",
   "distractors": ["<wrong1>", "<wrong2>", "<wrong3>"],
   "hint_1": "<conceptual nudge — no specific numbers>",
   "hint_2": "<method step — no final answer>",
@@ -422,7 +467,7 @@ def _build_generation_prompt(
     """Dispatch to subject-specific prompt builder.
 
     existing_questions: list of {question_text, correct_answer, question_metadata}
-    for published questions in this topic. Passed to English prompts as a diversity
+    for published questions in this topic. Passed to prompt builders as a diversity
     hint so the LLM avoids regenerating near-duplicate questions.
     """
     subject = topic.get("subject_name", "").lower()
@@ -430,7 +475,7 @@ def _build_generation_prompt(
         return _build_english_prompt(topic, tier, chunks, existing_questions=existing_questions)
     if "science" in subject:
         return _build_science_prompt(topic, tier, chunks, existing_questions=existing_questions)
-    return _build_maths_prompt(topic, tier, chunks)
+    return _build_maths_prompt(topic, tier, chunks, existing_questions=existing_questions)
 
 
 # ── Consensus and constitutional prompts ──────────────────────────────────
