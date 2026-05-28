@@ -11,7 +11,7 @@ import { HeroMockup } from '@/components/homepage/HeroMockup'
 export const metadata = {
   title: 'DECIFER Learning — UK National Curriculum for families',
   description:
-    'A learning map for parents. Decifer Learning gives parents a clear view of what their child needs to learn, what they are doing well, where they need support, and what to do next. UK National Curriculum, Year 3 and Year 7.',
+    'A learning map for parents. Decifer Learning gives parents a clear view of what their child needs to learn, what they are doing well, where they need support, and what to do next. UK National Curriculum, Years 2, 3, 6 and 7 — Maths, English, and Science.',
 }
 
 export default function Home({
@@ -59,7 +59,7 @@ export default function Home({
             {/* Left: copy */}
             <div>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-brand/20 bg-brand-50 px-3 py-1 text-xs font-semibold text-brand">
-                UK National Curriculum · Year 3 and Year 7
+                UK National Curriculum · Years 2, 3, 6 &amp; 7
               </span>
 
               <h1 className="mt-4 font-heading text-3xl font-black leading-tight text-ink sm:text-4xl lg:text-5xl">
@@ -310,7 +310,7 @@ export default function Home({
               Example topics
             </h2>
             <p className="mb-2 text-center text-sm text-muted">
-              Year 3 and Year 7, starting with Maths.
+              Years 2, 3, 6 and 7 — Maths, English, and Science.
             </p>
             <p className="mb-10 text-center text-xs text-muted">
               Each topic includes a guided lesson, practice exercises, and a quiz. Your child sees only verified, published content.
@@ -366,20 +366,20 @@ export default function Home({
                 What is available today
               </p>
               <h2 className="mb-4 font-heading text-xl font-bold text-ink md:text-2xl">
-                DECIFER Learning is growing in stages.
+                All three subjects. Four year groups. Live now.
               </h2>
               <p className="mx-auto mb-6 max-w-lg text-sm leading-relaxed text-muted">
-                Maths currently has the deepest coverage for Year 3 and Year 7. English and Science are expanding through the same quality process. Your child will only ever see content that is verified and ready.
+                Maths, English, and Science are fully available for Years 2, 3, 6 and 7. Every topic has passed the six-stage quality process. Your child will only ever see content that is verified and ready.
               </p>
               <div className="flex flex-wrap justify-center gap-3 text-sm">
                 <span className="flex items-center gap-1.5 rounded-full bg-maths/10 px-4 py-1.5 font-semibold text-maths">
-                  ✓ Maths: Year 3 and Year 7
+                  ✓ Maths: Years 2, 3, 6 &amp; 7
                 </span>
                 <span className="flex items-center gap-1.5 rounded-full bg-english/10 px-4 py-1.5 font-semibold text-english">
-                  Expanding: English
+                  ✓ English: Years 2, 3, 6 &amp; 7
                 </span>
                 <span className="flex items-center gap-1.5 rounded-full bg-science/10 px-4 py-1.5 font-semibold text-science">
-                  Expanding: Science
+                  ✓ Science: Years 2, 3, 6 &amp; 7
                 </span>
               </div>
             </div>
@@ -591,6 +591,13 @@ const PARENT_FEATURES = [
 
 const SAMPLE_TOPICS = [
   {
+    title: 'Place Value',
+    subject: 'Maths',
+    yearGroup: 'Year 2',
+    color: '#6C9EFF',
+    description: 'Understand tens and ones, compare and order two-digit numbers.',
+  },
+  {
     title: 'Multiplication Tables',
     subject: 'Maths',
     yearGroup: 'Year 3',
@@ -598,25 +605,18 @@ const SAMPLE_TOPICS = [
     description: 'Build speed and confidence with times tables up to 12 × 12.',
   },
   {
-    title: 'Algebra Basics',
-    subject: 'Maths',
-    yearGroup: 'Year 7',
-    color: '#6C9EFF',
-    description: 'Discover how letters can stand in for numbers and solve equations.',
-  },
-  {
-    title: 'Fractions',
-    subject: 'Maths',
-    yearGroup: 'Year 3',
-    color: '#6C9EFF',
-    description: 'Understand halves, thirds, and how to compare and add fractions.',
-  },
-  {
-    title: 'Reading Comprehension',
+    title: 'Persuasive Writing',
     subject: 'English',
-    yearGroup: 'Year 7',
+    yearGroup: 'Year 6',
     color: '#FF8FAB',
-    description: 'Explore inference, vocabulary, and deep understanding of texts.',
+    description: 'Structure arguments, use evidence, and write to convince.',
+  },
+  {
+    title: 'Cells and Organisation',
+    subject: 'Science',
+    yearGroup: 'Year 7',
+    color: '#52D9A0',
+    description: 'Explore the building blocks of life and how organisms are structured.',
   },
 ]
 

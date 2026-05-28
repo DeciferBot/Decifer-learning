@@ -26,10 +26,12 @@ export function isSelfRegisterableRole(value: unknown): value is SelfRegisterabl
   )
 }
 
-// MVP year groups — CLAUDE.md §3. Year 3 (KS2) and Year 7 (KS3) only.
-// All other year groups are deferred to Phase 2 (Foundation Mode, GCSE, A-level).
+// MVP year groups — Years 2, 3, 6 and 7. All three subjects live.
+// Foundation Mode (Y1–2 audio-first) and GCSE/A-level are deferred to Phase 2.
 export const MVP_YEAR_GROUPS = [
+  { label: 'year-2', display: 'Year 2', keyStage: 'KS1' },
   { label: 'year-3', display: 'Year 3', keyStage: 'KS2' },
+  { label: 'year-6', display: 'Year 6', keyStage: 'KS2' },
   { label: 'year-7', display: 'Year 7', keyStage: 'KS3' },
 ] as const
 

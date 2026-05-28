@@ -63,8 +63,8 @@ export function HeroMockup() {
       <div className="overflow-hidden rounded-2xl border border-black/5 bg-surface shadow-md">
         <div className="flex items-center justify-between border-b border-black/5 px-4 py-3">
           <div>
-            <p className="font-heading text-sm font-bold text-ink">Ava&apos;s progress</p>
-            <p className="text-xs text-muted">Year 3 · Maths</p>
+            <p className="font-heading text-sm font-bold text-ink">Aaina&apos;s progress</p>
+            <p className="text-xs text-muted">Year 7 · Maths</p>
           </div>
           <ProgressRing percent={ringPercent} size={44} color="#F05A28">
             <span className="text-[10px] font-bold text-brand">{ringPercent}%</span>
@@ -83,7 +83,7 @@ export function HeroMockup() {
         <div className="border-t border-black/5 px-4 py-3">
           <p className="text-xs font-semibold text-incorrect">Needs more practice</p>
           <div className="mt-1 flex items-center justify-between text-sm">
-            <span className="text-ink">Fractions</span>
+            <span className="text-ink">Solving Equations</span>
             <span className="text-xs text-muted">65% correct</span>
           </div>
         </div>
@@ -94,8 +94,8 @@ export function HeroMockup() {
         <div className="overflow-hidden rounded-2xl border border-black/5 bg-surface shadow-sm">
           <div className="h-1.5 bg-maths" aria-hidden />
           <div className="p-3">
-            <p className="text-xs font-bold uppercase tracking-wide text-muted">Maths · Year 3</p>
-            <p className="mt-1 font-heading text-sm font-bold text-ink">Multiplication Tables</p>
+            <p className="text-xs font-bold uppercase tracking-wide text-muted">Maths · Year 7</p>
+            <p className="mt-1 font-heading text-sm font-bold text-ink">Algebra Basics</p>
             <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-black/[0.06]">
               <div
                 className="h-1.5 rounded-full bg-maths"
@@ -118,7 +118,7 @@ export function HeroMockup() {
           <div>
             <p className="text-xs font-bold uppercase tracking-wide text-muted">Latest quiz</p>
             <p className="mt-1 font-heading text-2xl font-black text-correct">8/10</p>
-            <p className="text-xs text-muted">Multiplication Tables</p>
+            <p className="text-xs text-muted">Algebra Basics</p>
           </div>
           <div className="mt-2 space-y-1.5">
             <XPBadge points={80} size="sm" variant="gold" />

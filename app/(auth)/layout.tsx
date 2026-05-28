@@ -42,7 +42,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </div>
 
         <p className="text-xs text-muted">
-          UK National Curriculum · Year 3 &amp; Year 7
+          UK National Curriculum · Years 2, 3, 6 &amp; 7
         </p>
       </aside>
 

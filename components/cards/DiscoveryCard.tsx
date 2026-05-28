@@ -26,19 +26,39 @@ export function DiscoveryCard({
   if (!collected) {
     return (
       <div
-        className="relative overflow-hidden rounded-2xl border-2 border-black/10 bg-black/5"
-        style={{ filter: 'grayscale(1)', minHeight: compact ? 120 : 160 }}
-        aria-label="Undiscovered card"
+        className="relative overflow-hidden rounded-2xl border-2"
+        style={{
+          borderColor: colour + '50',
+          minHeight: compact ? 120 : 160,
+          background: colour + '12',
+        }}
+        aria-label={`Undiscovered ${label} card`}
       >
+        {/* rarity top bar — faded */}
+        <div className="absolute inset-x-0 top-0 h-1 opacity-40" style={{ background: colour }} />
+
         <div className="flex h-full flex-col items-center justify-center gap-2 p-4 text-center">
-          <span className="text-3xl opacity-30">?</span>
+          {/* faded rarity emoji as silhouette hint */}
+          <span className="text-4xl opacity-15 select-none" aria-hidden="true">
+            {emoji}
+          </span>
+
+          {/* lock icon */}
+          <span className="text-xl" aria-hidden="true">🔒</span>
+
+          {/* rarity badge — clearly visible so kids know what rarity to hunt */}
           <span
-            className="rounded-full px-2 py-0.5 text-xs font-bold opacity-40"
-            style={{ background: colour }}
+            className="rounded-full px-2 py-0.5 text-xs font-bold"
+            style={{ background: colour + '30', color: '#2D3748' }}
           >
             {label}
           </span>
-          <p className="text-xs font-bold text-muted opacity-50">Undiscovered</p>
+
+          {!compact && (
+            <p className="text-xs font-semibold" style={{ color: colour }}>
+              Pass a quiz to unlock
+            </p>
+          )}
         </div>
       </div>
     )
