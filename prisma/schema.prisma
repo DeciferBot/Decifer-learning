@@ -140,14 +140,16 @@ model Subject {
 }
 
 model Topic {
-  id            String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  subject_id    String  @db.Uuid
-  year_group_id String  @db.Uuid
-  title         String
-  order_index   Int     @default(0)
-  is_published  Boolean @default(false)
-  zone_id       String? @db.Uuid
-  slug          String?
+  id             String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  subject_id     String  @db.Uuid
+  year_group_id  String  @db.Uuid
+  title          String
+  order_index    Int     @default(0)
+  is_published   Boolean @default(false)
+  zone_id        String? @db.Uuid
+  slug           String?
+  // 'instruction_first' (default Learn→Practise→Quiz) or 'pretest_first' (attempt→explanation→practise)
+  pedagogy_mode  String  @default("instruction_first")
 
   subject               Subject             @relation(fields: [subject_id], references: [id])
   year_group            YearGroup           @relation(fields: [year_group_id], references: [id])

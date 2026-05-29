@@ -2,7 +2,11 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { FillBlank } from '@/components/games/FillBlank'
+import { NumberLine } from '@/components/games/NumberLine'
+import { EquationBalancer } from '@/components/games/EquationBalancer'
 import { rotateFillBlankItems } from '@/lib/adaptive'
+import type { NumberLineConfig } from '@/components/games/NumberLine'
+import type { EquationBalancerConfig } from '@/components/games/EquationBalancer'
 
 // RLS: topics_select_published (is_published=true)
 // RLS: practice_games_select_via_published_topic
@@ -47,18 +51,10 @@ export default async function PractisePage({ params }: { params: { id: string } 
     .eq('status', 'published')
     .maybeSingle<GameRow>()
 
-  if (!game || game.game_type !== 'fill_blank') notFound()
+  if (!game) notFound()
 
-  const rawConfig = game.config_json as PracticeConfig
-  // Rotate: shuffle and show up to 10 items per session for freshness.
-  // Larger config_json.questions pools produce more variety across visits.
-  const config: PracticeConfig = {
-    ...rawConfig,
-    questions: rotateFillBlankItems(rawConfig.questions ?? [], 10),
-  }
-
-  return (
-    <div className="space-y-5">
+  const header = (
+    <>
       <nav className="flex items-center gap-2 text-sm text-muted" aria-label="breadcrumb">
         <Link href="/dashboard/child" className="hover:text-ink">Home</Link>
         <span aria-hidden>/</span>
@@ -74,7 +70,40 @@ export default async function PractisePage({ params }: { params: { id: string } 
       </div>
 
       <h1 className="font-heading text-2xl font-bold text-ink">{topic.title}</h1>
+    </>
+  )
 
+  if (game.game_type === 'number_line') {
+    return (
+      <div className="space-y-5">
+        {header}
+        <NumberLine config={game.config_json as NumberLineConfig} topicId={params.id} />
+      </div>
+    )
+  }
+
+  if (game.game_type === 'equation_balancer') {
+    return (
+      <div className="space-y-5">
+        {header}
+        <EquationBalancer config={game.config_json as EquationBalancerConfig} topicId={params.id} />
+      </div>
+    )
+  }
+
+  if (game.game_type !== 'fill_blank') notFound()
+
+  const rawConfig = game.config_json as PracticeConfig
+  // Rotate: shuffle and show up to 10 items per session for freshness.
+  // Larger config_json.questions pools produce more variety across visits.
+  const config: PracticeConfig = {
+    ...rawConfig,
+    questions: rotateFillBlankItems(rawConfig.questions ?? [], 10),
+  }
+
+  return (
+    <div className="space-y-5">
+      {header}
       <FillBlank config={config} topicId={params.id} />
     </div>
   )

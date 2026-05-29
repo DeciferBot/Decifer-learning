@@ -19,6 +19,20 @@ function computeNodeState(
   return 'locked'
 }
 
+// Returns the topic_id to use for a zone checkpoint when the child has completed
+// exactly a multiple of 3 topics in the zone (but not all of them).
+// The checkpoint is drawn from the most recently completed topic in that batch.
+function computeCheckpointTopicId(
+  zoneTopicIds: string[],
+  completedSet: Set<string>,
+): string | null {
+  const completed = zoneTopicIds.filter((id) => completedSet.has(id))
+  const total = zoneTopicIds.length
+  if (completed.length === 0 || completed.length === total) return null
+  if (completed.length % 3 !== 0) return null
+  return completed[completed.length - 1]
+}
+
 export default async function WorldMapPage() {
   const supabase = createSupabaseServerClient()
   const {
@@ -95,6 +109,11 @@ export default async function WorldMapPage() {
           const allCompleted =
             mappedNodes.length > 0 && mappedNodes.every((n) => n.state === 'completed')
 
+          const checkpointTopicId = computeCheckpointTopicId(
+            zoneNodes.map((n) => n.topic_id),
+            completedSet,
+          )
+
           return (
             <ZoneMap
               key={zone.id}
@@ -104,6 +123,7 @@ export default async function WorldMapPage() {
               subjectColor={colour}
               nodes={mappedNodes}
               allCompleted={allCompleted}
+              checkpointTopicId={checkpointTopicId}
             />
           )
         })}

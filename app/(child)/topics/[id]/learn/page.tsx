@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { LessonEventTracker, LessonCompleteCTA } from '@/components/learn/LessonEventTracker'
@@ -15,17 +15,29 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   return { title: 'Learn — Decifer Learning' }
 }
 
-export default async function LearnPage({ params }: { params: { id: string } }) {
+export default async function LearnPage({
+  params,
+  searchParams,
+}: {
+  params: { id: string }
+  searchParams: { from?: string }
+}) {
   const supabase = createSupabaseServerClient()
 
   const { data: topic } = await supabase
     .from('topics')
-    .select('id, title, subject_id')
+    .select('id, title, subject_id, pedagogy_mode')
     .eq('id', params.id)
     .eq('is_published', true)
-    .maybeSingle<TopicRow & { subject_id: string }>()
+    .maybeSingle<TopicRow & { subject_id: string; pedagogy_mode: string }>()
 
   if (!topic) notFound()
+
+  // Pretest-first topics: send child to attempt a question before reading the lesson.
+  // ?from=pretest signals a return visit after the pretest — skip the redirect.
+  if (topic.pedagogy_mode === 'pretest_first' && searchParams.from !== 'pretest') {
+    redirect(`/topics/${params.id}/pretest`)
+  }
 
   const { data: content } = await supabase
     .from('learn_content')

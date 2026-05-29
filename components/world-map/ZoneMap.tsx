@@ -20,6 +20,7 @@ type Props = {
   subjectColor: string
   nodes: ZoneNode[]
   allCompleted: boolean
+  checkpointTopicId?: string | null
 }
 
 const THEME_EMOJI: Record<string, string> = {
@@ -34,7 +35,7 @@ const THEME_EMOJI: Record<string, string> = {
 // Container height gives room for nodes + labels without horizontal overflow.
 const NODE_AREA_HEIGHT = 180
 
-export function ZoneMap({ zoneId, zoneName, theme, subjectColor, nodes, allCompleted }: Props) {
+export function ZoneMap({ zoneId, zoneName, theme, subjectColor, nodes, allCompleted, checkpointTopicId }: Props) {
   const emoji = theme ? (THEME_EMOJI[theme] ?? '🗺️') : '🗺️'
   const completedCount = nodes.filter((n) => n.state === 'completed').length
 
@@ -71,6 +72,26 @@ export function ZoneMap({ zoneId, zoneName, theme, subjectColor, nodes, allCompl
               />
             ))}
           </div>
+
+          {/* Checkpoint banner — shown after every 3rd completed topic */}
+          {checkpointTopicId && !allCompleted && (
+            <div
+              className="mx-5 mb-3 mt-1 rounded-xl p-4"
+              style={{ backgroundColor: '#EEF4FF', border: '2px solid #6C9EFF' }}
+            >
+              <p className="font-heading font-bold text-ink">🏁 Zone Checkpoint!</p>
+              <p className="mt-1 text-sm text-muted">
+                Great progress — 3 quick questions to check you&apos;re on track.
+              </p>
+              <Link
+                href={`/topics/${checkpointTopicId}/checkpoint`}
+                className="mt-3 inline-flex min-h-[48px] items-center justify-center rounded-xl px-6 py-2 font-heading font-bold text-white transition-opacity hover:opacity-90"
+                style={{ backgroundColor: '#6C9EFF' }}
+              >
+                Take Checkpoint →
+              </Link>
+            </div>
+          )}
 
           {/* Guardian banner — shown when all topics complete */}
           {allCompleted && (
