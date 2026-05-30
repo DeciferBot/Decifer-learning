@@ -180,17 +180,41 @@ Choose an archetype NOT in the already-used list above and write your question u
 Use DIFFERENT numbers from those already in the forbidden list."""
 
         elif "graph" in topic_title_lower or "coordinate" in topic_title_lower:
-            diversity_end += """
+            used_texts_lower = " ".join(used_texts).lower()
+            used_archetypes_g = []
+            if "y-coordinate" in used_texts_lower or "value of y when" in used_texts_lower:
+                used_archetypes_g.append("A (substitute x, find y)")
+            if "x-coordinate" in used_texts_lower or ("coordinate" in used_texts_lower and "of this point" in used_texts_lower):
+                used_archetypes_g.append("B (read a coordinate from a point)")
+            if "gradient" in used_texts_lower or "slope" in used_texts_lower:
+                used_archetypes_g.append("C (identify gradient from equation)")
+            if "y-intercept" in used_texts_lower or "crosses the y-axis" in used_texts_lower:
+                used_archetypes_g.append("D (identify y-intercept)")
+            if "midpoint" in used_texts_lower:
+                used_archetypes_g.append("E (midpoint of a line segment)")
+            if "distance" in used_texts_lower and "point" in used_texts_lower:
+                used_archetypes_g.append("F (horizontal or vertical distance between points)")
+            if "sum" in used_texts_lower and "coordinate" in used_texts_lower:
+                used_archetypes_g.append("G (sum or difference of coordinate values)")
+            used_str_g = ", ".join(used_archetypes_g) if used_archetypes_g else "A (substitute x, find y)"
+            diversity_end += f"""
 
-🎯 GRAPHS/COORDINATES — question type rule:
-These questions involve SUBSTITUTING a value into an equation to find a coordinate, or reading/plotting points.
-They are ARITHMETIC questions (one calculation step), NOT algebra questions requiring SymPy to solve.
-You MUST use question_type="maths_arithmetic" for all graphs/coordinates questions.
-verification_expression must be the arithmetic expression to compute the answer.
-  GOOD: "If y = 3x + 2, what is y when x = 4?" → correct_answer="14", verification_expression="3*4+2"
-  GOOD: "Plot the point (3, 5). What is the y-coordinate?" → correct_answer="5", verification_expression="5"
-  GOOD: "What is the gradient of the line y = 2x − 1?" → correct_answer="2", verification_expression="2"
-  BAD:  question_type="maths_algebra" with verification_equation — do NOT use for substitution questions."""
+🎯 GRAPHS/COORDINATES ARCHETYPE DIVERSITY (critical — deduplication will reject structural clones):
+Already-used archetypes: {used_str_g}
+You MUST use a DIFFERENT archetype from this list:
+  A) Substitute x, find y  — "y = 3x + 2, find y when x = 4"            [OVERUSED — avoid if already used]
+  B) Read a coordinate      — "Point P is at (6, −2). What is the x-coordinate?"
+  C) Identify gradient      — "What is the gradient of y = 5x − 3?"       → correct_answer="5", verification_expression="5"
+  D) Identify y-intercept   — "Where does y = 4x + 7 cross the y-axis?"   → correct_answer="7", verification_expression="7"
+  E) Midpoint               — "A(2,4) B(8,4) — what is the x-coordinate of the midpoint?" → "5", "(2+8)/2"
+  F) Horizontal/vertical distance — "A(1,3) B(1,9) — what is the vertical distance?"       → "6", "9-3"
+  G) Sum/difference of coordinates — "P(−3,5) Q(4,−2) — what is the sum of all four values?" → "4", "-3+5+4+-2"
+
+QUESTION TYPE RULE: use question_type="maths_arithmetic" for ALL graphs/coordinates questions.
+verification_expression must be the arithmetic expression evaluating to the correct_answer.
+  GOOD: gradient of y=2x−1 → correct_answer="2", verification_expression="2"
+  GOOD: y-intercept of y=2x+9 → correct_answer="9", verification_expression="9"
+  BAD:  question_type="maths_algebra" — never use this for coordinates."""
 
         elif "algebra" in topic_title_lower or "expression" in topic_title_lower:
             used_texts_lower = " ".join(used_texts).lower()
