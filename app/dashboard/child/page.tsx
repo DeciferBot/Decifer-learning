@@ -174,7 +174,7 @@ export default async function ChildDashboardPage() {
           className="flex min-h-[48px] flex-col justify-center rounded-2xl border border-black/5 bg-surface px-4 py-3 shadow-sm transition-colors hover:bg-black/[0.03]"
         >
           <div className="flex items-center justify-between">
-            <span className="font-heading text-sm font-semibold text-ink">🃏 My Cards</span>
+            <span className="font-heading text-sm font-semibold text-ink flex items-center gap-1"><Layers className="w-4 h-4" aria-hidden /> My Cards</span>
             <span className="font-heading text-sm font-bold text-ink">
               {collectionCount > 0 ? collectionCount : '0'}
             </span>
@@ -193,28 +193,28 @@ export default async function ChildDashboardPage() {
             href="/daily-challenge"
             className="flex min-h-[56px] flex-col justify-center rounded-2xl border border-black/5 bg-surface px-4 py-3 shadow-sm transition-colors hover:bg-black/[0.03]"
           >
-            <span className="font-heading text-sm font-semibold text-ink">🌟 Daily Challenge</span>
+            <span className="font-heading text-sm font-semibold text-ink flex items-center gap-1"><Star className="w-4 h-4" aria-hidden /> Daily Challenge</span>
             <span className="text-xs text-muted">3 questions · earn points</span>
           </Link>
           <Link
             href="/missions"
             className="flex min-h-[56px] flex-col justify-center rounded-2xl border border-black/5 bg-surface px-4 py-3 shadow-sm transition-colors hover:bg-black/[0.03]"
           >
-            <span className="font-heading text-sm font-semibold text-ink">🎯 Missions</span>
+            <span className="font-heading text-sm font-semibold text-ink flex items-center gap-1"><Target className="w-4 h-4" aria-hidden /> Missions</span>
             <span className="text-xs text-muted">Goals to level up</span>
           </Link>
           <Link
             href="/leaderboard"
             className="flex min-h-[56px] flex-col justify-center rounded-2xl border border-black/5 bg-surface px-4 py-3 shadow-sm transition-colors hover:bg-black/[0.03]"
           >
-            <span className="font-heading text-sm font-semibold text-ink">🏆 Leaderboard</span>
+            <span className="font-heading text-sm font-semibold text-ink flex items-center gap-1"><Trophy className="w-4 h-4" aria-hidden /> Leaderboard</span>
             <span className="text-xs text-muted">Family ranking</span>
           </Link>
           <Link
             href="/customise"
             className="flex min-h-[56px] flex-col justify-center rounded-2xl border border-black/5 bg-surface px-4 py-3 shadow-sm transition-colors hover:bg-black/[0.03]"
           >
-            <span className="font-heading text-sm font-semibold text-ink">🎨 Customise</span>
+            <span className="font-heading text-sm font-semibold text-ink flex items-center gap-1"><PencilLine className="w-4 h-4" aria-hidden /> Customise</span>
             <span className="text-xs text-muted">Avatar · theme · buddy</span>
           </Link>
         </div>
