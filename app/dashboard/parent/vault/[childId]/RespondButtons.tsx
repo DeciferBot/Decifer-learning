@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { Check, X } from '@/components/ui/icons'
 
 interface CatalogueItem {
   id: string
@@ -258,7 +259,7 @@ export function RespondButtons({
         onClick={() => setAction('approve')}
         className="flex h-10 items-center gap-1 rounded-xl bg-correct/10 px-4 text-sm font-bold text-correct transition-colors hover:bg-correct/20"
       >
-        ✓ Approve
+        <Check className="w-4 h-4" aria-hidden /> Approve
       </button>
       <button
         onClick={() => submit('defer')}
@@ -271,13 +272,13 @@ export function RespondButtons({
         onClick={() => setAction('counter_offer')}
         className="flex h-10 items-center gap-1 rounded-xl bg-maths/10 px-4 text-sm font-bold text-maths transition-colors hover:bg-maths/20"
       >
-        💬 Suggest different
+        Suggest different
       </button>
       <button
         onClick={() => setAction('reject')}
         className="flex h-10 items-center gap-1 rounded-xl bg-incorrect/10 px-4 text-sm font-bold text-incorrect transition-colors hover:bg-incorrect/20"
       >
-        ✗ Decline
+        <X className="w-4 h-4" aria-hidden /> Decline
       </button>
     </div>
   )

@@ -14,7 +14,7 @@ import {
   BookOpen, PencilLine, Zap, Star,
   Trophy, Flame, Medal, Gem,
   ClipboardList, Telescope, Target, CircleCheck, Bell,
-  Backpack, GraduationCap,
+  Backpack, GraduationCap, Microscope,
 } from '@/components/ui/icons'
 
 type Icon = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
@@ -384,13 +384,13 @@ export default function Home({
               </p>
               <div className="flex flex-wrap justify-center gap-3 text-sm">
                 <span className="flex items-center gap-1.5 rounded-full bg-maths/10 px-4 py-1.5 font-semibold text-maths">
-                  ✓ Maths: Years 2, 3, 6 &amp; 7
+                  <Check className="w-4 h-4" aria-hidden /> Maths: Years 2, 3, 6 &amp; 7
                 </span>
                 <span className="flex items-center gap-1.5 rounded-full bg-english/10 px-4 py-1.5 font-semibold text-english">
-                  ✓ English: Years 2, 3, 6 &amp; 7
+                  <Check className="w-4 h-4" aria-hidden /> English: Years 2, 3, 6 &amp; 7
                 </span>
                 <span className="flex items-center gap-1.5 rounded-full bg-science/10 px-4 py-1.5 font-semibold text-science">
-                  ✓ Science: Years 2, 3, 6 &amp; 7
+                  <Check className="w-4 h-4" aria-hidden /> Science: Years 2, 3, 6 &amp; 7
                 </span>
               </div>
             </div>

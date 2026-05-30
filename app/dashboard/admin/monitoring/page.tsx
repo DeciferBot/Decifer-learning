@@ -8,6 +8,7 @@ import { getUserRole } from '@/lib/auth/roles'
 import Link from 'next/link'
 import { MonitoringActions } from './MonitoringActions'
 import { RegenerateButton } from './RegenerateButton'
+import { Flag } from '@/components/ui/icons'
 
 export const metadata = { title: 'Monitoring — Admin' }
 export const dynamic  = 'force-dynamic'
@@ -91,7 +92,7 @@ export default async function MonitoringPage() {
           <div className="space-y-2">
             {flaggedQuestions.map((q) => (
               <div key={q.id} className="flex items-start gap-3 rounded-2xl border border-incorrect/20 bg-incorrect/5 p-4 shadow-sm">
-                <span className="flex-none text-base">🚩</span>
+                <Flag className="flex-none w-4 h-4 text-incorrect" aria-hidden />
                 <div className="min-w-0">
                   <p className="text-xs text-muted mb-0.5">{q.subjectName} · {q.topicTitle}</p>
                   <p className="text-sm text-ink leading-snug">{q.questionText}</p>

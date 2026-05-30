@@ -12,15 +12,19 @@ import { RewardSettingsForm } from './RewardSettingsForm'
 import { PhysicalRewardsToggle } from './PhysicalRewardsToggle'
 import { DeliveryAddressForm } from './DeliveryAddressForm'
 import type { DeliveryAddress } from '@/lib/vault/settings'
+import { Lock, Medal, Trophy, Star, Gem, Gift, Package, Truck, Check, BookOpen, Microscope, Zap, PencilLine } from '@/components/ui/icons'
+import type { ComponentType, SVGProps } from 'react'
+
+type IconComponent = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
 
 export const metadata = { title: 'Reward Vault — Decifer Learning' }
 
-const BAND_CONFIG: Record<string, { label: string; emoji: string }> = {
-  none:     { label: 'No milestone yet', emoji: '🔒' },
-  bronze:   { label: 'Bronze Explorer',  emoji: '🥉' },
-  silver:   { label: 'Silver Achiever',  emoji: '🥈' },
-  gold:     { label: 'Gold Champion',    emoji: '🥇' },
-  platinum: { label: 'Platinum Master',  emoji: '💎' },
+const BAND_CONFIG: Record<string, { label: string; Icon: IconComponent }> = {
+  none:     { label: 'No milestone yet', Icon: Lock   },
+  bronze:   { label: 'Bronze Explorer',  Icon: Medal  },
+  silver:   { label: 'Silver Achiever',  Icon: Trophy },
+  gold:     { label: 'Gold Champion',    Icon: Star   },
+  platinum: { label: 'Platinum Master',  Icon: Gem    },
 }
 
 const ACTIVE_STATUS_LABELS: Record<string, { label: string; colour: string; bg: string }> = {
@@ -38,10 +42,15 @@ const HISTORY_STATUS: Record<string, { label: string; colour: string }> = {
   completed:  { label: 'Done',                    colour: 'text-science font-semibold' },
 }
 
-const FULFILMENT_LABEL: Record<string, string> = {
-  approved:   '📦 Awaiting dispatch',
-  dispatched: '🚚 On its way',
-  delivered:  '✓ Delivered',
+const FULFILMENT_ICON: Record<string, IconComponent> = {
+  approved:   Package,
+  dispatched: Truck,
+  delivered:  Check,
+}
+const FULFILMENT_TEXT: Record<string, string> = {
+  approved:   'Awaiting dispatch',
+  dispatched: 'On its way',
+  delivered:  'Delivered',
 }
 
 type Params = { params: { childId: string } }
@@ -156,12 +165,12 @@ export default async function ParentVaultPage({ params }: Params) {
         <div className="rounded-2xl border border-black/5 bg-surface p-5 shadow-sm">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <span className="text-lg">{bandCfg.emoji}</span>
+              <bandCfg.Icon className="w-5 h-5" aria-hidden />
               <span className="font-heading text-sm font-semibold text-ink">{bandCfg.label}</span>
             </div>
             {vaultStatus.creditBalance > 0 ? (
               <span className="rounded-full bg-correct/15 px-3 py-1 text-xs font-bold text-correct">
-                🎁 {vaultStatus.creditBalance === 1 ? 'Reward available' : `${vaultStatus.creditBalance} rewards available`}
+                <span className="inline-flex items-center gap-1"><Gift className="w-3.5 h-3.5" aria-hidden /> {vaultStatus.creditBalance === 1 ? 'Reward available' : `${vaultStatus.creditBalance} rewards available`}</span>
               </span>
             ) : (
               <span className="text-xs text-muted">No reward ready yet</span>
@@ -233,13 +242,13 @@ export default async function ParentVaultPage({ params }: Params) {
           <div className="space-y-2">
             {rewardSuggestions.map((s) => (
               <div key={s.catalogueItemId} className="flex items-start gap-3 rounded-xl border border-black/5 bg-black/[0.02] p-3">
-                <span className="flex-none text-base">
-                  {s.category === 'Books' ? '📚' :
-                   s.category === 'Science' ? '🔬' :
-                   s.category === 'Games' ? '🎲' :
-                   s.category === 'Art' ? '🎨' :
-                   s.category === 'Stationery' ? '✏️' :
-                   s.category === 'Experiences' ? '🎟️' : '🎁'}
+                <span className="flex-none">
+                  {s.category === 'Books'       ? <BookOpen    className="w-5 h-5 text-muted" aria-hidden /> :
+                   s.category === 'Science'     ? <Microscope  className="w-5 h-5 text-muted" aria-hidden /> :
+                   s.category === 'Art'         ? <PencilLine  className="w-5 h-5 text-muted" aria-hidden /> :
+                   s.category === 'Stationery'  ? <PencilLine  className="w-5 h-5 text-muted" aria-hidden /> :
+                   s.category === 'Games'       ? <Zap         className="w-5 h-5 text-muted" aria-hidden /> :
+                                                  <Gift        className="w-5 h-5 text-muted" aria-hidden />}
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-semibold text-ink">{s.name}</p>
@@ -322,8 +331,9 @@ export default async function ParentVaultPage({ params }: Params) {
                   {r.status === 'approved' && r.reward_type === 'physical' && (
                     <div className="space-y-1.5">
                       {r.fulfilment?.status ? (
-                        <p className="text-xs font-semibold text-brand">
-                          {FULFILMENT_LABEL[r.fulfilment.status] ?? `📦 ${r.fulfilment.status}`}
+                        <p className="inline-flex items-center gap-1 text-xs font-semibold text-brand">
+                          {(() => { const FIcon = FULFILMENT_ICON[r.fulfilment.status]; return FIcon ? <FIcon className="w-3.5 h-3.5" aria-hidden /> : null })()}
+                          {FULFILMENT_TEXT[r.fulfilment.status] ?? r.fulfilment.status}
                         </p>
                       ) : (
                         <p className="text-xs text-muted">Physical prize — awaiting dispatch from your family catalogue.</p>

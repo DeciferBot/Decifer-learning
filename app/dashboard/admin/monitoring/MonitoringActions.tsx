@@ -5,7 +5,8 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Flag } from '@/components/ui/icons'
+import { Flag, Check } from '@/components/ui/icons'
+import type { ComponentType, SVGProps } from 'react'
 
 interface Props {
   reportId:   string
@@ -13,11 +14,12 @@ interface Props {
 }
 
 type Action = 'reviewed' | 'dismissed' | 'flag_question'
+type IconComponent = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
 
-const ACTIONS: { action: Action; label: string; className: string }[] = [
-  { action: 'reviewed',      label: 'Reviewed',      className: 'bg-surface border border-black/10 text-ink hover:bg-black/5' },
-  { action: 'dismissed',     label: 'Dismiss',        className: 'bg-surface border border-black/10 text-muted hover:bg-black/5' },
-  { action: 'flag_question', label: 'Flag',           className: 'bg-incorrect/10 border border-incorrect/20 text-incorrect hover:bg-incorrect/20', Icon: Flag },
+const ACTIONS: { action: Action; label: string; className: string; Icon?: IconComponent }[] = [
+  { action: 'reviewed',      label: 'Reviewed', className: 'bg-surface border border-black/10 text-ink hover:bg-black/5' },
+  { action: 'dismissed',     label: 'Dismiss',  className: 'bg-surface border border-black/10 text-muted hover:bg-black/5' },
+  { action: 'flag_question', label: 'Flag',     className: 'bg-incorrect/10 border border-incorrect/20 text-incorrect hover:bg-incorrect/20', Icon: Flag },
 ]
 
 export function MonitoringActions({ reportId, questionId }: Props) {
@@ -43,18 +45,23 @@ export function MonitoringActions({ reportId, questionId }: Props) {
   }
 
   if (done) {
-    return <span className="text-xs text-correct font-medium">Done ✓</span>
+    return (
+      <span className="inline-flex items-center gap-1 text-xs text-correct font-medium">
+        Done <Check className="w-3.5 h-3.5" aria-hidden />
+      </span>
+    )
   }
 
   return (
     <div className="flex flex-none gap-1.5 flex-wrap justify-end">
-      {ACTIONS.map(({ action, label, className }) => (
+      {ACTIONS.map(({ action, label, className, Icon }) => (
         <button
           key={action}
           disabled={busy}
           onClick={() => handleAction(action)}
-          className={`rounded-xl px-2.5 py-1 text-xs font-medium transition-colors disabled:opacity-50 ${className}`}
+          className={`inline-flex items-center gap-1 rounded-xl px-2.5 py-1 text-xs font-medium transition-colors disabled:opacity-50 ${className}`}
         >
+          {Icon && <Icon className="w-3.5 h-3.5" aria-hidden />}
           {label}
         </button>
       ))}
