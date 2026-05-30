@@ -271,6 +271,20 @@ ANSWER FORMAT — critical for automatic verification:
   • RIGHT: correct_answer="4000000"   correct_answer="-3.85"  correct_answer="48"
   For large rounding answers: write the full integer, e.g. "3800000", "5000000", not "3.8" or "5 million".
 
+  PROBABILITY ANSWERS — special rule:
+  If the answer is a probability (i.e. a fraction like 3/12, 4/8, 6/10), you MUST express correct_answer as
+  a SIMPLIFIED FRACTION STRING in the form "p/q" — NOT as a decimal.
+  • WRONG: correct_answer="0.25"          (decimal — rejected: ambiguous, not expected format at KS3)
+  • WRONG: correct_answer="0.3333333333"  (recurring decimal — always rejected)
+  • RIGHT: correct_answer="1/4"           (simplified fraction — 3/12 simplifies to 1/4)
+  • RIGHT: correct_answer="1/3"           (simplified fraction — 4/12 simplifies to 1/3)
+  The verification_expression for probability must verify the numerator calculation only:
+  e.g. for "4 blue out of 12 total" → verification_expression="4" and correct_answer="4/12" simplified to "1/3".
+  Actually: set verification_expression to the NUMERATOR of the unsimplified fraction as an integer, and
+  correct_answer to the SIMPLIFIED fraction. The verifier will parse correct_answer as num/den and compare.
+  Distractors for probability questions must also be fractions (not decimals), and must NOT include the
+  raw count as a distractor (e.g. do not use "4" as a distractor for a probability question).
+
   For maths_algebra:
   correct_answer must be the VALUE OF THE VARIABLE at the solution — NOT any constant that appears in the equation.
   The verification_equation must be a SymPy expression equal to 0 when the variable takes that value.
@@ -762,7 +776,7 @@ def stage3_consensus(topic: dict, tier: str, question_data: dict, result: Pipeli
     try:
         msg = _anthropic().messages.create(
             model=config.CLAUDE_MODEL,
-            max_tokens=256,
+            max_tokens=512,
             temperature=0,
             messages=[{"role": "user", "content": prompt}],
         )
@@ -807,7 +821,7 @@ def stage4_constitutional(
     try:
         msg = _anthropic().messages.create(
             model=config.CLAUDE_MODEL,
-            max_tokens=256,
+            max_tokens=512,
             temperature=0,
             messages=[{"role": "user", "content": prompt}],
         )
