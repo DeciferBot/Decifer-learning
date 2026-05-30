@@ -4,16 +4,11 @@
  * Seeds zones for all subjects beyond the original Maths/English/Science MVP,
  * for both Year 3 and Year 7. Safe to re-run — uses upsert on (year_group_id, subject_id).
  *
- * Run: node scripts/seed-zones-expansion.mjs
- *      node scripts/seed-zones-expansion.mjs --dry-run   (print plan, no writes)
+ * Run: node --env-file=.env.local scripts/seed-zones-expansion.mjs
+ *      node --env-file=.env.local scripts/seed-zones-expansion.mjs --dry-run
  */
 
 import { PrismaClient } from '@prisma/client'
-import { createRequire } from 'module'
-
-const require = createRequire(import.meta.url)
-const dotenv = require('dotenv')
-dotenv.config({ path: '.env.local' })
 
 const prisma = new PrismaClient()
 const DRY_RUN = process.argv.includes('--dry-run')
