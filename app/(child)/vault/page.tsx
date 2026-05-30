@@ -4,15 +4,16 @@ import { getCurrentProfile } from '@/lib/profile'
 import { prisma } from '@/lib/prisma'
 import { getVaultStatus } from '@/lib/vault/status'
 import { RequestSection } from './RequestSection'
+import { BookOpen, Trophy, Gift, Lightbulb, Dragon, Lock, Medal, Star, Gem } from '@/components/ui/icons'
 
 export const metadata = { title: 'Reward Vault — Decifer Learning' }
 
 const BAND_CONFIG = {
-  none:     { label: 'No milestone yet', emoji: '🔒', colour: 'bg-black/5 text-muted' },
-  bronze:   { label: 'Bronze Explorer',  emoji: '🥉', colour: 'bg-amber-50 text-amber-700' },
-  silver:   { label: 'Silver Achiever',  emoji: '🥈', colour: 'bg-slate-100 text-slate-600' },
-  gold:     { label: 'Gold Champion',    emoji: '🥇', colour: 'bg-yellow-50 text-yellow-700' },
-  platinum: { label: 'Platinum Master',  emoji: '💎', colour: 'bg-purple-50 text-purple-700' },
+  none:     { label: 'No milestone yet', Icon: Lock,   colour: 'bg-black/5 text-muted' },
+  bronze:   { label: 'Bronze Explorer',  Icon: Medal,  colour: 'bg-amber-50 text-amber-700' },
+  silver:   { label: 'Silver Achiever',  Icon: Trophy, colour: 'bg-slate-100 text-slate-600' },
+  gold:     { label: 'Gold Champion',    Icon: Star,   colour: 'bg-yellow-50 text-yellow-700' },
+  platinum: { label: 'Platinum Master',  Icon: Gem,    colour: 'bg-purple-50 text-purple-700' },
 } as const
 
 function ProgressBar({ current, total }: { current: number; total: number }) {
@@ -94,21 +95,21 @@ export default async function VaultPage() {
           <p className="text-xs font-bold uppercase tracking-widest text-muted mb-3">How it works</p>
           <ol className="space-y-3">
             <li className="flex items-start gap-3">
-              <span className="flex-none text-lg" aria-hidden>📚</span>
+              <BookOpen className="flex-none w-5 h-5 text-muted mt-0.5" aria-hidden />
               <div>
                 <p className="text-sm font-semibold text-ink">Learn and complete topics</p>
                 <p className="text-xs text-muted">Every quiz you pass earns you XP and gets you closer to a milestone.</p>
               </div>
             </li>
             <li className="flex items-start gap-3">
-              <span className="flex-none text-lg" aria-hidden>🏆</span>
+              <Trophy className="flex-none w-5 h-5 text-muted mt-0.5" aria-hidden />
               <div>
                 <p className="text-sm font-semibold text-ink">Reach a milestone</p>
                 <p className="text-xs text-muted">Hit Bronze, Silver, Gold, or Platinum to unlock a reward.</p>
               </div>
             </li>
             <li className="flex items-start gap-3">
-              <span className="flex-none text-lg" aria-hidden>🎁</span>
+              <Gift className="flex-none w-5 h-5 text-muted mt-0.5" aria-hidden />
               <div>
                 <p className="text-sm font-semibold text-ink">Ask your parent</p>
                 <p className="text-xs text-muted">Send a request and your parent will decide on the reward — together.</p>
@@ -122,12 +123,12 @@ export default async function VaultPage() {
       <div className="rounded-2xl border border-black/5 bg-surface p-5 shadow-sm space-y-3">
         <div className="flex items-center justify-between gap-3">
           <div className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-bold ${bandCfg.colour}`}>
-            <span>{bandCfg.emoji}</span>
+            <bandCfg.Icon className="w-4 h-4" aria-hidden />
             <span>{bandCfg.label}</span>
           </div>
           {status.creditBalance > 0 && !hasPendingRequest && (
             <div className="inline-flex items-center gap-1 rounded-full bg-correct/15 px-3 py-1">
-              <span className="text-xs font-bold text-correct">🎁 Reward earned</span>
+              <span className="inline-flex items-center gap-1 text-xs font-bold text-correct"><Gift className="w-3.5 h-3.5" aria-hidden /> Reward earned</span>
             </div>
           )}
         </div>
@@ -150,7 +151,7 @@ export default async function VaultPage() {
         {/* Hint penalty callout — only shown when there is a meaningful penalty */}
         {status.hintPenaltyXP > 0 && (
           <div className="flex items-start gap-2 rounded-xl bg-incorrect/10 px-3 py-2">
-            <span className="flex-none text-sm" aria-hidden>💡</span>
+            <Lightbulb className="flex-none w-4 h-4 text-incorrect" aria-hidden />
             <p className="text-xs text-incorrect leading-snug">
               <span className="font-semibold">−{status.hintPenaltyXP} XP hint penalty.</span>{' '}
               You used {status.totalHintsUsed} hint{status.totalHintsUsed !== 1 ? 's' : ''} across your quizzes.
@@ -214,7 +215,7 @@ export default async function VaultPage() {
             {/* Guardian */}
             {next.guardianRequired && (
               <div className="flex items-center gap-2 rounded-xl bg-black/5 px-3 py-2">
-                <span className="text-sm">🐉</span>
+                <Dragon className="w-4 h-4 text-muted" aria-hidden />
                 <span className="text-xs text-muted">Beat a Zone Guardian</span>
               </div>
             )}
@@ -228,7 +229,7 @@ export default async function VaultPage() {
           completion. Showing "All milestones reached" in that case is misleading. */}
       {status.currentBand === 'platinum' && (
         <div className="rounded-2xl border border-black/5 bg-surface p-5 text-center">
-          <p className="text-2xl mb-2">🏆</p>
+          <Trophy className="w-8 h-8 text-points-gold mx-auto mb-2" aria-hidden />
           <p className="font-heading font-bold text-ink">All milestones reached!</p>
           <p className="mt-1 text-sm text-muted">You&apos;ve earned the highest milestone. Amazing work.</p>
         </div>

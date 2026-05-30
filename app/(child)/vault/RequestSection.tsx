@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { Lock, Sparkles, Gift, Clock } from '@/components/ui/icons'
 
 interface Props {
   hasCredits: boolean
@@ -16,30 +17,32 @@ interface Props {
   familyRewardOptions: Array<{ label: string }>
 }
 
-const STATUS_COPY: Record<string, { label: string; description: string; colour: string; icon: string }> = {
+type StatusIconType = typeof Clock | typeof Sparkles | typeof Gift
+
+const STATUS_COPY: Record<string, { label: string; description: string; colour: string; Icon: StatusIconType }> = {
   pending: {
     label: 'Waiting for parent',
     description: "Your request has been sent. We'll let you know when your parent responds.",
     colour: 'text-points-gold',
-    icon: '⏳',
+    Icon: Clock,
   },
   deferred: {
     label: 'Saved for later',
     description: 'Your parent has seen your request and will get back to you soon — hang tight!',
     colour: 'text-muted',
-    icon: '⏳',
+    Icon: Clock,
   },
   counter_offered: {
     label: 'Parent has a suggestion',
     description: 'Your parent has a different reward idea for you. See the message below.',
     colour: 'text-maths',
-    icon: '⏳',
+    Icon: Clock,
   },
   approved: {
-    label: 'Your reward is approved! 🎁',
+    label: 'Your reward is approved!',
     description: 'Amazing work — your parent has approved your reward. Ask them about it when you next see them!',
     colour: 'text-correct',
-    icon: '🎉',
+    Icon: Sparkles,
   },
 }
 
@@ -80,7 +83,7 @@ export function RequestSection({ hasCredits, hasPendingRequest, pendingRequest, 
     return (
       <div className={`rounded-2xl border p-5 shadow-sm space-y-3 ${isApproved ? 'border-correct/30 bg-correct/5' : 'border-black/5 bg-surface'}`}>
         <div className="flex items-center gap-2">
-          <span className="text-lg">{info?.icon ?? '⏳'}</span>
+          {info ? <info.Icon className="w-5 h-5" aria-hidden /> : <Clock className="w-5 h-5" aria-hidden />}
           <span className={`font-heading text-sm font-bold ${info?.colour ?? 'text-ink'}`}>
             {info?.label ?? pendingRequest.status}
           </span>
@@ -133,7 +136,7 @@ export function RequestSection({ hasCredits, hasPendingRequest, pendingRequest, 
   if (!hasCredits) {
     return (
       <div className="rounded-2xl border border-black/5 bg-surface p-5 shadow-sm text-center space-y-1">
-        <p className="text-2xl" aria-hidden>🔒</p>
+        <Lock className="w-8 h-8 text-muted mx-auto" aria-hidden />
         <p className="text-sm font-semibold text-ink">Keep going to unlock a reward</p>
         <p className="text-xs text-muted">
           Reach your next milestone and a reward will be waiting for you.
@@ -145,7 +148,7 @@ export function RequestSection({ hasCredits, hasPendingRequest, pendingRequest, 
   if (done) {
     return (
       <div className="rounded-2xl border border-correct/20 bg-correct/5 p-5 text-center">
-        <p className="text-2xl mb-2">🎉</p>
+        <Sparkles className="w-8 h-8 text-correct mx-auto mb-2" aria-hidden />
         <p className="font-heading font-bold text-ink">Request sent!</p>
         <p className="mt-1 text-sm text-muted">Your parent will be notified.</p>
       </div>
@@ -158,7 +161,7 @@ export function RequestSection({ hasCredits, hasPendingRequest, pendingRequest, 
         onClick={() => setOpen(true)}
         className="flex w-full min-h-[52px] items-center justify-center rounded-2xl bg-brand px-5 font-heading text-sm font-bold text-white shadow-sm transition-colors hover:bg-brand-600 active:scale-[0.98]"
       >
-        🎁 Ask for a reward
+        <span className="flex items-center gap-2"><Gift className="w-4 h-4" aria-hidden /> Ask for a reward</span>
       </button>
 
       {open && (

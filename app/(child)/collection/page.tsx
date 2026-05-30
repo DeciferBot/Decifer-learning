@@ -4,6 +4,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { getCurrentProfile } from '@/lib/profile'
 import { DiscoveryCard, type CardData } from '@/components/cards/DiscoveryCard'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { Layers } from '@/components/ui/icons'
 
 export const metadata = { title: 'My Collection — Decifer Learning' }
 
@@ -60,7 +61,7 @@ export default async function CollectionPage() {
 
       {cards.length === 0 ? (
         <EmptyState
-          icon="🃏"
+          icon={<Layers className="w-10 h-10 text-muted" aria-hidden />}
           heading="No cards yet"
           body="Complete a quiz to earn your first Discovery Card. Every quiz you pass drops one."
           action={

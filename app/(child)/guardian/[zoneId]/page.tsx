@@ -3,6 +3,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { getCurrentProfile } from '@/lib/profile'
 import { prisma } from '@/lib/prisma'
 import { QuizShell, type QuizQuestion } from '@/components/quiz/QuizShell'
+import { Swords } from '@/components/ui/icons'
 
 const GUARDIAN_QUESTION_COUNT = 15
 
@@ -92,7 +93,9 @@ export default async function GuardianPage({ params }: { params: { zoneId: strin
     <div className="space-y-4">
       <div className="text-center">
         <p className="text-sm font-bold uppercase tracking-wide text-muted">{zone.name}</p>
-        <h1 className="font-heading text-2xl font-bold text-ink">⚔️ Zone Guardian</h1>
+        <h1 className="font-heading text-2xl font-bold text-ink flex items-center justify-center gap-2">
+          <Swords className="w-6 h-6" aria-hidden /> Zone Guardian
+        </h1>
         <p className="mt-1 text-sm text-muted">
           {GUARDIAN_QUESTION_COUNT} questions — defeat them all!
         </p>
@@ -103,7 +106,7 @@ export default async function GuardianPage({ params }: { params: { zoneId: strin
         submitUrl={`/api/guardian/${zone.id}/submit`}
         backHref="/world-map"
         backLabel="Back to Map"
-        winMessage="Guardian defeated! 🐉"
+        winMessage="Guardian defeated!"
         initialShields={0}
       />
     </div>

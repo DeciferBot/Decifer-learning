@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { Star, Target, Zap, Lightbulb, Clock } from '@/components/ui/icons'
 
 interface Question {
   id: string
@@ -77,7 +78,7 @@ export default function DailyChallengePageInner() {
   if (phase === 'no-challenge') {
     return (
       <div className="flex min-h-[40vh] flex-col items-center justify-center gap-2 text-center px-4">
-        <span className="text-4xl">⏳</span>
+        <Clock className="w-10 h-10 text-muted" aria-hidden />
         <h1 className="font-heading text-xl font-bold text-ink">No challenge today</h1>
         <p className="text-sm text-muted max-w-xs">
           Today&apos;s challenge hasn&apos;t been set up yet. Check back tomorrow!
@@ -90,7 +91,10 @@ export default function DailyChallengePageInner() {
     const pct = Math.round((result.correctCount / result.totalQuestions) * 100)
     return (
       <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4 text-center px-4 max-w-md mx-auto">
-        <span className="text-5xl">{pct >= 70 ? '⭐' : '🎯'}</span>
+        {pct >= 70
+          ? <Star className="w-12 h-12 text-points-gold" aria-hidden />
+          : <Target className="w-12 h-12 text-brand" aria-hidden />
+        }
         <h1 className="font-heading text-2xl font-bold text-ink">
           {pct >= 100 ? 'Perfect!' : pct >= 70 ? 'Great work!' : 'Nice try!'}
         </h1>
@@ -98,8 +102,8 @@ export default function DailyChallengePageInner() {
           {result.correctCount} out of {result.totalQuestions} correct
         </p>
         {result.isFlare && (
-          <span className="rounded-full bg-points-gold/20 px-4 py-1 text-xs font-bold text-points-gold">
-            ⚡ Flare Challenge!
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-points-gold/20 px-4 py-1 text-xs font-bold text-points-gold">
+            <Zap className="w-3.5 h-3.5" aria-hidden /> Flare Challenge!
           </span>
         )}
         <div className="rounded-2xl border border-black/5 bg-surface px-8 py-4 shadow-sm">
@@ -156,7 +160,12 @@ export default function DailyChallengePageInner() {
       <div className="flex items-center justify-between pt-2">
         <div>
           <h1 className="font-heading text-xl font-bold text-ink">
-            {challenge.isFlare ? '⚡ Flare Challenge' : '🌟 Daily Challenge'}
+            <span className="inline-flex items-center gap-1.5">
+            {challenge.isFlare
+              ? <><Zap className="w-5 h-5" aria-hidden /> Flare Challenge</>
+              : <><Star className="w-5 h-5" aria-hidden /> Daily Challenge</>
+            }
+          </span>
           </h1>
           <p className="text-xs text-muted mt-0.5">
             Question {current + 1} of {challenge.questions.length}
@@ -183,8 +192,8 @@ export default function DailyChallengePageInner() {
         {q.hint_1 && (
           <div className="mt-3">
             {showHint ? (
-              <p className="rounded-xl bg-points-gold/10 px-3 py-2 text-sm text-points-gold">
-                💡 {q.hint_1}
+              <p className="flex items-start gap-1.5 rounded-xl bg-points-gold/10 px-3 py-2 text-sm text-points-gold">
+                <Lightbulb className="w-4 h-4 flex-none mt-0.5" aria-hidden /> {q.hint_1}
               </p>
             ) : (
               <button

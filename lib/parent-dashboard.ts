@@ -255,6 +255,89 @@ export async function getStrongestTopics(
     }))
 }
 
+// ── Curriculum progress ───────────────────────────────────────────────────────
+
+export type CurriculumTopic = {
+  topicId: string
+  title: string
+  orderIndex: number
+  progressStatus: 'not_started' | 'in_progress' | 'completed'
+  lastScore: number | null       // 0.0–1.0
+  completedAt: Date | null
+  isPublished: boolean
+}
+
+export type CurriculumSubject = {
+  subjectId: string
+  subjectName: string
+  colourToken: string
+  topics: CurriculumTopic[]
+  completedCount: number
+  totalCount: number
+}
+
+/**
+ * Returns the full curriculum spine for a child's year group, annotated with
+ * their progress status on each topic.  Topics without progress rows appear as
+ * 'not_started'.  Only published topics are included.
+ */
+export async function getCurriculumProgress(
+  childProfileId: string,
+  yearGroupId: string,
+): Promise<CurriculumSubject[]> {
+  // Load every published topic for this year group with subject info
+  const topics = await prisma.topic.findMany({
+    where:   { year_group_id: yearGroupId, is_published: true },
+    include: { subject: true },
+    orderBy: [{ subject: { name: 'asc' } }, { order_index: 'asc' }],
+  })
+
+  if (topics.length === 0) return []
+
+  // Load child's progress for all these topics in one query
+  const topicIds = topics.map((t) => t.id)
+  const progressRows = await prisma.topicProgress.findMany({
+    where: { profile_id: childProfileId, topic_id: { in: topicIds } },
+  })
+  const progressMap = new Map(progressRows.map((p) => [p.topic_id, p]))
+
+  // Group by subject
+  const subjectMap = new Map<string, CurriculumSubject>()
+  for (const topic of topics) {
+    const s = topic.subject
+    if (!subjectMap.has(s.id)) {
+      subjectMap.set(s.id, {
+        subjectId: s.id,
+        subjectName: s.name,
+        colourToken: s.colour_token,
+        topics: [],
+        completedCount: 0,
+        totalCount: 0,
+      })
+    }
+    const subj = subjectMap.get(s.id)!
+    const prog = progressMap.get(topic.id)
+    const status: CurriculumTopic['progressStatus'] =
+      prog?.status === 'completed'  ? 'completed'  :
+      prog                          ? 'in_progress' :
+                                      'not_started'
+
+    subj.topics.push({
+      topicId:        topic.id,
+      title:          topic.title,
+      orderIndex:     topic.order_index,
+      progressStatus: status,
+      lastScore:      prog?.last_score ?? null,
+      completedAt:    prog?.completed_at ?? null,
+      isPublished:    topic.is_published,
+    })
+    subj.totalCount++
+    if (status === 'completed') subj.completedCount++
+  }
+
+  return Array.from(subjectMap.values())
+}
+
 // ── Core data functions ───────────────────────────────────────────────────────
 
 /**

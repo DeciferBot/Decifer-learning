@@ -15,8 +15,14 @@ import {
   getChildVaultSummary,
   getPendingVaultRequests,
   getChildWeeklyDigestSummary,
+  getCurriculumProgress,
+  type CurriculumSubject,
 } from '@/lib/parent-dashboard'
 import { LinkChildForm } from '@/components/parent/LinkChildForm'
+import { Star, Flame, Gift, BarChart, Target, MapPin, CalendarDays, Check } from '@/components/ui/icons'
+import type { ComponentType, SVGProps } from 'react'
+
+type IconComponent = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
 
 export const metadata = { title: 'Parent dashboard — Decifer Learning' }
 
@@ -38,16 +44,25 @@ export default async function ParentDashboardPage() {
   const children = profile ? await getLinkedChildren(profile.user_id) : []
 
   // Fetch per-child data in parallel
+  // Need year_group_id for curriculum progress
+  const childProfiles = await prisma.profile.findMany({
+    where: { id: { in: children.map((c) => c.profileId) } },
+    select: { id: true, year_group_id: true },
+  })
+  const yearGroupIdMap = new Map(childProfiles.map((p) => [p.id, p.year_group_id]))
+
   const childData = await Promise.all(
     children.map(async (child) => {
-      const [progress, weakAreas, recommended, vault, digest] = await Promise.all([
+      const yearGroupId = yearGroupIdMap.get(child.profileId) ?? null
+      const [progress, weakAreas, recommended, vault, digest, curriculum] = await Promise.all([
         getChildProgressSummary(child.profileId),
         getChildWeakAreas(child.profileId, 2),
         getRecommendedNextLesson(child.profileId, child.yearGroupLabel),
         getChildVaultSummary(child.profileId).catch(() => ({ creditBalance: 0, currentBand: 'none', pendingRequestCount: 0 })),
         getChildWeeklyDigestSummary(child.profileId).catch(() => null),
+        yearGroupId ? getCurriculumProgress(child.profileId, yearGroupId) : Promise.resolve([]),
       ])
-      return { child, progress, weakAreas, recommended, vault, digest }
+      return { child, progress, weakAreas, recommended, vault, digest, curriculum }
     }),
   )
 
@@ -94,7 +109,7 @@ export default async function ParentDashboardPage() {
             <ul className="space-y-4">
               {PARENT_PREVIEW_ITEMS.map((item) => (
                 <li key={item.title} className="flex items-start gap-3">
-                  <span className="mt-0.5 flex-none text-xl" aria-hidden>{item.icon}</span>
+                  <item.Icon className="mt-0.5 w-5 h-5 flex-none text-muted" aria-hidden />
                   <div>
                     <p className="font-heading text-sm font-semibold text-ink">{item.title}</p>
                     <p className="mt-0.5 text-xs text-muted">{item.body}</p>
@@ -107,7 +122,7 @@ export default async function ParentDashboardPage() {
       )}
 
       {/* Child cards */}
-      {childData.map(({ child, progress, weakAreas, recommended, vault, digest }) => (
+      {childData.map(({ child, progress, weakAreas, recommended, vault, digest, curriculum }) => (
         <div
           key={child.profileId}
           className="rounded-2xl border border-black/5 bg-surface shadow-sm"
@@ -125,12 +140,14 @@ export default async function ParentDashboardPage() {
             </div>
             <div className="flex flex-col items-end gap-0.5 text-right">
               {child.totalPoints > 0 && (
-                <span className="font-heading text-sm font-bold text-points-gold">
-                  ⭐ {child.totalPoints.toLocaleString()} pts
+                <span className="inline-flex items-center gap-1 font-heading text-sm font-bold text-points-gold">
+                  <Star className="w-3.5 h-3.5" aria-hidden /> {child.totalPoints.toLocaleString()} pts
                 </span>
               )}
               {child.streakDays > 0 && (
-                <span className="text-xs text-muted">🔥 {child.streakDays} day streak</span>
+                <span className="inline-flex items-center gap-1 text-xs text-muted">
+                  <Flame className="w-3.5 h-3.5" aria-hidden /> {child.streakDays} day streak
+                </span>
               )}
             </div>
           </div>
@@ -168,6 +185,11 @@ export default async function ParentDashboardPage() {
                   </span>
                 )}
               </div>
+            )}
+
+            {/* Curriculum mini-tracker */}
+            {curriculum.length > 0 && (
+              <CurriculumMini curriculum={curriculum} childId={child.profileId} />
             )}
 
             {/* Recommended next lesson */}
@@ -250,8 +272,8 @@ export default async function ParentDashboardPage() {
                   </div>
                 </div>
                 {digest.topicsCompleted > 0 && (
-                  <p className="text-xs text-science">
-                    ✓ {digest.topicsCompleted} topic{digest.topicsCompleted > 1 ? 's' : ''} completed this week
+                  <p className="flex items-center gap-1 text-xs text-science">
+                    <Check className="w-3.5 h-3.5" aria-hidden /> {digest.topicsCompleted} topic{digest.topicsCompleted > 1 ? 's' : ''} completed this week
                   </p>
                 )}
               </div>
@@ -263,7 +285,7 @@ export default async function ParentDashboardPage() {
               className="flex items-center justify-between gap-3 rounded-xl border border-black/5 bg-black/[0.02] px-4 py-3 hover:bg-black/[0.04]"
             >
               <div>
-                <p className="font-heading text-sm font-semibold text-ink">🎁 Reward Vault</p>
+                <p className="font-heading text-sm font-semibold text-ink flex items-center gap-1"><Gift className="w-4 h-4" aria-hidden /> Reward Vault</p>
                 <p className="mt-0.5 text-xs text-muted">
                   Review reward requests and family-approved milestones.
                 </p>
@@ -292,7 +314,7 @@ export default async function ParentDashboardPage() {
       {pendingVaultRequests.length > 0 && (
         <div className="rounded-2xl border border-brand/20 bg-brand/5 px-5 py-4 shadow-sm space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="font-heading text-sm font-semibold text-brand">🎁 Reward Vault</h2>
+            <h2 className="font-heading text-sm font-semibold text-brand flex items-center gap-1"><Gift className="w-4 h-4" aria-hidden /> Reward Vault</h2>
             <span className="rounded-full bg-brand px-2 py-0.5 text-xs font-bold text-white">
               {pendingVaultRequests.length} pending
             </span>
@@ -365,24 +387,92 @@ export default async function ParentDashboardPage() {
   )
 }
 
-const PARENT_PREVIEW_ITEMS = [
+function CurriculumMini({
+  curriculum,
+  childId,
+}: {
+  curriculum: CurriculumSubject[]
+  childId: string
+}) {
+  const totalTopics = curriculum.reduce((s, sub) => s + sub.totalCount, 0)
+  const completedTopics = curriculum.reduce((s, sub) => s + sub.completedCount, 0)
+  const pct = totalTopics > 0 ? Math.round((completedTopics / totalTopics) * 100) : 0
+
+  return (
+    <div className="rounded-xl border border-black/5 bg-black/[0.02] px-4 py-3 space-y-2">
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-bold uppercase tracking-wide text-muted">Curriculum progress</p>
+        <Link
+          href={`/dashboard/parent/children/${childId}`}
+          className="text-xs text-brand hover:underline"
+        >
+          Full breakdown →
+        </Link>
+      </div>
+
+      {/* Overall bar */}
+      <div>
+        <div className="mb-1 flex items-center justify-between text-xs">
+          <span className="text-ink">{completedTopics} of {totalTopics} topics done</span>
+          <span className="font-bold text-maths">{pct}%</span>
+        </div>
+        <div className="h-1.5 overflow-hidden rounded-full bg-black/[0.06]">
+          <div className="h-full rounded-full bg-maths" style={{ width: `${pct}%` }} />
+        </div>
+      </div>
+
+      {/* Per-subject mini bars */}
+      <div className="grid gap-1.5">
+        {curriculum.map((subj) => {
+          const sPct = subj.totalCount > 0
+            ? Math.round((subj.completedCount / subj.totalCount) * 100)
+            : 0
+          // Find the next topic
+          const nextTopic = subj.topics.find((t) => t.progressStatus !== 'completed')
+          return (
+            <div key={subj.subjectId} className="flex items-center gap-2 text-xs">
+              <span
+                className="h-2 w-2 flex-none rounded-full"
+                style={{ backgroundColor: subj.colourToken }}
+                aria-hidden
+              />
+              <span className="w-16 flex-none truncate text-muted">{subj.subjectName}</span>
+              <div className="flex-1 overflow-hidden rounded-full bg-black/[0.06] h-1.5">
+                <div
+                  className="h-full rounded-full transition-all"
+                  style={{ width: `${sPct}%`, backgroundColor: subj.colourToken }}
+                />
+              </div>
+              <span className="w-8 flex-none text-right text-muted">{sPct}%</span>
+              {nextTopic && (
+                <span className="flex-1 truncate text-muted hidden sm:block">→ {nextTopic.title}</span>
+              )}
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+const PARENT_PREVIEW_ITEMS: Array<{ Icon: IconComponent; title: string; body: string }> = [
   {
-    icon: '📊',
+    Icon: BarChart,
     title: 'Topic progress',
     body: 'See which topics your child has started, practised, and completed.',
   },
   {
-    icon: '🎯',
+    Icon: Target,
     title: 'Quiz accuracy',
     body: 'Track average scores and how performance changes over time.',
   },
   {
-    icon: '📍',
+    Icon: MapPin,
     title: 'Areas to strengthen',
     body: 'Topics with high hint use or low scores are highlighted so you know where to focus.',
   },
   {
-    icon: '📅',
+    Icon: CalendarDays,
     title: 'Recent activity',
     body: 'A log of recent quiz sessions with dates, topics, and scores.',
   },

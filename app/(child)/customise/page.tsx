@@ -2,17 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-
-const AVATARS = [
-  { id: 'wizard',     emoji: '🧙' },
-  { id: 'knight',     emoji: '⚔️' },
-  { id: 'explorer',   emoji: '🗺️' },
-  { id: 'scientist',  emoji: '🔬' },
-  { id: 'artist',     emoji: '🎨' },
-  { id: 'athlete',    emoji: '🏃' },
-  { id: 'musician',   emoji: '🎵' },
-  { id: 'chef',       emoji: '👨‍🍳' },
-] as const
+import { AVATARS, BUDDIES } from '@/lib/customise-config'
+import { AVATAR_ICONS, BUDDY_ICONS } from '@/lib/icon-tokens'
+import { Check } from '@/components/ui/icons'
 
 const COLOURS = [
   { id: 'blue',   label: 'Blue',   hex: '#6C9EFF' },
@@ -29,13 +21,6 @@ const THEMES = [
   { id: 'english', label: 'English',    bg: '#FFF0F5', accent: '#FF8FAB' },
   { id: 'science', label: 'Science',    bg: '#EDFFF7', accent: '#52D9A0' },
   { id: 'night',   label: 'Night mode', bg: '#1A1D2E', accent: '#9B59B6' },
-] as const
-
-const BUDDIES = [
-  { id: 'owl',    emoji: '🦉', name: 'Owl'    },
-  { id: 'fox',    emoji: '🦊', name: 'Fox'    },
-  { id: 'robot',  emoji: '🤖', name: 'Robot'  },
-  { id: 'dragon', emoji: '🐲', name: 'Dragon' },
 ] as const
 
 interface Profile {
@@ -95,8 +80,8 @@ export default function CustomisePage() {
     )
   }
 
-  const avatarEmoji = AVATARS.find((a) => a.id === avatarBase)?.emoji ?? '🗺️'
-  const colourHex   = COLOURS.find((c) => c.id === avatarColour)?.hex ?? '#6C9EFF'
+  const AvatarIcon = AVATAR_ICONS[avatarBase] ?? AVATAR_ICONS.explorer
+  const colourHex  = COLOURS.find((c) => c.id === avatarColour)?.hex ?? '#6C9EFF'
 
   return (
     <div className="max-w-lg mx-auto px-4 space-y-6 pb-10">
@@ -110,10 +95,10 @@ export default function CustomisePage() {
       {/* Preview */}
       <div className="rounded-2xl border border-black/5 bg-surface p-5 shadow-sm flex items-center gap-4">
         <div
-          className="h-16 w-16 rounded-full flex items-center justify-center text-3xl flex-none"
-          style={{ backgroundColor: colourHex + '33', border: `3px solid ${colourHex}` }}
+          className="h-16 w-16 rounded-full flex items-center justify-center flex-none"
+          style={{ backgroundColor: colourHex + '33', border: `3px solid ${colourHex}`, color: colourHex }}
         >
-          {avatarEmoji}
+          <AvatarIcon size={32} aria-hidden />
         </div>
         <div>
           <p className="font-heading font-bold text-ink text-base">Your avatar</p>
@@ -126,20 +111,23 @@ export default function CustomisePage() {
       {/* Avatar character */}
       <Section title="Avatar character">
         <div className="grid grid-cols-4 gap-2">
-          {AVATARS.map((a) => (
-            <button
-              key={a.id}
-              onClick={() => setAvatarBase(a.id)}
-              className={`flex h-14 items-center justify-center rounded-2xl border text-2xl transition-all ${
-                avatarBase === a.id
-                  ? 'border-brand bg-brand/10 shadow-sm scale-105'
-                  : 'border-black/10 bg-black/[0.02] hover:border-brand/40'
-              }`}
-              aria-label={a.id}
-            >
-              {a.emoji}
-            </button>
-          ))}
+          {AVATARS.map((a) => {
+            const Icon = AVATAR_ICONS[a.id]
+            return (
+              <button
+                key={a.id}
+                onClick={() => setAvatarBase(a.id)}
+                className={`flex h-14 items-center justify-center rounded-2xl border transition-all ${
+                  avatarBase === a.id
+                    ? 'border-brand bg-brand/10 shadow-sm scale-105 text-brand'
+                    : 'border-black/10 bg-black/[0.02] hover:border-brand/40 text-muted'
+                }`}
+                aria-label={a.name}
+              >
+                <Icon size={24} aria-hidden />
+              </button>
+            )
+          })}
         </div>
       </Section>
 
@@ -186,20 +174,23 @@ export default function CustomisePage() {
       {/* Study buddy */}
       <Section title="Study buddy">
         <div className="grid grid-cols-4 gap-2">
-          {BUDDIES.map((b) => (
-            <button
-              key={b.id}
-              onClick={() => setBuddy(buddy === b.id ? null : b.id)}
-              className={`flex flex-col items-center gap-1 rounded-2xl border p-3 transition-all ${
-                buddy === b.id
-                  ? 'border-brand bg-brand/10 shadow-sm scale-105'
-                  : 'border-black/10 bg-black/[0.02] hover:border-brand/40'
-              }`}
-            >
-              <span className="text-2xl">{b.emoji}</span>
-              <span className="text-[10px] font-medium text-muted">{b.name}</span>
-            </button>
-          ))}
+          {BUDDIES.map((b) => {
+            const Icon = BUDDY_ICONS[b.id]
+            return (
+              <button
+                key={b.id}
+                onClick={() => setBuddy(buddy === b.id ? null : b.id)}
+                className={`flex flex-col items-center gap-1 rounded-2xl border p-3 transition-all ${
+                  buddy === b.id
+                    ? 'border-brand bg-brand/10 shadow-sm scale-105 text-brand'
+                    : 'border-black/10 bg-black/[0.02] hover:border-brand/40 text-muted'
+                }`}
+              >
+                <Icon size={24} aria-hidden />
+                <span className="text-[10px] font-medium text-muted">{b.name}</span>
+              </button>
+            )
+          })}
         </div>
       </Section>
 
@@ -209,7 +200,10 @@ export default function CustomisePage() {
         disabled={saving}
         className="w-full rounded-2xl bg-brand py-4 font-heading font-bold text-white shadow-sm hover:opacity-90 disabled:opacity-60 transition-opacity"
       >
-        {saving ? 'Saving…' : saved ? '✓ Saved!' : 'Save changes'}
+        {saving ? 'Saving…' : saved
+          ? <span className="flex items-center justify-center gap-1"><Check className="w-4 h-4" aria-hidden /> Saved!</span>
+          : 'Save changes'
+        }
       </button>
     </div>
   )

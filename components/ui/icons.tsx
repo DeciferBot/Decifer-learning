@@ -656,3 +656,87 @@ export function Check(p: IconProps) {
     </Icon>
   )
 }
+
+export function Truck(p: IconProps) {
+  return (
+    <Icon {...p}>
+      <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2" />
+      <path d="M15 18H9" />
+      <path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14" />
+      <circle cx="17" cy="18" r="2" />
+      <circle cx="7" cy="18" r="2" />
+    </Icon>
+  )
+}
+
+export function Music(p: IconProps) {
+  return (
+    <Icon {...p}>
+      <path d="M9 18V5l12-2v13" />
+      <circle cx="6" cy="18" r="3" />
+      <circle cx="18" cy="16" r="3" />
+    </Icon>
+  )
+}
+
+export function ChefHat(p: IconProps) {
+  return (
+    <Icon {...p}>
+      <path d="M17 21a1 1 0 0 0 1-1v-5.35c0-.457.316-.844.727-1.041a4 4 0 0 0-2.134-7.589 5 5 0 0 0-9.186 0 4 4 0 0 0-2.134 7.588c.411.198.727.585.727 1.041V20a1 1 0 0 0 1 1Z" />
+      <path d="M6 21h12" />
+    </Icon>
+  )
+}
+
+export function Layers(p: IconProps) {
+  return (
+    <Icon {...p}>
+      <path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z" />
+      <path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65" />
+      <path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65" />
+    </Icon>
+  )
+}
+
+export function Dragon(p: IconProps) {
+  return (
+    <Icon {...p}>
+      <path d="M12 2c-2 0-4 1.5-4 4 0 1 .5 2 1 2.5L7 10c-1 1-2 3-2 5h2l1-2 1 3h6l1-3 1 2h2c0-2-1-4-2-5l-2-1.5c.5-.5 1-1.5 1-2.5 0-2.5-2-4-4-4Z" />
+      <path d="M9 15c0 2 1.5 4 3 4s3-2 3-4" />
+      <path d="m8 10-2-2M16 10l2-2" />
+    </Icon>
+  )
+}
+
+export function Owl(p: IconProps) {
+  return (
+    <Icon {...p}>
+      <path d="M12 4C8 4 5 7 5 11c0 2 1 4 2.5 5.5L8 20h8l.5-3.5C18 15 19 13 19 11c0-4-3-7-7-7Z" />
+      <path d="M9 10a1 1 0 1 0 2 0 1 1 0 0 0-2 0ZM13 10a1 1 0 1 0 2 0 1 1 0 0 0-2 0Z" />
+      <path d="M10 14h4" />
+      <path d="M7 7 5 5M17 7l2-2" />
+    </Icon>
+  )
+}
+
+export function Fox(p: IconProps) {
+  return (
+    <Icon {...p}>
+      <path d="M12 3 8 7H5l2 3-3 1 3 2-1 4h12l-1-4 3-2-3-1 2-3h-3L12 3Z" />
+      <path d="M10 14h4M11 17v2M13 17v2" />
+    </Icon>
+  )
+}
+
+export function Robot(p: IconProps) {
+  return (
+    <Icon {...p}>
+      <rect x="3" y="11" width="18" height="10" rx="2" />
+      <path d="M12 11V7" />
+      <circle cx="12" cy="5" r="2" />
+      <path d="M7 15h.01M17 15h.01" />
+      <path d="M9 19h6" />
+      <path d="M3 11l-1-4M21 11l1-4" />
+    </Icon>
+  )
+}

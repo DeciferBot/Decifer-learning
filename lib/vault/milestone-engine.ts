@@ -73,8 +73,16 @@ function childQualifiesForBand(
   milestone: MilestoneConfig,
 ): boolean {
   if (!milestone.is_active) return false
-  // Milestone XP gate uses effective XP (hint-penalised), not raw points.
-  if (xp < milestone.xp_required) return false
+
+  // If the child has completed every published topic available to them, waive the hint
+  // penalty — they have no remaining quizzes to improve their score and should not be
+  // permanently blocked from a milestone they otherwise earned.
+  const hasFinishedAllTopics =
+    snapshot.publishedTopicsForYearGroup > 0 &&
+    snapshot.topicsCompleted >= snapshot.publishedTopicsForYearGroup
+
+  const effectiveXpForCheck = hasFinishedAllTopics ? snapshot.totalPoints : xp
+  if (effectiveXpForCheck < milestone.xp_required) return false
 
   // Year-group safety rule: if fewer published topics than required, band is unreachable
   if (

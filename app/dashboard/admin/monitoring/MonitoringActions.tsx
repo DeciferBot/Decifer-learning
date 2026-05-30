@@ -5,6 +5,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Flag } from '@/components/ui/icons'
 
 interface Props {
   reportId:   string
@@ -16,7 +17,7 @@ type Action = 'reviewed' | 'dismissed' | 'flag_question'
 const ACTIONS: { action: Action; label: string; className: string }[] = [
   { action: 'reviewed',      label: 'Reviewed',      className: 'bg-surface border border-black/10 text-ink hover:bg-black/5' },
   { action: 'dismissed',     label: 'Dismiss',        className: 'bg-surface border border-black/10 text-muted hover:bg-black/5' },
-  { action: 'flag_question', label: '🚩 Flag',        className: 'bg-incorrect/10 border border-incorrect/20 text-incorrect hover:bg-incorrect/20' },
+  { action: 'flag_question', label: 'Flag',           className: 'bg-incorrect/10 border border-incorrect/20 text-incorrect hover:bg-incorrect/20', Icon: Flag },
 ]
 
 export function MonitoringActions({ reportId, questionId }: Props) {

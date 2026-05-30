@@ -18,10 +18,13 @@ import {
   getMostRecentTopicId,
   getProgressBySubject,
   getStrongestTopics,
+  getCurriculumProgress,
+  type CurriculumSubject,
 } from '@/lib/parent-dashboard'
 import { getSignalsForChild } from '@/lib/learning-signals-runner'
 import type { LearningSignal } from '@/lib/learning-signals'
 import { ScreenTimeControls } from './ScreenTimeControls'
+import { Star, Flame, Medal, Layers } from '@/components/ui/icons'
 
 export const metadata = { title: 'Child report — Decifer Learning' }
 
@@ -91,6 +94,7 @@ export default async function ChildDetailPage({
     signals,
     ncOutcomes,
     reflections,
+    curriculumProgress,
   ] = await Promise.all([
     getChildProgressSummary(childProfile.id),
     getChildWeakAreas(childProfile.id),
@@ -109,6 +113,9 @@ export default async function ChildDetailPage({
       take: 5,
       include: { topic: { select: { title: true } } },
     }),
+    childProfile.year_group_id
+      ? getCurriculumProgress(childProfile.id, childProfile.year_group_id)
+      : Promise.resolve([]),
   ])
 
   // Screen-time controls (parallel with the rest)
@@ -155,15 +162,26 @@ export default async function ChildDetailPage({
         </div>
         <div className="flex flex-col items-end gap-0.5 text-right">
           {childProfile.total_points > 0 && (
-            <span className="font-heading text-sm font-bold text-points-gold">
-              ⭐ {childProfile.total_points.toLocaleString()} pts
+            <span className="inline-flex items-center gap-1 font-heading text-sm font-bold text-points-gold">
+              <Star className="w-3.5 h-3.5" aria-hidden /> {childProfile.total_points.toLocaleString()} pts
             </span>
           )}
           {childProfile.streak_days > 0 && (
-            <span className="text-xs text-muted">🔥 {childProfile.streak_days} day streak</span>
+            <span className="inline-flex items-center gap-1 text-xs text-muted">
+              <Flame className="w-3.5 h-3.5" aria-hidden /> {childProfile.streak_days} day streak
+            </span>
           )}
         </div>
       </div>
+
+      {/* ════════════════════════════════════════════════════════════════════
+          CURRICULUM TRACKER
+          ════════════════════════════════════════════════════════════════════ */}
+      <CurriculumTracker
+        subjects={curriculumProgress}
+        childName={childProfile.display_name}
+        yearGroupLabel={yearGroupLabel}
+      />
 
       {/* ════════════════════════════════════════════════════════════════════
           LEARNING MAP — PLI v1
@@ -370,10 +388,14 @@ export default async function ChildDetailPage({
         )}
         <div className="mt-3 flex gap-4 text-sm text-muted">
           {progress.badgeCount > 0 && (
-            <span>🏅 {progress.badgeCount} badge{progress.badgeCount === 1 ? '' : 's'}</span>
+            <span className="inline-flex items-center gap-1">
+              <Medal className="w-4 h-4" aria-hidden /> {progress.badgeCount} badge{progress.badgeCount === 1 ? '' : 's'}
+            </span>
           )}
           {progress.cardCount > 0 && (
-            <span>🃏 {progress.cardCount} discovery card{progress.cardCount === 1 ? '' : 's'}</span>
+            <span className="inline-flex items-center gap-1">
+              <Layers className="w-4 h-4" aria-hidden /> {progress.cardCount} discovery card{progress.cardCount === 1 ? '' : 's'}
+            </span>
           )}
         </div>
       </Card>
@@ -514,7 +536,7 @@ export default async function ChildDetailPage({
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={badge.iconUrl} alt={badge.name} className="mb-1 h-8 w-8 object-contain" />
                 ) : (
-                  <span className="mb-1 text-2xl">🏅</span>
+                  <Medal className="mb-1 w-8 h-8 text-muted" aria-hidden />
                 )}
                 <p className="text-xs font-semibold text-ink">{badge.name}</p>
                 {badge.description && <p className="mt-0.5 text-xs text-muted">{badge.description}</p>}
@@ -565,6 +587,160 @@ export default async function ChildDetailPage({
         />
       </Card>
     </section>
+  )
+}
+
+// ── Curriculum tracker ────────────────────────────────────────────────────────
+
+function CurriculumTracker({
+  subjects,
+  childName,
+  yearGroupLabel,
+}: {
+  subjects: CurriculumSubject[]
+  childName: string
+  yearGroupLabel: string | null
+}) {
+  if (subjects.length === 0) {
+    return (
+      <div className="rounded-2xl border border-black/5 bg-surface px-5 py-4 shadow-sm">
+        <h2 className="mb-1 font-heading text-base font-bold text-ink">Curriculum tracker</h2>
+        <p className="text-sm text-muted">
+          No curriculum topics found for {yearGroupLabel ?? 'this year group'} yet.
+        </p>
+      </div>
+    )
+  }
+
+  const totalTopics = subjects.reduce((s, sub) => s + sub.totalCount, 0)
+  const completedTopics = subjects.reduce((s, sub) => s + sub.completedCount, 0)
+  const pct = totalTopics > 0 ? Math.round((completedTopics / totalTopics) * 100) : 0
+
+  return (
+    <div className="rounded-2xl border border-black/5 bg-surface px-5 py-4 shadow-sm space-y-4">
+      {/* Header */}
+      <div>
+        <h2 className="font-heading text-base font-bold text-ink">
+          {yearGroupLabel} Curriculum tracker
+        </h2>
+        <p className="mt-0.5 text-xs text-muted">
+          UK National Curriculum — every topic {childName} is working through
+        </p>
+      </div>
+
+      {/* Overall progress bar */}
+      <div>
+        <div className="mb-1 flex items-center justify-between text-xs">
+          <span className="font-semibold text-ink">{completedTopics} of {totalTopics} topics completed</span>
+          <span className="font-bold text-maths">{pct}%</span>
+        </div>
+        <div className="h-2 overflow-hidden rounded-full bg-black/[0.06]">
+          <div
+            className="h-full rounded-full bg-maths transition-all"
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Per-subject topic lists */}
+      <div className="space-y-5">
+        {subjects.map((subj) => {
+          const subjPct = subj.totalCount > 0
+            ? Math.round((subj.completedCount / subj.totalCount) * 100)
+            : 0
+          return (
+            <div key={subj.subjectId}>
+              {/* Subject header */}
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <span
+                    className="h-2.5 w-2.5 flex-none rounded-full"
+                    style={{ backgroundColor: subj.colourToken }}
+                    aria-hidden
+                  />
+                  <span className="font-heading text-sm font-bold text-ink">{subj.subjectName}</span>
+                </div>
+                <span className="text-xs text-muted">
+                  {subj.completedCount}/{subj.totalCount} · {subjPct}%
+                </span>
+              </div>
+
+              {/* Topic list */}
+              <ul className="space-y-1.5">
+                {subj.topics.map((topic, idx) => {
+                  const isNext =
+                    topic.progressStatus === 'not_started' &&
+                    subj.topics.slice(0, idx).every((t) => t.progressStatus === 'completed')
+
+                  return (
+                    <li
+                      key={topic.topicId}
+                      className={`flex items-center justify-between gap-3 rounded-xl px-3 py-2 text-sm ${
+                        topic.progressStatus === 'completed'
+                          ? 'bg-correct/8 border border-correct/15'
+                          : topic.progressStatus === 'in_progress'
+                            ? 'bg-maths/8 border border-maths/20'
+                            : isNext
+                              ? 'border border-dashed border-maths/30 bg-maths/5'
+                              : 'bg-black/[0.02] border border-transparent'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        {/* Status icon */}
+                        <span className="flex-none text-base" aria-hidden>
+                          {topic.progressStatus === 'completed'
+                            ? '✓'
+                            : topic.progressStatus === 'in_progress'
+                              ? '▶'
+                              : isNext
+                                ? '→'
+                                : '○'}
+                        </span>
+                        <span
+                          className={`truncate font-medium ${
+                            topic.progressStatus === 'completed'
+                              ? 'text-ink'
+                              : topic.progressStatus === 'in_progress'
+                                ? 'text-ink'
+                                : 'text-muted'
+                          }`}
+                        >
+                          {topic.title}
+                          {isNext && (
+                            <span className="ml-1.5 rounded-full bg-maths px-1.5 py-0.5 text-[10px] font-bold text-white">
+                              next
+                            </span>
+                          )}
+                        </span>
+                      </div>
+                      {/* Score badge for completed topics */}
+                      {topic.progressStatus === 'completed' && topic.lastScore !== null && (
+                        <span
+                          className={`flex-none rounded-full px-2 py-0.5 text-xs font-bold ${
+                            topic.lastScore >= 0.85
+                              ? 'bg-correct/20 text-correct'
+                              : topic.lastScore >= 0.70
+                                ? 'bg-points-gold/20 text-points-gold'
+                                : 'bg-incorrect/15 text-incorrect'
+                          }`}
+                        >
+                          {Math.round(topic.lastScore * 100)}%
+                        </span>
+                      )}
+                      {topic.progressStatus === 'in_progress' && (
+                        <span className="flex-none rounded-full bg-maths/20 px-2 py-0.5 text-[10px] font-bold text-maths">
+                          in progress
+                        </span>
+                      )}
+                    </li>
+                  )
+                })}
+              </ul>
+            </div>
+          )
+        })}
+      </div>
+    </div>
   )
 }
 

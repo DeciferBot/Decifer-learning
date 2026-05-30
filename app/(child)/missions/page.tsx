@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { Check } from '@/components/ui/icons'
 
 interface Mission {
   id: string
@@ -95,7 +96,7 @@ export default function MissionsPage() {
                   </p>
                 )}
               </div>
-              <span className="flex-none text-correct font-bold text-lg">✓</span>
+              <Check className="flex-none w-5 h-5 text-correct" aria-hidden />
             </div>
           ))}
         </div>

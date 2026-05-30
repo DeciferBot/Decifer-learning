@@ -4,6 +4,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import { getCurrentProfile } from '@/lib/profile'
 import { QuizShell, type QuizQuestion } from '@/components/quiz/QuizShell'
+import { FlagCheckered } from '@/components/ui/icons'
 
 // Zone checkpoint: a 3-question mini-quiz surfaced after every 3rd topic completion in a zone.
 // Uses the same QuizShell with a lightweight submit endpoint that does NOT award cards/badges
@@ -59,7 +60,7 @@ export default async function CheckpointPage({ params }: { params: { id: string 
 
       <div className="rounded-2xl border-2 border-explorer/30 bg-explorer/5 p-4">
         <div className="flex items-center gap-2">
-          <span className="text-2xl" aria-hidden>🏁</span>
+          <FlagCheckered className="w-7 h-7 text-explorer" aria-hidden />
           <div>
             <p className="font-heading font-bold text-ink">Zone Checkpoint</p>
             <p className="text-sm text-muted">

@@ -5,6 +5,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { RefreshCw } from '@/components/ui/icons'
 
 type State = 'idle' | 'running' | 'done' | 'error'
 
@@ -51,7 +52,7 @@ export function RegenerateButton() {
             Regenerating…
           </>
         ) : (
-          <>♻️ Regenerate flagged</>
+          <><RefreshCw className="w-3.5 h-3.5" aria-hidden /> Regenerate flagged</>
         )}
       </button>
       {summary && (
