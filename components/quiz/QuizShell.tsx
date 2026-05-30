@@ -17,7 +17,7 @@ import type { DroppedCard, EarnedBadge } from '@/app/api/quiz/submit/route'
 // reachable before the child has made a genuine recall attempt. We enforce
 // this with a 15-second countdown — the child must sit with the question
 // before scaffolding appears.
-const HINT_DELAY_SECONDS = 15
+const HINT_DELAY_SECONDS = 10
 
 export type QuizQuestion = {
   id: string
