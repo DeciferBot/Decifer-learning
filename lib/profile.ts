@@ -13,6 +13,7 @@
 //
 // MVP year groups (Year 3, Year 7) only; CLAUDE.md §3.
 
+import { cache } from 'react'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { MVP_YEAR_GROUPS, type Role, type YearGroupLabel } from '@/lib/auth/roles'
 
@@ -44,10 +45,12 @@ function pickYearGroupLabel(yg: ProfileRow['year_groups']): YearGroupLabel | nul
   return MVP_YEAR_GROUPS.some((y) => y.label === label) ? (label as YearGroupLabel) : null
 }
 
-export async function getCurrentProfile(
+// Memoized per React request tree — avoids duplicate DB calls when multiple
+// Server Components on the same page all need the profile.
+export const getCurrentProfile = cache(async (
   supabase: SupabaseClient,
   userId: string
-): Promise<Profile | null> {
+): Promise<Profile | null> => {
   const { data, error } = await supabase
     .from('profiles')
     .select(
@@ -68,4 +71,4 @@ export async function getCurrentProfile(
     total_points: data.total_points,
     streak_days: data.streak_days,
   }
-}
+})

@@ -8,6 +8,10 @@ import type { NodeState } from '@/components/world-map/TopicNode'
 
 export const metadata = { title: 'World Map — Decifer Learning' }
 
+// Zone/node structure changes only when content is published — 60 s cache is fine.
+// Progress (completed nodes) is user-specific; Next.js caches per cookie/request.
+export const revalidate = 60
+
 function computeNodeState(
   topicId: string,
   unlockedByTopicId: string | null,
@@ -43,30 +47,27 @@ export default async function WorldMapPage() {
   const profile = await getCurrentProfile(supabase, user.id)
   if (!profile?.year_group_id) redirect('/dashboard')
 
-  // All zones for this child's year group, with subject colour
-  const zones = await prisma.zone.findMany({
-    where: { year_group_id: profile.year_group_id },
-    include: {
-      subject: { select: { name: true, colour_token: true } },
-    },
-    orderBy: { name: 'asc' },
-  })
+  // Zones and progress are independent — fetch in parallel
+  const [zones, progress] = await Promise.all([
+    prisma.zone.findMany({
+      where: { year_group_id: profile.year_group_id },
+      include: { subject: { select: { name: true, colour_token: true } } },
+      orderBy: { name: 'asc' },
+    }),
+    prisma.topicProgress.findMany({
+      where: { profile_id: profile.id, status: 'completed' },
+      select: { topic_id: true },
+    }),
+  ])
 
-  // All world_map_nodes for those zones, with topic title
+  const completedSet = new Set(progress.map((p) => p.topic_id))
+
+  // Nodes depend on zone IDs but not on progress
   const zoneIds = zones.map((z) => z.id)
   const nodes = await prisma.worldMapNode.findMany({
     where: { zone_id: { in: zoneIds } },
-    include: {
-      topic: { select: { id: true, title: true } },
-    },
+    include: { topic: { select: { id: true, title: true } } },
   })
-
-  // Completed topics for this profile
-  const progress = await prisma.topicProgress.findMany({
-    where: { profile_id: profile.id, status: 'completed' },
-    select: { topic_id: true },
-  })
-  const completedSet = new Set(progress.map((p) => p.topic_id))
 
   // Group nodes by zone for efficient lookup
   const nodesByZone = new Map<string, typeof nodes>()

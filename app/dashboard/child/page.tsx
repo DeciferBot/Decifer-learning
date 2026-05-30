@@ -12,6 +12,11 @@ import { getVaultStatus } from '@/lib/vault/status'
 
 export const metadata = { title: 'Dashboard — Decifer Learning' }
 
+// Re-render at most once per 60 s; stale data served instantly from cache.
+// Points/streak come from the profile row which updates on quiz submit, so
+// a 60 s window is fine for the dashboard teaser values.
+export const revalidate = 60
+
 type SubjectRow = { name: string; colour_token: string }
 type TopicRow = {
   id: string
@@ -39,31 +44,36 @@ export default async function ChildDashboardPage() {
   const displayName = profile?.display_name ?? (user ? getUserDisplayName(user) : 'Explorer')
   const yearGroup = MVP_YEAR_GROUPS.find((y) => y.label === profile?.year_group_label)
 
-  // Fetch published topics for this child's year group, plus a flag for whether
-  // each one has a published practice_game. The Practise step is hidden when
-  // no game exists so "publish as available" can surface Learn+Quiz immediately.
-  // RLS: topics_select_published filters to is_published=true at DB level.
-  let topics: TopicRow[] = []
-  if (profile?.year_group_id) {
-    const rows = await prisma.topic.findMany({
-      where: { year_group_id: profile.year_group_id, is_published: true },
-      select: {
-        id: true,
-        title: true,
-        order_index: true,
-        subject: { select: { name: true, colour_token: true } },
-        _count: { select: { practice_games: { where: { status: 'published' } } } },
-      },
-      orderBy: { order_index: 'asc' },
-    })
-    topics = rows.map((t) => ({
-      id: t.id,
-      title: t.title,
-      order_index: t.order_index,
-      subjects: { name: t.subject.name, colour_token: t.subject.colour_token },
-      hasPractice: t._count.practice_games > 0,
-    }))
-  }
+  // Fire all independent DB queries in parallel — topics, collection count, vault
+  const [topicRows, collectionCount, vaultResult] = await Promise.all([
+    profile?.year_group_id
+      ? prisma.topic.findMany({
+          where: { year_group_id: profile.year_group_id, is_published: true },
+          select: {
+            id: true,
+            title: true,
+            order_index: true,
+            subject: { select: { name: true, colour_token: true } },
+            _count: { select: { practice_games: { where: { status: 'published' } } } },
+          },
+          orderBy: { order_index: 'asc' },
+        })
+      : Promise.resolve([]),
+    profile?.id
+      ? prisma.childCollection.count({ where: { profile_id: profile.id } })
+      : Promise.resolve(0),
+    profile?.id
+      ? getVaultStatus(profile.id).catch(() => null)
+      : Promise.resolve(null),
+  ])
+
+  const topics: TopicRow[] = topicRows.map((t) => ({
+    id: t.id,
+    title: t.title,
+    order_index: t.order_index,
+    subjects: { name: t.subject.name, colour_token: t.subject.colour_token },
+    hasPractice: t._count.practice_games > 0,
+  }))
 
   // Group by subject, preserving canonical order
   const subjectMap = new Map<string, TopicRow[]>()
@@ -78,30 +88,11 @@ export default async function ChildDashboardPage() {
     return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib)
   })
 
-  // Suggested next = first topic of the first subject group (Maths if available)
   const firstTopic = topics[0] ?? null
-
-  // Card count for collection teaser
-  let collectionCount = 0
-  if (profile?.id) {
-    collectionCount = await prisma.childCollection.count({ where: { profile_id: profile.id } })
-  }
-
   const points = profile?.total_points ?? 0
   const streak = profile?.streak_days ?? 0
-
-  // Vault teaser — non-blocking, graceful if vault tables not yet migrated
-  let vaultCredits = 0
-  let vaultBand = 'none'
-  if (profile?.id) {
-    try {
-      const vault = await getVaultStatus(profile.id)
-      vaultCredits = vault.creditBalance
-      vaultBand = vault.currentBand
-    } catch {
-      // Vault tables may not exist yet — silently skip
-    }
-  }
+  const vaultCredits = vaultResult?.creditBalance ?? 0
+  const vaultBand = vaultResult?.currentBand ?? 'none'
 
   return (
     <section className="space-y-5">
