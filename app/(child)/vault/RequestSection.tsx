@@ -111,7 +111,7 @@ export function RequestSection({ hasCredits, hasPendingRequest, pendingRequest, 
                   router.refresh()
                 }}
               >
-                Accept ✓
+                Accept
               </button>
               <button
                 className="flex h-10 flex-1 items-center justify-center rounded-xl bg-black/5 text-sm font-bold text-ink transition-colors hover:bg-black/10"

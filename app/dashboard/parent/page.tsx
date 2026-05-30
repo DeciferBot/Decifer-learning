@@ -204,11 +204,7 @@ export default async function ParentDashboardPage() {
                   {recommended.estimatedMinutes ? ` · ${recommended.estimatedMinutes} min` : ''}
                 </p>
               </div>
-            ) : (
-              <div className="rounded-xl bg-black/[0.03] px-4 py-3 text-sm text-muted">
-                No lessons available yet for {child.yearGroupLabel ?? 'this year group'}.
-              </div>
-            )}
+            ) : null}
 
             {/* Weak areas */}
             {weakAreas.length > 0 ? (

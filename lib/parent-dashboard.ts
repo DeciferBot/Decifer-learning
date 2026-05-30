@@ -496,6 +496,15 @@ export async function getRecommendedNextLesson(
 ): Promise<RecommendedLesson | null> {
   if (!yearGroupLabel) return null
 
+  // Resolve all published topic IDs for this year group — joins via topic table
+  // so we're not relying on the denormalised Lesson.year_group string field.
+  const yearGroupTopics = await prisma.topic.findMany({
+    where: { year_group: { label: yearGroupLabel }, is_published: true },
+    select: { id: true },
+  })
+  const yearGroupTopicIds = yearGroupTopics.map((t) => t.id)
+  if (yearGroupTopicIds.length === 0) return null
+
   const [completedProgress, inProgressProgress] = await Promise.all([
     prisma.topicProgress.findMany({
       where: { profile_id: childProfileId, status: 'completed' },
@@ -508,7 +517,9 @@ export async function getRecommendedNextLesson(
   ])
 
   const completedTopicIds = completedProgress.map((p) => p.topic_id)
-  const inProgressTopicIds = inProgressProgress.map((p) => p.topic_id)
+  const inProgressTopicIds = inProgressProgress
+    .map((p) => p.topic_id)
+    .filter((id) => yearGroupTopicIds.includes(id))
   const hasAnyProgress = completedTopicIds.length > 0 || inProgressTopicIds.length > 0
 
   const lessonSelect = {
@@ -531,7 +542,6 @@ export async function getRecommendedNextLesson(
     const lesson = await prisma.lesson.findFirst({
       where: {
         ...PUBLISHED_VERIFIED,
-        year_group: yearGroupLabel,
         topic_id: { in: inProgressTopicIds },
       },
       select: lessonSelect,
@@ -542,12 +552,15 @@ export async function getRecommendedNextLesson(
     }
   }
 
-  // Fall back: first published+verified lesson not in completed topics
+  // Fall back: first published+verified lesson in this year group, not in completed topics
+  const excludeIds = completedTopicIds.filter((id) => yearGroupTopicIds.includes(id))
   const lesson = await prisma.lesson.findFirst({
     where: {
       ...PUBLISHED_VERIFIED,
-      year_group: yearGroupLabel,
-      ...(completedTopicIds.length > 0 ? { topic_id: { notIn: completedTopicIds } } : {}),
+      topic_id: {
+        in: yearGroupTopicIds,
+        ...(excludeIds.length > 0 ? { notIn: excludeIds } : {}),
+      },
     },
     select: lessonSelect,
     orderBy: [{ difficulty_lane: 'asc' }, { title: 'asc' }],
