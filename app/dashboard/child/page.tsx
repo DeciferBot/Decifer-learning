@@ -166,7 +166,7 @@ export default async function ChildDashboardPage() {
           href="/world-map"
           className="flex min-h-[48px] items-center justify-between rounded-2xl border border-black/5 bg-surface px-4 py-3 shadow-sm transition-colors hover:bg-black/[0.03]"
         >
-          <span className="font-heading text-sm font-semibold text-ink">🗺️ World Map</span>
+          <span className="font-heading text-sm font-semibold text-ink flex items-center gap-1"><MapFold className="w-4 h-4" aria-hidden /> World Map</span>
           <span className="text-xs text-muted">→</span>
         </Link>
         <Link
@@ -270,16 +270,16 @@ export default async function ChildDashboardPage() {
 
           {subjectGroups.map(([subjectName, subjectTopics]) => {
             const colour = subjectTopics[0].subjects.colour_token
-            const emoji = SUBJECT_EMOJI[subjectName] ?? '📚'
+            const SubjectIcon = SUBJECT_ICON[subjectName] ?? BookOpen
             return (
               <div key={subjectName} className="space-y-2">
                 {/* Subject header */}
                 <div className="flex items-center gap-2">
                   <div
-                    className="flex h-7 w-7 items-center justify-center rounded-lg text-sm"
-                    style={{ backgroundColor: colour + '22' }}
+                    className="flex h-7 w-7 items-center justify-center rounded-lg"
+                    style={{ backgroundColor: colour + '22', color: colour }}
                   >
-                    {emoji}
+                    <SubjectIcon size={16} aria-hidden />
                   </div>
                   <h3 className="font-heading text-sm font-bold text-ink">{subjectName}</h3>
                   <span
