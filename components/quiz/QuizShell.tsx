@@ -156,7 +156,7 @@ export function QuizShell({
   const quizStartRef = useRef(Date.now())
   const heartsAtDoneRef = useRef(MAX_HEARTS)
 
-  const q = activeQuestions[qIndex] ?? activeQuestions[0]
+  const q = activeQuestions[qIndex] ?? activeQuestions[0] ?? questions[0]
   const hints = [q.hint_1, q.hint_2, q.hint_3].filter((h): h is string => h !== null)
   const revealedHints = hints.slice(0, hintsRevealed)
 
