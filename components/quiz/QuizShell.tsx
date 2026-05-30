@@ -12,13 +12,15 @@ import { ReportProblemButton } from './ReportProblemButton'
 import { WorkedExample } from './WorkedExample'
 import { ReflectionPrompt } from './ReflectionPrompt'
 import type { DroppedCard, EarnedBadge } from '@/app/api/quiz/submit/route'
+import { DifficultyPicker, type DifficultyChoice } from './DifficultyPicker'
 
-// ── Learning-science constants ────────────────────────────────────────────
-// Retrieval practice effect (Karpicke & Roediger 2013): hints must not be
-// reachable before the child has made a genuine recall attempt. We enforce
-// this with a 15-second countdown — the child must sit with the question
-// before scaffolding appears.
-const HINT_DELAY_SECONDS = 10
+// Points awarded per attempt number (1-indexed). Exhausting all attempts = 0.
+const POINTS_BY_ATTEMPT = [3, 2, 1] as const
+const MAX_ATTEMPTS = 3
+const MAX_HEARTS = 3
+// Hearts are lost when a question is fully exhausted (all attempts wrong),
+// not on individual wrong answers. 3 exhausted questions = 1 heart lost.
+const EXHAUSTED_FOR_HEART_LOSS = 3
 
 export type QuizQuestion = {
   id: string
@@ -55,21 +57,31 @@ type SubmitResult = {
   shieldAwarded: boolean
 }
 
-function shuffleChoices(correct: string, distractors: string[]): string[] {
-  const all = [correct, ...distractors]
-  for (let i = all.length - 1; i > 0; i--) {
+function clientShuffle<T>(arr: T[]): T[] {
+  const a = [...arr]
+  for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
-    ;[all[i], all[j]] = [all[j], all[i]]
+    ;[a[i], a[j]] = [a[j], a[i]]
   }
-  return all
+  return a
+}
+
+function shuffleChoices(correct: string, distractors: string[]): string[] {
+  return clientShuffle([correct, ...distractors])
 }
 
 function buildInitialChoices(q: QuizQuestion): string[] {
   return shuffleChoices(q.correct_answer, q.distractors)
 }
 
-const MAX_HEARTS = 3
-const CONSECUTIVE_WRONG_FOR_HEART_LOSS = 3
+// Pick one random index to be the "bonus challenge" question (worth 2× points).
+function pickBonusIndex(length: number): number {
+  if (length < 3) return -1
+  // Avoid first and last question — feels better mid-journey
+  const min = 1
+  const max = length - 2
+  return min + Math.floor(Math.random() * (max - min + 1))
+}
 
 export function QuizShell({
   questions,
@@ -90,27 +102,42 @@ export function QuizShell({
   backLabel?: string
   winMessage?: string
 }) {
+  // Difficulty selection — shown before quiz starts
+  const [difficulty, setDifficulty] = useState<DifficultyChoice | null>(null)
+
+  // Shuffled + filtered question list — set when child picks difficulty
+  const [activeQuestions, setActiveQuestions] = useState<QuizQuestion[]>([])
+
   const [qIndex, setQIndex] = useState(0)
   const [choices, setChoices] = useState<string[]>(() => buildInitialChoices(questions[0]))
-  const [selected, setSelected] = useState<string | null>(null)
-  const [answered, setAnswered] = useState(false)
-  const [score, setScore] = useState(0)
+
+  // Per-question attempt state
+  const [attempts, setAttempts] = useState(0)          // wrong attempts on current question
+  const [lastPicked, setLastPicked] = useState<string | null>(null)
+  const [questionDone, setQuestionDone] = useState(false)   // answered correctly OR exhausted
+  const [answeredCorrectly, setAnsweredCorrectly] = useState(false)
   const [hintsRevealed, setHintsRevealed] = useState(0)
 
-  // Hint delay — child must sit with the question for HINT_DELAY_SECONDS before hints unlock.
-  // Resets on every new question. Stops counting once the child has answered.
-  const [hintCountdown, setHintCountdown] = useState(HINT_DELAY_SECONDS)
-  const hintsUnlocked = hintCountdown === 0
+  // Running score (points, not questions correct)
+  const [totalPoints, setTotalPoints] = useState(0)
+  const [questionsCorrect, setQuestionsCorrect] = useState(0)
+  const [pointsFlash, setPointsFlash] = useState<number | null>(null)
 
-  // Worked examples — shown on the first question of each question_type in the session.
-  const shownWorkedExampleFor = useRef<Set<string>>(new Set())
+  // Challenge milestones
+  const [bonusIndex, setBonusIndex] = useState(-1)         // which question is the ⭐ bonus challenge
+  const [hintlessStreak, setHintlessStreak] = useState(0)  // correct answers with no hints used
+  const [showStreakBonus, setShowStreakBonus] = useState(false)
+  const [showHalfway, setShowHalfway] = useState(false)
 
   // Hearts + streak shields
   const [hearts, setHearts] = useState(MAX_HEARTS)
   const [shields, setShields] = useState(initialShields)
-  const [consecutiveWrong, setConsecutiveWrong] = useState(0)
+  const [exhaustedQuestions, setExhaustedQuestions] = useState(0)
   const [heartsDead, setHeartsDead] = useState(false)
   const [shieldFlash, setShieldFlash] = useState(false)
+
+  // Worked examples — shown on the first question of each question_type in the session.
+  const shownWorkedExampleFor = useRef<Set<string>>(new Set())
 
   // Quiz completion + submission
   const [done, setDone] = useState(false)
@@ -129,51 +156,23 @@ export function QuizShell({
   const quizStartRef = useRef(Date.now())
   const heartsAtDoneRef = useRef(MAX_HEARTS)
 
-  const q = questions[qIndex]
+  const q = activeQuestions[qIndex] ?? activeQuestions[0]
   const hints = [q.hint_1, q.hint_2, q.hint_3].filter((h): h is string => h !== null)
   const revealedHints = hints.slice(0, hintsRevealed)
 
-  // Show worked example on first question of each question_type within this session.
   const showWorkedExample =
-    !answered &&
+    !questionDone &&
+    attempts === 0 &&
     !!q.worked_example &&
     !shownWorkedExampleFor.current.has(q.question_type)
 
   function pick(choice: string) {
-    if (answered) return
+    if (questionDone) return
     const isCorrect = choice === q.correct_answer
     const timeSeconds = Math.max(1, Math.round((Date.now() - questionStartRef.current) / 1000))
+    const newAttempts = attempts + 1
 
-    setSelected(choice)
-    setAnswered(true)
-    if (isCorrect) {
-      setScore((s) => s + 1)
-      setConsecutiveWrong(0)
-    } else {
-      // Read current values directly — safe in event handlers (never double-invoked
-      // by React Strict Mode, unlike setState updater functions).
-      const next = consecutiveWrong + 1
-      if (next >= CONSECUTIVE_WRONG_FOR_HEART_LOSS) {
-        if (shields > 0) {
-          // Shield absorbs the heart loss. Call the API exactly once here,
-          // outside any setState updater, to prevent the double-invocation
-          // that Strict Mode applies to updater callbacks.
-          setShields(shields - 1)
-          setShieldFlash(true)
-          setTimeout(() => setShieldFlash(false), 800)
-          fetch('/api/streak/shields/use', { method: 'POST' }).catch(() => null)
-        } else {
-          // No shield — lose a heart
-          const newH = hearts - 1
-          heartsAtDoneRef.current = newH
-          setHearts(newH)
-          if (newH <= 0) setHeartsDead(true)
-        }
-        setConsecutiveWrong(0)
-      } else {
-        setConsecutiveWrong(next)
-      }
-    }
+    setLastPicked(choice)
 
     answerLogRef.current.push({
       questionId: q.id,
@@ -182,45 +181,114 @@ export function QuizShell({
       hintNumber: hintsRevealed,
       timeSeconds,
     })
-  }
 
-  function revealNextHint() {
-    if (hintsRevealed < hints.length) setHintsRevealed((n) => n + 1)
+    if (isCorrect) {
+      // Points: 3 for first attempt, 2 for second, 1 for third; 2× for bonus challenge
+      const basePts = POINTS_BY_ATTEMPT[attempts] ?? 1
+      const isBonus = qIndex === bonusIndex
+      const pts = isBonus ? basePts * 2 : basePts
+      setTotalPoints((p) => p + pts)
+      setQuestionsCorrect((n) => n + 1)
+      setPointsFlash(pts)
+      setTimeout(() => setPointsFlash(null), 1200)
+      setAnsweredCorrectly(true)
+      setQuestionDone(true)
+
+      // Hintless streak tracking
+      if (hintsRevealed === 0) {
+        const newStreak = hintlessStreak + 1
+        setHintlessStreak(newStreak)
+        if (newStreak === 3) {
+          // Streak bonus: +5 pts on top
+          setTotalPoints((p) => p + 5)
+          setShowStreakBonus(true)
+          setTimeout(() => setShowStreakBonus(false), 2000)
+          setHintlessStreak(0)
+        }
+      } else {
+        setHintlessStreak(0)
+      }
+
+      // Halfway celebration
+      const midpoint = Math.floor(activeQuestions.length / 2)
+      if (qIndex + 1 === midpoint && !showHalfway) {
+        setShowHalfway(true)
+        setTimeout(() => setShowHalfway(false), 2200)
+      }
+    } else {
+      setAttempts(newAttempts)
+      if (newAttempts >= MAX_ATTEMPTS) {
+        // Exhausted all attempts
+        setQuestionDone(true)
+        const newExhausted = exhaustedQuestions + 1
+        if (newExhausted >= EXHAUSTED_FOR_HEART_LOSS) {
+          if (shields > 0) {
+            setShields(shields - 1)
+            setShieldFlash(true)
+            setTimeout(() => setShieldFlash(false), 800)
+            fetch('/api/streak/shields/use', { method: 'POST' }).catch(() => null)
+          } else {
+            const newH = hearts - 1
+            heartsAtDoneRef.current = newH
+            setHearts(newH)
+            if (newH <= 0) setHeartsDead(true)
+          }
+          setExhaustedQuestions(0)
+        } else {
+          setExhaustedQuestions(newExhausted)
+        }
+      } else {
+        // Auto-reveal next hint after a wrong answer
+        if (hintsRevealed < hints.length) {
+          setHintsRevealed((n) => n + 1)
+        }
+      }
+    }
   }
 
   function next() {
-    // Mark this question_type as having shown a worked example
     if (q.worked_example) shownWorkedExampleFor.current.add(q.question_type)
 
     const nextIdx = qIndex + 1
-    if (nextIdx >= questions.length) {
+    if (nextIdx >= activeQuestions.length) {
       heartsAtDoneRef.current = hearts
       setDone(true)
       return
     }
-    const nextQ = questions[nextIdx]
+    const nextQ = activeQuestions[nextIdx]
     setChoices(buildInitialChoices(nextQ))
     setQIndex(nextIdx)
-    setSelected(null)
-    setAnswered(false)
+    setLastPicked(null)
+    setAttempts(0)
+    setQuestionDone(false)
+    setAnsweredCorrectly(false)
     setHintsRevealed(0)
-    setHintCountdown(HINT_DELAY_SECONDS)
     questionStartRef.current = Date.now()
   }
 
   function restart() {
+    setDifficulty(null)
+    setActiveQuestions([])
+    setBonusIndex(-1)
+    setHintlessStreak(0)
+    setShowStreakBonus(false)
+    setShowHalfway(false)
     setQIndex(0)
     setChoices(buildInitialChoices(questions[0]))
-    setSelected(null)
-    setAnswered(false)
-    setScore(0)
+    setLastPicked(null)
+    setAttempts(0)
+    setQuestionDone(false)
+    setAnsweredCorrectly(false)
+    setHintsRevealed(0)
+    setTotalPoints(0)
+    setQuestionsCorrect(0)
+    setPointsFlash(null)
     setDone(false)
     setHeartsDead(false)
     setHearts(MAX_HEARTS)
     setShields(initialShields)
-    setConsecutiveWrong(0)
-    setHintsRevealed(0)
-    setHintCountdown(HINT_DELAY_SECONDS)
+    setExhaustedQuestions(0)
+    setShieldFlash(false)
     shownWorkedExampleFor.current = new Set()
     setShowReflection(false)
     setSubmitting(false)
@@ -233,13 +301,6 @@ export function QuizShell({
     quizStartRef.current = Date.now()
     heartsAtDoneRef.current = MAX_HEARTS
   }
-
-  // Hint countdown — tick every second until 0, reset on new question or restart.
-  useEffect(() => {
-    if (answered || hintCountdown === 0) return
-    const id = setTimeout(() => setHintCountdown((n) => Math.max(0, n - 1)), 1000)
-    return () => clearTimeout(id)
-  }, [hintCountdown, answered])
 
   // Submit to API when quiz is done
   useEffect(() => {
@@ -269,14 +330,12 @@ export function QuizShell({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [done])
 
-  // ── Card reveal dismissed → show badges ──────────────────────────────────
   function onCardDismissed() {
     setShowCard(false)
     if (submitResult?.newBadges?.length) setBadgeQueue(submitResult.newBadges)
     else if (submitResult?.passed) setShowReflection(true)
   }
 
-  // ── Badge dismissed → show next badge ────────────────────────────────────
   function onBadgeDismissed() {
     const remaining = badgeQueue.slice(1)
     setBadgeQueue(remaining)
@@ -306,28 +365,21 @@ export function QuizShell({
 
   // ── Quiz done → result screen ─────────────────────────────────────────────
   if (done) {
-    const localScore = score
-    const localTotal = questions.length
-    const pct = Math.round((localScore / localTotal) * 100)
+    const pct = Math.round((questionsCorrect / activeQuestions.length) * 100)
     const passed = pct >= 70
-    const points = submitResult?.points
-    const totalPoints = submitResult?.totalPoints
+    const serverPoints = submitResult?.points
+    const serverTotalPoints = submitResult?.totalPoints
     const streakDays = submitResult?.streakDays
     const shieldAwarded = submitResult?.shieldAwarded
 
     return (
       <>
-        {/* Card reveal overlay */}
         {showCard && submitResult?.droppedCard && (
           <CardReveal card={submitResult.droppedCard} onDismiss={onCardDismissed} />
         )}
-
-        {/* Badge popup (shown after card dismissed) */}
         {!showCard && badgeQueue.length > 0 && (
           <BadgePopup badge={badgeQueue[0]} onDismiss={onBadgeDismissed} />
         )}
-
-        {/* OIT reflection prompt — shown after passing, before results buttons */}
         {showReflection && topicId && (
           <ReflectionPrompt
             topicId={topicId}
@@ -349,7 +401,7 @@ export function QuizShell({
             className="mt-2 text-4xl font-bold"
             style={{ color: passed ? '#40C057' : '#FF6B6B' }}
           >
-            {localScore} / {localTotal}
+            {questionsCorrect} / {activeQuestions.length}
           </p>
           <p className="mt-1 text-muted">
             {pct}% — {passed ? winMessage : 'Try again to improve your score.'}
@@ -363,13 +415,13 @@ export function QuizShell({
             </p>
           ) : (
             <div className="mt-4 space-y-1">
-              {typeof points === 'number' && (
+              {typeof serverPoints === 'number' && (
                 <p className="font-heading font-bold" style={{ color: '#FFC107' }}>
-                  +{points} points earned
+                  +{serverPoints} points earned
                 </p>
               )}
-              {typeof totalPoints === 'number' && (
-                <p className="text-sm text-muted">Total: {totalPoints.toLocaleString()} pts</p>
+              {typeof serverTotalPoints === 'number' && (
+                <p className="text-sm text-muted">Total: {serverTotalPoints.toLocaleString()} pts</p>
               )}
               {typeof streakDays === 'number' && streakDays > 0 && (
                 <p className="text-sm text-muted">🔥 {streakDays} day streak</p>
@@ -411,9 +463,68 @@ export function QuizShell({
     )
   }
 
+  // ── Difficulty picker — shown before quiz starts ──────────────────────────
+  if (difficulty === null) {
+    return (
+      <DifficultyPicker
+        onPick={(choice) => {
+          const base = choice === 'mixed'
+            ? questions
+            : (() => {
+                const f = questions.filter((q) => q.tier === choice)
+                return f.length >= 3 ? f : questions
+              })()
+          // Shuffle client-side so every attempt is a fresh order
+          const shuffled = clientShuffle(base)
+          setDifficulty(choice)
+          setActiveQuestions(shuffled)
+          setBonusIndex(pickBonusIndex(shuffled.length))
+          setChoices(buildInitialChoices(shuffled[0] ?? questions[0]))
+        }}
+      />
+    )
+  }
+
   // ── Active quiz ───────────────────────────────────────────────────────────
+  const attemptsLeft = MAX_ATTEMPTS - attempts
+  const isExhausted = questionDone && !answeredCorrectly
+  const isBonusQuestion = qIndex === bonusIndex
+
   return (
     <div className="space-y-4">
+      {/* Streak bonus flash */}
+      <AnimatePresence>
+        {showStreakBonus && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8, y: -10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: -10 }}
+            className="rounded-2xl bg-points-gold/20 px-5 py-3 text-center"
+          >
+            <p className="font-heading text-lg font-bold" style={{ color: '#FFC107' }}>
+              🔥 3-in-a-row! Bonus +5 pts!
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Halfway celebration */}
+      <AnimatePresence>
+        {showHalfway && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.85 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.85 }}
+            className="rounded-2xl bg-maths/15 px-5 py-3 text-center"
+          >
+            <p className="font-heading text-lg font-bold text-maths">
+              🎯 Halfway there — keep going!
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Header row: hearts + live score */}
       <div className="flex items-center justify-between">
         <HeartsDisplay hearts={hearts} />
         <div className="flex items-center gap-3">
@@ -428,17 +539,39 @@ export function QuizShell({
               🛡️ ×{shields}
             </motion.span>
           )}
-          <span className="text-sm font-bold text-ink">Score: {score}</span>
+          {/* Live score display */}
+          <div className="relative flex items-center gap-1">
+            <span className="font-heading text-sm font-bold text-ink">
+              {questionsCorrect}/{activeQuestions.length}
+            </span>
+            <AnimatePresence>
+              {pointsFlash !== null && (
+                <motion.span
+                  key={totalPoints}
+                  initial={{ opacity: 1, y: 0 }}
+                  animate={{ opacity: 0, y: -20 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 1.1 }}
+                  className="absolute -top-5 right-0 text-sm font-bold"
+                  style={{ color: '#FFC107' }}
+                >
+                  +{pointsFlash}pts
+                </motion.span>
+              )}
+            </AnimatePresence>
+            <span className="text-xs text-muted">
+              · {totalPoints}pts
+            </span>
+          </div>
         </div>
       </div>
 
+      {/* Progress bar */}
       <div className="flex items-center justify-between text-sm text-muted">
-        <span>
-          Question {qIndex + 1} of {questions.length}
-        </span>
-        {consecutiveWrong > 0 && (
-          <span className="text-xs" style={{ color: '#FF6B6B' }}>
-            {CONSECUTIVE_WRONG_FOR_HEART_LOSS - consecutiveWrong} more wrong = {shields > 0 ? '🛡️' : '❤️'} lost
+        <span>Question {qIndex + 1} of {activeQuestions.length}</span>
+        {!questionDone && attempts > 0 && (
+          <span className="text-xs font-bold" style={{ color: '#FF6B6B' }}>
+            {attemptsLeft} attempt{attemptsLeft !== 1 ? 's' : ''} left
           </span>
         )}
       </div>
@@ -446,7 +579,7 @@ export function QuizShell({
       <div className="h-2 overflow-hidden rounded-full bg-black/5">
         <motion.div
           className="h-full rounded-full bg-maths"
-          animate={{ width: `${(qIndex / questions.length) * 100}%` }}
+          animate={{ width: `${(qIndex / activeQuestions.length) * 100}%` }}
           transition={{ duration: 0.4 }}
         />
       </div>
@@ -460,32 +593,84 @@ export function QuizShell({
           transition={{ duration: 0.22 }}
           className="rounded-2xl border border-black/5 bg-surface p-6 shadow-sm"
         >
-          {/* Worked example — first encounter of this question_type in session */}
           {showWorkedExample && q.worked_example && (
             <WorkedExample example={q.worked_example} />
+          )}
+
+          {/* Bonus challenge badge */}
+          {isBonusQuestion && (
+            <motion.div
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold"
+              style={{ background: '#FFF3CD', color: '#B8860B' }}
+            >
+              ⭐ Bonus Challenge — double points!
+            </motion.div>
           )}
 
           <p className="mb-5 font-heading text-xl font-bold leading-snug text-ink">
             {q.question_text}
           </p>
 
-          <HintButton
-            hints={hints}
-            revealed={revealedHints}
-            onReveal={revealNextHint}
-            disabled={answered}
-            countdown={hintsUnlocked ? null : hintCountdown}
-          />
+          {/* Hints — shown automatically after wrong attempts */}
+          {revealedHints.length > 0 && (
+            <div className="mb-4 space-y-2">
+              {revealedHints.map((hint, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="rounded-xl border border-black/8 bg-yellow-50 px-4 py-3 text-sm text-ink"
+                >
+                  <span className="mr-2 font-bold text-yellow-600">💡 Hint {i + 1}:</span>
+                  {hint}
+                </motion.div>
+              ))}
+            </div>
+          )}
 
+          {/* Manual hint button — only before first attempt */}
+          {attempts === 0 && !questionDone && (
+            <HintButton
+              hints={hints}
+              revealed={revealedHints}
+              onReveal={() => setHintsRevealed((n) => Math.min(n + 1, hints.length))}
+              disabled={false}
+              countdown={null}
+            />
+          )}
+
+          {/* Wrong-answer nudge */}
+          <AnimatePresence>
+            {attempts > 0 && !questionDone && (
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="mb-3 text-sm font-bold"
+                style={{ color: '#FF6B6B' }}
+              >
+                Not quite — here&apos;s a hint. Try again!
+              </motion.p>
+            )}
+          </AnimatePresence>
+
+          {/* Answer choices */}
           <div className="mt-4 grid grid-cols-2 gap-3">
             {choices.map((choice) => {
               let cls =
                 'min-h-[56px] rounded-xl border-2 px-4 py-3 text-center font-heading font-bold text-ink transition-colors'
-              if (!answered) {
-                cls += ' border-black/10 bg-background hover:border-maths hover:bg-maths/10'
+              if (!questionDone) {
+                // Shade the last wrong pick while still active
+                if (choice === lastPicked && attempts > 0) {
+                  cls += ' border-incorrect bg-incorrect/20 text-incorrect'
+                } else {
+                  cls += ' border-black/10 bg-background hover:border-maths hover:bg-maths/10'
+                }
               } else if (choice === q.correct_answer) {
                 cls += ' border-correct bg-correct/20 text-correct'
-              } else if (choice === selected) {
+              } else if (choice === lastPicked && !answeredCorrectly) {
                 cls += ' border-incorrect bg-incorrect/20 text-incorrect'
               } else {
                 cls += ' border-black/10 bg-background opacity-50'
@@ -494,8 +679,8 @@ export function QuizShell({
                 <motion.button
                   key={choice}
                   onClick={() => pick(choice)}
-                  disabled={answered}
-                  whileTap={answered ? {} : { scale: 0.97 }}
+                  disabled={questionDone}
+                  whileTap={questionDone ? {} : { scale: 0.97 }}
                   className={cls}
                 >
                   {choice}
@@ -504,24 +689,30 @@ export function QuizShell({
             })}
           </div>
 
+          {/* Post-question feedback */}
           <AnimatePresence>
-            {answered && (
+            {questionDone && (
               <motion.div
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
                 className={`mt-4 rounded-xl p-4 ${
-                  selected === q.correct_answer ? 'bg-correct/10' : 'bg-incorrect/10'
+                  answeredCorrectly ? 'bg-correct/10' : 'bg-incorrect/10'
                 }`}
               >
                 <p
                   className="font-bold"
-                  style={{ color: selected === q.correct_answer ? '#40C057' : '#FF6B6B' }}
+                  style={{ color: answeredCorrectly ? '#40C057' : '#FF6B6B' }}
                 >
-                  {selected === q.correct_answer
-                    ? '✓ Correct!'
+                  {answeredCorrectly
+                    ? attempts === 0
+                      ? isBonusQuestion ? '✓ Correct! Double points! ⭐' : '✓ Correct! Full marks!'
+                      : `✓ Got it on attempt ${attempts + 1}!`
                     : `✗ The answer is ${q.correct_answer}`}
                 </p>
+                {isExhausted && (
+                  <p className="mt-0.5 text-xs text-muted">No points this time — you&apos;ll get it next time!</p>
+                )}
                 {q.explanation && (
                   <p className="mt-1 text-sm text-muted">{q.explanation}</p>
                 )}
@@ -529,13 +720,13 @@ export function QuizShell({
             )}
           </AnimatePresence>
 
-          {answered && !heartsDead && (
+          {questionDone && !heartsDead && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-4 space-y-1">
               <button
                 onClick={next}
                 className="min-h-[48px] w-full rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white transition-opacity hover:opacity-90"
               >
-                {qIndex + 1 < questions.length ? 'Next Question →' : 'See Results'}
+                {qIndex + 1 < activeQuestions.length ? 'Next Question →' : 'See Results'}
               </button>
               <ReportProblemButton questionId={q.id} />
             </motion.div>

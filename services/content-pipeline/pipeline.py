@@ -749,29 +749,59 @@ def stage5_dedup(
         result.log_stage("  embeddings disabled — skipping dedup")
         return True
 
-    existing = db.get_published_question_texts(topic_id)
+    # Fetch full rows (id + question_text + correct_answer) for dedup + diversity checks.
+    existing_full = db.get_published_questions_full(topic_id)
+    existing = existing_full  # used for semantic dedup below
+
     if not existing:
         result.log_stage("  no existing published questions — passes dedup")
-        return True
+    else:
+        q_embedding = embed_text(question_data.get("question_text", ""))
+        if q_embedding is None:
+            result.log_stage("  embedding failed — skipping dedup")
+        else:
+            for row in existing:
+                ex_embedding = embed_text(row.get("question_text", ""))
+                if ex_embedding is None:
+                    continue
+                similarity = float(
+                    np.dot(q_embedding, ex_embedding)
+                    / (np.linalg.norm(q_embedding) * np.linalg.norm(ex_embedding) + 1e-12)
+                )
+                if similarity > config.DEDUP_SIMILARITY_THRESHOLD:
+                    result.log_stage(f"  duplicate detected (similarity={similarity:.3f})")
+                    return False
 
-    q_embedding = embed_text(question_data.get("question_text", ""))
-    if q_embedding is None:
-        result.log_stage("  embedding failed — skipping dedup")
-        return True
+        result.log_stage("  no semantic duplicates found")
 
-    for row in existing:
-        ex_embedding = embed_text(row["question_text"])
-        if ex_embedding is None:
-            continue
-        similarity = float(
-            np.dot(q_embedding, ex_embedding)
-            / (np.linalg.norm(q_embedding) * np.linalg.norm(ex_embedding) + 1e-12)
-        )
-        if similarity > config.DEDUP_SIMILARITY_THRESHOLD:
-            result.log_stage(f"  duplicate detected (similarity={similarity:.3f})")
-            return False
+    # English answer-diversity check: reject if this correct_answer is already used
+    # by >40% of published questions in the topic.  Prevents the pattern where every
+    # grammar question answers "because" or every phonics question answers "sh".
+    subject = ""
+    try:
+        topic_row = db.get_topic(topic_id)
+        subject = (topic_row or {}).get("subject_name", "")
+    except Exception:
+        pass
+    if "english" in subject.lower() and existing:
+        new_answer = (question_data.get("correct_answer") or "").strip().lower()
+        if new_answer:
+            published_answers = [
+                (r.get("correct_answer") or "").strip().lower()
+                for r in existing
+                if r.get("correct_answer")
+            ]
+            if published_answers:
+                match_count = sum(1 for a in published_answers if a == new_answer)
+                match_pct = match_count / len(published_answers)
+                if match_pct > 0.40:
+                    result.log_stage(
+                        f"  answer diversity rejected: '{new_answer}' already used in "
+                        f"{match_count}/{len(published_answers)} published questions "
+                        f"({match_pct:.0%} > 40% threshold)"
+                    )
+                    return False
 
-    result.log_stage("  no duplicates found")
     return True
 
 
