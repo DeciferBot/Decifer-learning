@@ -7,6 +7,17 @@ import { GuideCard } from '@/components/ui/GuideCard'
 import { LearningJourney } from '@/components/homepage/LearningJourney'
 import { QualityPipeline } from '@/components/homepage/QualityPipeline'
 import { HeroMockup } from '@/components/homepage/HeroMockup'
+import type { ComponentType, SVGProps } from 'react'
+import {
+  MapFold, Check, BarChart, Users,
+  TrendingUp, Search, MapPin, Link2,
+  BookOpen, PencilLine, Zap, Star,
+  Trophy, Flame, Medal, Gem,
+  ClipboardList, Telescope, Target, CircleCheck, Bell,
+  Backpack, GraduationCap,
+} from '@/components/ui/icons'
+
+type Icon = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
 
 export const metadata = {
   title: 'DECIFER Learning — UK National Curriculum for families',
@@ -82,7 +93,7 @@ export default function Home({
                     key={chip.label}
                     className="inline-flex items-center gap-1.5 rounded-full bg-black/[0.04] px-3 py-1.5 text-xs font-medium text-ink"
                   >
-                    <span aria-hidden>{chip.icon}</span>
+                    <chip.Icon size={14} aria-hidden />
                     {chip.label}
                   </span>
                 ))}
@@ -123,7 +134,7 @@ export default function Home({
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {PARENT_PROBLEM_CARDS.map((card, i) => (
                 <div key={i} className="rounded-2xl border border-black/5 bg-background p-5 shadow-sm">
-                  <span className="mb-3 block text-2xl" aria-hidden>{card.icon}</span>
+                  <card.Icon size={24} className="mb-3 text-muted" aria-hidden />
                   <p className="font-heading font-semibold text-ink">{card.title}</p>
                   <p className="mt-1.5 text-sm leading-relaxed text-muted">{card.body}</p>
                 </div>
@@ -148,7 +159,7 @@ export default function Home({
             <div className="grid gap-5 md:grid-cols-3">
               {LEARNING_INTELLIGENCE_CARDS.map((card, i) => (
                 <div key={i} className="rounded-2xl border border-brand/10 bg-brand-50 p-6">
-                  <span className="mb-3 block text-2xl" aria-hidden>{card.icon}</span>
+                  <card.Icon size={24} className="mb-3 text-brand" aria-hidden />
                   <p className="mb-1 font-heading font-bold text-ink">{card.title}</p>
                   <p className="text-sm leading-relaxed text-muted">{card.body}</p>
                   {card.example && (
@@ -233,7 +244,7 @@ export default function Home({
                 <ul className="space-y-4">
                   {CHILD_FEATURES.map((f, i) => (
                     <li key={i} className="flex items-start gap-3">
-                      <span className="flex-none text-lg" aria-hidden>{f.icon}</span>
+                      <f.Icon size={18} className="mt-0.5 flex-none text-maths" aria-hidden />
                       <div>
                         <p className="text-sm font-semibold text-ink">{f.title}</p>
                         <p className="mt-0.5 text-xs leading-relaxed text-muted">{f.body}</p>
@@ -257,7 +268,7 @@ export default function Home({
                 <ul className="space-y-4">
                   {PARENT_FEATURES.map((f, i) => (
                     <li key={i} className="flex items-start gap-3">
-                      <span className="flex-none text-lg" aria-hidden>{f.icon}</span>
+                      <f.Icon size={18} className="mt-0.5 flex-none text-brand" aria-hidden />
                       <div>
                         <p className="text-sm font-semibold text-ink">{f.title}</p>
                         <p className="mt-0.5 text-xs leading-relaxed text-muted">{f.body}</p>
@@ -294,7 +305,7 @@ export default function Home({
                   key={i}
                   className="rounded-2xl border border-black/5 bg-surface p-5 text-center shadow-sm"
                 >
-                  <span className="mb-3 block text-3xl" aria-hidden>{item.icon}</span>
+                  <item.Icon size={32} className="mb-3 mx-auto text-muted" aria-hidden />
                   <p className="mb-1 font-heading font-semibold text-ink">{item.label}</p>
                   <p className="text-xs text-muted">{item.desc}</p>
                 </div>
@@ -397,42 +408,42 @@ export default function Home({
             </p>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               <GuideCard
-                icon="👨‍👩‍👧"
+                icon={<Users size={22} />}
                 title="Parent guide"
                 description="How to set up your child's account, read the learning map, and support their learning."
                 href="/help/parent-guide"
                 audience="parent"
               />
               <GuideCard
-                icon="🎒"
+                icon={<Backpack size={22} />}
                 title="Student guide"
                 description="How to use DECIFER Learning, earn XP, collect cards, and keep your streak going."
                 href="/help/student-guide"
                 audience="student"
               />
               <GuideCard
-                icon="< >"
+                icon={<BookOpen size={22} />}
                 title="How DECIFER Learning works"
                 description="The thinking behind the lessons, practice, quiz structure, and learning map."
                 href="/help/how-decifer-works"
                 audience="general"
               />
               <GuideCard
-                icon="⭐"
+                icon={<Trophy size={22} />}
                 title="Gamification explained"
                 description="XP, badges, streaks, shields, and Discovery Cards, all explained."
                 href="/help/gamification"
                 audience="student"
               />
               <GuideCard
-                icon="✅"
+                icon={<CircleCheck size={22} />}
                 title="Content quality"
                 description="How DECIFER Learning checks every question and lesson before it reaches your child."
                 href="/help/content-quality"
                 audience="parent"
               />
               <GuideCard
-                icon="💬"
+                icon={<Bell size={22} />}
                 title="Frequently asked questions"
                 description="Answers to the most common questions from parents and students."
                 href="/help/faq"
@@ -492,101 +503,38 @@ export default function Home({
 
 // ── Static content ─────────────────────────────────────────────────────────────
 
-const TRUST_CHIPS = [
-  { icon: '🗺️', label: 'Learning map for parents' },
-  { icon: '✅', label: 'Quality-checked content' },
-  { icon: '📊', label: 'Evidence-based patterns' },
-  { icon: '🇬🇧', label: 'UK curriculum-aligned' },
+const TRUST_CHIPS: Array<{ Icon: Icon; label: string }> = [
+  { Icon: MapFold,      label: 'Learning map for parents' },
+  { Icon: Check,        label: 'Quality-checked content' },
+  { Icon: BarChart,     label: 'Evidence-based patterns' },
+  { Icon: GraduationCap, label: 'UK curriculum-aligned' },
 ]
 
-const PARENT_PROBLEM_CARDS = [
-  {
-    icon: '📊',
-    title: 'You can see a score. Not what it cost.',
-    body: 'An 80% after three hints is very different from an 80% on the first try. Decifer shows both.',
-  },
-  {
-    icon: '⏱️',
-    title: 'You can see time spent. Not effort.',
-    body: 'Ten minutes rushing through is different from ten minutes working carefully. The learning map reflects that difference.',
-  },
-  {
-    icon: '📋',
-    title: 'You know they finished. Not what was hard.',
-    body: 'Topic completed tells you nothing about where they hesitated, guessed, or needed support. Decifer surfaces those moments.',
-  },
-  {
-    icon: '🔭',
-    title: 'You see the result. Not the pattern.',
-    body: 'A single score is a snapshot. Patterns across weeks show whether things are improving, staying steady, or needing a closer look.',
-  },
+const PARENT_PROBLEM_CARDS: Array<{ Icon: Icon; title: string; body: string }> = [
+  { Icon: BarChart,     title: 'You can see a score. Not what it cost.',        body: 'An 80% after three hints is very different from an 80% on the first try. Decifer shows both.' },
+  { Icon: Target,       title: 'You can see time spent. Not effort.',            body: 'Ten minutes rushing through is different from ten minutes working carefully. The learning map reflects that difference.' },
+  { Icon: ClipboardList, title: 'You know they finished. Not what was hard.',    body: 'Topic completed tells you nothing about where they hesitated, guessed, or needed support. Decifer surfaces those moments.' },
+  { Icon: Telescope,    title: 'You see the result. Not the pattern.',           body: 'A single score is a snapshot. Patterns across weeks show whether things are improving, staying steady, or needing a closer look.' },
 ]
 
-const LEARNING_INTELLIGENCE_CARDS = [
-  {
-    icon: '🗺️',
-    title: 'Progress by subject',
-    body: 'See which topics your child has started, completed, and revisited — across Maths, English, and Science. Based on their actual topic progress and quiz attempts.',
-    example: '"Completed 6 of 14 Maths topics. Last active 2 days ago."',
-  },
-  {
-    icon: '📈',
-    title: 'What is going well',
-    body: 'Topics where your child scored well and completed more than once show up here — with the score and how many times they have revisited.',
-    example: '"Completed with 85% on the last attempt. Reviewed twice."',
-  },
-  {
-    icon: '🔍',
-    title: 'Where more practice would help',
-    body: 'Topics with lower accuracy across multiple attempts, or where hints were used frequently, are highlighted with the evidence behind them.',
-    example: '"Lower accuracy across 12 answers. Hints used in 7 of those."',
-  },
+const LEARNING_INTELLIGENCE_CARDS: Array<{ Icon: Icon; title: string; body: string; example?: string }> = [
+  { Icon: MapFold,    title: 'Progress by subject',            body: 'See which topics your child has started, completed, and revisited — across Maths, English, and Science. Based on their actual topic progress and quiz attempts.', example: '"Completed 6 of 14 Maths topics. Last active 2 days ago."' },
+  { Icon: TrendingUp, title: 'What is going well',             body: 'Topics where your child scored well and completed more than once show up here — with the score and how many times they have revisited.', example: '"Completed with 85% on the last attempt. Reviewed twice."' },
+  { Icon: Search,     title: 'Where more practice would help', body: 'Topics with lower accuracy across multiple attempts, or where hints were used frequently, are highlighted with the evidence behind them.', example: '"Lower accuracy across 12 answers. Hints used in 7 of those."' },
 ]
 
-const CHILD_FEATURES = [
-  {
-    icon: '📖',
-    title: 'Guided lessons at the right level',
-    body: 'Explanations and examples matched to the UK curriculum for their year group.',
-  },
-  {
-    icon: '✏️',
-    title: 'Practice with hints and retries',
-    body: 'Exercises with up to three hint levels. Retrying is always allowed and never penalised.',
-  },
-  {
-    icon: '⚡',
-    title: 'Quizzes with instant feedback',
-    body: 'Ten questions per topic. Correct answers are celebrated. Mistakes are explained.',
-  },
-  {
-    icon: '⭐',
-    title: 'XP, badges, and Discovery Cards',
-    body: 'Progress is rewarded. Cards, streaks, and badges keep learning feeling worthwhile.',
-  },
+const CHILD_FEATURES: Array<{ Icon: Icon; title: string; body: string }> = [
+  { Icon: BookOpen,   title: 'Guided lessons at the right level',  body: 'Explanations and examples matched to the UK curriculum for their year group.' },
+  { Icon: PencilLine, title: 'Practice with hints and retries',    body: 'Exercises with up to three hint levels. Retrying is always allowed and never penalised.' },
+  { Icon: Zap,        title: 'Quizzes with instant feedback',      body: 'Ten questions per topic. Correct answers are celebrated. Mistakes are explained.' },
+  { Icon: Star,       title: 'XP, badges, and Discovery Cards',    body: 'Progress is rewarded. Cards, streaks, and badges keep learning feeling worthwhile.' },
 ]
 
-const PARENT_FEATURES = [
-  {
-    icon: '🗺️',
-    title: 'The learning map',
-    body: 'A clear view of what your child has covered, what is going well, and where more practice would help — based on their actual activity.',
-  },
-  {
-    icon: '🔍',
-    title: 'Learning patterns over time',
-    body: 'Patterns based on quiz answers, lesson behaviour, and topic progress. Each pattern shows the evidence it is based on.',
-  },
-  {
-    icon: '📍',
-    title: 'A suggested next step',
-    body: 'Every insight includes a practical next step — something specific you or your child can do, not a vague recommendation.',
-  },
-  {
-    icon: '🔗',
-    title: 'Linked from your account',
-    body: 'Create your account, link your child, and see their learning map straight away. No setup beyond the basics.',
-  },
+const PARENT_FEATURES: Array<{ Icon: Icon; title: string; body: string }> = [
+  { Icon: MapFold, title: 'The learning map',            body: 'A clear view of what your child has covered, what is going well, and where more practice would help — based on their actual activity.' },
+  { Icon: Search,  title: 'Learning patterns over time', body: 'Patterns based on quiz answers, lesson behaviour, and topic progress. Each pattern shows the evidence it is based on.' },
+  { Icon: MapPin,  title: 'A suggested next step',       body: 'Every insight includes a practical next step — something specific you or your child can do, not a vague recommendation.' },
+  { Icon: Link2,   title: 'Linked from your account',    body: 'Create your account, link your child, and see their learning map straight away. No setup beyond the basics.' },
 ]
 
 const SAMPLE_TOPICS = [
@@ -620,9 +568,9 @@ const SAMPLE_TOPICS = [
   },
 ]
 
-const GAMIFICATION_ITEMS = [
-  { icon: '⭐', label: 'XP Points', desc: 'Earn points for every correct answer, quiz, and daily login.' },
-  { icon: '🔥', label: 'Streaks', desc: 'Keep your learning streak growing day by day.' },
-  { icon: '🏅', label: 'Badges', desc: 'Unlock badges for achievements, perfect scores, and mastery.' },
-  { icon: '🃏', label: 'Discovery Cards', desc: 'Collect rare cards that drop after completing quizzes.' },
+const GAMIFICATION_ITEMS: Array<{ Icon: Icon; label: string; desc: string }> = [
+  { Icon: Star,  label: 'XP Points',      desc: 'Earn points for every correct answer, quiz, and daily login.' },
+  { Icon: Flame, label: 'Streaks',         desc: 'Keep your learning streak growing day by day.' },
+  { Icon: Medal, label: 'Badges',          desc: 'Unlock badges for achievements, perfect scores, and mastery.' },
+  { Icon: Gem,   label: 'Discovery Cards', desc: 'Collect rare cards that drop after completing quizzes.' },
 ]

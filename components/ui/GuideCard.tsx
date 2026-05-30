@@ -1,7 +1,8 @@
 import Link from 'next/link'
+import type { ReactNode } from 'react'
 
 interface GuideCardProps {
-  icon: string
+  icon: ReactNode
   title: string
   description: string
   href: string
@@ -22,7 +23,7 @@ export function GuideCard({ icon, title, description, href, audience = 'general'
       href={href}
       className={`flex items-start gap-4 rounded-2xl border bg-surface p-5 shadow-sm transition-colors ${accent}`}
     >
-      <span className="mt-0.5 flex-none text-2xl" aria-hidden>{icon}</span>
+      <span className="mt-0.5 flex-none text-muted" aria-hidden>{icon}</span>
       <div className="min-w-0">
         <p className="font-heading font-semibold text-ink">{title}</p>
         <p className="mt-1 text-sm text-muted">{description}</p>
