@@ -140,6 +140,85 @@ def _build_maths_prompt(
             )
         else:
             diversity_end = ""
+
+        # ── Topic-aware archetype hints ───────────────────────────────────────
+        # When a topic has many existing questions, the model defaults to the same
+        # template. These hints force structural variety by naming unused archetypes.
+        topic_title_lower = topic.get("title", "").lower()
+
+        if "fraction" in topic_title_lower:
+            # Detect which archetypes are already heavily used
+            used_texts_lower = " ".join(used_texts).lower()
+            used_archetypes = []
+            if "what is" in used_texts_lower and ("quarter" in used_texts_lower or "half" in used_texts_lower or "third" in used_texts_lower):
+                used_archetypes.append("A (find-the-part)")
+            if "fraction of a number" in used_texts_lower or "is one quarter of" in used_texts_lower:
+                used_archetypes.append("B (find-the-whole)")
+            if "greater" in used_texts_lower or "bigger" in used_texts_lower or "which is more" in used_texts_lower:
+                used_archetypes.append("C (compare)")
+            if "order" in used_texts_lower or "smallest to largest" in used_texts_lower:
+                used_archetypes.append("D (order)")
+            if "equivalent" in used_texts_lower:
+                used_archetypes.append("E (equivalent)")
+            if "shaded" in used_texts_lower or "equal parts" in used_texts_lower:
+                used_archetypes.append("F (shape/diagram)")
+
+            used_str = ", ".join(used_archetypes) if used_archetypes else "A (find-the-part)"
+            diversity_end += f"""
+
+🎯 FRACTIONS ARCHETYPE DIVERSITY (critical — deduplication will reject structural clones):
+Already-used archetypes: {used_str}
+You MUST use a DIFFERENT archetype from this list:
+  A) Find the part   — "What is ¼ of 12?"  [most common — AVOID if already used]
+  B) Find the whole  — "6 is half of a number. What is the number?"
+  C) Compare         — "Which is greater: ½ or ¼? Explain."
+  D) Order           — "Put ½, ¼, ¾ in order from smallest to largest."
+  E) Equivalent      — "Which fraction is the same as ½: 2/4, 2/3, or 3/4?"
+  F) Shape/diagram   — "A chocolate bar has 8 equal pieces. Sam eats 2. What fraction did Sam eat?"
+  G) Multi-step      — "Mia has 24 cards. She gives away ¼. How many does she keep?"
+Choose an archetype NOT in the already-used list above and write your question using it.
+Use DIFFERENT numbers from those already in the forbidden list."""
+
+        elif "algebra" in topic_title_lower or "expression" in topic_title_lower:
+            used_texts_lower = " ".join(used_texts).lower()
+            used_archetypes = []
+            if "solve" in used_texts_lower and ("equation" in used_texts_lower or "=" in used_texts_lower):
+                used_archetypes.append("A (solve one/two-step equation)")
+            if "substitute" in used_texts_lower or "value of" in used_texts_lower and "if" in used_texts_lower:
+                used_archetypes.append("B (substitute and evaluate)")
+            if "nth term" in used_texts_lower or "sequence" in used_texts_lower:
+                used_archetypes.append("C (nth term / sequence)")
+            if "form" in used_texts_lower and "expression" in used_texts_lower:
+                used_archetypes.append("D (form an expression)")
+
+            used_str = ", ".join(used_archetypes) if used_archetypes else "A (solve equation)"
+            diversity_end += f"""
+
+🎯 ALGEBRA ARCHETYPE DIVERSITY (critical — deduplication will reject structural clones):
+Already-used archetypes: {used_str}
+You MUST use a DIFFERENT archetype from this list:
+  A) Solve equation     — "Solve 4n + 7 = 31"  [most common — AVOID if already used]
+  B) Substitute/evaluate— "If a = 5, what is 3a + 2?"
+  C) Nth term/sequence  — "The nth term is 3n − 1. What is the 5th term?"
+  D) Form an expression — "Sam earns £n per hour. He works 6 hours. Write an expression for his pay."
+  E) Inequalities       — "Which values of n satisfy n + 3 > 7?"
+  F) Two unknowns clue  — "x + y = 10 and x − y = 4. What is x?"
+Choose an archetype NOT in the already-used list above.
+Use DIFFERENT numbers, variables, and contexts from those already forbidden."""
+
+        elif any(k in topic_title_lower for k in ["addition", "subtraction", "place value"]):
+            used_texts_lower = " ".join(used_texts).lower()
+            # Extract numbers already used
+            import re as _re
+            used_numbers = set(_re.findall(r'\b([1-9]\d{1,3})\b', used_texts_lower))
+            used_numbers_str = ", ".join(sorted(used_numbers)[:10]) if used_numbers else "none identified"
+            diversity_end += f"""
+
+🎯 NUMBER DIVERSITY (critical):
+Numbers already used in existing questions: {used_numbers_str}
+You MUST use a completely different set of numbers not in that list.
+Also vary the real-world context — avoid 'stickers' if that appears above; try coins, books, steps, cm, ml, etc."""
+
     else:
         diversity_end = ""
 
@@ -575,6 +654,15 @@ class PipelineResult:
         self.output_tokens += int(getattr(usage, "output_tokens", 0) or 0)
 
 
+def _extract_json(text: str) -> str:
+    """Extract the first {...} block from text, tolerating leading/trailing prose."""
+    start = text.find("{")
+    end = text.rfind("}")
+    if start == -1 or end == -1 or end < start:
+        raise ValueError(f"no JSON object found in response: {text[:120]!r}")
+    return text[start:end + 1]
+
+
 # ── Individual stages ─────────────────────────────────────────────────────
 
 def stage1_generate(topic: dict, tier: str, result: PipelineResult) -> Optional[dict]:
@@ -586,13 +674,9 @@ def stage1_generate(topic: dict, tier: str, result: PipelineResult) -> Optional[
     result.log_stage(f"  retrieved {len(chunks)} curriculum chunks for {topic['subject_name']}")
 
     # Pass published questions as a diversity hint for English AND Science topics.
-    # English: avoids regenerating the same grammar example / conjunction word.
-    # Science: avoids the dedup loop where the LLM keeps generating the same
-    #          root/anchorage question when the topic is partially saturated.
-    subject = topic.get("subject_name", "").lower()
-    existing_questions: list[dict] | None = None
-    if "english" in subject or "science" in subject:
-        existing_questions = db.get_published_questions_full(topic["id"])
+    # Pass existing questions for all subjects to prevent the LLM from regenerating
+    # identical questions in the dedup loop (similarity=1.000 exact copies).
+    existing_questions = db.get_published_questions_full(topic["id"])
 
     prompt = _build_generation_prompt(topic, tier, chunks, existing_questions=existing_questions)
 
@@ -686,7 +770,7 @@ def stage3_consensus(topic: dict, tier: str, question_data: dict, result: Pipeli
         text = msg.content[0].text.strip()
         if text.startswith("```"):
             text = "\n".join(l for l in text.splitlines() if not l.startswith("```"))
-        consensus = json.loads(text)
+        consensus = json.loads(_extract_json(text))
         passed = bool(
             consensus.get("answer_is_correct")
             and consensus.get("answer_is_unambiguous")
@@ -731,7 +815,7 @@ def stage4_constitutional(
         text = msg.content[0].text.strip()
         if text.startswith("```"):
             text = "\n".join(l for l in text.splitlines() if not l.startswith("```"))
-        critique = json.loads(text)
+        critique = json.loads(_extract_json(text))
         violations = critique.get("violations", [])
         result.log_stage(f"  violations={violations}")
         return violations
@@ -971,11 +1055,18 @@ def run_one(
     topic: dict,
     tier: str,
     pipeline_run_id: Optional[str] = None,
+    topup_mode: bool = False,
 ) -> PipelineResult:
     """Run the full 6-stage pipeline for a single question slot.
 
     Retries up to MAX_PIPELINE_CYCLES if generation or verification fails.
     Writes generation_errors for each failed cycle.
+
+    topup_mode: when True (topic below minimum question count), a question that
+    passes verification AND consensus but is penalised only for near-dedup
+    similarity (score 60-84) is still published. This prevents the pipeline
+    from being permanently blocked on saturated semantic spaces for small topics.
+    Hard quality gates (verification, consensus) are never relaxed.
     """
     last_result = PipelineResult()
 
@@ -1039,17 +1130,27 @@ def run_one(
         )
 
         if status == "regenerating":
-            db.write_generation_error(
-                pipeline_run_id=pipeline_run_id,
-                topic_id=str(topic["id"]),
-                question_type=qtype,
-                tier=tier,
-                stage_failed=6,
-                error_message=f"Stage 6: score={score} below threshold or RAG grounding failed",
-                raw_llm_output={"question_text": question_data.get("question_text"), "source_chunk_ids": question_data.get("source_chunk_ids")},
-            )
-            last_result = result
-            continue
+            # topup_mode: publish if verified + consensus passed and the question
+            # is only penalised for NEAR-dedup similarity (0.82–0.92), not a
+            # genuine copy (>0.92). Hard quality gates are never relaxed.
+            if topup_mode and verified and consensus and score >= 60 and not_duplicate:
+                result.log_stage(
+                    f"  topup_mode: accepting score={score} (verified+consensus, near-dedup only)"
+                )
+                status = "published"
+                # fall through to write below
+            else:
+                db.write_generation_error(
+                    pipeline_run_id=pipeline_run_id,
+                    topic_id=str(topic["id"]),
+                    question_type=qtype,
+                    tier=tier,
+                    stage_failed=6,
+                    error_message=f"Stage 6: score={score} below threshold or RAG grounding failed",
+                    raw_llm_output={"question_text": question_data.get("question_text"), "source_chunk_ids": question_data.get("source_chunk_ids")},
+                )
+                last_result = result
+                continue
 
         qid = db.write_question(
             topic["id"], tier, question_data, status, score,
