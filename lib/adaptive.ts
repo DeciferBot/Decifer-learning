@@ -238,6 +238,67 @@ export async function selectQuizQuestions(
   return deduped
 }
 
+// ── Within-session interleaving ──────────────────────────────────────────
+//
+// Research basis: Murray, Horner & Göbel 2025 (Educational Psychology Review)
+// Spaced practice g=0.43 in isolated practice contexts — significantly larger
+// than the g=0.24 for course-embedded instruction. Within-session interleaving
+// across recently-completed topics captures this isolated-practice effect.
+//
+// Triggers when the child has completed 3+ topics in the same zone.
+// Pulls 3-4 questions from each of the most recently completed topics,
+// shuffled together into a single mixed quiz.
+
+/**
+ * Select an interleaved quiz pulling questions from multiple recently-completed
+ * topics in the same zone. Only called when the child has 3+ completed topics.
+ *
+ * Mix: ~3 questions per topic, shuffled. Total ≤ 12 questions.
+ * Falls back to single-topic selection if pool is too small.
+ *
+ * SAFETY: only reads status='published'. No AI calls.
+ */
+export async function selectInterleavedQuestions(
+  supabase: SupabaseClient,
+  profileId: string,
+  topicIds: string[],   // up to 3 most recently completed topics
+  totalCount = 10,
+): Promise<AdaptiveQuestion[]> {
+  if (topicIds.length === 0) return []
+
+  const perTopic = Math.ceil(totalCount / topicIds.length)
+
+  // Fetch pools for all topics in parallel
+  const pools = await Promise.all(
+    topicIds.map(async (topicId) => {
+      const { data } = await supabase
+        .from('quiz_questions')
+        .select('id, tier, question_type, question_text, correct_answer, distractors, hint_1, hint_2, hint_3, explanation, worked_example')
+        .eq('topic_id', topicId)
+        .eq('status', 'published')
+        .order('created_at', { ascending: true })
+      return (data ?? []) as AdaptiveQuestion[]
+    }),
+  )
+
+  // Get recently seen IDs per topic (avoid repetition)
+  const recentSets = await Promise.all(
+    topicIds.map((topicId) => getRecentlySeenIds(supabase, profileId, topicId, 1)),
+  )
+
+  const selected: AdaptiveQuestion[] = []
+  for (let i = 0; i < topicIds.length; i++) {
+    const pool = pools[i]
+    const recentIds = recentSets[i]
+    const fresh = pool.filter((q) => !recentIds.has(q.id))
+    const source = fresh.length >= perTopic ? fresh : pool
+    const picks = pickWithTierBalance(source, Math.min(perTopic, source.length))
+    selected.push(...picks)
+  }
+
+  return shuffle(selected).slice(0, totalCount)
+}
+
 // ── Practice selection ───────────────────────────────────────────────────
 
 export interface SelectPracticeOptions {

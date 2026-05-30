@@ -4,7 +4,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import { getCurrentProfile } from '@/lib/profile'
 import { QuizShell, type QuizQuestion } from '@/components/quiz/QuizShell'
-import { selectQuizQuestions } from '@/lib/adaptive'
+import { selectQuizQuestions, selectInterleavedQuestions } from '@/lib/adaptive'
 import { QuizEventTracker } from '@/components/quiz/QuizEventTracker'
 
 // RLS: topics_select_published (is_published=true)
@@ -21,10 +21,10 @@ export default async function QuizPage({ params }: { params: { id: string } }) {
 
   const { data: topic } = await supabase
     .from('topics')
-    .select('id, title, subject_id')
+    .select('id, title, subject_id, zone_id')
     .eq('id', params.id)
     .eq('is_published', true)
-    .maybeSingle<{ id: string; title: string; subject_id: string }>()
+    .maybeSingle<{ id: string; title: string; subject_id: string; zone_id: string | null }>()
 
   if (!topic) notFound()
 
@@ -35,11 +35,43 @@ export default async function QuizPage({ params }: { params: { id: string } }) {
 
   const profile = user ? await getCurrentProfile(supabase, user.id) : null
 
-  // Adaptive selection: avoids questions seen in last 2 quizzes, balances tiers.
-  // Falls back gracefully when pool is small. Only returns status='published' content.
-  const selected = profile
-    ? await selectQuizQuestions(supabase, profile.id, params.id)
-    : await selectQuizQuestions(supabase, '', params.id) // unauthenticated: no history
+  // Within-session interleaving: if the child has 3+ completed topics in this
+  // topic's zone, pull a mixed quiz across the 3 most recent completed topics.
+  // Research basis: spacing g=0.43 in isolated practice (Murray et al. 2025).
+  let selected: QuizQuestion[] = []
+
+  if (profile && topic.zone_id) {
+    // Find recently completed topics in the same zone (excluding current)
+    const completedInZone = await prisma.topicProgress.findMany({
+      where: {
+        profile_id: profile.id,
+        status: 'completed',
+        topic: { zone_id: topic.zone_id, is_published: true },
+      },
+      orderBy: { completed_at: 'desc' },
+      take: 3,
+      select: { topic_id: true },
+    })
+
+    const otherCompletedIds = completedInZone
+      .map((p) => p.topic_id)
+      .filter((id) => id !== params.id)
+
+    if (otherCompletedIds.length >= 2) {
+      // Interleave: current topic + up to 2 recently completed others
+      const topicIds = [params.id, ...otherCompletedIds.slice(0, 2)]
+      const interleaved = await selectInterleavedQuestions(supabase, profile.id, topicIds)
+      selected = interleaved as QuizQuestion[]
+    }
+  }
+
+  // Fall back to single-topic adaptive selection
+  if (selected.length === 0) {
+    const fallback = profile
+      ? await selectQuizQuestions(supabase, profile.id, params.id)
+      : await selectQuizQuestions(supabase, '', params.id)
+    selected = fallback as QuizQuestion[]
+  }
 
   if (selected.length === 0) {
     return (
@@ -61,7 +93,7 @@ export default async function QuizPage({ params }: { params: { id: string } }) {
     initialShields = shield?.quantity ?? 0
   }
 
-  const questions = selected as QuizQuestion[]
+  const questions = selected
 
   return (
     <div className="space-y-5">
@@ -84,7 +116,7 @@ export default async function QuizPage({ params }: { params: { id: string } }) {
 
       <h1 className="font-heading text-2xl font-bold text-ink">{topic.title} — Quiz</h1>
 
-      <QuizShell questions={questions} topicId={params.id} initialShields={initialShields} />
+      <QuizShell questions={questions} topicId={params.id} topicTitle={topic.title} initialShields={initialShields} />
     </div>
   )
 }

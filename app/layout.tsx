@@ -1,6 +1,11 @@
 import type { Metadata, Viewport } from 'next'
 import { Nunito, Inter } from 'next/font/google'
-import { GoogleAnalytics } from '@next/third-parties/google'
+// GoogleAnalytics REMOVED — Children's Code compliance.
+// UK Age Appropriate Design Code (ICO, Sept 2021) prohibits third-party tracking
+// of children without explicit consent. GA would require a cookie consent banner
+// for all users, including children, which conflicts with the "privacy by default"
+// standard. Vercel Analytics (below) is first-party, privacy-preserving, and
+// does not set cookies or track individuals across sites — compliant by default.
 import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { OfflineBanner } from '@/components/ui/OfflineBanner'
@@ -113,12 +118,10 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
         />
+        {/* Vercel Analytics: first-party, no cookies, no cross-site tracking — Children's Code compliant */}
         <Analytics />
         <SpeedInsights />
       </body>
-      {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
-        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
-      )}
     </html>
   )
 }

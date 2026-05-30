@@ -67,6 +67,7 @@ model Profile {
   quiz_attempts    QuizAttempt[]
   session_answers  SessionAnswer[]
   child_missions   ChildMission[]
+  quiz_reflections QuizReflection[]
 
   // PLI v1
   learning_events                 LearningEvent[]
@@ -164,6 +165,7 @@ model Topic {
   missions              ChildMission[]
   curriculum_outcomes   CurriculumOutcome[]
   lessons               Lesson[]
+  quiz_reflections      QuizReflection[]
 
   @@unique([subject_id, slug])
   @@map("topics")
@@ -426,6 +428,22 @@ model QuizAttempt {
   answers QuizAnswer[]
 
   @@map("quiz_attempts")
+}
+
+// OIT reflection — "What did you figure out today?"
+// Organismic Integration Theory: helps children internalise the value of learning
+// rather than just enjoying the app session. No edtech platform has this.
+model QuizReflection {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  profile_id String   @db.Uuid
+  topic_id   String   @db.Uuid
+  text       String
+  created_at DateTime @default(now())
+
+  profile Profile @relation(fields: [profile_id], references: [id])
+  topic   Topic   @relation(fields: [topic_id], references: [id])
+
+  @@map("quiz_reflections")
 }
 
 model QuizAnswer {

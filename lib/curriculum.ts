@@ -144,3 +144,70 @@ export async function getTopicCurriculumGaps(
   const detail = await getTopicCurriculumCoverage(topicId)
   return detail?.contentGaps ?? []
 }
+
+// ── Parent dashboard: NC outcome summary for completed topics ──────────────
+
+export type CompletedTopicOutcome = {
+  topicId: string
+  topicTitle: string
+  subjectName: string
+  completedAt: Date | null
+  outcomes: Array<{
+    domain: string
+    statutoryOutcome: string
+    keyStage: string
+    yearGroup: string
+  }>
+}
+
+/**
+ * Returns National Curriculum outcomes for a child's completed topics.
+ * Used by the parent dashboard to show exactly which NC outcomes have been covered.
+ * Only returns topics that have at least one mapped outcome.
+ */
+export async function getCompletedTopicOutcomes(
+  profileId: string,
+): Promise<CompletedTopicOutcome[]> {
+  const completed = await prisma.topicProgress.findMany({
+    where: { profile_id: profileId, status: 'completed' },
+    include: {
+      topic: {
+        include: { subject: { select: { name: true } } },
+      },
+    },
+    orderBy: { completed_at: 'desc' },
+    take: 20,
+  })
+
+  const results: CompletedTopicOutcome[] = []
+
+  for (const p of completed) {
+    const outcomes = await prisma.curriculumOutcome.findMany({
+      where: { app_topic_id: p.topic_id },
+      select: {
+        domain: true,
+        statutory_outcome: true,
+        key_stage: true,
+        year_group: true,
+      },
+      orderBy: { key_stage: 'asc' },
+    })
+
+    if (outcomes.length === 0) continue
+
+    results.push({
+      topicId: p.topic_id,
+      topicTitle: p.topic.title,
+      subjectName: p.topic.subject.name,
+      completedAt: p.completed_at,
+      outcomes: outcomes.map((o) => ({
+        domain: o.domain,
+        statutoryOutcome: o.statutory_outcome,
+        keyStage: o.key_stage,
+        yearGroup: o.year_group,
+      })),
+    })
+  }
+
+  return results
+}

@@ -7,7 +7,7 @@ import { redirect, notFound } from 'next/navigation'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { getCurrentProfile } from '@/lib/profile'
 import { prisma } from '@/lib/prisma'
-import { getTopicCurriculumCoverage } from '@/lib/curriculum'
+import { getTopicCurriculumCoverage, getCompletedTopicOutcomes } from '@/lib/curriculum'
 import {
   getChildProgressSummary,
   getChildWeakAreas,
@@ -89,6 +89,8 @@ export default async function ChildDetailPage({
     subjectProgress,
     strongTopics,
     signals,
+    ncOutcomes,
+    reflections,
   ] = await Promise.all([
     getChildProgressSummary(childProfile.id),
     getChildWeakAreas(childProfile.id),
@@ -100,6 +102,13 @@ export default async function ChildDetailPage({
     getProgressBySubject(childProfile.id),
     getStrongestTopics(childProfile.id, 5),
     getSignalsForChild(childProfile.id),
+    getCompletedTopicOutcomes(childProfile.id),
+    prisma.quizReflection.findMany({
+      where: { profile_id: childProfile.id },
+      orderBy: { created_at: 'desc' },
+      take: 5,
+      include: { topic: { select: { title: true } } },
+    }),
   ])
 
   // Screen-time controls (parallel with the rest)
@@ -403,6 +412,63 @@ export default async function ChildDetailPage({
           </p>
         )}
       </Card>
+
+      {/* ── National Curriculum outcomes ────────────────────────────────────── */}
+      <Card title="National Curriculum outcomes covered">
+        {ncOutcomes.length > 0 ? (
+          <div className="space-y-3">
+            <p className="text-xs text-muted">
+              Showing NC outcomes from {childProfile.display_name}&apos;s completed topics.
+            </p>
+            {ncOutcomes.slice(0, 5).map((t) => (
+              <div key={t.topicId} className="rounded-xl border border-black/5 bg-background px-4 py-3">
+                <div className="mb-1.5 flex items-center justify-between gap-2">
+                  <p className="font-heading text-sm font-semibold text-ink">{t.topicTitle}</p>
+                  <span className="flex-none rounded-full bg-black/[0.05] px-2 py-0.5 text-xs text-muted">
+                    {t.subjectName}
+                  </span>
+                </div>
+                <ul className="space-y-1.5">
+                  {t.outcomes.map((o, i) => (
+                    <li key={i} className="text-xs text-ink">
+                      <span className="font-semibold text-muted">{o.keyStage} · {o.domain}: </span>
+                      {o.statutoryOutcome}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+            {ncOutcomes.length > 5 && (
+              <p className="text-xs text-muted">
+                + {ncOutcomes.length - 5} more topic{ncOutcomes.length - 5 === 1 ? '' : 's'} with mapped outcomes.
+              </p>
+            )}
+          </div>
+        ) : (
+          <p className="text-sm text-muted">
+            NC outcome mapping will appear as {childProfile.display_name} completes topics.
+          </p>
+        )}
+      </Card>
+
+      {/* ── Learning reflections (OIT) ───────────────────────────────────────── */}
+      {reflections.length > 0 && (
+        <Card title={`What ${childProfile.display_name} figured out`}>
+          <p className="mb-3 text-xs text-muted">
+            {childProfile.display_name}&apos;s own words — written at the end of passing quizzes.
+          </p>
+          <ul className="space-y-3">
+            {reflections.map((r) => (
+              <li key={r.id} className="rounded-xl border border-science/20 bg-science/5 px-4 py-3">
+                <p className="text-sm text-ink">&ldquo;{r.text}&rdquo;</p>
+                <p className="mt-1.5 text-xs text-muted">
+                  {r.topic.title} · {formatDate(r.created_at)}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
 
       {/* ── Recent activity ─────────────────────────────────────────────────── */}
       <Card title="Recent quiz sessions">

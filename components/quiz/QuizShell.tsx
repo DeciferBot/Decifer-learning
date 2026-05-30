@@ -10,6 +10,7 @@ import { CardReveal } from '@/components/cards/CardReveal'
 import { BadgePopup } from '@/components/quiz/BadgePopup'
 import { ReportProblemButton } from './ReportProblemButton'
 import { WorkedExample } from './WorkedExample'
+import { ReflectionPrompt } from './ReflectionPrompt'
 import type { DroppedCard, EarnedBadge } from '@/app/api/quiz/submit/route'
 
 // ── Learning-science constants ────────────────────────────────────────────
@@ -73,6 +74,7 @@ const CONSECUTIVE_WRONG_FOR_HEART_LOSS = 3
 export function QuizShell({
   questions,
   topicId,
+  topicTitle = 'this topic',
   initialShields = 0,
   submitUrl = '/api/quiz/submit',
   backHref = '/dashboard/child',
@@ -81,6 +83,7 @@ export function QuizShell({
 }: {
   questions: QuizQuestion[]
   topicId: string | null
+  topicTitle?: string
   initialShields?: number
   submitUrl?: string
   backHref?: string
@@ -118,6 +121,7 @@ export function QuizShell({
   // Post-result overlays
   const [showCard, setShowCard] = useState(false)
   const [badgeQueue, setBadgeQueue] = useState<EarnedBadge[]>([])
+  const [showReflection, setShowReflection] = useState(false)
 
   // Refs
   const answerLogRef = useRef<AnswerLog[]>([])
@@ -218,6 +222,7 @@ export function QuizShell({
     setHintsRevealed(0)
     setHintCountdown(HINT_DELAY_SECONDS)
     shownWorkedExampleFor.current = new Set()
+    setShowReflection(false)
     setSubmitting(false)
     setSubmitResult(null)
     setSubmittedOffline(false)
@@ -254,6 +259,7 @@ export function QuizShell({
           setSubmitResult(data)
           if (data.passed && data.droppedCard) setShowCard(true)
           else if (data.newBadges?.length) setBadgeQueue(data.newBadges)
+          else if (data.passed) setShowReflection(true)
         } else {
           setSubmittedOffline(true)
         }
@@ -267,11 +273,14 @@ export function QuizShell({
   function onCardDismissed() {
     setShowCard(false)
     if (submitResult?.newBadges?.length) setBadgeQueue(submitResult.newBadges)
+    else if (submitResult?.passed) setShowReflection(true)
   }
 
   // ── Badge dismissed → show next badge ────────────────────────────────────
   function onBadgeDismissed() {
-    setBadgeQueue((q) => q.slice(1))
+    const remaining = badgeQueue.slice(1)
+    setBadgeQueue(remaining)
+    if (remaining.length === 0 && submitResult?.passed) setShowReflection(true)
   }
 
   // ── Hearts dead → retry screen ───────────────────────────────────────────
@@ -316,6 +325,15 @@ export function QuizShell({
         {/* Badge popup (shown after card dismissed) */}
         {!showCard && badgeQueue.length > 0 && (
           <BadgePopup badge={badgeQueue[0]} onDismiss={onBadgeDismissed} />
+        )}
+
+        {/* OIT reflection prompt — shown after passing, before results buttons */}
+        {showReflection && topicId && (
+          <ReflectionPrompt
+            topicId={topicId}
+            topicTitle={topicTitle}
+            onDone={() => setShowReflection(false)}
+          />
         )}
 
         <motion.div
