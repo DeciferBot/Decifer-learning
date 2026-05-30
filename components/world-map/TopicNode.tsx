@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Lock, Check, Star } from '@/components/ui/icons'
+import { Lock, Check, Star, BookOpen } from '@/components/ui/icons'
 
 export type NodeState = 'locked' | 'available' | 'completed'
 
@@ -13,11 +13,12 @@ type Props = {
   subjectColor: string
   xPct: number // 0–100, percentage of container width
   yPct: number // 0–100, percentage of container height
+  quizOptional?: boolean // Learn-only topic — show book icon instead of star
 }
 
 const SIZE = 64 // px — satisfies the ≥48 tap-target requirement
 
-export function TopicNode({ title, state, href, subjectColor, xPct, yPct }: Props) {
+export function TopicNode({ title, state, href, subjectColor, xPct, yPct, quizOptional = false }: Props) {
   const positionStyle: React.CSSProperties = {
     position: 'absolute',
     left: `${xPct}%`,
@@ -53,8 +54,9 @@ export function TopicNode({ title, state, href, subjectColor, xPct, yPct }: Prop
       }}
       aria-hidden
     >
-      {state === 'locked'    ? <Lock size={20} style={{ color: '#718096' }} />    :
-       state === 'completed' ? <Check size={20} style={{ color: '#ffffff' }} />  :
+      {state === 'locked'    ? <Lock size={20} style={{ color: '#718096' }} />      :
+       state === 'completed' ? <Check size={20} style={{ color: '#ffffff' }} />    :
+       quizOptional          ? <BookOpen size={20} style={{ color: '#ffffff' }} /> :
                                <Star size={20} style={{ color: '#ffffff' }} />}
     </div>
   )

@@ -1,6 +1,6 @@
 # Curriculum Expansion Plan — Decifer Learning
 
-> **Status:** ⚠ ON HOLD — see blocker below  
+> **Status:** ⚠ WAITING FOR OAK API KEY — see decision below  
 > **Created:** 2026-05-30  
 > **North star reference:** `docs/UK_NATIONAL_CURRICULUM_MAP.md`  
 > **Goal:** Expand from the current 3-subject MVP (Maths, English, Science) to the full Y1–Y9
@@ -9,20 +9,46 @@
 
 ---
 
-## ⚠ Blocker (2026-05-30)
+## Decision: Oak National Academy API (2026-05-30)
 
-A parallel session is investigating **scraping/crawling official sources** (gov.uk, BBC Bitesize,
-Oak National Academy etc.) as an alternative route to produce curriculum chunks and topic outlines.
+**Do not write any more hand-written seed scripts.** The content strategy has changed.
 
-**Do not start Phase A seed scripts or batch generation until that session reports back.**
+### What was decided
 
-The scraping approach could affect:
-- Whether hand-written `seed-topics-*.ts` scripts are needed at all
-- The format and richness of `curriculum_chunks` (scraping gives real explanatory text vs.
-  hand-authored summaries)
-- Whether the pipeline's RAG stage gets significantly better source material
+Oak National Academy has a public API with content licensed under **Open Government Licence v3.0** —
+commercially usable with attribution. Coverage is comprehensive:
 
-Once the other session decides on an approach, update this section and unblock Phase A.
+| Key Stage | Maths | English | Science | History | Geography | Other subjects |
+|---|---|---|---|---|---|---|
+| KS1 (Y1–2) | ✅ 360 lessons | ✅ 417 lessons | ✅ 76 lessons | ✅ 90 lessons | ✅ 83 lessons | Art, Computing, Music, RE, PE |
+| KS2 (Y3–6) | ✅ 712 lessons | ✅ 1,172 lessons | ✅ 314 lessons | ✅ 156 lessons | ✅ 163 lessons | French, Spanish, Computing |
+| KS3 (Y7–9) | ✅ 32 units confirmed | ✅ | ✅ | ✅ | ✅ | — |
+
+### What this replaces
+
+Every hand-written `scripts/seed-chunks-*.ts` file. Oak lesson content (objectives, key vocabulary,
+worked examples) becomes `curriculum_chunks` — vastly richer and more accurate than hand-authored
+summaries. Oak units map directly to `topics.title`.
+
+### Attribution requirement (mandatory everywhere)
+
+All content derived from Oak must carry:
+> "A [subject] lesson by Oak National Academy licensed under OGL"
+
+Store in `curriculum_chunks.source_name`. Surface in admin dashboard.
+
+### Status
+
+API key requested by email to hello@thenational.academy (chopraa@gmail.com, 2026-05-30).
+Expected turnaround: 1–2 business days.
+
+### What to build once the key arrives
+
+1. `scripts/ingest-oak-api.ts` — single script that walks the Oak API for all subjects/key stages,
+   writes topics and curriculum chunks to the database, sets `source_name` with OGL attribution
+2. Delete or archive all existing `seed-chunks-*.ts` scripts once Oak ingestion is verified
+3. Re-run the existing 6-stage pipeline against the new, richer chunks — expect significantly
+   better question quality with no other changes
 
 ---
 

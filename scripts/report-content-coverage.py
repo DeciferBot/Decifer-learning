@@ -1,5 +1,10 @@
 """
-report-content-coverage.py — Current content coverage for the Decifer Learning pilot.
+report-content-coverage.py — Content coverage for Decifer Learning.
+
+Two modes:
+  Default : shows every DB topic's Q count, learn_content status and next action.
+  --gaps  : diffs the DB against docs/UK_NATIONAL_CURRICULUM_MAP.md — shows topics
+            in the north-star map that are not yet seeded, and DB topics not in the map.
 
 Shows every topic's Q count, learn_content status, publish gate state, and exact
 next command needed. Grouped by year group and subject.
@@ -15,6 +20,7 @@ pipeline diagnosis (see diagnose-content-blockers.py for that). It answers:
 Run: /root/pipeline-venv/bin/python3 scripts/report-content-coverage.py
      /root/pipeline-venv/bin/python3 scripts/report-content-coverage.py --year year-7
      /root/pipeline-venv/bin/python3 scripts/report-content-coverage.py --csv
+     /root/pipeline-venv/bin/python3 scripts/report-content-coverage.py --gaps
 """
 
 from __future__ import annotations
@@ -328,20 +334,176 @@ def print_csv(rows: list[dict]) -> None:
     print(buf.getvalue())
 
 
+# ── Gap analysis against UK_NATIONAL_CURRICULUM_MAP.md ───────────────────────
+
+import re
+
+# Year-group label variants that appear in the map headings → canonical DB label
+_YG_ALIASES: dict[str, str] = {
+    "year 1": "year-1", "year 2": "year-2", "year 3": "year-3",
+    "year 4": "year-4", "year 5": "year-5", "year 6": "year-6",
+    "year 7": "year-7", "year 8": "year-8", "year 9": "year-9",
+    "year 7–9 (ks3)": "year-7",   # KS3 block maps to year-7 for seeding purposes
+    "year 1–2 (ks1)": "year-1",
+    "year 3–6 (ks2)": "year-3",
+}
+
+def _parse_curriculum_map() -> list[dict]:
+    """
+    Parse docs/UK_NATIONAL_CURRICULUM_MAP.md and return a list of
+    { subject, year_group, title } dicts — one per topic row in the map.
+    """
+    map_path = Path(__file__).parent.parent / "docs" / "UK_NATIONAL_CURRICULUM_MAP.md"
+    if not map_path.exists():
+        sys.stderr.write(f"Cannot find {map_path}\n")
+        sys.exit(1)
+
+    lines = map_path.read_text().splitlines()
+
+    topics: list[dict] = []
+    current_subject: str | None = None
+    current_yg: str | None = None
+
+    # State machine: look for H1 subject headers, H2 year-group headers, table rows
+    for line in lines:
+        stripped = line.strip()
+
+        # H1 = subject name (e.g. "# MATHEMATICS")
+        if stripped.startswith("# ") and not stripped.startswith("## "):
+            raw = stripped.lstrip("# ").strip()
+            # Skip the document title and section markers
+            if raw.upper() in ("UK NATIONAL CURRICULUM MAP — DECIFER LEARNING",
+                               "MATHEMATICS", "ENGLISH", "SCIENCE", "HISTORY",
+                               "GEOGRAPHY", "COMPUTING", "DESIGN AND TECHNOLOGY",
+                               "ART AND DESIGN", "MUSIC", "PHYSICAL EDUCATION",
+                               "LANGUAGES (MFL)", "CITIZENSHIP"):
+                current_subject = raw.title().replace("(Mfl)", "(MFL)")
+                # Normalise subject names to match the subjects table
+                _SUBJECT_NORM = {
+                    "Mathematics": "Maths",
+                    "Physical Education": "Physical Education",
+                    "Design And Technology": "Design and Technology",
+                    "Art And Design": "Art and Design",
+                    "Languages (Mfl)": "Languages",
+                }
+                current_subject = _SUBJECT_NORM.get(current_subject, current_subject)
+                current_yg = None
+            continue
+
+        # H2 = year group (e.g. "## Year 3", "## Year 7–9 (KS3)")
+        if stripped.startswith("## "):
+            raw_yg = stripped.lstrip("# ").strip().lower()
+            current_yg = _YG_ALIASES.get(raw_yg)
+            continue
+
+        # H3 = sub-section (e.g. "### Year 7–9 (KS3) — Biology")
+        if stripped.startswith("### "):
+            raw_yg = stripped.lstrip("# ").split("—")[0].strip().lower()
+            current_yg = _YG_ALIASES.get(raw_yg, current_yg)
+            continue
+
+        # Table row: "| 1 | Topic title |" — skip headers and separators
+        if stripped.startswith("|") and current_subject and current_yg:
+            parts = [p.strip() for p in stripped.strip("|").split("|")]
+            # Rows have 2 cols (# | Title) or 3 cols (# | Title | Strand)
+            if len(parts) >= 2:
+                num_col = parts[0].strip()
+                title_col = parts[1].strip()
+                # Skip header rows and separator rows
+                if (title_col.lower() in ("#", "topic", "---", "")
+                        or re.match(r"^-+$", num_col)
+                        or re.match(r"^-+$", title_col)):
+                    continue
+                # Skip rows where the number column isn't a digit (it's a header)
+                if not re.match(r"^\d+$", num_col):
+                    continue
+                topics.append({
+                    "subject":    current_subject,
+                    "year_group": current_yg,
+                    "title":      title_col,
+                })
+
+    return topics
+
+
+def print_gaps(db_rows: list[dict]) -> None:
+    """Compare the curriculum map against DB topics and report gaps in both directions."""
+    map_topics = _parse_curriculum_map()
+
+    # Build sets for comparison: (subject, year_group, normalised_title)
+    def _norm(s: str) -> str:
+        return re.sub(r"\s+", " ", s.strip().lower())
+
+    db_set: set[tuple] = {
+        (_norm(r["subject"]), _norm(r["year_group"]), _norm(r["title"]))
+        for r in db_rows
+    }
+    map_set: set[tuple] = {
+        (_norm(t["subject"]), _norm(t["year_group"]), _norm(t["title"]))
+        for t in map_topics
+    }
+
+    missing_from_db = [
+        t for t in map_topics
+        if (_norm(t["subject"]), _norm(t["year_group"]), _norm(t["title"])) not in db_set
+    ]
+    orphans_in_db = [
+        r for r in db_rows
+        if (_norm(r["subject"]), _norm(r["year_group"]), _norm(r["title"])) not in map_set
+    ]
+
+    print(f"\n{'═'*80}")
+    print(f"  CURRICULUM GAP ANALYSIS")
+    print(f"  North star: docs/UK_NATIONAL_CURRICULUM_MAP.md  ({len(map_topics)} topics)")
+    print(f"  Database:   {len(db_rows)} topics seeded")
+    print(f"  Missing from DB: {len(missing_from_db)}  |  In DB but not in map: {len(orphans_in_db)}")
+    print(f"{'═'*80}\n")
+
+    if missing_from_db:
+        print(f"  ── MISSING FROM DATABASE ({len(missing_from_db)} topics)")
+        print(f"     These are in the curriculum map but have not been seeded yet.\n")
+        # Group by subject + year_group
+        from collections import defaultdict
+        grouped: dict = defaultdict(list)
+        for t in missing_from_db:
+            grouped[(t["subject"], t["year_group"])].append(t["title"])
+        for (subject, yg), titles in sorted(grouped.items()):
+            print(f"     {yg} · {subject} ({len(titles)} topics):")
+            for title in titles:
+                print(f"       • {title}")
+        print()
+
+    if orphans_in_db:
+        print(f"  ── IN DATABASE BUT NOT IN MAP ({len(orphans_in_db)} topics)")
+        print(f"     These may be old topic names, typos, or topics added outside the map.\n")
+        for r in sorted(orphans_in_db, key=lambda x: (x["year_group"], x["subject"])):
+            print(f"     {r['year_group']} · {r['subject']}: \"{r['title']}\"")
+        print()
+
+    if not missing_from_db and not orphans_in_db:
+        print(f"  ✅ Database is fully aligned with the curriculum map — no gaps!\n")
+
+    print(f"{'═'*80}\n")
+
+
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 def main():
     parser = argparse.ArgumentParser(description="Content coverage report for Decifer Learning.")
     parser.add_argument("--year", help="Filter to one year group, e.g. year-7")
     parser.add_argument("--csv",  action="store_true", help="Output CSV instead of table")
+    parser.add_argument("--gaps", action="store_true",
+                        help="Diff DB topics against docs/UK_NATIONAL_CURRICULUM_MAP.md")
     args = parser.parse_args()
 
     rows = fetch_coverage(year_filter=args.year)
-    if not rows:
+    if not rows and not args.gaps:
         print("No topics found (check --year filter or database connection).")
         sys.exit(1)
 
-    if args.csv:
+    if args.gaps:
+        print_gaps(rows)
+    elif args.csv:
         print_csv(rows)
     else:
         print_report(rows, year_filter=args.year)

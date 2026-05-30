@@ -152,6 +152,8 @@ model Topic {
   is_published   Boolean @default(false)
   zone_id        String? @db.Uuid
   slug           String?
+  // When true this topic has no quiz — world map shows a book icon, Quiz button hidden.
+  quiz_optional  Boolean @default(false)
   // 'instruction_first' (default Learn→Practise→Quiz) or 'pretest_first' (attempt→explanation→practise)
   pedagogy_mode  String  @default("instruction_first")
 

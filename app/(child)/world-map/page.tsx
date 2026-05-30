@@ -66,7 +66,7 @@ export default async function WorldMapPage() {
   const zoneIds = zones.map((z) => z.id)
   const nodes = await prisma.worldMapNode.findMany({
     where: { zone_id: { in: zoneIds } },
-    include: { topic: { select: { id: true, title: true } } },
+    include: { topic: { select: { id: true, title: true, quiz_optional: true } } },
   })
 
   // Group nodes by zone for efficient lookup
@@ -113,6 +113,7 @@ export default async function WorldMapPage() {
             href: `/topics/${node.topic_id}/learn`,
             xPct: node.x_pos * 100,
             yPct: node.y_pos * 100,
+            quizOptional: node.topic.quiz_optional,
           }))
 
           const allCompleted =

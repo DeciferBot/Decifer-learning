@@ -26,10 +26,10 @@ export default async function LearnPage({
 
   const { data: topic } = await supabase
     .from('topics')
-    .select('id, title, subject_id, pedagogy_mode')
+    .select('id, title, subject_id, pedagogy_mode, quiz_optional')
     .eq('id', params.id)
     .eq('is_published', true)
-    .maybeSingle<TopicRow & { subject_id: string; pedagogy_mode: string }>()
+    .maybeSingle<TopicRow & { subject_id: string; pedagogy_mode: string; quiz_optional: boolean }>()
 
   if (!topic) notFound()
 
@@ -56,11 +56,14 @@ export default async function LearnPage({
     .eq('status', 'published')
     .maybeSingle<PracticeRow>()
   const hasPractice = practice !== null
+  const hasQuiz = !topic.quiz_optional
 
   const nextHref = hasPractice
     ? `/topics/${params.id}/practise`
-    : `/topics/${params.id}/quiz`
-  const nextLabel = hasPractice ? 'Start Practising →' : 'Start Quiz →'
+    : hasQuiz
+      ? `/topics/${params.id}/quiz`
+      : '/dashboard/child'
+  const nextLabel = hasPractice ? 'Start Practising →' : hasQuiz ? 'Start Quiz →' : 'Back to Home →'
 
   return (
     <div className="space-y-5">
@@ -82,9 +85,11 @@ export default async function LearnPage({
         {hasPractice && (
           <span className="rounded-full bg-black/10 px-3 py-1 text-xs font-bold text-muted">2 Practise</span>
         )}
-        <span className="rounded-full bg-black/10 px-3 py-1 text-xs font-bold text-muted">
-          {hasPractice ? '3 Quiz' : '2 Quiz'}
-        </span>
+        {hasQuiz && (
+          <span className="rounded-full bg-black/10 px-3 py-1 text-xs font-bold text-muted">
+            {hasPractice ? '3 Quiz' : '2 Quiz'}
+          </span>
+        )}
       </div>
 
       <h1 className="font-heading text-2xl font-bold text-ink">{topic.title}</h1>

@@ -15,6 +15,7 @@ export type ZoneNode = {
   href: string
   xPct: number
   yPct: number
+  quizOptional?: boolean
 }
 
 type Props = {
@@ -73,6 +74,7 @@ export function ZoneMap({ zoneId, zoneName, theme, subjectColor, nodes, allCompl
                 subjectColor={subjectColor}
                 xPct={node.xPct}
                 yPct={node.yPct}
+                quizOptional={node.quizOptional}
               />
             ))}
           </div>
