@@ -246,6 +246,7 @@ model QuizQuestion {
   hint_2            String?
   hint_3            String?
   explanation       String?
+  worked_example    String?       // Step-by-step solution of a similar problem; shown before child attempts
   foundation_images Json?
   confidence_score  Float?
   status            ContentStatus @default(staged)

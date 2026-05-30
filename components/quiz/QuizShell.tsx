@@ -9,11 +9,20 @@ import { HeartsDisplay } from './HeartsDisplay'
 import { CardReveal } from '@/components/cards/CardReveal'
 import { BadgePopup } from '@/components/quiz/BadgePopup'
 import { ReportProblemButton } from './ReportProblemButton'
+import { WorkedExample } from './WorkedExample'
 import type { DroppedCard, EarnedBadge } from '@/app/api/quiz/submit/route'
+
+// ── Learning-science constants ────────────────────────────────────────────
+// Retrieval practice effect (Karpicke & Roediger 2013): hints must not be
+// reachable before the child has made a genuine recall attempt. We enforce
+// this with a 15-second countdown — the child must sit with the question
+// before scaffolding appears.
+const HINT_DELAY_SECONDS = 15
 
 export type QuizQuestion = {
   id: string
   tier: string
+  question_type: string
   question_text: string
   correct_answer: string
   distractors: string[]
@@ -21,6 +30,7 @@ export type QuizQuestion = {
   hint_2: string | null
   hint_3: string | null
   explanation: string | null
+  worked_example: string | null
 }
 
 type AnswerLog = {
@@ -84,6 +94,14 @@ export function QuizShell({
   const [score, setScore] = useState(0)
   const [hintsRevealed, setHintsRevealed] = useState(0)
 
+  // Hint delay — child must sit with the question for HINT_DELAY_SECONDS before hints unlock.
+  // Resets on every new question. Stops counting once the child has answered.
+  const [hintCountdown, setHintCountdown] = useState(HINT_DELAY_SECONDS)
+  const hintsUnlocked = hintCountdown === 0
+
+  // Worked examples — shown on the first question of each question_type in the session.
+  const shownWorkedExampleFor = useRef<Set<string>>(new Set())
+
   // Hearts + streak shields
   const [hearts, setHearts] = useState(MAX_HEARTS)
   const [shields, setShields] = useState(initialShields)
@@ -110,6 +128,12 @@ export function QuizShell({
   const q = questions[qIndex]
   const hints = [q.hint_1, q.hint_2, q.hint_3].filter((h): h is string => h !== null)
   const revealedHints = hints.slice(0, hintsRevealed)
+
+  // Show worked example on first question of each question_type within this session.
+  const showWorkedExample =
+    !answered &&
+    !!q.worked_example &&
+    !shownWorkedExampleFor.current.has(q.question_type)
 
   function pick(choice: string) {
     if (answered) return
@@ -161,6 +185,9 @@ export function QuizShell({
   }
 
   function next() {
+    // Mark this question_type as having shown a worked example
+    if (q.worked_example) shownWorkedExampleFor.current.add(q.question_type)
+
     const nextIdx = qIndex + 1
     if (nextIdx >= questions.length) {
       heartsAtDoneRef.current = hearts
@@ -173,6 +200,7 @@ export function QuizShell({
     setSelected(null)
     setAnswered(false)
     setHintsRevealed(0)
+    setHintCountdown(HINT_DELAY_SECONDS)
     questionStartRef.current = Date.now()
   }
 
@@ -188,6 +216,8 @@ export function QuizShell({
     setShields(initialShields)
     setConsecutiveWrong(0)
     setHintsRevealed(0)
+    setHintCountdown(HINT_DELAY_SECONDS)
+    shownWorkedExampleFor.current = new Set()
     setSubmitting(false)
     setSubmitResult(null)
     setSubmittedOffline(false)
@@ -198,6 +228,13 @@ export function QuizShell({
     quizStartRef.current = Date.now()
     heartsAtDoneRef.current = MAX_HEARTS
   }
+
+  // Hint countdown — tick every second until 0, reset on new question or restart.
+  useEffect(() => {
+    if (answered || hintCountdown === 0) return
+    const id = setTimeout(() => setHintCountdown((n) => Math.max(0, n - 1)), 1000)
+    return () => clearTimeout(id)
+  }, [hintCountdown, answered])
 
   // Submit to API when quiz is done
   useEffect(() => {
@@ -405,6 +442,11 @@ export function QuizShell({
           transition={{ duration: 0.22 }}
           className="rounded-2xl border border-black/5 bg-surface p-6 shadow-sm"
         >
+          {/* Worked example — first encounter of this question_type in session */}
+          {showWorkedExample && q.worked_example && (
+            <WorkedExample example={q.worked_example} />
+          )}
+
           <p className="mb-5 font-heading text-xl font-bold leading-snug text-ink">
             {q.question_text}
           </p>
@@ -414,6 +456,7 @@ export function QuizShell({
             revealed={revealedHints}
             onReveal={revealNextHint}
             disabled={answered}
+            countdown={hintsUnlocked ? null : hintCountdown}
           />
 
           <div className="mt-4 grid grid-cols-2 gap-3">

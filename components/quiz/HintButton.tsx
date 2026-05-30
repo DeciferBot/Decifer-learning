@@ -7,12 +7,16 @@ type Props = {
   revealed: string[]
   onReveal: () => void
   disabled: boolean
+  // When non-null, hints are locked and the countdown (seconds remaining) is shown.
+  // When null or 0, hints are unlocked and the normal button renders.
+  countdown?: number | null
 }
 
-export function HintButton({ hints, revealed, onReveal, disabled }: Props) {
+export function HintButton({ hints, revealed, onReveal, disabled, countdown }: Props) {
   if (hints.length === 0) return null
 
   const remaining = hints.length - revealed.length
+  const isLocked = countdown !== null && countdown !== undefined && countdown > 0
 
   return (
     <div className="space-y-2">
@@ -32,7 +36,16 @@ export function HintButton({ hints, revealed, onReveal, disabled }: Props) {
         ))}
       </AnimatePresence>
 
-      {!disabled && remaining > 0 && (
+      {/* Locked — show countdown nudge */}
+      {isLocked && remaining > 0 && (
+        <p className="text-xs text-muted">
+          💡 Hint unlocks in{' '}
+          <span className="tabular-nums font-bold">{countdown}s</span> — give it a try first!
+        </p>
+      )}
+
+      {/* Unlocked — normal hint button */}
+      {!disabled && !isLocked && remaining > 0 && (
         <button
           onClick={onReveal}
           className="text-sm text-muted underline underline-offset-2 hover:text-ink"

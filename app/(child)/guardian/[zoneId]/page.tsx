@@ -57,6 +57,7 @@ export default async function GuardianPage({ params }: { params: { zoneId: strin
     select: {
       id: true,
       tier: true,
+      question_type: true,
       question_text: true,
       correct_answer: true,
       distractors: true,
@@ -64,6 +65,7 @@ export default async function GuardianPage({ params }: { params: { zoneId: strin
       hint_2: true,
       hint_3: true,
       explanation: true,
+      worked_example: true,
     },
   })
 
@@ -75,6 +77,7 @@ export default async function GuardianPage({ params }: { params: { zoneId: strin
     .map((q) => ({
       id: q.id,
       tier: q.tier,
+      question_type: q.question_type,
       question_text: q.question_text,
       correct_answer: q.correct_answer,
       distractors: (q.distractors as string[]) ?? [],
@@ -82,6 +85,7 @@ export default async function GuardianPage({ params }: { params: { zoneId: strin
       hint_2: q.hint_2,
       hint_3: q.hint_3,
       explanation: q.explanation,
+      worked_example: q.worked_example,
     }))
 
   return (

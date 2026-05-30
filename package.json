@@ -20,6 +20,8 @@
     "verify-pli": "node scripts/verify-parent-learning-intelligence.mjs",
     "verify-autopilot-safety": "node scripts/verify-autopilot-safety.mjs",
     "verify-autopilot-2b2-safety": "node scripts/verify-autopilot-2b2-safety.mjs",
+    "learning:worked-examples": "node --env-file=.env.local scripts/generate-worked-examples.mjs",
+    "learning:worked-examples:dry": "node --env-file=.env.local scripts/generate-worked-examples.mjs --dry-run",
     "learning:autopilot:plan": "node --env-file=.env.local scripts/learning-autopilot-plan.mjs",
     "learning:autopilot:queue": "/root/pipeline-venv/bin/python3 scripts/learning-autopilot-queue.py",
     "learning:autopilot:run": "/root/pipeline-venv/bin/python3 scripts/learning-autopilot-run.py",
