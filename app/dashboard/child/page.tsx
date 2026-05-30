@@ -10,6 +10,7 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { StreakPing } from './StreakPing'
 import { getVaultStatus } from '@/lib/vault/status'
 import { NewParentLinkNotice } from './NewParentLinkNotice'
+import { MapFold, Layers, Star, Target, Trophy, PencilLine, Microscope, BookOpen, Gift } from '@/components/ui/icons'
 
 export const metadata = { title: 'Dashboard — Decifer Learning' }
 
@@ -27,10 +28,12 @@ type TopicRow = {
   hasPractice: boolean
 }
 
-const SUBJECT_EMOJI: Record<string, string> = {
-  Maths: '🔢',
-  English: '📖',
-  Science: '🔬',
+import type { ComponentType, SVGProps } from 'react'
+type IconComponent = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
+const SUBJECT_ICON: Record<string, IconComponent> = {
+  Maths:   Target,
+  English: PencilLine,
+  Science: Microscope,
 }
 
 const SUBJECT_ORDER = ['Maths', 'English', 'Science']
@@ -145,7 +148,7 @@ export default async function ChildDashboardPage() {
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="font-heading font-bold text-ink">{firstTopic.title}</p>
-              <p className="text-xs text-muted">{firstTopic.subjects.name}</p>
+              <p className="text-xs text-muted">{firstTopic.subjects.name} · 🃏 quiz to win a card</p>
             </div>
             <Link
               href={`/topics/${firstTopic.id}/learn`}
@@ -168,12 +171,15 @@ export default async function ChildDashboardPage() {
         </Link>
         <Link
           href="/collection"
-          className="flex min-h-[48px] items-center justify-between rounded-2xl border border-black/5 bg-surface px-4 py-3 shadow-sm transition-colors hover:bg-black/[0.03]"
+          className="flex min-h-[48px] flex-col justify-center rounded-2xl border border-black/5 bg-surface px-4 py-3 shadow-sm transition-colors hover:bg-black/[0.03]"
         >
-          <span className="font-heading text-sm font-semibold text-ink">🃏 Cards</span>
-          <span className="text-xs text-muted">
-            {collectionCount > 0 ? collectionCount : '—'}
-          </span>
+          <div className="flex items-center justify-between">
+            <span className="font-heading text-sm font-semibold text-ink">🃏 My Cards</span>
+            <span className="font-heading text-sm font-bold text-ink">
+              {collectionCount > 0 ? collectionCount : '0'}
+            </span>
+          </div>
+          <span className="mt-0.5 text-xs text-muted">Pass a quiz → win one</span>
         </Link>
       </div>
 
@@ -319,9 +325,10 @@ export default async function ChildDashboardPage() {
                           )}
                           <Link
                             href={`/topics/${topic.id}/quiz`}
-                            className="flex min-h-[48px] items-center justify-center rounded-xl bg-lightning/20 px-3 py-2 text-sm font-bold text-ink transition-colors hover:bg-lightning/30"
+                            className="flex min-h-[48px] flex-col items-center justify-center rounded-xl bg-lightning/20 px-3 py-2 text-center transition-colors hover:bg-lightning/30"
                           >
-                            ⚡ Quiz
+                            <span className="text-sm font-bold text-ink">⚡ Quiz</span>
+                            <span className="text-[10px] font-semibold text-muted leading-tight">🃏 win a card</span>
                           </Link>
                         </div>
                       </div>

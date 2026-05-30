@@ -101,6 +101,9 @@ export function CardReveal({
             >
               Collect it!
             </button>
+            <p className="mt-3 text-xs text-muted">
+              Pass another quiz to win your next card 🃏
+            </p>
           </div>
         </motion.div>
       </motion.div>
