@@ -86,14 +86,17 @@ model Profile {
 }
 
 model FamilyLink {
-  id             String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  parent_user_id String @db.Uuid
-  child_user_id  String @db.Uuid
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  parent_user_id String   @db.Uuid
+  child_user_id  String   @db.Uuid
+  linked_at      DateTime @default(now())
+  seen_by_child  Boolean  @default(false)
 
   parent Profile @relation("ParentLink", fields: [parent_user_id], references: [user_id])
   child  Profile @relation("ChildLink", fields: [child_user_id], references: [user_id])
 
   @@unique([parent_user_id, child_user_id])
+  @@unique([child_user_id]) // a child can only have one parent
   @@map("family_links")
 }
 

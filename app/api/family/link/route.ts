@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma'
 type AuthUserRow = {
   id: string
   email: string
+  confirmed_at: string | null
   raw_user_meta_data: { role?: string; display_name?: string } | null
 }
 
@@ -37,9 +38,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'You cannot link your own account.' }, { status: 400 })
   }
 
-  // Look up the child in auth.users via a raw query (service-role connection can read auth schema)
   const rows = await prisma.$queryRaw<AuthUserRow[]>`
-    SELECT id::text, email, raw_user_meta_data
+    SELECT id::text, email, confirmed_at, raw_user_meta_data
     FROM auth.users
     WHERE lower(email) = ${childEmail}
     LIMIT 1
@@ -47,14 +47,21 @@ export async function POST(req: Request) {
 
   if (rows.length === 0) {
     return NextResponse.json(
-      { error: 'No account found with that email. Make sure your child has registered first.' },
+      { error: "No account found with that email. Make sure your child has registered first." },
       { status: 404 },
     )
   }
 
   const childUser = rows[0]
-  const childRole = childUser.raw_user_meta_data?.role
 
+  if (!childUser.confirmed_at) {
+    return NextResponse.json(
+      { error: "That account hasn't been verified yet. Ask your child to confirm their email first." },
+      { status: 400 },
+    )
+  }
+
+  const childRole = childUser.raw_user_meta_data?.role
   if (childRole !== 'child') {
     return NextResponse.json(
       { error: 'That account is not a child account. Only child accounts can be linked.' },
@@ -62,24 +69,30 @@ export async function POST(req: Request) {
     )
   }
 
-  // Prevent duplicate links
-  const existing = await prisma.familyLink.findUnique({
-    where: {
-      parent_user_id_child_user_id: {
-        parent_user_id: user.id,
-        child_user_id: childUser.id,
-      },
-    },
+  // Check if child is already linked to any parent
+  const existingLink = await prisma.familyLink.findUnique({
+    where: { child_user_id: childUser.id },
+    include: { parent: { select: { display_name: true } } },
   })
-  if (existing) {
+  if (existingLink) {
+    if (existingLink.parent_user_id === user.id) {
+      return NextResponse.json(
+        { error: 'This child is already linked to your account.' },
+        { status: 400 },
+      )
+    }
     return NextResponse.json(
-      { error: 'This child is already linked to your account.' },
+      { error: 'That child account is already linked to another parent.' },
       { status: 400 },
     )
   }
 
   await prisma.familyLink.create({
-    data: { parent_user_id: user.id, child_user_id: childUser.id },
+    data: {
+      parent_user_id: user.id,
+      child_user_id: childUser.id,
+      seen_by_child: false,
+    },
   })
 
   const profile = await prisma.profile.findUnique({

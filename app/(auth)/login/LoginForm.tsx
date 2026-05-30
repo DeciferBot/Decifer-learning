@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 
-type Mode = 'password' | 'magic' | 'forgot'
+type Mode = 'password' | 'magic' | 'forgot' | 'pin'
 
 export function LoginForm() {
   const router = useRouter()
@@ -117,7 +117,7 @@ export function LoginForm() {
 
   return (
     <div className="mt-5">
-      {/* Mode tabs — only Password / Magic link; Forgot is a sub-state */}
+      {/* Mode tabs */}
       {mode !== 'forgot' && (
         <div className="mb-4 flex rounded-lg border border-black/10 bg-black/5 p-1">
           <button
@@ -137,6 +137,15 @@ export function LoginForm() {
             }`}
           >
             Magic link
+          </button>
+          <button
+            type="button"
+            onClick={() => switchMode('pin')}
+            className={`flex-1 rounded-md py-2 text-sm font-medium transition ${
+              mode === 'pin' ? 'bg-white shadow-sm text-ink' : 'text-muted hover:text-ink'
+            }`}
+          >
+            Child PIN
           </button>
         </div>
       )}
@@ -269,6 +278,98 @@ export function LoginForm() {
           </p>
         </form>
       )}
+      {/* ── Child PIN form ── */}
+      {mode === 'pin' && (
+        <PinLoginForm redirectTo={redirectTo} />
+      )}
     </div>
+  )
+}
+
+function PinLoginForm({ redirectTo }: { redirectTo: string }) {
+  const router = useRouter()
+  const supabase = createSupabaseBrowserClient()
+  const [childName, setChildName] = useState('')
+  const [pin, setPin] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [isPending, startTransition] = useTransition()
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setError(null)
+    startTransition(async () => {
+      try {
+        // Step 1: resolve the synthetic email from the display name
+        const lookupRes = await fetch('/api/auth/child-lookup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ displayName: childName.trim() }),
+        })
+        const lookupData = await lookupRes.json()
+        if (!lookupRes.ok) {
+          setError(lookupData.error ?? 'Could not find that account.')
+          return
+        }
+
+        // Step 2: sign in with the synthetic email + PIN
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: lookupData.email,
+          password: pin,
+        })
+        if (signInError) {
+          setError('Incorrect PIN. Please try again.')
+          return
+        }
+        router.push(redirectTo)
+        router.refresh()
+      } catch {
+        setError('Something went wrong. Please try again.')
+      }
+    })
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+      <p className="text-sm text-muted">
+        For children whose account was set up by a parent — enter your name and PIN.
+      </p>
+      <label className="block">
+        <span className="text-sm font-medium">Your name</span>
+        <input
+          type="text"
+          required
+          value={childName}
+          onChange={(e) => setChildName(e.target.value)}
+          placeholder="e.g. Aaina"
+          autoComplete="off"
+          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-white px-3 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/30"
+        />
+      </label>
+      <label className="block">
+        <span className="text-sm font-medium">PIN</span>
+        <input
+          type="password"
+          inputMode="numeric"
+          required
+          value={pin}
+          onChange={(e) => setPin(e.target.value)}
+          placeholder="••••"
+          autoComplete="current-password"
+          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-white px-3 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/30"
+        />
+      </label>
+      {error && (
+        <p role="alert" className="rounded-md bg-incorrect/10 px-3 py-2 text-sm text-incorrect">
+          {error}
+        </p>
+      )}
+      <button
+        type="submit"
+        disabled={isPending}
+        className="flex h-12 w-full items-center justify-center rounded-lg bg-brand font-semibold text-white transition active:scale-[0.98] disabled:opacity-60"
+      >
+        {isPending ? 'Signing in…' : 'Sign in with PIN'}
+      </button>
+    </form>
   )
 }

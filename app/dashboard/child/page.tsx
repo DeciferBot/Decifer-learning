@@ -9,6 +9,7 @@ import { prisma } from '@/lib/prisma'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { StreakPing } from './StreakPing'
 import { getVaultStatus } from '@/lib/vault/status'
+import { NewParentLinkNotice } from './NewParentLinkNotice'
 
 export const metadata = { title: 'Dashboard — Decifer Learning' }
 
@@ -43,6 +44,14 @@ export default async function ChildDashboardPage() {
   const profile = user ? await getCurrentProfile(supabase, user.id) : null
   const displayName = profile?.display_name ?? (user ? getUserDisplayName(user) : 'Explorer')
   const yearGroup = MVP_YEAR_GROUPS.find((y) => y.label === profile?.year_group_label)
+
+  // Check for an unseen parent link so we can show a first-time notice
+  const unseenLink = user
+    ? await prisma.familyLink.findFirst({
+        where: { child_user_id: user.id, seen_by_child: false },
+        include: { parent: { select: { display_name: true } } },
+      })
+    : null
 
   // Fire all independent DB queries in parallel — topics, collection count, vault
   const [topicRows, collectionCount, vaultResult] = await Promise.all([
@@ -97,6 +106,9 @@ export default async function ChildDashboardPage() {
   return (
     <section className="space-y-5">
       <StreakPing />
+      {unseenLink && (
+        <NewParentLinkNotice parentName={unseenLink.parent.display_name} />
+      )}
 
       {/* ── Header ─────────────────────────────────────────────────────── */}
       <div className="flex items-start justify-between gap-2">
