@@ -32,10 +32,19 @@ export const RARITY_LABEL: Record<Rarity, string> = {
   legendary: 'Legendary',
 }
 
+/** @deprecated Use RARITY_ICON from components/ui/icons instead */
 export const RARITY_EMOJI: Record<Rarity, string> = {
   common:    '🌿',
   uncommon:  '💧',
   rare:      '⭐',
   epic:      '💎',
   legendary: '🌟',
+}
+
+export const RARITY_ICON_NAME: Record<Rarity, string> = {
+  common:    'Leaf',
+  uncommon:  'Compass',
+  rare:      'Star',
+  epic:      'Gem',
+  legendary: 'Crown',
 }

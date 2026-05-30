@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { Trophy, Flame, UserCircle } from '@/components/ui/icons'
 
 interface Entry {
   id:           string
@@ -53,7 +54,7 @@ export default function LeaderboardPage() {
   if (entries.length === 0) {
     return (
       <div className="flex min-h-[40vh] flex-col items-center justify-center gap-2 text-center px-4">
-        <span className="text-4xl">🏆</span>
+        <Trophy size={40} className="text-points-gold" />
         <p className="font-heading text-lg font-bold text-ink">Leaderboard</p>
         <p className="text-sm text-muted max-w-xs">
           The leaderboard shows up once there are other family members on the app.
@@ -70,7 +71,7 @@ export default function LeaderboardPage() {
   return (
     <div className="max-w-lg mx-auto px-4 space-y-5 pb-8">
       <div className="flex items-center justify-between pt-2">
-        <h1 className="font-heading text-2xl font-bold text-ink">🏆 Leaderboard</h1>
+        <h1 className="flex items-center gap-2 font-heading text-2xl font-bold text-ink"><Trophy size={22} className="text-points-gold" /> Leaderboard</h1>
         <Link href="/dashboard/child" className="text-sm text-muted hover:text-ink">
           ← Home
         </Link>
@@ -85,7 +86,7 @@ export default function LeaderboardPage() {
             const heights = entries.length >= 3 ? ['h-20', 'h-28', 'h-16'] : ['h-20', 'h-28']
             return (
               <div key={e.id} className="flex flex-col items-center gap-1">
-                <span className="text-2xl">{e.avatarEmoji}</span>
+                <UserCircle size={24} className="text-muted" />
                 <p className={`text-xs font-bold ${e.isMe ? 'text-brand' : 'text-ink'} max-w-[64px] truncate`}>
                   {e.isMe ? 'You' : e.displayName.split(' ')[0]}
                 </p>
@@ -117,13 +118,13 @@ export default function LeaderboardPage() {
             }`}>
               {i + 1}
             </span>
-            <span className="text-xl flex-none">{e.avatarEmoji}</span>
+            <UserCircle size={20} className="flex-none text-muted" />
             <div className="flex-1 min-w-0">
               <p className={`font-semibold text-sm ${e.isMe ? 'text-brand' : 'text-ink'}`}>
                 {e.isMe ? 'You' : e.displayName}
               </p>
               {e.streakDays > 0 && (
-                <p className="text-xs text-muted">🔥 {e.streakDays} day streak</p>
+                <p className="flex items-center gap-1 text-xs text-muted"><Flame size={12} className="text-incorrect" />{e.streakDays} day streak</p>
               )}
             </div>
             <p className="flex-none font-heading font-bold text-ink">

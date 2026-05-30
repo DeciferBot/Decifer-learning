@@ -2,6 +2,10 @@
 
 import Link from 'next/link'
 import { TopicNode, type NodeState } from './TopicNode'
+import { Leaf, TreePine, Mountain, Hexagon, ScrollText, Flame, MapFold, FlagCheckered, Swords } from '@/components/ui/icons'
+import type { ComponentType, SVGProps } from 'react'
+
+type IconType = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
 
 export type ZoneNode = {
   id: string
@@ -23,20 +27,20 @@ type Props = {
   checkpointTopicId?: string | null
 }
 
-const THEME_EMOJI: Record<string, string> = {
-  jungle:   '🌿',
-  woodland: '🌲',
-  cave:     '🪨',
-  crystal:  '💎',
-  library:  '📚',
-  forge:    '🔥',
+const THEME_ICON: Record<string, IconType> = {
+  jungle:   Leaf,
+  woodland: TreePine,
+  cave:     Mountain,
+  crystal:  Hexagon,
+  library:  ScrollText,
+  forge:    Flame,
 }
 
 // Container height gives room for nodes + labels without horizontal overflow.
 const NODE_AREA_HEIGHT = 180
 
 export function ZoneMap({ zoneId, zoneName, theme, subjectColor, nodes, allCompleted, checkpointTopicId }: Props) {
-  const emoji = theme ? (THEME_EMOJI[theme] ?? '🗺️') : '🗺️'
+  const ThemeIcon: IconType = theme ? (THEME_ICON[theme] ?? MapFold) : MapFold
   const completedCount = nodes.filter((n) => n.state === 'completed').length
 
   return (
@@ -46,7 +50,7 @@ export function ZoneMap({ zoneId, zoneName, theme, subjectColor, nodes, allCompl
     >
       {/* Zone header */}
       <div className="flex items-center gap-2 px-5 pb-2 pt-4">
-        <span style={{ fontSize: 20 }} aria-hidden>{emoji}</span>
+        <ThemeIcon size={20} style={{ color: subjectColor }} aria-hidden />
         <h3 className="font-heading text-base font-bold text-ink">{zoneName}</h3>
       </div>
 
@@ -79,7 +83,7 @@ export function ZoneMap({ zoneId, zoneName, theme, subjectColor, nodes, allCompl
               className="mx-5 mb-3 mt-1 rounded-xl p-4"
               style={{ backgroundColor: '#EEF4FF', border: '2px solid #6C9EFF' }}
             >
-              <p className="font-heading font-bold text-ink">🏁 Zone Checkpoint!</p>
+              <p className="flex items-center gap-2 font-heading font-bold text-ink"><FlagCheckered size={18} className="text-brand" /> Zone Checkpoint!</p>
               <p className="mt-1 text-sm text-muted">
                 Great progress — 3 quick questions to check you&apos;re on track.
               </p>
@@ -99,7 +103,7 @@ export function ZoneMap({ zoneId, zoneName, theme, subjectColor, nodes, allCompl
               className="mx-5 mb-4 mt-1 rounded-xl p-4 text-center"
               style={{ backgroundColor: '#FFF9E6', border: '2px solid #FFD43B' }}
             >
-              <p className="font-heading font-bold text-ink">⚔️ Zone Guardian Awakens!</p>
+              <p className="flex items-center gap-2 font-heading font-bold text-ink"><Swords size={18} className="text-lightning" /> Zone Guardian Awakens!</p>
               <p className="mt-1 text-sm text-muted">All topics complete — face the guardian!</p>
               <Link
                 href={`/guardian/${zoneId}`}

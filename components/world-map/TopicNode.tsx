@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
+import { Lock, Check, Star } from '@/components/ui/icons'
 
 export type NodeState = 'locked' | 'available' | 'completed'
 
@@ -47,12 +48,14 @@ export function TopicNode({ title, state, href, subjectColor, xPct, yPct }: Prop
         alignItems: 'center',
         justifyContent: 'center',
         opacity: state === 'locked' ? 0.5 : 1,
-        fontSize: 22,
+        fontSize: 20,
         cursor: state === 'locked' ? 'default' : 'pointer',
       }}
       aria-hidden
     >
-      {state === 'locked' ? '🔒' : state === 'completed' ? '✓' : '⭐'}
+      {state === 'locked'    ? <Lock size={20} style={{ color: '#718096' }} />    :
+       state === 'completed' ? <Check size={20} style={{ color: '#ffffff' }} />  :
+                               <Star size={20} style={{ color: '#ffffff' }} />}
     </div>
   )
 

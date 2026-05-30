@@ -1,6 +1,7 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
+import { Lightbulb } from '@/components/ui/icons'
 
 type Props = {
   hints: string[]
@@ -38,8 +39,9 @@ export function HintButton({ hints, revealed, onReveal, disabled, countdown }: P
 
       {/* Locked — show countdown nudge */}
       {isLocked && remaining > 0 && (
-        <p className="text-xs text-muted">
-          💡 Hint unlocks in{' '}
+        <p className="flex items-center gap-1.5 text-xs text-muted">
+          <Lightbulb size={14} className="flex-none" />
+          Hint unlocks in{' '}
           <span className="tabular-nums font-bold">{countdown}s</span> — give it a try first!
         </p>
       )}

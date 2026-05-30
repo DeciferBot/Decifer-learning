@@ -1,15 +1,22 @@
 'use client'
 
 import { ScrollReveal } from '@/components/ui/ScrollReveal'
+import { BookOpen, PencilLine, Zap, BarChart } from '@/components/ui/icons'
+import type { ComponentType, SVGProps } from 'react'
 
-const STEPS = [
+type IconType = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
+
+const STEPS: {
+  step: number; label: string; color: string; colorBg: string; textColor: string
+  Icon: IconType; body: string
+}[] = [
   {
     step: 1,
     label: 'Learn',
     color: '#6C9EFF',
     colorBg: 'rgba(108,158,255,0.10)',
     textColor: '#6C9EFF',
-    icon: '📖',
+    Icon: BookOpen,
     body: 'Clear explanations and worked examples at the right level. No pressure, no time limit.',
   },
   {
@@ -18,7 +25,7 @@ const STEPS = [
     color: '#52D9A0',
     colorBg: 'rgba(82,217,160,0.10)',
     textColor: '#52D9A0',
-    icon: '✏️',
+    Icon: PencilLine,
     body: 'Guided exercises with up to three hint levels and instant feedback. Retries are never penalised.',
   },
   {
@@ -27,7 +34,7 @@ const STEPS = [
     color: '#FFD43B',
     colorBg: 'rgba(255,212,59,0.12)',
     textColor: '#A08000',
-    icon: '⚡',
+    Icon: Zap,
     body: 'Ten questions across three difficulty tiers. Instant feedback. Every mistake is explained, not just marked wrong.',
   },
   {
@@ -36,7 +43,7 @@ const STEPS = [
     color: '#F05A28',
     colorBg: 'rgba(240,90,40,0.08)',
     textColor: '#F05A28',
-    icon: '📊',
+    Icon: BarChart,
     body: 'Scores, XP, streaks, and topic completion tracked automatically. Parents see results the same day.',
   },
 ]
@@ -75,8 +82,8 @@ export function LearningJourney() {
                 >
                   {step.step}
                 </span>
-                <span className="text-xl" aria-hidden>
-                  {step.icon}
+                <span style={{ color: step.color }} aria-hidden>
+                  <step.Icon size={20} />
                 </span>
               </div>
 

@@ -1,8 +1,20 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
-import { RARITY_COLOUR, RARITY_LABEL, RARITY_EMOJI, type Rarity } from '@/lib/cards'
+import { RARITY_COLOUR, RARITY_LABEL, type Rarity } from '@/lib/cards'
+import { Leaf, Compass, Star, Gem, Crown, Sparkles } from '@/components/ui/icons'
+import type { ComponentType, SVGProps } from 'react'
 import type { DroppedCard } from '@/app/api/quiz/submit/route'
+
+type IconType = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
+
+const RARITY_ICON: Record<Rarity, IconType> = {
+  common:    Leaf,
+  uncommon:  Compass,
+  rare:      Star,
+  epic:      Gem,
+  legendary: Crown,
+}
 
 export function CardReveal({
   card,
@@ -14,7 +26,7 @@ export function CardReveal({
   const rarity = card.rarity as Rarity
   const colour = RARITY_COLOUR[rarity] ?? '#A8E6CF'
   const label = RARITY_LABEL[rarity] ?? card.rarity
-  const emoji = RARITY_EMOJI[rarity] ?? '🌿'
+  const RarityIcon: IconType = RARITY_ICON[rarity] ?? Leaf
 
   const isSpecial = rarity === 'epic' || rarity === 'legendary'
 
@@ -44,14 +56,14 @@ export function CardReveal({
               {card.isNew ? 'New card discovered!' : 'Card collected!'}
             </p>
 
-            {/* Big emoji */}
             <motion.div
               initial={{ scale: 0.5, rotate: -12 }}
               animate={{ scale: 1, rotate: 0 }}
               transition={{ delay: 0.12, type: 'spring', stiffness: 280 }}
-              className="mb-3 text-6xl"
+              className="mb-3 flex items-center justify-center"
+              style={{ color: colour }}
             >
-              {emoji}
+              <RarityIcon size={64} />
             </motion.div>
 
             {/* Rarity pill */}
@@ -72,7 +84,11 @@ export function CardReveal({
                 className="mb-3 text-sm font-bold"
                 style={{ color: colour }}
               >
-                {rarity === 'legendary' ? '✨ Legendary find!' : '💎 Epic discovery!'}
+                <span className="flex items-center justify-center gap-1.5">
+                  <Sparkles size={14} />
+                  {rarity === 'legendary' ? 'Legendary find!' : 'Epic discovery!'}
+                  <Sparkles size={14} />
+                </span>
               </motion.div>
             )}
 

@@ -2,13 +2,17 @@
 
 import { motion, AnimatePresence } from 'framer-motion'
 import type { EarnedBadge } from '@/app/api/quiz/submit/route'
+import { Star, Trophy, Flame, Swords, Medal } from '@/components/ui/icons'
+import type { ComponentType, SVGProps } from 'react'
 
-const BADGE_EMOJI: Record<string, string> = {
-  'Topic Star':        '⭐',
-  'Perfect Score':     '💯',
-  'Subject Champion':  '🏆',
-  'Streak 7':          '🔥',
-  'Guardian Slayer':   '⚔️',
+type IconType = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
+
+const BADGE_ICON: Record<string, { Icon: IconType; color: string }> = {
+  'Topic Star':       { Icon: Star,    color: '#FFD43B' },
+  'Perfect Score':    { Icon: Trophy,  color: '#FFC107' },
+  'Subject Champion': { Icon: Trophy,  color: '#F05A28' },
+  'Streak 7':         { Icon: Flame,   color: '#FF6B6B' },
+  'Guardian Slayer':  { Icon: Swords,  color: '#6C9EFF' },
 }
 
 export function BadgePopup({
@@ -18,7 +22,7 @@ export function BadgePopup({
   badge: EarnedBadge
   onDismiss: () => void
 }) {
-  const emoji = BADGE_EMOJI[badge.name] ?? '🏅'
+  const { Icon, color } = BADGE_ICON[badge.name] ?? { Icon: Medal, color: '#FFC107' }
 
   return (
     <AnimatePresence>
@@ -46,9 +50,10 @@ export function BadgePopup({
             initial={{ scale: 0, rotate: -20 }}
             animate={{ scale: 1, rotate: 0 }}
             transition={{ delay: 0.1, type: 'spring', stiffness: 260 }}
-            className="mb-4 text-7xl"
+            className="mb-4 flex items-center justify-center"
+            style={{ color }}
           >
-            {emoji}
+            <Icon size={72} />
           </motion.div>
 
           <h3 className="mb-2 font-heading text-2xl font-bold text-ink">{badge.name}</h3>

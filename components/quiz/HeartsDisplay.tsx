@@ -1,6 +1,7 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
+import { HeartFull } from '@/components/ui/icons'
 
 export function HeartsDisplay({ hearts, max = 3 }: { hearts: number; max?: number }) {
   return (
@@ -16,10 +17,10 @@ export function HeartsDisplay({ hearts, max = 3 }: { hearts: number; max?: numbe
               key="full"
               exit={{ scale: 0.4, opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="select-none text-xl"
+              className="select-none text-incorrect"
               aria-hidden
             >
-              ❤️
+              <HeartFull size={20} />
             </motion.span>
           ) : (
             <motion.span
@@ -27,10 +28,10 @@ export function HeartsDisplay({ hearts, max = 3 }: { hearts: number; max?: numbe
               initial={{ scale: 0.4, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.2 }}
-              className="select-none text-xl opacity-25"
+              className="select-none text-muted opacity-30"
               aria-hidden
             >
-              🤍
+              <HeartFull size={20} />
             </motion.span>
           )}
         </AnimatePresence>

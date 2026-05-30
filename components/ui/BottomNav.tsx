@@ -2,13 +2,17 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { Home, MapFold, LayoutGrid, UserCircle } from '@/components/ui/icons'
+import type { SVGProps } from 'react'
 
-const TABS = [
-  { href: '/dashboard/child', label: 'Home',       icon: '🏠' },
-  { href: '/world-map',       label: 'World Map',   icon: '🗺️' },
-  { href: '/collection',      label: 'Cards',       icon: '🃏' },
-  { href: '/customise',       label: 'Profile',     icon: '🎨' },
-] as const
+type TabIcon = (props: SVGProps<SVGSVGElement> & { size?: number }) => JSX.Element
+
+const TABS: { href: string; label: string; Icon: TabIcon }[] = [
+  { href: '/dashboard/child', label: 'Home',      Icon: Home },
+  { href: '/world-map',       label: 'World Map',  Icon: MapFold },
+  { href: '/collection',      label: 'Cards',      Icon: LayoutGrid },
+  { href: '/customise',       label: 'Profile',    Icon: UserCircle },
+]
 
 export function BottomNav() {
   const pathname = usePathname()
@@ -35,9 +39,7 @@ export function BottomNav() {
                 active ? 'text-brand' : 'text-muted hover:text-ink'
               }`}
             >
-              <span className="text-xl leading-none" aria-hidden>
-                {tab.icon}
-              </span>
+              <tab.Icon size={22} aria-hidden />
               <span className={`text-[10px] font-semibold leading-tight ${active ? 'text-brand' : ''}`}>
                 {tab.label}
               </span>
