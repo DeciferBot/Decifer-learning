@@ -335,8 +335,8 @@ export default async function ChildDetailPage({
       </div>
 
       {/* ── Recommended next lesson ─────────────────────────────────────────── */}
-      <Card title="Recommended next lesson">
-        {recommended ? (
+      {recommended && (
+        <Card title="Recommended next lesson">
           <div className="space-y-2">
             <p className="text-xs font-bold uppercase tracking-wide text-maths">
               {recommended.isFirstLesson ? 'Start with this lesson' : 'Continue here'}
@@ -356,12 +356,8 @@ export default async function ChildDetailPage({
               </Link>
             )}
           </div>
-        ) : (
-          <p className="text-sm text-muted">
-            No published lessons available yet for {yearGroupLabel ?? 'this year group'}.
-          </p>
-        )}
-      </Card>
+        </Card>
+      )}
 
       {/* ── Progress overview ───────────────────────────────────────────────── */}
       <Card title="Progress overview">
