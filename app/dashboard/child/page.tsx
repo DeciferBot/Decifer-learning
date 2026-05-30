@@ -26,6 +26,7 @@ type TopicRow = {
   order_index: number
   subjects: SubjectRow
   hasPractice: boolean
+  hasQuiz: boolean
 }
 
 import type { ComponentType, SVGProps } from 'react'
@@ -66,7 +67,7 @@ export default async function ChildDashboardPage() {
             title: true,
             order_index: true,
             subject: { select: { name: true, colour_token: true } },
-            _count: { select: { practice_games: { where: { status: 'published' } } } },
+            _count: { select: { practice_games: { where: { status: 'published' } }, quiz_questions: { where: { status: 'published' } } } },
           },
           orderBy: { order_index: 'asc' },
         })
@@ -85,6 +86,7 @@ export default async function ChildDashboardPage() {
     order_index: t.order_index,
     subjects: { name: t.subject.name, colour_token: t.subject.colour_token },
     hasPractice: t._count.practice_games > 0,
+    hasQuiz: t._count.quiz_questions > 0,
   }))
 
   // Group by subject, preserving canonical order
@@ -148,7 +150,10 @@ export default async function ChildDashboardPage() {
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="font-heading font-bold text-ink">{firstTopic.title}</p>
-              <p className="text-xs text-muted flex items-center gap-1">{firstTopic.subjects.name} · <Layers className="w-3.5 h-3.5 inline" aria-hidden /> quiz to win a card</p>
+              <p className="text-xs text-muted flex items-center gap-1">
+                {firstTopic.subjects.name}
+                {firstTopic.hasQuiz && <> · <Layers className="w-3.5 h-3.5 inline" aria-hidden /> quiz to win a card</>}
+              </p>
             </div>
             <Link
               href={`/topics/${firstTopic.id}/learn`}

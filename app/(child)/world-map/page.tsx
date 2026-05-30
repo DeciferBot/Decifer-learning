@@ -92,6 +92,14 @@ export default async function WorldMapPage() {
         </Link>
       </div>
 
+      {zones.length === 0 && (
+        <div className="rounded-2xl border border-black/5 bg-surface px-5 py-10 text-center shadow-sm">
+          <p className="text-3xl" aria-hidden>🗺️</p>
+          <p className="mt-3 font-heading text-base font-bold text-ink">Your world map is being built</p>
+          <p className="mt-1 text-sm text-muted">Check back soon — your zones will appear here.</p>
+        </div>
+      )}
+
       <div className="space-y-4">
         {zones.map((zone) => {
           const zoneNodes = nodesByZone.get(zone.id) ?? []
