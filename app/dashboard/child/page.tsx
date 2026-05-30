@@ -10,7 +10,7 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { StreakPing } from './StreakPing'
 import { getVaultStatus } from '@/lib/vault/status'
 import { NewParentLinkNotice } from './NewParentLinkNotice'
-import { MapFold, Layers, Star, Target, Trophy, PencilLine, Microscope, BookOpen, Gift } from '@/components/ui/icons'
+import { MapFold, Layers, Star, Target, Trophy, PencilLine, Microscope, BookOpen, Gift, Flame, Zap } from '@/components/ui/icons'
 
 export const metadata = { title: 'Dashboard — Decifer Learning' }
 
@@ -127,13 +127,13 @@ export default async function ChildDashboardPage() {
         </div>
         <div className="flex shrink-0 flex-col items-end gap-1 text-right">
           {points > 0 && (
-            <span className="font-heading text-sm font-bold text-points-gold">
-              ⭐ {points.toLocaleString()} pts
+            <span className="inline-flex items-center gap-1 font-heading text-sm font-bold text-points-gold">
+              <Star className="w-3.5 h-3.5" aria-hidden /> {points.toLocaleString()} pts
             </span>
           )}
           {streak > 0 && (
-            <span className="text-xs text-muted">
-              🔥 {streak} day streak
+            <span className="inline-flex items-center gap-1 text-xs text-muted">
+              <Flame className="w-3.5 h-3.5" aria-hidden /> {streak} day streak
             </span>
           )}
         </div>
@@ -148,7 +148,7 @@ export default async function ChildDashboardPage() {
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="font-heading font-bold text-ink">{firstTopic.title}</p>
-              <p className="text-xs text-muted">{firstTopic.subjects.name} · 🃏 quiz to win a card</p>
+              <p className="text-xs text-muted flex items-center gap-1">{firstTopic.subjects.name} · <Layers className="w-3.5 h-3.5 inline" aria-hidden /> quiz to win a card</p>
             </div>
             <Link
               href={`/topics/${firstTopic.id}/learn`}
@@ -227,12 +227,12 @@ export default async function ChildDashboardPage() {
           className="flex min-h-[52px] items-center justify-between rounded-2xl border border-brand/20 bg-brand/5 px-5 py-3 shadow-sm transition-colors hover:bg-brand/10"
         >
           <div className="flex items-center gap-2">
-            <span className="text-base">🎁</span>
+            <Gift className="w-5 h-5 text-brand" aria-hidden />
             <div>
               <span className="font-heading text-sm font-semibold text-brand">Reward Vault</span>
               {vaultCredits > 0 && (
-                <span className="ml-2 rounded-full bg-correct/20 px-2 py-0.5 text-xs font-bold text-correct">
-                  🎁 Reward ready
+                <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-correct/20 px-2 py-0.5 text-xs font-bold text-correct">
+                  <Gift className="w-3 h-3" aria-hidden /> Reward ready
                 </span>
               )}
             </div>
@@ -244,7 +244,7 @@ export default async function ChildDashboardPage() {
           href="/vault"
           className="flex min-h-[48px] items-center justify-between rounded-2xl border border-black/5 bg-surface px-4 py-3 shadow-sm transition-colors hover:bg-black/[0.03]"
         >
-          <span className="font-heading text-sm font-semibold text-ink">🎁 Reward Vault</span>
+          <span className="font-heading text-sm font-semibold text-ink flex items-center gap-1"><Gift className="w-4 h-4" aria-hidden /> Reward Vault</span>
           <span className="text-xs text-muted">→</span>
         </Link>
       )}
@@ -252,7 +252,7 @@ export default async function ChildDashboardPage() {
       {/* ── Topics by subject ───────────────────────────────────────────── */}
       {topics.length === 0 ? (
         <EmptyState
-          icon="📚"
+          icon={<BookOpen className="w-10 h-10 text-muted" aria-hidden />}
           heading="Your first topics are being prepared"
           body="Maths content is the most complete right now. Topics appear here once they pass all quality checks."
           action={
@@ -320,15 +320,15 @@ export default async function ChildDashboardPage() {
                               href={`/topics/${topic.id}/practise`}
                               className="flex min-h-[48px] items-center justify-center rounded-xl bg-science/10 px-3 py-2 text-sm font-bold text-science transition-colors hover:bg-science/20"
                             >
-                              ✏️ Practise
+                              <span className="flex items-center gap-1"><PencilLine className="w-4 h-4" aria-hidden /> Practise</span>
                             </Link>
                           )}
                           <Link
                             href={`/topics/${topic.id}/quiz`}
                             className="flex min-h-[48px] flex-col items-center justify-center rounded-xl bg-lightning/20 px-3 py-2 text-center transition-colors hover:bg-lightning/30"
                           >
-                            <span className="text-sm font-bold text-ink">⚡ Quiz</span>
-                            <span className="text-[10px] font-semibold text-muted leading-tight">🃏 win a card</span>
+                            <span className="text-sm font-bold text-ink flex items-center gap-1"><Zap className="w-4 h-4" aria-hidden /> Quiz</span>
+                            <span className="text-[10px] font-semibold text-muted leading-tight flex items-center gap-0.5"><Layers className="w-3 h-3" aria-hidden /> win a card</span>
                           </Link>
                         </div>
                       </div>
