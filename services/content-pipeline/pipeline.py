@@ -179,6 +179,19 @@ You MUST use a DIFFERENT archetype from this list:
 Choose an archetype NOT in the already-used list above and write your question using it.
 Use DIFFERENT numbers from those already in the forbidden list."""
 
+        elif "graph" in topic_title_lower or "coordinate" in topic_title_lower:
+            diversity_end += """
+
+🎯 GRAPHS/COORDINATES — question type rule:
+These questions involve SUBSTITUTING a value into an equation to find a coordinate, or reading/plotting points.
+They are ARITHMETIC questions (one calculation step), NOT algebra questions requiring SymPy to solve.
+You MUST use question_type="maths_arithmetic" for all graphs/coordinates questions.
+verification_expression must be the arithmetic expression to compute the answer.
+  GOOD: "If y = 3x + 2, what is y when x = 4?" → correct_answer="14", verification_expression="3*4+2"
+  GOOD: "Plot the point (3, 5). What is the y-coordinate?" → correct_answer="5", verification_expression="5"
+  GOOD: "What is the gradient of the line y = 2x − 1?" → correct_answer="2", verification_expression="2"
+  BAD:  question_type="maths_algebra" with verification_equation — do NOT use for substitution questions."""
+
         elif "algebra" in topic_title_lower or "expression" in topic_title_lower:
             used_texts_lower = " ".join(used_texts).lower()
             used_archetypes = []
@@ -278,10 +291,9 @@ ANSWER FORMAT — critical for automatic verification:
   • WRONG: correct_answer="0.3333333333"  (recurring decimal — always rejected)
   • RIGHT: correct_answer="1/4"           (simplified fraction — 3/12 simplifies to 1/4)
   • RIGHT: correct_answer="1/3"           (simplified fraction — 4/12 simplifies to 1/3)
-  The verification_expression for probability must verify the numerator calculation only:
-  e.g. for "4 blue out of 12 total" → verification_expression="4" and correct_answer="4/12" simplified to "1/3".
-  Actually: set verification_expression to the NUMERATOR of the unsimplified fraction as an integer, and
-  correct_answer to the SIMPLIFIED fraction. The verifier will parse correct_answer as num/den and compare.
+  The verification_expression for probability must be the FULL UNSIMPLIFIED FRACTION expression:
+  e.g. for "4 blue out of 12 total" → verification_expression="4/12" and correct_answer="1/3"
+  The verifier evaluates: safe_eval("4/12") = 0.333... and parses "1/3" = 0.333... — they match. ✓
   Distractors for probability questions must also be fractions (not decimals), and must NOT include the
   raw count as a distractor (e.g. do not use "4" as a distractor for a probability question).
 
