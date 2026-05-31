@@ -58,6 +58,7 @@ export interface SentenceBuilderWidget extends BaseWidget {
   type: 'sentence_builder'
   config: {
     title: string
+    instructions?: string
     tiles: Array<{
       id: string
       text: string
