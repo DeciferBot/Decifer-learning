@@ -167,9 +167,9 @@ def get_curriculum_chunks(subject: str, year_group_label: str, limit: int = 10) 
         conn.close()
 
 
-def insert_learn_content(topic_id: str, body_html: str) -> str:
+def insert_learn_content(topic_id: str, body_html: str, widgets: list) -> str:
     """Insert a learn_content row as status='published'. Returns the new row ID."""
-    import psycopg2
+    import psycopg2, json
     from pgvector.psycopg2 import register_vector
     conn = psycopg2.connect(DATABASE_URL)
     register_vector(conn)
@@ -177,13 +177,99 @@ def insert_learn_content(topic_id: str, body_html: str) -> str:
         new_id = str(uuid.uuid4())
         with conn.cursor() as cur:
             cur.execute("""
-                INSERT INTO learn_content (id, topic_id, body_html, examples_json, status)
-                VALUES (%s, %s, %s, %s, 'published')
-            """, (new_id, topic_id, body_html, '{}'))
+                INSERT INTO learn_content (id, topic_id, body_html, learn_widgets, examples_json, status)
+                VALUES (%s, %s, %s, %s::jsonb, %s, 'published')
+                ON CONFLICT (topic_id) DO UPDATE
+                  SET body_html=EXCLUDED.body_html,
+                      learn_widgets=EXCLUDED.learn_widgets,
+                      status='published'
+            """, (new_id, topic_id, body_html, json.dumps(widgets), '{}'))
         conn.commit()
         return new_id
     finally:
         conn.close()
+
+
+# ── Widget generation ─────────────────────────────────────────────────────────
+
+WIDGET_SYSTEM_PROMPT = """You are generating interactive widget specs for a digital lesson on a UK school learning app.
+Return ONLY valid JSON — either an empty array [] or an array with 1-2 widget objects.
+No explanation, no markdown fences, no extra text. Just the JSON array."""
+
+WIDGET_USER_TEMPLATE = """You are generating interactive widget specs for a digital lesson on: {topic_title} ({year_label}, {subject}).
+
+The lesson content is:
+{body_html_truncated}
+
+Available widget types:
+- drag_label: A diagram where students drag labels to correct positions. Use for: labelling diagrams of cells, plants, shapes, the water cycle, geographical features.
+  Config: diagram_type (one of: circle, triangle, plant, animal_cell, water_cycle, right_triangle, volcano, river), items (array of {{id, label, hotspot: {{x, y}}}} where x/y are 0-100 percentage positions)
+
+Based on the topic and content, decide if a widget would meaningfully enhance learning.
+Return ONLY valid JSON — either an empty array [] if no widget is appropriate, or an array with 1-2 widget objects.
+
+Rules:
+- Only suggest drag_label for topics where labelling a diagram is genuinely useful
+- x/y hotspot positions must be realistic for the diagram type
+- Maximum 6 label items per drag_label widget
+- Maths geometry topics: use 'circle' or 'triangle' or 'right_triangle' diagram
+- Science biology topics: use 'plant' or 'animal_cell' diagram
+- Science physics/earth: use 'water_cycle', 'volcano', or 'river'
+- English, History, abstract Maths: return []
+- Position: use 'end' (after the lesson text, as a check activity)
+
+Example output for Y3 Science - Plants:
+[{{"type":"drag_label","position":"end","config":{{"title":"Label the parts of a plant","instructions":"Tap a label, then tap where it belongs on the diagram.","diagram_type":"plant","items":[{{"id":"roots","label":"Roots","hotspot":{{"x":50,"y":90}}}},{{"id":"stem","label":"Stem","hotspot":{{"x":50,"y":62}}}},{{"id":"leaf","label":"Leaf","hotspot":{{"x":72,"y":48}}}},{{"id":"flower","label":"Flower","hotspot":{{"x":50,"y":18}}}}]}}}}]
+
+Example output for Y3 English - Grammar:
+[]"""
+
+
+def generate_widgets(topic: dict, chunks: list[dict], body_html: str) -> list:
+    """Call Claude Haiku to produce widget specs for a topic's learn page.
+
+    Returns a list (possibly empty) of widget dicts. Returns [] on any error.
+    """
+    import anthropic, json
+
+    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+
+    year_label = _label_to_display(topic["year_group_label"])
+    subject = topic["subject_name"]
+    title = topic["title"]
+    body_html_truncated = body_html[:500]
+
+    user_prompt = WIDGET_USER_TEMPLATE.format(
+        topic_title=title,
+        year_label=year_label,
+        subject=subject,
+        body_html_truncated=body_html_truncated,
+    )
+
+    try:
+        response = client.messages.create(
+            model="claude-haiku-4-5",
+            max_tokens=512,
+            system=WIDGET_SYSTEM_PROMPT,
+            messages=[{"role": "user", "content": user_prompt}],
+        )
+        raw = response.content[0].text.strip()
+
+        # Strip any accidental markdown fences
+        if raw.startswith("```"):
+            raw = raw.split("```", 1)[1]
+            if raw.startswith("json"):
+                raw = raw[4:]
+            raw = raw.rsplit("```", 1)[0].strip()
+
+        widgets = json.loads(raw)
+        if not isinstance(widgets, list):
+            log.warning(f"    Widget response was not a list, ignoring: {raw[:100]}")
+            return []
+        return widgets
+    except Exception as exc:
+        log.warning(f"    Widget generation failed (returning []): {exc}")
+        return []
 
 
 # ── HTML generation ───────────────────────────────────────────────────────────
@@ -303,16 +389,20 @@ def main():
 
         try:
             html = generate_body_html(topic, chunks)
+            widgets = generate_widgets(topic, chunks, html)
+            widget_types = [w.get("type") for w in widgets]
+            log.info(f"    Widgets: {widget_types if widgets else '(none)'}")
 
             if args.dry_run:
                 print(f"\n{'─'*60}")
                 print(f"  DRY RUN: {title}")
                 print(f"{'─'*60}")
                 print(html[:500] + ("…" if len(html) > 500 else ""))
+                print(f"  Widgets: {widgets}")
                 ok_count += 1
                 continue
 
-            new_id = insert_learn_content(topic["id"], html)
+            new_id = insert_learn_content(topic["id"], html, widgets)
             log.info(f"    ✓ Inserted learn_content id={new_id}")
             ok_count += 1
 

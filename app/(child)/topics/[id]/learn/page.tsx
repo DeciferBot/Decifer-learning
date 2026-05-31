@@ -2,14 +2,39 @@ import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { LessonEventTracker, LessonCompleteCTA } from '@/components/learn/LessonEventTracker'
+import { LearnWidgetRenderer } from '@/components/learn/LearnWidgetRenderer'
+import { LearnWidget } from '@/lib/learn-widgets'
 
 // RLS policy "topics_select_published" (is_published=true) is enforced at DB level.
 // RLS policy "learn_content_select_published" + FORCE RLS (status='published') is enforced at DB level.
 // App-layer .eq() filters are defence-in-depth only.
 
 type TopicRow = { id: string; title: string }
-type ContentRow = { id: string; body_html: string }
+type ContentRow = { id: string; body_html: string; learn_widgets: unknown }
 type PracticeRow = { id: string }
+
+/** Split body_html into sections at <hr>, <!-- SECTION_BREAK -->, or <h2> boundaries. */
+function splitHtml(html: string): string[] {
+  const parts = html
+    .split(/(?=<h2)|<hr\s*\/?>|<!-- SECTION_BREAK -->/gi)
+    .filter(Boolean)
+  return parts.length > 1 ? parts : [html]
+}
+
+/** Safely parse learn_widgets JSON from the DB. Returns [] on any failure. */
+function parseWidgets(raw: unknown): LearnWidget[] {
+  if (!raw) return []
+  if (Array.isArray(raw)) return raw as LearnWidget[]
+  if (typeof raw === 'string') {
+    try {
+      const parsed = JSON.parse(raw)
+      return Array.isArray(parsed) ? (parsed as LearnWidget[]) : []
+    } catch {
+      return []
+    }
+  }
+  return []
+}
 
 export async function generateMetadata({ params }: { params: { id: string } }) {
   return { title: 'Learn — Decifer Learning' }
@@ -41,7 +66,7 @@ export default async function LearnPage({
 
   const { data: content } = await supabase
     .from('learn_content')
-    .select('id, body_html')
+    .select('id, body_html, learn_widgets')
     .eq('topic_id', params.id)
     .eq('status', 'published')
     .maybeSingle<ContentRow>()
@@ -64,6 +89,9 @@ export default async function LearnPage({
       ? `/topics/${params.id}/quiz`
       : '/dashboard/child'
   const nextLabel = hasPractice ? 'Start Practising →' : hasQuiz ? 'Start Quiz →' : 'Back to Home →'
+
+  const sections = splitHtml(content.body_html)
+  const widgets = parseWidgets(content.learn_widgets)
 
   return (
     <div className="space-y-5">
@@ -94,12 +122,29 @@ export default async function LearnPage({
 
       <h1 className="font-heading text-2xl font-bold text-ink">{topic.title}</h1>
 
+      {/* Top widgets — before any content */}
+      <LearnWidgetRenderer widgets={widgets} position="top" />
+
+      {/* First section (intro) */}
       <div className="rounded-2xl border border-black/5 bg-surface p-6 shadow-sm">
-        <div
-          className="learn-content"
-          dangerouslySetInnerHTML={{ __html: content.body_html }}
-        />
+        <div className="learn-content" dangerouslySetInnerHTML={{ __html: sections[0] }} />
       </div>
+
+      {/* After-intro widgets — between section 0 and section 1 */}
+      <LearnWidgetRenderer widgets={widgets} position="after_intro" />
+
+      {/* Remaining sections */}
+      {sections.slice(1).map((section, i) => (
+        <div key={i} className="rounded-2xl border border-black/5 bg-surface p-6 shadow-sm">
+          <div className="learn-content" dangerouslySetInnerHTML={{ __html: section }} />
+        </div>
+      ))}
+
+      {/* Middle widgets — after the main body */}
+      <LearnWidgetRenderer widgets={widgets} position="middle" />
+
+      {/* End widgets — just before the CTA */}
+      <LearnWidgetRenderer widgets={widgets} position="end" />
 
       <div className="flex justify-end">
         {/* PLI v1: records lesson_completed before navigating */}
