@@ -26,13 +26,17 @@ export function isSelfRegisterableRole(value: unknown): value is SelfRegisterabl
   )
 }
 
-// MVP year groups — Years 2, 3, 6 and 7. All three subjects live.
-// Foundation Mode (Y1–2 audio-first) and GCSE/A-level are deferred to Phase 2.
+// All supported year groups — Y1–Y9. Maths, English, Science available across all.
 export const MVP_YEAR_GROUPS = [
+  { label: 'year-1', display: 'Year 1', keyStage: 'KS1' },
   { label: 'year-2', display: 'Year 2', keyStage: 'KS1' },
   { label: 'year-3', display: 'Year 3', keyStage: 'KS2' },
+  { label: 'year-4', display: 'Year 4', keyStage: 'KS2' },
+  { label: 'year-5', display: 'Year 5', keyStage: 'KS2' },
   { label: 'year-6', display: 'Year 6', keyStage: 'KS2' },
   { label: 'year-7', display: 'Year 7', keyStage: 'KS3' },
+  { label: 'year-8', display: 'Year 8', keyStage: 'KS3' },
+  { label: 'year-9', display: 'Year 9', keyStage: 'KS3' },
 ] as const
 
 export type YearGroupLabel = (typeof MVP_YEAR_GROUPS)[number]['label']

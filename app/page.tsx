@@ -22,7 +22,7 @@ type Icon = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
 export const metadata = {
   title: 'DECIFER Learning — UK National Curriculum for families',
   description:
-    'A learning map for parents. Decifer Learning gives parents a clear view of what their child needs to learn, what they are doing well, where they need support, and what to do next. UK National Curriculum, Years 2, 3, 6 and 7 — Maths, English, and Science.',
+    'A learning map for parents. Decifer Learning gives parents a clear view of what their child needs to learn, what they are doing well, where they need support, and what to do next. UK National Curriculum, Years 1–9 — Maths, English, and Science.',
 }
 
 export default function Home({
@@ -70,7 +70,7 @@ export default function Home({
             {/* Left: copy */}
             <div>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-brand/20 bg-brand-50 px-3 py-1 text-xs font-semibold text-brand">
-                UK National Curriculum · Years 2, 3, 6 &amp; 7
+                UK National Curriculum · Years 1–9
               </span>
 
               <h1 className="mt-4 font-heading text-3xl font-black leading-tight text-ink sm:text-4xl lg:text-5xl">
@@ -321,7 +321,7 @@ export default function Home({
               Example topics
             </h2>
             <p className="mb-2 text-center text-sm text-muted">
-              Years 2, 3, 6 and 7 — Maths, English, and Science.
+              Years 1–9 — Maths, English, and Science.
             </p>
             <p className="mb-10 text-center text-xs text-muted">
               Each topic includes a guided lesson, practice exercises, and a quiz. Your child sees only verified, published content.
@@ -380,17 +380,17 @@ export default function Home({
                 All three subjects. Four year groups. Live now.
               </h2>
               <p className="mx-auto mb-6 max-w-lg text-sm leading-relaxed text-muted">
-                Maths, English, and Science are fully available for Years 2, 3, 6 and 7. Every topic has passed the six-stage quality process. Your child will only ever see content that is verified and ready.
+                Maths, English, and Science are fully available for Years 1–9. Every topic has passed the six-stage quality process. Your child will only ever see content that is verified and ready.
               </p>
               <div className="flex flex-wrap justify-center gap-3 text-sm">
                 <span className="flex items-center gap-1.5 rounded-full bg-maths/10 px-4 py-1.5 font-semibold text-maths">
-                  <Check className="w-4 h-4" aria-hidden /> Maths: Years 2, 3, 6 &amp; 7
+                  <Check className="w-4 h-4" aria-hidden /> Maths: Years 1–9
                 </span>
                 <span className="flex items-center gap-1.5 rounded-full bg-english/10 px-4 py-1.5 font-semibold text-english">
-                  <Check className="w-4 h-4" aria-hidden /> English: Years 2, 3, 6 &amp; 7
+                  <Check className="w-4 h-4" aria-hidden /> English: Years 1–9
                 </span>
                 <span className="flex items-center gap-1.5 rounded-full bg-science/10 px-4 py-1.5 font-semibold text-science">
-                  <Check className="w-4 h-4" aria-hidden /> Science: Years 2, 3, 6 &amp; 7
+                  <Check className="w-4 h-4" aria-hidden /> Science: Years 1–9
                 </span>
               </div>
             </div>
