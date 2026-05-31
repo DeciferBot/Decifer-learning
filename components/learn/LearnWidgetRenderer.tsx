@@ -1,7 +1,8 @@
 'use client'
-import { LearnWidget, WidgetPosition } from '@/lib/learn-widgets'
+import { LearnWidget, SentenceBuilderWidget, WidgetPosition } from '@/lib/learn-widgets'
 import { DragLabel } from './widgets/DragLabel'
 import { ParticleModel } from './widgets/ParticleModel'
+import { SentenceBuilder } from './widgets/SentenceBuilder'
 
 interface Props {
   widgets: LearnWidget[]
@@ -20,6 +21,8 @@ export function LearnWidgetRenderer({ widgets, position }: Props) {
             return <DragLabel key={i} widget={widget} />
           case 'particle_model':
             return <ParticleModel key={i} widget={widget} />
+          case 'sentence_builder':
+            return <SentenceBuilder key={i} widget={widget as SentenceBuilderWidget} />
           default:
             return null
         }

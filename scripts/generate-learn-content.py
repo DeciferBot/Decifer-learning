@@ -205,6 +205,9 @@ Available widget types:
 - drag_label: A diagram where students drag labels to correct positions. Use for: labelling diagrams of cells, plants, shapes, the water cycle, geographical features.
   Config: diagram_type (one of: circle, triangle, plant, animal_cell, water_cycle, right_triangle, volcano, river), items (array of {{id, label, hotspot: {{x, y}}}} where x/y are 0-100 percentage positions)
 
+- sentence_builder: An interactive sentence-building exercise where students tap word tiles into numbered slots to form a grammatically correct sentence. Use for: English grammar topics such as fronted adverbials, conjunctions, punctuation, verb tenses, word classes, and sentence structure.
+  Config: title (string), instructions (string), tiles (array of {{id, text, type}} where type is one of: noun, verb, adjective, adverb, conjunction, preposition, punctuation, other), slots (array of {{id, accepts, placeholder}} where accepts is a list of tile ids that are valid for that slot), target_sentence (the complete correct sentence as a string).
+
 Based on the topic and content, decide if a widget would meaningfully enhance learning.
 Return ONLY valid JSON — either an empty array [] if no widget is appropriate, or an array with 1-2 widget objects.
 
@@ -215,13 +218,18 @@ Rules:
 - Maths geometry topics: use 'circle' or 'triangle' or 'right_triangle' diagram
 - Science biology topics: use 'plant' or 'animal_cell' diagram
 - Science physics/earth: use 'water_cycle', 'volcano', or 'river'
-- English, History, abstract Maths: return []
+- Use sentence_builder for English grammar topics (fronted adverbials, conjunctions, punctuation, verb tenses, word classes). Do NOT use it for comprehension or creative writing topics.
+- sentence_builder tiles: include every word and punctuation mark in the sentence as a separate tile; add 1-2 plausible distractor tiles to increase challenge. Each slot's accepts list normally has one correct tile id, but may include alternatives where grammatically equivalent words fit.
+- abstract Maths and History: return []
 - Position: use 'end' (after the lesson text, as a check activity)
 
 Example output for Y3 Science - Plants:
 [{{"type":"drag_label","position":"end","config":{{"title":"Label the parts of a plant","instructions":"Tap a label, then tap where it belongs on the diagram.","diagram_type":"plant","items":[{{"id":"roots","label":"Roots","hotspot":{{"x":50,"y":90}}}},{{"id":"stem","label":"Stem","hotspot":{{"x":50,"y":62}}}},{{"id":"leaf","label":"Leaf","hotspot":{{"x":72,"y":48}}}},{{"id":"flower","label":"Flower","hotspot":{{"x":50,"y":18}}}}]}}}}]
 
-Example output for Y3 English - Grammar:
+Example output for Y3 English - Fronted Adverbials:
+[{{"type":"sentence_builder","position":"end","config":{{"title":"Build the sentence","instructions":"Tap a word, then tap a box to place it.","tiles":[{{"id":"t1","text":"Carefully","type":"adverb"}},{{"id":"t2","text":"the","type":"other"}},{{"id":"t3","text":"cat","type":"noun"}},{{"id":"t4","text":"stepped","type":"verb"}},{{"id":"t5","text":"over","type":"preposition"}},{{"id":"t6","text":"puddle","type":"noun"}},{{"id":"t7","text":".","type":"punctuation"}},{{"id":"t8","text":"the","type":"other"}},{{"id":"t9","text":"slowly","type":"adverb"}}],"slots":[{{"id":"s1","accepts":["t1"],"placeholder":"adverb"}},{{"id":"s2","accepts":["t3"],"placeholder":"noun"}},{{"id":"s3","accepts":["t4"],"placeholder":"verb"}},{{"id":"s4","accepts":["t5"],"placeholder":"prep"}},{{"id":"s5","accepts":["t2","t8"],"placeholder":"det"}},{{"id":"s6","accepts":["t6"],"placeholder":"noun"}},{{"id":"s7","accepts":["t7"],"placeholder":"."}}}],"target_sentence":"Carefully the cat stepped over the puddle."}}}}]
+
+Example output for Y3 English - Comprehension:
 []"""
 
 
