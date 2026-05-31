@@ -285,10 +285,13 @@ export function DragLabel({ widget }: Props) {
       instructions={config.instructions ?? 'Tap a label, then tap where it belongs on the diagram.'}
       completed={completed}
     >
-      {/* Diagram + hotspots */}
+      {/* Diagram + hotspots — capped at 280px so it doesn't dominate the page */}
       <div
-        className="relative w-full mb-5 select-none"
-        style={{ paddingTop: `${aspectPadding}%` }}
+        className="relative w-full mb-5 select-none mx-auto"
+        style={{
+          maxWidth: '340px',
+          height: `${Math.min((aspectPadding / 100) * 340, 280)}px`,
+        }}
       >
         {/* SVG diagram fills the box */}
         <div className="absolute inset-0">

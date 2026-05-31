@@ -12,7 +12,7 @@ interface Props {
 export function WidgetWrapper({ title, instructions, completed, children }: Props) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      initial={false}
       animate={{ opacity: 1, y: 0 }}
       className={`my-6 rounded-2xl border-2 p-4 transition-colors ${
         completed
