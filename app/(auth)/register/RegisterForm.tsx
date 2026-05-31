@@ -106,7 +106,7 @@ export function RegisterForm() {
       {role === 'child' ? (
         <fieldset>
           <legend className="text-sm font-medium">Year group</legend>
-          <div className="mt-2 grid grid-cols-2 gap-2">
+          <div className="mt-2 grid grid-cols-3 gap-2">
             {MVP_YEAR_GROUPS.map((y) => {
               const active = yearGroup === y.label
               return (
