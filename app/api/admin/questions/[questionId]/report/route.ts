@@ -3,8 +3,8 @@
 
 import { NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
-import { getUserRole } from '@/lib/auth/roles'
 import { prisma } from '@/lib/prisma'
+import { hasAdminGate } from '@/lib/auth/admin-guard'
 
 type Params = { params: { questionId: string } }
 
@@ -58,17 +58,10 @@ export async function POST(req: Request, { params }: Params) {
 }
 
 export async function PATCH(req: Request, { params }: Params) {
-  const supabase = createSupabaseServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-  // Admin check against the profiles table (not user_metadata, which is user-writable)
-  const adminProfile = await prisma.profile.findUnique({
-    where:  { user_id: user.id },
-    select: { role: true },
-  })
-  if (adminProfile?.role !== 'admin') {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  // Admin reviews are authorised by the admin password gate. (This route is not
+  // gated in middleware because its POST is child-facing.)
+  if (!(await hasAdminGate())) {
+    return NextResponse.json({ error: 'Admin dashboard locked', code: 'ADMIN_LOCKED' }, { status: 401 })
   }
 
   const body = await req.json() as { reportId: string; action: 'reviewed' | 'dismissed' | 'flag_question' }

@@ -110,6 +110,11 @@ OPENAI_API_KEY                # embeddings (RAG + dedup). Omit only if a local e
 PIPELINE_SERVICE_URL          # Python FastAPI URL on Cloud Run (worker platform)
 NEXT_PUBLIC_APP_URL           # canonical site URL — used for PWA + share links
 
+# Admin dashboard
+ADMIN_DASHBOARD_PASSWORD      # sole access gate for /dashboard/admin/* (see lib/auth/admin-gate.ts).
+                              # Unlock at /admin-unlock; sets an HttpOnly cookie holding a SHA-256
+                              # token (never the raw password). No Supabase admin account required.
+
 # Content sources
 OAK_API_KEY                   # Oak National Academy OpenAPI (OGL v3.0 content). Bearer auth.
                               # Base: https://open-api.thenational.academy/api/v0

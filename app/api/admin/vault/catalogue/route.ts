@@ -1,20 +1,13 @@
 import { NextResponse } from 'next/server'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
-import { getUserRole } from '@/lib/auth/roles'
+import { requireAdminApi } from '@/lib/auth/admin-guard'
 import { getAllCatalogueItems, createCatalogueItem } from '@/lib/vault/catalogue'
 
 // GET /api/admin/vault/catalogue
 // Returns all catalogue items (including inactive). Admin only.
 // price_pence is included — this route is admin-facing, never child-facing.
 export async function GET(req: Request) {
-  const supabase = createSupabaseServerClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  if (getUserRole(user) !== 'admin') {
-    return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
-  }
+  const denied = await requireAdminApi()
+  if (denied) return denied
 
   const { searchParams } = new URL(req.url)
   const activeOnly = searchParams.get('active') === 'true'
@@ -32,14 +25,8 @@ export async function GET(req: Request) {
 // POST /api/admin/vault/catalogue
 // Create a new catalogue item. Admin only.
 export async function POST(req: Request) {
-  const supabase = createSupabaseServerClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  if (getUserRole(user) !== 'admin') {
-    return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
-  }
+  const denied = await requireAdminApi()
+  if (denied) return denied
 
   let body: unknown
   try {

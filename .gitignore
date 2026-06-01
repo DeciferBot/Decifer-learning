@@ -36,3 +36,7 @@ __pycache__/
 services/content-pipeline/.venv/
 services/content-pipeline/__pycache__/
 .claude/scheduled_tasks.lock
+
+# Graphify knowledge graph cache
+graphify-out/cache/
+graphify-out/graph.json

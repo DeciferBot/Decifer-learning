@@ -1,34 +1,21 @@
 // GET /api/admin/monitoring — pipeline health stats for the admin monitoring page.
 
 import { NextResponse } from 'next/server'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
+import { requireAdminApi } from '@/lib/auth/admin-guard'
 
 export async function GET() {
-  const supabase = createSupabaseServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-  // Admin check via profiles table — user_metadata.role is user-writable and cannot be trusted
-  const adminProfile = await prisma.profile.findUnique({
-    where:  { user_id: user.id },
-    select: { role: true },
-  })
-  if (adminProfile?.role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  // Access is controlled by the admin password gate (middleware enforces it for
+  // /api/admin/*; this is defense-in-depth).
+  const denied = await requireAdminApi()
+  if (denied) return denied
 
   const [
     questionCounts,
     recentFlags,
-    openReports,
     recentActivity,
   ] = await Promise.all([
-    // Question status breakdown
-    prisma.quizQuestion.groupBy({
-      by:     ['status'],
-      _count: { _all: true },
-    }),
-
-    // Flagged questions (most recent first)
+    prisma.quizQuestion.groupBy({ by: ['status'], _count: { _all: true } }),
     prisma.quizQuestion.findMany({
       where:   { status: 'flagged' },
       select:  {
@@ -38,23 +25,21 @@ export async function GET() {
       orderBy: { created_at: 'desc' },
       take: 20,
     }),
-
-    // Open child reports
-    prisma.questionReport.findMany({
-      where:   { status: 'open' },
-      include: {
-        question: { select: { id: true, question_text: true, topic: { select: { title: true } } } },
-        profile:  { select: { display_name: true } },
-      },
-      orderBy: { created_at: 'desc' },
-      take: 30,
-    }),
-
-    // Last 7 days quiz activity
     prisma.quizAttempt.count({
       where: { created_at: { gte: new Date(Date.now() - 7 * 86400_000) } },
     }),
   ])
+
+  // question_reports may not be migrated in all environments — degrade to empty.
+  const openReports = await prisma.questionReport.findMany({
+    where:   { status: 'open' },
+    include: {
+      question: { select: { id: true, question_text: true, topic: { select: { title: true } } } },
+      profile:  { select: { display_name: true } },
+    },
+    orderBy: { created_at: 'desc' },
+    take: 30,
+  }).catch(() => [])
 
   const countMap = Object.fromEntries(questionCounts.map((r) => [r.status, r._count._all]))
 

@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
-import { getUserRole } from '@/lib/auth/roles'
+import { requireAdminApi } from '@/lib/auth/admin-guard'
 import { updateCatalogueItem } from '@/lib/vault/catalogue'
 
 type Params = { params: { itemId: string } }
@@ -8,14 +7,8 @@ type Params = { params: { itemId: string } }
 // PATCH /api/admin/vault/catalogue/[itemId]
 // Update a catalogue item (name, description, category, price_pence, is_active). Admin only.
 export async function PATCH(req: Request, { params }: Params) {
-  const supabase = createSupabaseServerClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  if (getUserRole(user) !== 'admin') {
-    return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
-  }
+  const denied = await requireAdminApi()
+  if (denied) return denied
 
   let body: unknown
   try {

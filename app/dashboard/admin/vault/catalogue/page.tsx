@@ -1,16 +1,12 @@
-import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
-import { getUserRole } from '@/lib/auth/roles'
+import { requireAdmin } from '@/lib/auth/admin-guard'
 import { getAllCatalogueItems } from '@/lib/vault/catalogue'
 import { CataloguePanel } from './CataloguePanel'
 
 export const metadata = { title: 'Prize Catalogue — Vault Admin — Decifer Learning' }
 
 export default async function AdminVaultCataloguePage() {
-  const supabase = createSupabaseServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user || getUserRole(user) !== 'admin') notFound()
+  await requireAdmin('/dashboard/admin/vault/catalogue')
 
   const items = await getAllCatalogueItems()
 

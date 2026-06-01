@@ -13,9 +13,10 @@ import 'server-only'
 
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { getCurrentProfile } from '@/lib/profile'
+import { hasAdminGate } from '@/lib/auth/admin-guard'
 
 export type AdminAuthResult =
-  | { ok: true; via: 'admin-role' | 'admin-token' }
+  | { ok: true; via: 'admin-role' | 'admin-token' | 'admin-gate' }
   | { ok: false; status: 401 | 403; reason: string }
 
 /**
@@ -36,6 +37,11 @@ export async function authoriseAdminRequest(
   const expected = process.env.ADMIN_PIPELINE_TOKEN?.trim()
   if (expected && headerToken && headerToken === expected) {
     return { ok: true, via: 'admin-token' }
+  }
+
+  // Admin dashboard password gate (the primary admin auth — see lib/auth/admin-gate.ts).
+  if (await hasAdminGate()) {
+    return { ok: true, via: 'admin-gate' }
   }
 
   const supabase = createSupabaseServerClient()

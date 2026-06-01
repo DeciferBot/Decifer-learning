@@ -3,8 +3,7 @@
 // Admin only. Never writes to learning tables.
 
 import { NextResponse } from 'next/server'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
-import { getUserRole } from '@/lib/auth/roles'
+import { requireAdminApi } from '@/lib/auth/admin-guard'
 import { prisma } from '@/lib/prisma'
 
 const VALID_STATUSES = ['approved', 'dispatched', 'delivered']
@@ -19,14 +18,8 @@ type Params = { params: { requestId: string } }
 // PATCH /api/admin/vault/fulfilment/[requestId]
 // Advance fulfilment status or update tracking/notes.
 export async function PATCH(req: Request, { params }: Params) {
-  const supabase = createSupabaseServerClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  if (getUserRole(user) !== 'admin') {
-    return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
-  }
+  const denied = await requireAdminApi()
+  if (denied) return denied
 
   let body: { status?: string; tracking_number?: string; admin_notes?: string }
   try {

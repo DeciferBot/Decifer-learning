@@ -1,15 +1,11 @@
-import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
-import { getUserRole } from '@/lib/auth/roles'
+import { requireAdmin } from '@/lib/auth/admin-guard'
 import { getAllRequests, getVaultStats } from '@/lib/vault/admin'
 
 export const metadata = { title: 'Vault Admin — Decifer Learning' }
 
 export default async function AdminVaultPage() {
-  const supabase = createSupabaseServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user || getUserRole(user) !== 'admin') notFound()
+  await requireAdmin('/dashboard/admin/vault')
 
   const [stats, requests] = await Promise.all([
     getVaultStats(),
