@@ -110,6 +110,12 @@ OPENAI_API_KEY                # embeddings (RAG + dedup). Omit only if a local e
 PIPELINE_SERVICE_URL          # Python FastAPI URL on Cloud Run (worker platform)
 NEXT_PUBLIC_APP_URL           # canonical site URL — used for PWA + share links
 
+# Content sources
+OAK_API_KEY                   # Oak National Academy OpenAPI (OGL v3.0 content). Bearer auth.
+                              # Base: https://open-api.thenational.academy/api/v0
+                              # Used by scripts/ingest-oak-questions.py + ingest-oak-chunks.py
+                              # NEVER expose in any public web service or commit to git.
+
 # Reward Vault Stage 3 — Shopify integration (optional; absent = manual fulfilment)
 SHOPIFY_STORE_DOMAIN          # e.g. yourstore.myshopify.com (no https://)
 SHOPIFY_ADMIN_ACCESS_TOKEN    # Shopify Admin API access token (Custom App → API credentials)
