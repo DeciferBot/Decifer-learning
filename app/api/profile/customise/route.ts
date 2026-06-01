@@ -5,6 +5,7 @@
 import { NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
+import { parseLearningProfile } from '@/lib/onboarding-config'
 
 const VALID_THEMES  = ['default', 'maths', 'english', 'science', 'night'] as const
 const VALID_BUDDIES = ['owl', 'fox', 'robot', 'dragon'] as const
@@ -39,9 +40,18 @@ export async function PATCH(req: Request) {
     studyBuddy?:  string
     avatarBase?:  string
     avatarColour?: string
+    learningProfile?: unknown
   }
 
   const updates: Record<string, unknown> = {}
+
+  if (body.learningProfile !== undefined) {
+    const parsed = parseLearningProfile(body.learningProfile)
+    if ('error' in parsed) {
+      return NextResponse.json({ error: parsed.error, code: parsed.code }, { status: 422 })
+    }
+    updates.learning_profile = parsed.value
+  }
 
   if (body.theme !== undefined) {
     if (!(VALID_THEMES as readonly string[]).includes(body.theme)) {

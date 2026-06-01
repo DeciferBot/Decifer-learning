@@ -5,6 +5,14 @@ import { useRouter } from 'next/navigation'
 import { AVATARS, BUDDIES } from '@/lib/customise-config'
 import { AVATAR_ICONS, BUDDY_ICONS } from '@/lib/icon-tokens'
 import { Check } from '@/components/ui/icons'
+import {
+  FAVOURITE_SUBJECTS,
+  INTERESTS,
+  LEARN_STYLES,
+  CONFIDENCE_AREAS,
+  CONFIDENCE_LEVELS,
+  type LearningProfile,
+} from '@/lib/onboarding-config'
 
 const COLOURS = [
   { id: 'blue',   label: 'Blue',   hex: '#6C9EFF' },
@@ -24,10 +32,11 @@ const THEMES = [
 ] as const
 
 interface Profile {
-  avatarBase:   string
-  avatarColour: string
-  theme:        string
-  studyBuddy:   string | null
+  avatarBase:      string
+  avatarColour:    string
+  theme:           string
+  studyBuddy:      string | null
+  learningProfile: LearningProfile
 }
 
 export default function CustomisePage() {
@@ -43,6 +52,12 @@ export default function CustomisePage() {
   const [theme,        setTheme]        = useState('default')
   const [buddy,        setBuddy]        = useState<string | null>(null)
 
+  // "About me" — non-PII personalisation, editable here after onboarding.
+  const [favSubject,  setFavSubject]  = useState<string | null>(null)
+  const [interests,   setInterests]   = useState<string[]>([])
+  const [learnStyles, setLearnStyles] = useState<string[]>([])
+  const [confidence,  setConfidence]  = useState<Record<string, number>>({})
+
   useEffect(() => {
     fetch('/api/profile/me')
       .then((r) => r.json())
@@ -53,19 +68,33 @@ export default function CustomisePage() {
           setAvatarColour(d.profile.avatarColour || 'blue')
           setTheme(d.profile.theme             || 'default')
           setBuddy(d.profile.studyBuddy        ?? null)
+          const lp = d.profile.learningProfile ?? {}
+          setFavSubject(lp.favourite_subject ?? null)
+          setInterests(lp.interests ?? [])
+          setLearnStyles(lp.learn_styles ?? [])
+          setConfidence((lp.confidence as Record<string, number>) ?? {})
         }
       })
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [])
 
+  function toggle(list: string[], setList: (v: string[]) => void, id: string) {
+    setList(list.includes(id) ? list.filter((x) => x !== id) : [...list, id])
+  }
+
   async function save() {
     setSaving(true)
     setSaved(false)
+    const learningProfile: Record<string, unknown> = {}
+    if (favSubject) learningProfile.favourite_subject = favSubject
+    if (interests.length) learningProfile.interests = interests
+    if (learnStyles.length) learningProfile.learn_styles = learnStyles
+    if (Object.keys(confidence).length) learningProfile.confidence = confidence
     await fetch('/api/profile/customise', {
       method:  'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ avatarBase, avatarColour, theme, studyBuddy: buddy }),
+      body: JSON.stringify({ avatarBase, avatarColour, theme, studyBuddy: buddy, learningProfile }),
     })
     setSaving(false)
     setSaved(true)
@@ -194,6 +223,60 @@ export default function CustomisePage() {
         </div>
       </Section>
 
+      {/* About me — non-PII personalisation */}
+      <Section title="Favourite subject">
+        <div className="grid grid-cols-4 gap-2">
+          {FAVOURITE_SUBJECTS.map((s) => (
+            <Chip key={s.id} emoji={s.emoji} label={s.label}
+              active={favSubject === s.id}
+              onClick={() => setFavSubject(favSubject === s.id ? null : s.id)} />
+          ))}
+        </div>
+      </Section>
+
+      <Section title="Things I'm into">
+        <div className="grid grid-cols-3 gap-2">
+          {INTERESTS.map((i) => (
+            <Chip key={i.id} emoji={i.emoji} label={i.label}
+              active={interests.includes(i.id)}
+              onClick={() => toggle(interests, setInterests, i.id)} />
+          ))}
+        </div>
+      </Section>
+
+      <Section title="How I like to learn">
+        <div className="grid grid-cols-2 gap-2">
+          {LEARN_STYLES.map((l) => (
+            <Chip key={l.id} emoji={l.emoji} label={l.label}
+              active={learnStyles.includes(l.id)}
+              onClick={() => toggle(learnStyles, setLearnStyles, l.id)} />
+          ))}
+        </div>
+      </Section>
+
+      <Section title="How I feel about it">
+        <div className="space-y-4">
+          {CONFIDENCE_AREAS.map((area) => (
+            <div key={area.id}>
+              <p className="mb-2 text-sm font-semibold text-ink">{area.label}</p>
+              <div className="grid grid-cols-4 gap-2">
+                {CONFIDENCE_LEVELS.map((lvl) => (
+                  <Chip key={lvl.value} emoji={lvl.emoji} label={lvl.label}
+                    active={confidence[area.id] === lvl.value}
+                    onClick={() =>
+                      setConfidence((c) =>
+                        c[area.id] === lvl.value
+                          ? Object.fromEntries(Object.entries(c).filter(([k]) => k !== area.id))
+                          : { ...c, [area.id]: lvl.value },
+                      )
+                    } />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </Section>
+
       {/* Save */}
       <button
         onClick={save}
@@ -215,5 +298,24 @@ function Section({ title, children }: { title: string; children: React.ReactNode
       <p className="text-xs font-bold uppercase tracking-widest text-muted">{title}</p>
       {children}
     </div>
+  )
+}
+
+function Chip({ emoji, label, active, onClick }: {
+  emoji: string; label: string; active: boolean; onClick: () => void
+}) {
+  return (
+    <button
+      onClick={onClick}
+      aria-pressed={active}
+      className={`flex min-h-[64px] flex-col items-center justify-center gap-1 rounded-2xl border p-2 transition-all ${
+        active
+          ? 'border-brand bg-brand/10 shadow-sm scale-105'
+          : 'border-black/10 bg-black/[0.02] hover:border-brand/40'
+      }`}
+    >
+      <span className="text-xl" aria-hidden>{emoji}</span>
+      <span className={`text-[11px] font-semibold leading-tight ${active ? 'text-brand' : 'text-ink'}`}>{label}</span>
+    </button>
   )
 }

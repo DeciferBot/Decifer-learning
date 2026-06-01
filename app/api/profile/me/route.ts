@@ -12,7 +12,7 @@ export async function GET() {
 
   const profile = await prisma.profile.findUnique({
     where:  { user_id: user.id },
-    select: { id: true, display_name: true, avatar_config: true, theme_name: true, study_buddy: true, total_points: true, streak_days: true },
+    select: { id: true, display_name: true, avatar_config: true, theme_name: true, study_buddy: true, learning_profile: true, total_points: true, streak_days: true },
   })
   if (!profile) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
@@ -20,14 +20,15 @@ export async function GET() {
 
   return NextResponse.json({
     profile: {
-      id:           profile.id,
-      displayName:  profile.display_name,
-      avatarBase:   avatarCfg?.base   ?? 'explorer',
-      avatarColour: avatarCfg?.colour ?? 'blue',
-      theme:        profile.theme_name ?? 'default',
-      studyBuddy:   profile.study_buddy,
-      totalPoints:  profile.total_points,
-      streakDays:   profile.streak_days,
+      id:              profile.id,
+      displayName:     profile.display_name,
+      avatarBase:      avatarCfg?.base   ?? 'explorer',
+      avatarColour:    avatarCfg?.colour ?? 'blue',
+      theme:           profile.theme_name ?? 'default',
+      studyBuddy:      profile.study_buddy,
+      learningProfile: profile.learning_profile ?? {},
+      totalPoints:     profile.total_points,
+      streakDays:      profile.streak_days,
     },
   })
 }

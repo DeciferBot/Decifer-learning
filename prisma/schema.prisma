@@ -53,6 +53,12 @@ model Profile {
   dashboard_widgets      Json?
   study_buddy            String?
   accessibility_settings Json?
+  // First-run onboarding: set once the child has seen the avatar + about-me
+  // prompt (whether they completed or skipped it) so we never nag again.
+  onboarded_at           DateTime?
+  // Non-PII personalisation answers captured at onboarding (favourite subject,
+  // interests, preferred learning styles, self-rated confidence). Editable later.
+  learning_profile       Json?
   created_at             DateTime  @default(now())
 
   year_group       YearGroup?       @relation(fields: [year_group_id], references: [id])

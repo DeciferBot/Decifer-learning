@@ -2,7 +2,9 @@
 // Shows published topics for the child's year group grouped by subject.
 
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { childNeedsOnboarding } from '@/lib/onboarding'
 import { getUserDisplayName, MVP_YEAR_GROUPS } from '@/lib/auth/roles'
 import { getCurrentProfile } from '@/lib/profile'
 import { prisma } from '@/lib/prisma'
@@ -44,6 +46,9 @@ export default async function ChildDashboardPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser()
+
+  // First-run gate: send children who haven't seen the prompt to /onboarding.
+  if (user && (await childNeedsOnboarding(user.id))) redirect('/onboarding')
 
   const profile = user ? await getCurrentProfile(supabase, user.id) : null
   const displayName = profile?.display_name ?? (user ? getUserDisplayName(user) : 'Explorer')
