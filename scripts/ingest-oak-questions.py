@@ -21,11 +21,12 @@ Usage:
   python3 scripts/ingest-oak-questions.py --subject maths --years year-3 --dry-run
   python3 scripts/ingest-oak-questions.py --subject maths --years year-3 --topic-slug y3-maths-fractions
   python3 scripts/ingest-oak-questions.py --subject maths --years year-1 year-2 year-3
+  python3 scripts/ingest-oak-questions.py --subject History --subject Geography --years year-3 year-7 --dry-run
   python3 scripts/ingest-oak-questions.py --all
 """
 from __future__ import annotations
 import argparse, json, os, sys, time, uuid, urllib.request, urllib.parse
-from pathlib import Path
+from pathlib import Path  # used for .PIPELINE_STOP and oak-topic-map.json
 
 _STOP = Path(__file__).resolve().parent.parent / ".PIPELINE_STOP"
 
@@ -50,8 +51,20 @@ OAK_KEY = os.environ.get("OAK_API_KEY", "").strip().strip('"')
 if not OAK_KEY:
     print("ERROR: OAK_API_KEY not set"); sys.exit(1)
 
+# LLM-assisted topic map (built by build-oak-topic-map.py).
+# Consulted first; cosine similarity is the fallback for unmapped units.
+_MAP_FILE = Path(__file__).resolve().parent / "oak-topic-map.json"
+_TOPIC_MAP: dict = {}
+if _MAP_FILE.exists():
+    try:
+        _TOPIC_MAP = json.load(_MAP_FILE.open()).get("mappings", {})
+        print(f"[map] Loaded {len(_TOPIC_MAP)} LLM topic mappings from {_MAP_FILE.name}")
+    except Exception as _ex:
+        print(f"[map] Warning: could not load topic map: {_ex}")
+
 # Map our subject names → Oak subject slugs
-SUBJECT_SLUG = {"Maths": "maths", "English": "english", "Science": "science"}
+SUBJECT_SLUG = {"Maths": "maths", "English": "english", "Science": "science",
+                "History": "history", "Geography": "geography"}
 # Our year label → Oak keyStage
 YEAR_TO_KS = {
     "year-1":"ks1","year-2":"ks1","year-3":"ks2","year-4":"ks2",
@@ -97,6 +110,9 @@ _VISUAL_REFS = (
     "odd one out", "these numbers", "this number line", "the number line",
     "this array", "the array", "this grid", "the grid", "highlighted", "shaded",
     "the following diagram", "look at the", "in the picture", "in the image",
+    # History/Geography quizzes lean heavily on maps and primary sources we can't show.
+    "this map", "the map shown", "map below", "this source", "the source shown",
+    "source below", "this timeline", "the timeline shown", "this photograph",
 )
 _STOPWORDS = {"the","a","an","of","and","in","to","for","with","on","number","numbers",
               "unit","units","using","problems","solve","part","parts","whole",
@@ -129,9 +145,15 @@ def is_usable_mc(item):
     if not correct[0].get("content","").strip(): return False
     return True
 
+import re as _re
 def _clean(s):
     # Oak uses {{}} as a cloze blank — render as a readable underscore blank.
-    return s.replace("{{}}", "_____").strip()
+    s = s.replace("{{}}", "_____")
+    # Strip LaTeX/MathJax delimiters our text UI can't render: $$x$$ → x, \(x\) → x
+    s = _re.sub(r"\$\$(.*?)\$\$", r"\1", s)
+    s = s.replace("\\(", "").replace("\\)", "").replace("\\[", "").replace("\\]", "")
+    s = s.replace("$", "")
+    return s.strip()
 
 def transform(item, tier, subject, oak_lesson, hint1):
     ans = item["answers"]
@@ -168,7 +190,7 @@ def main():
     ap.add_argument("--ignore-existing", action="store_true", help="(dry-run) show matches even if topic already full")
     args = ap.parse_args()
 
-    subjects = args.subject or (["Maths","English","Science"] if args.all else ["Maths"])
+    subjects = args.subject or (["Maths","English","Science","History","Geography"] if args.all else ["Maths"])
     years = args.years or ([f"year-{i}" for i in range(1,10)] if args.all else ["year-3"])
 
     conn = psycopg2.connect(config.DATABASE_URL)
@@ -222,19 +244,35 @@ def main():
                 pubcount[t["id"]] = cur.fetchone()[0]
 
             for unit in year_units:
-                # match unit → best topic
-                uvec = embed_text(unit["unitTitle"])
-                utoks = _tokens(unit["unitTitle"])
-                best_id, best_sim = None, -1.0
-                for tid, tv in topic_vecs.items():
-                    sim = float(np.dot(uvec, tv) / ((np.linalg.norm(uvec)*np.linalg.norm(tv)) or 1))
-                    if sim > best_sim: best_sim, best_id = sim, tid
-                if best_id is None or best_sim < args.min_sim:
-                    continue
-                # Guard against topically-wrong matches: require a shared significant
-                # word UNLESS the embedding similarity is very high (>0.70).
-                if best_sim < 0.70 and not (utoks & topic_toks.get(best_id, set())):
-                    continue
+                best_id, best_sim = None, -1.0  # reset each iteration
+                # ── Step 1: LLM-assisted map (built by build-oak-topic-map.py) ──
+                map_key = f"{subject.lower()}/{ks}/{year}/{unit['unitSlug']}"
+                map_entry = _TOPIC_MAP.get(map_key)
+                if map_entry and map_entry.get("topic_slug") and map_entry["topic_slug"] != "none":
+                    mapped_slug = map_entry["topic_slug"]
+                    best_id = next((t["id"] for t in our_topics if t["slug"] == mapped_slug), None)
+                    best_sim = 1.0 if best_id else -1.0
+                    if best_id:
+                        conf = map_entry.get("confidence", "?")
+                        print(f"  [map/{conf}] {unit['unitTitle'][:55]} → {mapped_slug.split('-',2)[-1]}")
+                    else:
+                        # Map references a slug not in our current topic set — fall through
+                        best_id, best_sim = None, -1.0
+
+                # ── Step 2: Cosine similarity fallback ──
+                if best_id is None:
+                    uvec = embed_text(unit["unitTitle"])
+                    utoks = _tokens(unit["unitTitle"])
+                    best_id, best_sim = None, -1.0
+                    for tid, tv in topic_vecs.items():
+                        sim = float(np.dot(uvec, tv) / ((np.linalg.norm(uvec)*np.linalg.norm(tv)) or 1))
+                        if sim > best_sim: best_sim, best_id = sim, tid
+                    if best_id is None or best_sim < args.min_sim:
+                        continue
+                    # Guard against topically-wrong matches: require a shared significant
+                    # word UNLESS the embedding similarity is very high (>0.70).
+                    if best_sim < 0.70 and not (utoks & topic_toks.get(best_id, set())):
+                        continue
                 if not args.ignore_existing and pubcount.get(best_id, 0) >= args.target:
                     continue
                 topic = next(t for t in our_topics if t["id"]==best_id)

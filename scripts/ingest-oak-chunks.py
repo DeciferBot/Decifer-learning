@@ -17,6 +17,7 @@ Usage:
   python3 scripts/ingest-oak-chunks.py --subject Maths --years year-3 --dry-run
   python3 scripts/ingest-oak-chunks.py --all
   python3 scripts/ingest-oak-chunks.py --subject Science --years year-7 year-8 year-9
+  python3 scripts/ingest-oak-chunks.py --subject History --subject Geography --years year-3 year-7
 """
 from __future__ import annotations
 import argparse, json, os, sys, time, uuid, urllib.request, urllib.parse, subprocess
@@ -37,7 +38,8 @@ import psycopg2, psycopg2.extras
 
 OAK_BASE = "https://open-api.thenational.academy/api/v0"
 OAK_KEY = os.environ.get("OAK_API_KEY","").strip().strip('"')
-SUBJECT_SLUG = {"Maths":"maths","English":"english","Science":"science"}
+SUBJECT_SLUG = {"Maths":"maths","English":"english","Science":"science",
+                "History":"history","Geography":"geography"}
 YEAR_TO_KS = {"year-1":"ks1","year-2":"ks1","year-3":"ks2","year-4":"ks2",
               "year-5":"ks2","year-6":"ks2","year-7":"ks3","year-8":"ks3","year-9":"ks3"}
 SOURCE = "Oak NA (OGL v3.0)"
@@ -65,7 +67,7 @@ def main():
     ap.add_argument("--max-lessons-per-unit", type=int, default=8)
     args = ap.parse_args()
 
-    subjects = args.subject or (["Maths","English","Science"] if args.all else ["Maths"])
+    subjects = args.subject or (["Maths","English","Science","History","Geography"] if args.all else ["Maths"])
     years = args.years or ([f"year-{i}" for i in range(1,10)] if args.all else ["year-3"])
 
     conn = psycopg2.connect(config.DATABASE_URL); conn.autocommit = False

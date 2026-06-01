@@ -1,0 +1,278 @@
+{
+  "version": "1",
+  "note": "LLM-assisted Oak unit \u2192 NC topic map. Commit this file. Re-run build-oak-topic-map.py after re-seeding topics.",
+  "mappings": {
+    "history/ks2/year-3/stone-age-britain-and-ireland-what-do-archaeologists-think-they-know-about-it": {
+      "unit_title": "Stone Age Britain: what do archaeologists think they know about it?",
+      "topic_slug": "year-3-history-stone-age-to-iron-age-britain",
+      "confidence": "high",
+      "reasoning": "The Oak unit focuses on Stone Age Britain and archaeological evidence, which directly aligns with the Stone Age to Iron Age Britain topic covering prehistoric Britain in the UK National Curriculum for Year 3.",
+      "subject": "History",
+      "year": "year-3"
+    },
+    "history/ks2/year-3/the-earliest-civilisations-the-indus-and-the-shang-1699": {
+      "unit_title": "The Shang: What have archaeologists found out about them?",
+      "topic_slug": "year-3-history-ancient-civilisations-egypt-and-the-indus-valley",
+      "confidence": "medium",
+      "reasoning": "The Shang Dynasty is an ancient civilisation studied under the NC's 'earliest civilisations' theme alongside Egypt, Sumer, Indus Valley and Zhou China, making it the closest match to the Ancient Civilisations topic, even though China is not explicitly named in that slug.",
+      "subject": "History",
+      "year": "year-3"
+    },
+    "history/ks2/year-3/ancient-egypt-what-stayed-the-same-across-3-000-years": {
+      "unit_title": "Ancient Egypt: what stayed the same across 3,000 years?",
+      "topic_slug": "year-3-history-ancient-civilisations-egypt-and-the-indus-valley",
+      "confidence": "high",
+      "reasoning": "The Oak unit focuses on Ancient Egypt over 3,000 years, directly matching the Ancient Civilisations: Egypt and the Indus Valley topic at Year 3.",
+      "subject": "History",
+      "year": "year-3"
+    },
+    "history/ks2/year-3/bronze-and-iron-age-britain-and-ireland-how-did-life-change-during-this-time": {
+      "unit_title": "Bronze and Iron Age Britain: how did life change during this time?",
+      "topic_slug": "year-3-history-stone-age-to-iron-age-britain",
+      "confidence": "high",
+      "reasoning": "The Oak unit focuses on Bronze Age and Iron Age Britain, which falls directly within the 'Stone Age to Iron Age Britain' topic covering prehistoric Britain up to the Iron Age.",
+      "subject": "History",
+      "year": "year-3"
+    },
+    "history/ks2/year-3/sumer-and-other-early-civilisations-what-made-them-similar": {
+      "unit_title": "Sumer and other early civilisations: what made them similar?",
+      "topic_slug": "year-3-history-ancient-civilisations-egypt-and-the-indus-valley",
+      "confidence": "high",
+      "reasoning": "Sumer is one of the early civilisations studied under the NC's 'ancient civilisations' unit alongside Egypt and the Indus Valley, and this lesson explicitly compares early civilisations, making it a direct match to this topic.",
+      "subject": "History",
+      "year": "year-3"
+    },
+    "history/ks2/year-3/the-earliest-civilisations-the-indus-and-the-shang-1698": {
+      "unit_title": "The Indus Valley civilisation: What have archaeologists found out about it?",
+      "topic_slug": "year-3-history-ancient-civilisations-egypt-and-the-indus-valley",
+      "confidence": "high",
+      "reasoning": "The Oak unit explicitly covers the Indus Valley civilisation through archaeological inquiry, which directly aligns with the 'Ancient Civilisations: Egypt and the Indus Valley' topic for Year 3 History.",
+      "subject": "History",
+      "year": "year-3"
+    },
+    "history/ks2/year-3/iron-age-britain-what-have-historians-learnt-about-iron-age-britain": {
+      "unit_title": "Iron Age Britain: what have historians learnt about Iron Age Britain?",
+      "topic_slug": "year-3-history-stone-age-to-iron-age-britain",
+      "confidence": "high",
+      "reasoning": "The Oak unit explicitly focuses on Iron Age Britain, which is a core component of the 'Stone Age to Iron Age Britain' topic covering prehistoric Britain up to and including the Iron Age period.",
+      "subject": "History",
+      "year": "year-3"
+    },
+    "history/ks3/year-7/the-black-death-and-the-silk-roads-how-connected-was-the-medieval-world": {
+      "unit_title": "The Black Death and the Silk Road: how connected was the medieval world?",
+      "topic_slug": "year-7-history-world-history-a-significant-society-or-issue",
+      "confidence": "high",
+      "reasoning": "This unit focuses on the Black Death and Silk Road as a world history topic examining medieval global connections, trade networks and pandemic spread \u2014 a significant world history issue rather than a Britain-specific medieval study.",
+      "subject": "History",
+      "year": "year-7"
+    },
+    "history/ks3/year-7/medieval-west-africa-why-was-medieval-mali-so-successful": {
+      "unit_title": "Medieval West Africa: why was medieval Mali so successful?",
+      "topic_slug": "year-7-history-world-history-a-significant-society-or-issue",
+      "confidence": "high",
+      "reasoning": "The unit focuses on medieval Mali, a non-British world history society, which directly matches the 'World History: A Significant Society or Issue' topic covering historical societies beyond Britain.",
+      "subject": "History",
+      "year": "year-7"
+    },
+    "history/ks3/year-7/medieval-women-what-can-we-learn-from-matilda-about-women-in-medieval-england": {
+      "unit_title": "Medieval women: what can we learn from Matilda about women in medieval England?",
+      "topic_slug": "year-7-history-medieval-britain-1066-1509-church-state-and-society",
+      "confidence": "high",
+      "reasoning": "The unit focuses on Empress Matilda and women in medieval England, placing it squarely within the Medieval Britain 1066\u20131509 period covering church, state and society.",
+      "subject": "History",
+      "year": "year-7"
+    },
+    "history/ks3/year-7/the-crusades-did-europeans-go-on-crusade-to-capture-the-holy-land": {
+      "unit_title": "The Crusades: did Europeans go on crusade to capture the 'holy land'?",
+      "topic_slug": "year-7-history-world-history-a-significant-society-or-issue",
+      "confidence": "high",
+      "reasoning": "The Crusades were a major world-historical phenomenon involving European, Islamic and Byzantine societies; while they touch on the medieval period, they are primarily a non-British world history topic, best fitting 'World History: A Significant Society or Issue' rather than the Britain-focused Medieval 1066\u20131509 topic.",
+      "subject": "History",
+      "year": "year-7"
+    },
+    "history/ks3/year-7/england-under-henry-ii-how-successfully-did-henry-reassert-royal-authority": {
+      "unit_title": "England under Henry II: how successfully did Henry reassert royal authority?",
+      "topic_slug": "year-7-history-medieval-britain-1066-1509-church-state-and-society",
+      "confidence": "high",
+      "reasoning": "Henry II reigned 1154\u20131189, firmly within the medieval period 1066\u20131509, and the unit's focus on royal authority, church-state relations (e.g. Becket controversy), and governance aligns directly with 'Church, State and Society' themes.",
+      "subject": "History",
+      "year": "year-7"
+    },
+    "history/ks3/year-7/the-wars-of-the-roses-what-does-it-tell-us-about-fifteenth-century-england": {
+      "unit_title": "The Wars of the Roses: what does it tell us about fifteenth-century England?",
+      "topic_slug": "year-7-history-medieval-britain-1066-1509-church-state-and-society",
+      "confidence": "high",
+      "reasoning": "The Wars of the Roses (1455\u20131487) falls squarely within the Medieval Britain 1066\u20131509 period, focusing on political conflict, state power and society in fifteenth-century England.",
+      "subject": "History",
+      "year": "year-7"
+    },
+    "history/ks3/year-7/the-renaissance-what-do-the-artefacts-of-the-renaissance-tell-us-about-it": {
+      "unit_title": "The Renaissance: what do the artefacts of the Renaissance tell us about it?",
+      "topic_slug": "year-7-history-world-history-a-significant-society-or-issue",
+      "confidence": "high",
+      "reasoning": "The Renaissance is a world history topic covering a significant cultural and intellectual movement (c.14th\u201317th century) centred in Europe, not specifically British history, making it the best fit for the 'World History: A Significant Society or Issue' topic.",
+      "subject": "History",
+      "year": "year-7"
+    },
+    "history/ks3/year-7/the-norman-conquest-how-do-we-know-about-the-impact-of-the-conquest-on-england": {
+      "unit_title": "The Norman Conquest: how do we know about the impact of the Conquest on England?",
+      "topic_slug": "year-7-history-medieval-britain-1066-1509-church-state-and-society",
+      "confidence": "high",
+      "reasoning": "The Norman Conquest of 1066 falls precisely at the start of the Medieval Britain 1066\u20131509 period, and examining its impact on England aligns directly with the Church, State and Society theme of that topic.",
+      "subject": "History",
+      "year": "year-7"
+    },
+    "history/ks3/year-7/edward-is-conquests-what-stopped-unification-of-the-british-isles": {
+      "unit_title": "Edward I: What stopped Edward uniting all of Britain?",
+      "topic_slug": "year-7-history-medieval-britain-1066-1509-church-state-and-society",
+      "confidence": "high",
+      "reasoning": "Edward I reigned 1272\u20131307, placing this unit firmly within the Medieval Britain 1066\u20131509 period, covering themes of kingship, state power, and the political union of Britain.",
+      "subject": "History",
+      "year": "year-7"
+    },
+    "history/ks3/year-7/the-peasants-revolt-why-do-historians-disagree-about-its-causes": {
+      "unit_title": "The Peasants' Revolt: why do historians disagree about its causes?",
+      "topic_slug": "year-7-history-medieval-britain-1066-1509-church-state-and-society",
+      "confidence": "high",
+      "reasoning": "The Peasants' Revolt of 1381 falls squarely within the Medieval Britain 1066\u20131509 period, and its causes relate directly to themes of church, state, and society (poll tax, feudalism, serfdom, and social upheaval).",
+      "subject": "History",
+      "year": "year-7"
+    },
+    "history/ks3/year-7/the-christian-church-how-completely-did-the-great-schism-transform-christendom": {
+      "unit_title": "The Christian Church: how completely did the Great Schism transform Christendom?",
+      "topic_slug": "year-7-history-medieval-britain-1066-1509-church-state-and-society",
+      "confidence": "high",
+      "reasoning": "The Great Schism (1054) and the medieval Christian Church fall squarely within the Medieval period and directly address the 'Church' theme in the Medieval Britain 1066\u20131509: Church, State and Society topic.",
+      "subject": "History",
+      "year": "year-7"
+    },
+    "history/ks3/year-7/local-history-how-similar-were-medieval-lives-in-norwich": {
+      "unit_title": "Local history: how similar were medieval lives in Norwich?",
+      "topic_slug": "year-7-history-medieval-britain-1066-1509-church-state-and-society",
+      "confidence": "high",
+      "reasoning": "The unit examines medieval life in Norwich, which falls squarely within the Medieval Britain 1066\u20131509 period, focusing on society and everyday life consistent with the Church, State and Society topic.",
+      "subject": "History",
+      "year": "year-7"
+    },
+    "history/ks3/year-7/king-john-and-magna-carta-why-was-magna-carta-revived": {
+      "unit_title": "Magna Carta: how did Magna Carta survive?",
+      "topic_slug": "year-7-history-medieval-britain-1066-1509-church-state-and-society",
+      "confidence": "high",
+      "reasoning": "Magna Carta (1215) falls squarely within the Medieval Britain 1066\u20131509 period and directly addresses the theme of Church, State and Society through its significance for the relationship between crown and barons.",
+      "subject": "History",
+      "year": "year-7"
+    },
+    "history/ks3/year-7/11th-century-islamic-worlds-how-similar-were-the-regions-of-the-islamic-world": {
+      "unit_title": "11th-century Islamic worlds: how similar were the regions of the Islamic world?",
+      "topic_slug": "year-7-history-world-history-a-significant-society-or-issue",
+      "confidence": "high",
+      "reasoning": "This unit focuses on the 11th-century Islamic world as a non-British historical society, which aligns directly with the World History: A Significant Society or Issue topic, covering a major world civilisation outside the British-focused strands.",
+      "subject": "History",
+      "year": "year-7"
+    },
+    "geography/ks2/year-3/settlements-where-do-people-live-and-why": {
+      "unit_title": "Settlements: where do people live and why?",
+      "topic_slug": "year-3-geography-settlements-and-land-use",
+      "confidence": "high",
+      "reasoning": "The Oak unit explicitly focuses on settlements, examining where people live and why, which directly aligns with the Settlements and Land Use topic covering human geography concepts such as settlement patterns, types, and land use decisions.",
+      "subject": "Geography",
+      "year": "year-3"
+    },
+    "geography/ks2/year-3/local-area-how-is-it-changing": {
+      "unit_title": "Local area: how is it changing?",
+      "topic_slug": "year-3-geography-settlements-and-land-use",
+      "confidence": "high",
+      "reasoning": "A unit about how a local area is changing focuses on human geography concepts such as land use, settlement development, and urban/rural change, which align directly with the Settlements and Land Use topic.",
+      "subject": "Geography",
+      "year": "year-3"
+    },
+    "geography/ks2/year-3/rivers-whats-special-about-them": {
+      "unit_title": "Rivers: what's special about them?",
+      "topic_slug": "year-3-geography-rivers-and-the-water-cycle",
+      "confidence": "high",
+      "reasoning": "The Oak unit explicitly focuses on rivers, which directly aligns with the Rivers and the Water Cycle topic covering physical geography of river systems at Year 3 level.",
+      "subject": "Geography",
+      "year": "year-3"
+    },
+    "geography/ks2/year-3/climate-zones-what-are-they-and-why-do-they-matter": {
+      "unit_title": "Climate zones: what are they and why do they matter?",
+      "topic_slug": "none",
+      "confidence": "high",
+      "reasoning": "Climate zones is a distinct physical geography topic covering global climate patterns and biomes, which does not align with any of the listed Year 3 topics (rivers/water cycle, rocks/soils/volcanoes, settlements/land use, or trade/global economy).",
+      "subject": "Geography",
+      "year": "year-3"
+    },
+    "geography/ks2/year-3/land-use-how-diverse-are-local-and-uk-landscapes": {
+      "unit_title": "Land use: how diverse are local and UK landscapes?",
+      "topic_slug": "year-3-geography-settlements-and-land-use",
+      "confidence": "high",
+      "reasoning": "The unit focuses on land use diversity across local and UK landscapes, which directly aligns with the Settlements and Land Use topic covering how land is used in different settlement types and regions.",
+      "subject": "Geography",
+      "year": "year-3"
+    },
+    "geography/ks2/year-3/the-water-cycle-why-is-it-important": {
+      "unit_title": "The water cycle: why is it important?",
+      "topic_slug": "year-3-geography-rivers-and-the-water-cycle",
+      "confidence": "high",
+      "reasoning": "The Oak unit explicitly focuses on the water cycle, which is a core component of the 'Rivers and the Water Cycle' topic, covering physical geography processes directly aligned to this Year 3 unit.",
+      "subject": "Geography",
+      "year": "year-3"
+    },
+    "geography/ks3/year-7/geography-what-makes-a-geographer": {
+      "unit_title": "Geography: what makes a geographer?",
+      "topic_slug": "none",
+      "confidence": "high",
+      "reasoning": "This introductory unit focuses on geographical skills, enquiry methods, and what it means to be a geographer \u2014 it is a skills/methodology unit that does not align with any of the specific physical or human geography content topics listed for Year 7.",
+      "subject": "Geography",
+      "year": "year-7"
+    },
+    "geography/ks3/year-7/population-where-do-people-live": {
+      "unit_title": "Population: where do people live?",
+      "topic_slug": "year-7-geography-population-and-urbanisation",
+      "confidence": "high",
+      "reasoning": "The unit directly addresses population distribution and settlement patterns, which are core components of the Population and Urbanisation topic in the UK KS3 Geography curriculum.",
+      "subject": "Geography",
+      "year": "year-7"
+    },
+    "geography/ks3/year-7/weather-and-climate-why-does-our-weather-and-climate-change": {
+      "unit_title": "Weather and climate: how do they vary?",
+      "topic_slug": "year-7-geography-weather-climate-and-climate-change",
+      "confidence": "high",
+      "reasoning": "The Oak unit explicitly focuses on weather and climate variation, which directly aligns with the Weather, Climate and Climate Change topic in our Year 7 Geography curriculum.",
+      "subject": "Geography",
+      "year": "year-7"
+    },
+    "geography/ks3/year-7/india-a-global-superpower": {
+      "unit_title": "India: a global superpower?",
+      "topic_slug": "year-7-geography-globalisation-and-development",
+      "confidence": "high",
+      "reasoning": "A unit examining India as a 'global superpower' focuses on economic development, global connections, trade, and inequality \u2014 core themes of Globalisation and Development in the KS3 NC.",
+      "subject": "Geography",
+      "year": "year-7"
+    },
+    "geography/ks3/year-7/coasts-what-shapes-life-at-the-coast": {
+      "unit_title": "Coasts: what shapes life at the coast?",
+      "topic_slug": "year-7-geography-coastal-processes-and-management",
+      "confidence": "high",
+      "reasoning": "The unit focuses on coastal environments, examining the physical and human processes that shape life at the coast, which directly aligns with Coastal Processes and Management.",
+      "subject": "Geography",
+      "year": "year-7"
+    },
+    "geography/ks3/year-7/china-a-global-superpower": {
+      "unit_title": "China: a global superpower?",
+      "topic_slug": "year-7-geography-globalisation-and-development",
+      "confidence": "high",
+      "reasoning": "A unit examining China as a global superpower focuses on economic development, global trade, interdependence, and China's growing international influence \u2014 core themes of Globalisation and Development in the KS3 NC.",
+      "subject": "Geography",
+      "year": "year-7"
+    },
+    "geography/ks3/year-7/forest-biomes-why-are-forests-so-important": {
+      "unit_title": "Forest biomes: why are forests so important?",
+      "topic_slug": "year-7-geography-ecosystems-and-biodiversity",
+      "confidence": "high",
+      "reasoning": "Forest biomes, their importance, and the life they support are core content within ecosystems and biodiversity, covering biome characteristics, ecological relationships, and the value of natural environments.",
+      "subject": "Geography",
+      "year": "year-7"
+    }
+  }
+}
