@@ -62,8 +62,8 @@ export default async function ChildDashboardPage() {
       })
     : null
 
-  // Fire all independent DB queries in parallel — topics, collection count, vault
-  const [topicRows, collectionCount, vaultResult] = await Promise.all([
+  // Fire all independent DB queries in parallel — topics, collection count, vault, assigned focus topics
+  const [topicRows, collectionCount, vaultResult, assignedMissions] = await Promise.all([
     profile?.year_group_id
       ? prisma.topic.findMany({
           where: { year_group_id: profile.year_group_id, is_published: true },
@@ -83,6 +83,17 @@ export default async function ChildDashboardPage() {
     profile?.id
       ? getVaultStatus(profile.id).catch(() => null)
       : Promise.resolve(null),
+    profile?.id
+      ? prisma.childMission.findMany({
+          where: {
+            profile_id:   profile.id,
+            mission_type: 'parent_assigned',
+            completed_at: null,
+          },
+          include: { topic: { select: { id: true, title: true, subject: { select: { name: true, colour_token: true } } } } },
+          orderBy: { created_at: 'asc' },
+        })
+      : Promise.resolve([]),
   ])
 
   const topics: TopicRow[] = topicRows.map((t) => ({
@@ -145,6 +156,35 @@ export default async function ChildDashboardPage() {
           )}
         </div>
       </div>
+
+      {/* ── Parent-assigned focus topics ───────────────────────────────── */}
+      {assignedMissions.length > 0 && (
+        <div className="rounded-2xl border-2 border-points-gold/40 bg-points-gold/8 px-4 py-4 space-y-2">
+          <p className="text-xs font-bold uppercase tracking-widest text-points-gold flex items-center gap-1.5">
+            📌 Focus topics from your parent
+          </p>
+          <ul className="space-y-1.5">
+            {assignedMissions.map((m) => m.topic && (
+              <li key={m.id}>
+                <Link
+                  href={`/topics/${m.topic.id}/learn`}
+                  className="flex items-center justify-between gap-3 rounded-xl bg-white/60 px-3 py-2.5 hover:bg-white transition-colors"
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span
+                      className="h-2.5 w-2.5 flex-none rounded-full"
+                      style={{ backgroundColor: m.topic.subject.colour_token }}
+                    />
+                    <span className="truncate text-sm font-semibold text-ink">{m.topic.title}</span>
+                    <span className="flex-none text-xs text-muted">{m.topic.subject.name}</span>
+                  </div>
+                  <span className="flex-none text-xs font-bold text-brand">Start →</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {/* ── Suggested next topic ────────────────────────────────────────── */}
       {firstTopic && (

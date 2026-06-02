@@ -257,6 +257,12 @@ export async function getStrongestTopics(
 
 // ── Curriculum progress ───────────────────────────────────────────────────────
 
+export type CurriculumOutcomeItem = {
+  id: string
+  domain: string
+  statutoryOutcome: string
+}
+
 export type CurriculumTopic = {
   topicId: string
   title: string
@@ -265,6 +271,8 @@ export type CurriculumTopic = {
   lastScore: number | null       // 0.0–1.0
   completedAt: Date | null
   isPublished: boolean
+  outcomes: CurriculumOutcomeItem[]
+  isAssigned: boolean
 }
 
 export type CurriculumSubject = {
@@ -278,8 +286,8 @@ export type CurriculumSubject = {
 
 /**
  * Returns the full curriculum spine for a child's year group, annotated with
- * their progress status on each topic.  Topics without progress rows appear as
- * 'not_started'.  Only published topics are included.
+ * their progress status, NC outcomes, and parent-assignment flag.
+ * Only published topics are included.
  */
 export async function getCurriculumProgress(
   childProfileId: string,
@@ -294,12 +302,43 @@ export async function getCurriculumProgress(
 
   if (topics.length === 0) return []
 
-  // Load child's progress for all these topics in one query
   const topicIds = topics.map((t) => t.id)
-  const progressRows = await prisma.topicProgress.findMany({
-    where: { profile_id: childProfileId, topic_id: { in: topicIds } },
-  })
-  const progressMap = new Map(progressRows.map((p) => [p.topic_id, p]))
+
+  // Fetch progress, outcomes, and assigned missions in parallel
+  const [progressRows, outcomeRows, assignedMissions] = await Promise.all([
+    prisma.topicProgress.findMany({
+      where: { profile_id: childProfileId, topic_id: { in: topicIds } },
+    }),
+    prisma.curriculumOutcome.findMany({
+      where:  { app_topic_id: { in: topicIds } },
+      select: { id: true, domain: true, statutory_outcome: true, app_topic_id: true },
+      orderBy: { domain: 'asc' },
+    }),
+    prisma.childMission.findMany({
+      where: {
+        profile_id:      childProfileId,
+        mission_type:    'parent_assigned',
+        completed_at:    null,
+        target_topic_id: { in: topicIds },
+      },
+      select: { target_topic_id: true },
+    }),
+  ])
+
+  const progressMap  = new Map(progressRows.map((p) => [p.topic_id, p]))
+  const assignedSet  = new Set(assignedMissions.map((m) => m.target_topic_id).filter(Boolean) as string[])
+
+  // Group outcomes by topic
+  const outcomesMap = new Map<string, CurriculumOutcomeItem[]>()
+  for (const o of outcomeRows) {
+    if (!o.app_topic_id) continue
+    if (!outcomesMap.has(o.app_topic_id)) outcomesMap.set(o.app_topic_id, [])
+    outcomesMap.get(o.app_topic_id)!.push({
+      id:               o.id,
+      domain:           o.domain,
+      statutoryOutcome: o.statutory_outcome,
+    })
+  }
 
   // Group by subject
   const subjectMap = new Map<string, CurriculumSubject>()
@@ -330,6 +369,8 @@ export async function getCurriculumProgress(
       lastScore:      prog?.last_score ?? null,
       completedAt:    prog?.completed_at ?? null,
       isPublished:    topic.is_published,
+      outcomes:       outcomesMap.get(topic.id) ?? [],
+      isAssigned:     assignedSet.has(topic.id),
     })
     subj.totalCount++
     if (status === 'completed') subj.completedCount++

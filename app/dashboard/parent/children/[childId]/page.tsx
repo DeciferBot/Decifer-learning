@@ -24,6 +24,7 @@ import {
 import { getSignalsForChild } from '@/lib/learning-signals-runner'
 import type { LearningSignal } from '@/lib/learning-signals'
 import { ScreenTimeControls } from './ScreenTimeControls'
+import { SyllabusHeatmap } from './SyllabusHeatmap'
 import { Star, Flame, Medal, Layers } from '@/components/ui/icons'
 
 export const metadata = { title: 'Child report — Decifer Learning' }
@@ -175,7 +176,17 @@ export default async function ChildDetailPage({
       </div>
 
       {/* ════════════════════════════════════════════════════════════════════
-          CURRICULUM TRACKER
+          SYLLABUS HEATMAP — full visual curriculum map with topic assignment
+          ════════════════════════════════════════════════════════════════════ */}
+      <SyllabusHeatmap
+        subjects={curriculumProgress}
+        childName={childProfile.display_name}
+        childProfileId={childProfile.id}
+        yearGroupLabel={yearGroupLabel}
+      />
+
+      {/* ════════════════════════════════════════════════════════════════════
+          CURRICULUM TRACKER (compact list view)
           ════════════════════════════════════════════════════════════════════ */}
       <CurriculumTracker
         subjects={curriculumProgress}
