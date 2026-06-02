@@ -56,6 +56,15 @@ IMPORT_TARGETS = [
         "question_type": "maths_geometry",
         "hint_template": "Use the grid. Remember: x-coordinate first (across), then y-coordinate (up).",
     },
+    {
+        "topic_slug":  "year-5-maths-geometry-position-and-direction",
+        "ks":          "ks2",
+        "year":        "year-6",  # Y6 Oak unit covers 4-quadrant coordinates matching Y5 curriculum
+        "unit_slug":   "area-perimeter-position-and-direction",
+        "question_type": "maths_geometry",
+        "hint_template": "Use all 4 quadrants. Positive x goes right, negative x goes left; positive y goes up, negative y goes down.",
+        "lesson_filter": ["position", "direction", "coordinate", "quadrant", "translation", "reflection"],
+    },
 ]
 
 
@@ -130,6 +139,9 @@ def main():
         lg = oak(f"/key-stages/{ks}/subject/maths/lessons?unit={urllib.parse.quote(unit)}")
         lessons = []
         for g in (lg or []): lessons += g.get("lessons", [])
+        lesson_filter = target.get("lesson_filter")
+        if lesson_filter:
+            lessons = [l for l in lessons if any(w in l["lessonTitle"].lower() for w in lesson_filter)]
         print(f"  {len(lessons)} Oak lessons in unit '{unit}'")
 
         # Collect all text Q&As
