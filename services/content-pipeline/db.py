@@ -167,13 +167,16 @@ def retrieve_chunks(
     subject: str,
     year_group_label: str,
     query_embedding: Optional[np.ndarray],
-    limit: int = 5,
+    limit: int = 8,
 ) -> list[dict]:
     """Return top-N curriculum chunks for RAG generation.
 
+    Prioritises 'Oak NA rich (OGL v3.0)' chunks by applying a 0.12 distance
+    bonus — they contain full lesson transcripts and quiz Q&As which produce
+    significantly better generation quality than the thin NC programme docs.
+
     If query_embedding is None (embeddings disabled) or no embedded chunks
-    exist, returns up to `limit` chunks in arbitrary order (for Maths, RAG
-    grounding is optional — CLAUDE.md §8).
+    exist, returns up to `limit` chunks in insertion order, Oak rich first.
     """
     conn = get_connection()
     try:
@@ -185,10 +188,12 @@ def retrieve_chunks(
                     FROM curriculum_chunks
                     WHERE subject = %s AND year_group = %s
                       AND embedding IS NOT NULL
-                    ORDER BY embedding <=> %s
+                    ORDER BY
+                      (embedding <=> %s::vector)
+                      - (CASE WHEN source_name = 'Oak NA rich (OGL v3.0)' THEN 0.12 ELSE 0 END)
                     LIMIT %s
                     """,
-                    (subject, year_group_label, query_embedding, limit),
+                    (subject, year_group_label, str(query_embedding.tolist()), limit),
                 )
             else:
                 cur.execute(
@@ -196,6 +201,8 @@ def retrieve_chunks(
                     SELECT id, chunk_text, source_name, subject, year_group
                     FROM curriculum_chunks
                     WHERE subject = %s AND year_group = %s
+                    ORDER BY
+                      CASE WHEN source_name = 'Oak NA rich (OGL v3.0)' THEN 0 ELSE 1 END
                     LIMIT %s
                     """,
                     (subject, year_group_label, limit),

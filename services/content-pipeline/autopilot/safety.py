@@ -28,9 +28,19 @@ LOCK_DIR         = Path("/tmp/decifer-pipeline-locks")
 # Limits
 MAX_TOPICS_PER_RUN = 5  # hard ceiling on topics touched by a single autopilot run
 
-# Patterns that must never appear in autopilot job arguments — trading guard
+# Patterns that must never appear in autopilot job arguments — trading guard.
+# Hyphenated topic slugs (e.g. "trade-and-the-global-economy") create word
+# boundaries at every hyphen, so only use \b for terms that are safe in slug
+# context (i.e. would never appear as a hyphen-separated slug segment).
+# "trade" is intentionally absent — covered by "trading" and too common in
+# legitimate curriculum topics (Geography trade units).
 _TRADING_PATTERNS = re.compile(
-    r"trading|alpaca|market|portfolio|trade|order|ticker|stock|crypto|invest",
+    r"trading"           # catches "decifer-trading", "trading-platform", etc.
+    r"|alpaca"           # the brokerage, never a curriculum slug
+    r"|ticker"           # unambiguously financial
+    r"|crypto"           # unambiguously financial
+    r"|portfolio"        # unambiguously financial in this context
+    r"|\bstock\b",       # safe: "livestock" won't match (\b needs non-word before 's')
     re.IGNORECASE,
 )
 
