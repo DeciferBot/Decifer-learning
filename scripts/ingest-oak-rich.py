@@ -65,7 +65,7 @@ def oak(path: str):
         except urllib.error.HTTPError as ex:
             if ex.code in (429, 500, 502, 503):
                 time.sleep(3 * (attempt + 1)); continue
-            if ex.code == 404:
+            if ex.code in (400, 404):
                 return None
             raise
         except Exception:
