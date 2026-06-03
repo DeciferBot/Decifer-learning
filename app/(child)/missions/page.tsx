@@ -61,7 +61,7 @@ export default function MissionsPage() {
     return (
       <div className="flex min-h-[40vh] flex-col items-center justify-center gap-4 text-center px-4">
         <p className="text-3xl">😕</p>
-        <p className="text-sm text-muted">Couldn't load your missions right now.</p>
+        <p className="text-sm text-muted">Couldn&apos;t load your missions right now.</p>
         <button
           onClick={() => void load()}
           className="rounded-xl bg-brand px-5 py-2.5 text-sm font-bold text-white hover:opacity-90"
