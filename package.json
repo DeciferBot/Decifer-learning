@@ -1,6 +1,6 @@
 {
   "name": "decifer-learning",
-  "version": "2.5.4",
+  "version": "2.6.1",
   "private": true,
   "description": "Decifer Learning — UK National Curriculum PWA. See CLAUDE.md.",
   "scripts": {
