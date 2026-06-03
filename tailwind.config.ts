@@ -32,7 +32,7 @@ const config: Config = {
         incorrect: '#FF6B6B',
         // Typography
         ink: '#2D3748',
-        muted: '#767676', // 4.54:1 on white — passes WCAG AA
+        muted: '#666666', // 5.55:1 on #FAFBFF bg — passes WCAG AA with margin
         // State colours
         success: '#0dc47c',
         warning: '#f59e0b',
