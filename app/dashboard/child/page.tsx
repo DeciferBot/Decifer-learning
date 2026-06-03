@@ -3,6 +3,7 @@
 
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import { PushNotificationButton } from '@/components/ui/PushNotificationButton'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { childNeedsOnboarding } from '@/lib/onboarding'
 import { getUserDisplayName, MVP_YEAR_GROUPS } from '@/lib/auth/roles'
@@ -334,6 +335,17 @@ export default async function ChildDashboardPage() {
           }
         />
       ) : null}
+
+      {/* ── Streak notifications opt-in ─────────────────────────────────── */}
+      {streak >= 2 && (
+        <div className="flex items-center justify-between rounded-2xl border border-black/5 bg-surface px-4 py-3 shadow-sm">
+          <div>
+            <p className="text-sm font-semibold text-ink">Streak reminders</p>
+            <p className="text-xs text-muted">Get a nudge if your streak is at risk</p>
+          </div>
+          <PushNotificationButton />
+        </div>
+      )}
     </section>
   )
 }
