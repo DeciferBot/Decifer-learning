@@ -13,6 +13,7 @@ import { WorkedExample } from './WorkedExample'
 import { ReflectionPrompt } from './ReflectionPrompt'
 import type { DroppedCard, EarnedBadge } from '@/app/api/quiz/submit/route'
 import { DifficultyPicker, type DifficultyChoice } from './DifficultyPicker'
+import MathText from '@/components/ui/MathText'
 
 // Points awarded per attempt number (1-indexed). Exhausting all attempts = 0.
 const POINTS_BY_ATTEMPT = [3, 2, 1] as const
@@ -610,7 +611,7 @@ export function QuizShell({
           )}
 
           <p className="mb-5 font-heading text-xl font-bold leading-snug text-ink">
-            {q.question_text}
+            <MathText text={q.question_text} />
           </p>
 
           {/* Hints — shown automatically after wrong attempts */}
@@ -624,7 +625,7 @@ export function QuizShell({
                   className="rounded-xl border border-black/8 bg-yellow-50 px-4 py-3 text-sm text-ink"
                 >
                   <span className="mr-2 font-bold text-yellow-600">💡 Hint {i + 1}:</span>
-                  {hint}
+                  <MathText text={hint} />
                 </motion.div>
               ))}
             </div>
@@ -683,7 +684,7 @@ export function QuizShell({
                   whileTap={questionDone ? {} : { scale: 0.97 }}
                   className={cls}
                 >
-                  {choice}
+                  <MathText text={choice} />
                 </motion.button>
               )
             })}
