@@ -4,8 +4,9 @@ import { redirect } from 'next/navigation'
 import { RecoveryRedirect } from './RecoveryRedirect'
 import { DeciferLogo } from '@/components/ui/DeciferLogo'
 import { GuideCard } from '@/components/ui/GuideCard'
-import { LearningJourney } from '@/components/homepage/LearningJourney'
-import { QualityPipeline } from '@/components/homepage/QualityPipeline'
+import dynamic from 'next/dynamic'
+const LearningJourney = dynamic(() => import('@/components/homepage/LearningJourney').then(m => ({ default: m.LearningJourney })))
+const QualityPipeline = dynamic(() => import('@/components/homepage/QualityPipeline').then(m => ({ default: m.QualityPipeline })))
 import { HeroMockup } from '@/components/homepage/HeroMockup'
 import type { ComponentType, SVGProps } from 'react'
 import {
@@ -55,7 +56,7 @@ export default function Home({
               </Link>
               <Link
                 href="/register"
-                className="flex h-9 items-center rounded-lg bg-brand px-3 text-sm font-semibold text-white transition-colors hover:bg-brand-600 sm:px-4"
+                className="flex h-9 items-center rounded-lg bg-brand-600 px-3 text-sm font-semibold text-white transition-colors hover:bg-brand-700 sm:px-4"
               >
                 Get started
               </Link>
@@ -63,13 +64,15 @@ export default function Home({
           </div>
         </nav>
 
+        <main>
+
         {/* ── Hero ────────────────────────────────────────────────────────── */}
         <section className="mx-auto max-w-5xl px-4 py-12 md:py-20">
           <div className="grid gap-10 md:grid-cols-2 md:items-center">
 
             {/* Left: copy */}
             <div>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-brand/20 bg-brand-50 px-3 py-1 text-xs font-semibold text-brand">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-brand/20 bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-600">
                 UK National Curriculum · Years 1–9
               </span>
 
@@ -103,7 +106,7 @@ export default function Home({
               <div className="mt-7 flex flex-col gap-3 sm:flex-row">
                 <Link
                   href="/register"
-                  className="flex h-12 items-center justify-center rounded-xl bg-brand px-7 font-semibold text-white transition-colors hover:bg-brand-600"
+                  className="flex h-12 items-center justify-center rounded-xl bg-brand-600 px-7 font-semibold text-white transition-colors hover:bg-brand-700"
                 >
                   Start with your child&apos;s learning map
                 </Link>
@@ -361,7 +364,7 @@ export default function Home({
             <p className="mt-8 text-center">
               <Link
                 href="/register"
-                className="inline-flex min-h-[48px] items-center justify-center rounded-xl bg-brand px-8 font-semibold text-white transition-colors hover:bg-brand-600"
+                className="inline-flex min-h-[48px] items-center justify-center rounded-xl bg-brand-600 px-8 font-semibold text-white transition-colors hover:bg-brand-700"
               >
                 Start with your child&apos;s learning map
               </Link>
@@ -466,7 +469,7 @@ export default function Home({
             <div className="flex flex-col gap-3">
               <Link
                 href="/register"
-                className="flex h-12 w-full items-center justify-center rounded-xl bg-brand font-semibold text-white transition-colors hover:bg-brand-600"
+                className="flex h-12 w-full items-center justify-center rounded-xl bg-brand-600 font-semibold text-white transition-colors hover:bg-brand-700"
               >
                 Start with your child&apos;s learning map
               </Link>
@@ -479,6 +482,8 @@ export default function Home({
             </div>
           </div>
         </section>
+
+        </main>
 
         {/* ── Footer ───────────────────────────────────────────────────────── */}
         <footer className="border-t border-black/5 bg-surface py-8">

@@ -15,7 +15,9 @@ const config: Config = {
         // Brand accent — aligned to DECIFER mark orange
         brand: '#F05A28',
         'brand-50': '#FEF0E8',
-        'brand-600': '#CC4A21',
+        // brand-600/700 are the accessible button shades (≥4.5:1 with white)
+        'brand-600': '#B83A14',
+        'brand-700': '#9A2E10',
         // Subject colours
         maths: '#6C9EFF',
         english: '#FF8FAB',
@@ -30,7 +32,7 @@ const config: Config = {
         incorrect: '#FF6B6B',
         // Typography
         ink: '#2D3748',
-        muted: '#718096',
+        muted: '#767676', // 4.54:1 on white — passes WCAG AA
         // State colours
         success: '#0dc47c',
         warning: '#f59e0b',

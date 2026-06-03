@@ -51,7 +51,7 @@ export function QualityPipeline() {
             <div className="flex gap-3.5 rounded-2xl border border-black/[0.06] bg-background p-4 shadow-sm">
               {/* Stage number — orange circle, consistent with brand */}
               <span
-                className="mt-0.5 flex h-7 w-7 flex-none items-center justify-center rounded-full bg-brand font-heading text-xs font-black text-white"
+                className="mt-0.5 flex h-7 w-7 flex-none items-center justify-center rounded-full bg-brand-600 font-heading text-xs font-black text-white"
                 aria-label={`Stage ${stage.n}`}
               >
                 {stage.n}

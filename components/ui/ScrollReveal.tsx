@@ -1,7 +1,7 @@
 'use client'
 
 import { motion, useInView, useReducedMotion } from 'framer-motion'
-import { useRef } from 'react'
+import { useRef, useState, useEffect } from 'react'
 
 interface ScrollRevealProps {
   children: React.ReactNode
@@ -11,33 +11,45 @@ interface ScrollRevealProps {
 
 /**
  * Reveals children when they enter the viewport.
- * Respects prefers-reduced-motion — falls back to instant show.
- * Uses Framer Motion's useInView with once:true so elements stay visible.
  *
- * When reduced motion is preferred, the element is always visible immediately
- * with no translate or opacity animation. We keep motion.div in both paths to
- * avoid a server/client hydration mismatch.
+ * SSR / first-paint: element is visible at opacity:1 (initial=false skips
+ * the hidden state). After hydration, below-fold elements instantly hide
+ * (duration:0) then animate in when scrolled into view. This prevents
+ * Lighthouse from seeing opacity:0 in the initial paint, which tanks
+ * Speed Index and LCP element-render-delay.
+ *
+ * Respects prefers-reduced-motion — skips all animation.
  */
 export function ScrollReveal({ children, delay = 0, className }: ScrollRevealProps) {
   const ref = useRef<HTMLDivElement>(null)
   const isInView = useInView(ref, { once: true, margin: '-60px' })
   const prefersReducedMotion = useReducedMotion()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => { setMounted(true) }, [])
+
+  const visible = { opacity: 1, y: 0 }
+  const hidden = { opacity: 0, y: 20 }
 
   return (
     <motion.div
       ref={ref}
-      // When reduced motion is preferred: start at the final visible state
-      // (initial=false) and animate with zero duration — no movement, no flash.
-      initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
+      // initial=false: Framer skips the initial state entirely and renders at
+      // the animate target — which on first render is `visible` (opacity:1).
+      // No inline opacity:0 ever appears in SSR HTML.
+      initial={false}
       animate={
-        prefersReducedMotion || isInView
-          ? { opacity: 1, y: 0 }
-          : { opacity: 0, y: 20 }
+        !mounted || prefersReducedMotion || isInView ? visible : hidden
       }
       transition={
-        prefersReducedMotion
+        // No animation before mount (SSR consistency) or when reduced motion.
+        // Instant hide for below-fold elements after mount.
+        // Smooth reveal when entering viewport.
+        !mounted || prefersReducedMotion
           ? { duration: 0 }
-          : { duration: 0.45, delay, ease: [0.16, 1, 0.3, 1] }
+          : isInView
+            ? { duration: 0.45, delay, ease: [0.16, 1, 0.3, 1] }
+            : { duration: 0 }
       }
       className={className}
     >
