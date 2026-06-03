@@ -19,6 +19,7 @@ import {
   type CurriculumSubject,
 } from '@/lib/parent-dashboard'
 import { LinkChildForm } from '@/components/parent/LinkChildForm'
+import { CurriculumMap } from '@/components/parent/CurriculumMap'
 import { Star, Flame, Gift, BarChart, Target, MapPin, CalendarDays, Check } from '@/components/ui/icons'
 import type { ComponentType, SVGProps } from 'react'
 
@@ -187,9 +188,14 @@ export default async function ParentDashboardPage() {
               </div>
             )}
 
-            {/* Curriculum mini-tracker */}
+            {/* Curriculum map */}
             {curriculum.length > 0 && (
-              <CurriculumMini curriculum={curriculum} childId={child.profileId} />
+              <CurriculumMap
+                subjects={curriculum}
+                childName={child.displayName}
+                yearLabel={child.yearGroupLabel ?? 'Year'}
+                streakDays={child.streakDays}
+              />
             )}
 
             {/* Recommended next lesson */}
