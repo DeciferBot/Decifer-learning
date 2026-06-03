@@ -9,6 +9,8 @@ import { getUserDisplayName, MVP_YEAR_GROUPS } from '@/lib/auth/roles'
 import { getCurrentProfile } from '@/lib/profile'
 import { prisma } from '@/lib/prisma'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { ChildCurriculumMap } from '@/components/child/ChildCurriculumMap'
+import { getCurriculumProgress } from '@/lib/parent-dashboard'
 import { StreakPing } from './StreakPing'
 import { getVaultStatus } from '@/lib/vault/status'
 import { NewParentLinkNotice } from './NewParentLinkNotice'
@@ -62,8 +64,8 @@ export default async function ChildDashboardPage() {
       })
     : null
 
-  // Fire all independent DB queries in parallel — topics, collection count, vault, assigned focus topics
-  const [topicRows, collectionCount, vaultResult, assignedMissions] = await Promise.all([
+  // Fire all independent DB queries in parallel — topics, collection count, vault, assigned focus topics, curriculum progress
+  const [topicRows, collectionCount, vaultResult, assignedMissions, curriculumSubjects] = await Promise.all([
     profile?.year_group_id
       ? prisma.topic.findMany({
           where: { year_group_id: profile.year_group_id, is_published: true },
@@ -94,6 +96,9 @@ export default async function ChildDashboardPage() {
           orderBy: { created_at: 'asc' },
         })
       : Promise.resolve([]),
+    profile?.id && profile?.year_group_id
+      ? getCurriculumProgress(profile.id, profile.year_group_id)
+      : Promise.resolve([]),
   ])
 
   const topics: TopicRow[] = topicRows.map((t) => ({
@@ -121,6 +126,11 @@ export default async function ChildDashboardPage() {
   const firstTopic = topics[0] ?? null
   const points = profile?.total_points ?? 0
   const streak = profile?.streak_days ?? 0
+
+  // Build a map of topicId → hasPractice for the curriculum map
+  const practiceMap = new Map<string, boolean>(
+    topicRows.map((t) => [t.id, t._count.practice_games > 0])
+  )
   const vaultCredits = vaultResult?.creditBalance ?? 0
   const vaultBand = vaultResult?.currentBand ?? 'none'
 
@@ -299,8 +309,17 @@ export default async function ChildDashboardPage() {
         </Link>
       )}
 
-      {/* ── Topics by subject ───────────────────────────────────────────── */}
-      {topics.length === 0 ? (
+      {/* ── Curriculum map ──────────────────────────────────────────────── */}
+      {curriculumSubjects.length > 0 ? (
+        <ChildCurriculumMap
+          subjects={curriculumSubjects}
+          displayName={displayName}
+          yearLabel={yearGroup?.display ?? profile?.year_group_label ?? 'Year'}
+          streak={streak}
+          points={points}
+          practiceMap={practiceMap}
+        />
+      ) : topics.length === 0 ? (
         <EmptyState
           icon={<BookOpen className="w-10 h-10 text-muted" aria-hidden />}
           heading="Your first topics are being prepared"
@@ -314,82 +333,7 @@ export default async function ChildDashboardPage() {
             </Link>
           }
         />
-      ) : (
-        <div className="space-y-6">
-          <h2 className="font-heading text-base font-semibold text-ink">Your topics</h2>
-
-          {subjectGroups.map(([subjectName, subjectTopics]) => {
-            const colour = subjectTopics[0].subjects.colour_token
-            const SubjectIcon = SUBJECT_ICON[subjectName] ?? BookOpen
-            return (
-              <div key={subjectName} className="space-y-2">
-                {/* Subject header */}
-                <div className="flex items-center gap-2">
-                  <div
-                    className="flex h-7 w-7 items-center justify-center rounded-lg"
-                    style={{ backgroundColor: colour + '22', color: colour }}
-                  >
-                    <SubjectIcon size={16} aria-hidden />
-                  </div>
-                  <h3 className="font-heading text-sm font-bold text-ink">{subjectName}</h3>
-                  <span
-                    className="ml-auto rounded-full px-2 py-0.5 text-xs font-semibold"
-                    style={{ backgroundColor: colour + '22', color: colour }}
-                  >
-                    {subjectTopics.length} {subjectTopics.length === 1 ? 'topic' : 'topics'}
-                  </span>
-                </div>
-
-                {/* Divider line in subject colour */}
-                <div className="h-px w-full rounded-full opacity-30" style={{ backgroundColor: colour }} />
-
-                {/* Topic cards */}
-                <div className="space-y-2">
-                  {subjectTopics.map((topic) => (
-                    <article
-                      key={topic.id}
-                      className="overflow-hidden rounded-2xl border border-black/5 bg-surface shadow-sm"
-                    >
-                      {/* Coloured header strip */}
-                      <div className="h-1 w-full" style={{ backgroundColor: colour }} aria-hidden />
-
-                      <div className="p-4">
-                        <h4 className="mb-3 font-heading text-base font-bold text-ink leading-snug">
-                          {topic.title}
-                        </h4>
-
-                        <div className={`grid gap-2 ${topic.hasPractice ? 'grid-cols-3' : 'grid-cols-2'}`}>
-                          <Link
-                            href={`/topics/${topic.id}/learn`}
-                            className="flex min-h-[48px] items-center justify-center rounded-xl bg-maths/10 px-3 py-2 text-sm font-bold text-maths transition-colors hover:bg-maths/20"
-                          >
-                            📖 Learn
-                          </Link>
-                          {topic.hasPractice && (
-                            <Link
-                              href={`/topics/${topic.id}/practise`}
-                              className="flex min-h-[48px] items-center justify-center rounded-xl bg-science/10 px-3 py-2 text-sm font-bold text-science transition-colors hover:bg-science/20"
-                            >
-                              <span className="flex items-center gap-1"><PencilLine className="w-4 h-4" aria-hidden /> Practise</span>
-                            </Link>
-                          )}
-                          <Link
-                            href={`/topics/${topic.id}/quiz`}
-                            className="flex min-h-[48px] flex-col items-center justify-center rounded-xl bg-lightning/20 px-3 py-2 text-center transition-colors hover:bg-lightning/30"
-                          >
-                            <span className="text-sm font-bold text-ink flex items-center gap-1"><Zap className="w-4 h-4" aria-hidden /> Quiz</span>
-                            <span className="text-[10px] font-semibold text-muted leading-tight flex items-center gap-0.5"><Layers className="w-3 h-3" aria-hidden /> win a card</span>
-                          </Link>
-                        </div>
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      )}
+      ) : null}
     </section>
   )
 }
