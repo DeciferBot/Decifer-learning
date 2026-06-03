@@ -3,6 +3,8 @@
 // Sends a parent digest email for every parent who has at least one active child.
 // Secured by CRON_SECRET header check.
 
+export const dynamic = 'force-dynamic'
+
 import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
@@ -10,7 +12,6 @@ import { prisma } from '@/lib/prisma'
 import { getChildWeeklyDigestSummary, getChildWeakAreas } from '@/lib/parent-dashboard'
 import { buildParentActions } from '@/lib/parent-recommendations'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
 const FROM = 'Decifer Learning <hello@deciferlearning.com>'
 
 export async function POST(req: Request) {
@@ -23,6 +24,7 @@ export async function POST(req: Request) {
   if (!process.env.RESEND_API_KEY) {
     return NextResponse.json({ error: 'RESEND_API_KEY not configured' }, { status: 503 })
   }
+  const resend = new Resend(process.env.RESEND_API_KEY)
 
   // Get all parents who have linked children
   const familyLinks = await prisma.familyLink.findMany({
