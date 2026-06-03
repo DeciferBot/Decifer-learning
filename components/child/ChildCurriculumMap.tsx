@@ -10,6 +10,15 @@
 import Link from 'next/link'
 import type { CurriculumSubject, CurriculumTopic } from '@/lib/parent-dashboard'
 
+// ─── canonical subject order ─────────────────────────────────────────────────
+const SUBJECT_ORDER = ['Maths', 'English', 'Science', 'Geography', 'History']
+function sortSubjects(s: CurriculumSubject[]) {
+  return [...s].sort((a, b) => {
+    const ia = SUBJECT_ORDER.indexOf(a.subjectName), ib = SUBJECT_ORDER.indexOf(b.subjectName)
+    return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib)
+  })
+}
+
 // ─── colours ────────────────────────────────────────────────────────────────
 
 const COLS: Record<string, { bg: string; border: string; text: string; light: string; dot: string; btnBg: string }> = {
@@ -24,10 +33,11 @@ function c(name: string) { return COLS[name] ?? fallback }
 
 // ─── status ──────────────────────────────────────────────────────────────────
 
-function statusMeta(topic: CurriculumTopic) {
+function statusMeta(topic: CurriculumTopic, subjectName: string) {
+  const col = c(subjectName)
   const score = topic.lastScore ?? 0
   if (topic.progressStatus === 'not_started')
-    return { icon: '○', label: 'Not started', ring: 'border-dashed border-gray-200', bg: 'bg-white', badge: 'bg-gray-100 text-gray-400' }
+    return { icon: '○', label: 'Not started', ring: 'border border-gray-200/80', bg: col.light.replace('bg-[#', 'bg-[#').replace(']', ']/40'), badge: 'bg-gray-100 text-gray-400' }
   if (topic.progressStatus === 'in_progress')
     return { icon: '◐', label: 'In progress',  ring: 'border-solid', bg: '',          badge: 'bg-[#6C9EFF]/15 text-[#6C9EFF]' }
   if (score >= 0.95)
@@ -49,7 +59,7 @@ function TopicCard({
   hasPractice?: boolean
 }) {
   const col = c(subjectName)
-  const st  = statusMeta(topic)
+  const st  = statusMeta(topic, subjectName)
   const score = topic.lastScore ?? 0
   const excelled = topic.progressStatus === 'completed' && score >= 0.95
 
@@ -232,25 +242,38 @@ export function ChildCurriculumMap({
   points?: number
   practiceMap?: Map<string, boolean>
 }) {
-  const totalTopics = subjects.reduce((n, s) => n + s.totalCount, 0)
+  const sorted = sortSubjects(subjects)
+  const totalTopics = sorted.reduce((n, s) => n + s.totalCount, 0)
+  const totalDone   = sorted.reduce((n, s) => n + s.completedCount, 0)
+  const pct = totalTopics > 0 ? Math.round((totalDone / totalTopics) * 100) : 0
 
   return (
     <section className="w-full">
-      {/* heading */}
-      <div className="mb-6">
-        <h2 className="text-xl sm:text-2xl font-extrabold text-[#2D3748] leading-tight">
-          Your {yearLabel} curriculum 🗺️
+      {/* hero banner */}
+      <div className="rounded-2xl bg-gradient-to-br from-[#6C9EFF] to-[#A78BFA] p-5 mb-6 text-white relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 80% 50%, white 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+        <p className="text-xs font-bold uppercase tracking-widest opacity-75 mb-1">{yearLabel} · Your full curriculum</p>
+        <h2 className="text-2xl font-extrabold leading-tight mb-3">
+          {totalDone === 0 ? `Let's get started, ${displayName}! 🚀` : `Keep going, ${displayName}! 🌟`}
         </h2>
-        <p className="text-sm text-gray-400 mt-1 font-medium">
-          {totalTopics} topics across {subjects.length} subjects — every topic you need this year
-        </p>
+        <div className="flex items-center gap-3">
+          <div className="flex-1 h-2 bg-white/30 rounded-full overflow-hidden">
+            <div className="h-full bg-white rounded-full transition-all" style={{ width: `${pct}%` }} />
+          </div>
+          <span className="text-sm font-bold tabular-nums">{totalDone}/{totalTopics} topics</span>
+        </div>
+        <div className="flex gap-4 mt-3 text-xs font-semibold opacity-80">
+          {streak > 0 && <span>🔥 {streak} day streak</span>}
+          {points > 0 && <span>⭐ {points.toLocaleString()} pts</span>}
+          <span>{sorted.length} subjects</span>
+        </div>
       </div>
 
-      <SummaryBar subjects={subjects} streak={streak} points={points} />
+      <SummaryBar subjects={sorted} streak={streak} points={points} />
       <Legend />
 
       <div className="flex flex-col gap-8">
-        {subjects.map((s) => (
+        {sorted.map((s) => (
           <SubjectLane key={s.subjectId} subject={s} practiceMap={practiceMap} />
         ))}
       </div>
