@@ -67,7 +67,7 @@ export function HeroMockup() {
             <p className="text-xs text-muted">Year 7 · Maths</p>
           </div>
           <ProgressRing percent={ringPercent} size={44} color="#F05A28">
-            <span className="text-[10px] font-bold text-brand">{ringPercent}%</span>
+            <span className="text-[10px] font-bold text-ink">{ringPercent}%</span>
           </ProgressRing>
         </div>
 
@@ -81,7 +81,7 @@ export function HeroMockup() {
         </div>
 
         <div className="border-t border-black/5 px-4 py-3">
-          <p className="text-xs font-semibold text-incorrect">Needs more practice</p>
+          <p className="text-xs font-semibold text-ink">Needs more practice</p>
           <div className="mt-1 flex items-center justify-between text-sm">
             <span className="text-ink">Solving Equations</span>
             <span className="text-xs text-muted">65% correct</span>
@@ -107,8 +107,8 @@ export function HeroMockup() {
             </div>
             <p className="mt-1 text-right text-xs text-muted">{barPercent}%</p>
             <div className="mt-2 grid grid-cols-3 gap-1 text-center text-xs font-semibold">
-              <span className="rounded bg-maths/10 py-1 text-maths">Learn</span>
-              <span className="rounded bg-science/10 py-1 text-science">Prac.</span>
+              <span className="rounded bg-maths/10 py-1 text-ink">Learn</span>
+              <span className="rounded bg-science/10 py-1 text-ink">Prac.</span>
               <span className="rounded bg-lightning/20 py-1 text-ink">Quiz</span>
             </div>
           </div>
@@ -117,7 +117,7 @@ export function HeroMockup() {
         <div className="flex flex-col justify-between rounded-2xl border border-black/5 bg-surface p-3 shadow-sm">
           <div>
             <p className="text-xs font-bold uppercase tracking-wide text-muted">Latest quiz</p>
-            <p className="mt-1 font-heading text-2xl font-black text-correct">8/10</p>
+            <p className="mt-1 font-heading text-2xl font-black text-ink">8/10</p>
             <p className="text-xs text-muted">Algebra Basics</p>
           </div>
           <div className="mt-2 space-y-1.5">

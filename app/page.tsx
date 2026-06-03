@@ -4,9 +4,8 @@ import { redirect } from 'next/navigation'
 import { RecoveryRedirect } from './RecoveryRedirect'
 import { DeciferLogo } from '@/components/ui/DeciferLogo'
 import { GuideCard } from '@/components/ui/GuideCard'
-import dynamic from 'next/dynamic'
-const LearningJourney = dynamic(() => import('@/components/homepage/LearningJourney').then(m => ({ default: m.LearningJourney })))
-const QualityPipeline = dynamic(() => import('@/components/homepage/QualityPipeline').then(m => ({ default: m.QualityPipeline })))
+import { LearningJourney } from '@/components/homepage/LearningJourney'
+import { QualityPipeline } from '@/components/homepage/QualityPipeline'
 import { HeroMockup } from '@/components/homepage/HeroMockup'
 import type { ComponentType, SVGProps } from 'react'
 import {
@@ -149,7 +148,7 @@ export default function Home({
         {/* ── Learning Intelligence ─────────────────────────────────────────── */}
         <section className="py-16">
           <div className="mx-auto max-w-5xl px-4">
-            <p className="mb-2 text-center text-xs font-bold uppercase tracking-widest text-brand">
+            <p className="mb-2 text-center text-xs font-bold uppercase tracking-widest text-brand-600">
               Learning intelligence
             </p>
             <h2 className="mb-2 text-center font-heading text-2xl font-bold text-ink md:text-3xl">
@@ -185,7 +184,7 @@ export default function Home({
         {/* ── The learning loop ────────────────────────────────────────────── */}
         <section className="bg-surface py-16">
           <div className="mx-auto max-w-5xl px-4">
-            <p className="mb-2 text-center text-xs font-bold uppercase tracking-widest text-brand">
+            <p className="mb-2 text-center text-xs font-bold uppercase tracking-widest text-brand-600">
               The learning loop
             </p>
             <h2 className="mb-2 text-center font-heading text-2xl font-bold text-ink md:text-3xl">
@@ -211,7 +210,7 @@ export default function Home({
         {/* ── Content quality pipeline ─────────────────────────────────────── */}
         <section className="py-16">
           <div className="mx-auto max-w-5xl px-4">
-            <p className="mb-2 text-center text-xs font-bold uppercase tracking-widest text-brand">
+            <p className="mb-2 text-center text-xs font-bold uppercase tracking-widest text-brand-600">
               Content quality
             </p>
             <h2 className="mb-2 text-center font-heading text-2xl font-bold text-ink md:text-3xl">
@@ -238,7 +237,7 @@ export default function Home({
 
               {/* Child column */}
               <div className="rounded-2xl border border-maths/20 bg-maths/5 p-6">
-                <p className="mb-1 text-xs font-bold uppercase tracking-widest text-maths">
+                <p className="mb-1 text-xs font-bold uppercase tracking-widest text-ink">
                   For children
                 </p>
                 <h3 className="mb-4 font-heading text-lg font-bold text-ink">
@@ -259,7 +258,7 @@ export default function Home({
 
               {/* Parent column */}
               <div className="rounded-2xl border border-brand/20 bg-brand-50 p-6">
-                <p className="mb-1 text-xs font-bold uppercase tracking-widest text-brand">
+                <p className="mb-1 text-xs font-bold uppercase tracking-widest text-brand-600">
                   For parents
                 </p>
                 <h3 className="mb-2 font-heading text-lg font-bold text-ink">
@@ -281,7 +280,7 @@ export default function Home({
                 </ul>
                 <Link
                   href="/help/parent-guide"
-                  className="mt-6 inline-flex min-h-[44px] items-center rounded-xl border border-brand/30 px-5 text-sm font-semibold text-brand transition-colors hover:bg-brand/5"
+                  className="mt-6 inline-flex min-h-[44px] items-center rounded-xl border border-brand-600/40 px-5 text-sm font-semibold text-brand-600 transition-colors hover:bg-brand-50"
                 >
                   Read the parent guide{' '}<span aria-hidden="true">→</span>
                 </Link>
@@ -353,8 +352,8 @@ export default function Home({
                     <p className="mt-1 font-heading font-bold text-ink">{topic.title}</p>
                     <p className="mt-1 text-xs leading-relaxed text-muted">{topic.description}</p>
                     <div className="mt-3 flex gap-1.5 text-xs font-semibold">
-                      <span className="rounded-lg bg-maths/10 px-2 py-1.5 text-maths">Learn</span>
-                      <span className="rounded-lg bg-science/10 px-2 py-1.5 text-science">Practise</span>
+                      <span className="rounded-lg bg-maths/10 px-2 py-1.5 text-ink">Learn</span>
+                      <span className="rounded-lg bg-science/10 px-2 py-1.5 text-ink">Practise</span>
                       <span className="rounded-lg bg-lightning/20 px-2 py-1.5 text-ink">Quiz</span>
                     </div>
                   </div>
@@ -386,13 +385,13 @@ export default function Home({
                 Maths, English, and Science are fully available for Years 1–9. Every topic has passed the six-stage quality process. Your child will only ever see content that is verified and ready.
               </p>
               <div className="flex flex-wrap justify-center gap-3 text-sm">
-                <span className="flex items-center gap-1.5 rounded-full bg-maths/10 px-4 py-1.5 font-semibold text-maths">
+                <span className="flex items-center gap-1.5 rounded-full bg-maths/10 px-4 py-1.5 font-semibold text-ink">
                   <Check className="w-4 h-4" aria-hidden /> Maths: Years 1–9
                 </span>
-                <span className="flex items-center gap-1.5 rounded-full bg-english/10 px-4 py-1.5 font-semibold text-english">
+                <span className="flex items-center gap-1.5 rounded-full bg-english/10 px-4 py-1.5 font-semibold text-ink">
                   <Check className="w-4 h-4" aria-hidden /> English: Years 1–9
                 </span>
-                <span className="flex items-center gap-1.5 rounded-full bg-science/10 px-4 py-1.5 font-semibold text-science">
+                <span className="flex items-center gap-1.5 rounded-full bg-science/10 px-4 py-1.5 font-semibold text-ink">
                   <Check className="w-4 h-4" aria-hidden /> Science: Years 1–9
                 </span>
               </div>
