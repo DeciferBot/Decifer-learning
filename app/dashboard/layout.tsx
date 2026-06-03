@@ -29,7 +29,7 @@ export default async function DashboardLayout({
   return (
     <div className="min-h-screen bg-background">
       <TopBar displayName={user ? getUserDisplayName(user) : 'Admin'} />
-      <div className="mx-auto max-w-screen-md px-4 py-6">{children}</div>
+      <div className="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-10 py-6">{children}</div>
     </div>
   )
 }
