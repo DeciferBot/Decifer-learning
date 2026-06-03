@@ -56,6 +56,7 @@ type SubmitResult = {
   droppedCard: DroppedCard | null
   newBadges: EarnedBadge[]
   shieldAwarded: boolean
+  isFirstWin: boolean
 }
 
 function clientShuffle<T>(arr: T[]): T[] {
@@ -372,6 +373,7 @@ export function QuizShell({
     const serverTotalPoints = submitResult?.totalPoints
     const streakDays = submitResult?.streakDays
     const shieldAwarded = submitResult?.shieldAwarded
+    const isFirstWin = submitResult?.isFirstWin === true
 
     return (
       <>
@@ -389,14 +391,30 @@ export function QuizShell({
           />
         )}
 
+        {/* ── First-win celebration banner ── */}
+        {isFirstWin && passed && (
+          <motion.div
+            initial={{ opacity: 0, y: -16 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-4 overflow-hidden rounded-2xl p-5 text-center"
+            style={{ background: 'linear-gradient(135deg, #6C9EFF22 0%, #52D9A022 100%)', border: '2px solid #6C9EFF' }}
+          >
+            <p className="text-3xl">🎊</p>
+            <p className="mt-1 font-heading text-lg font-bold text-ink">You completed your first topic!</p>
+            <p className="mt-1 text-sm text-muted">
+              You&apos;ve earned your first Discovery Card. Keep going — the world map is waiting!
+            </p>
+          </motion.div>
+        )}
+
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           className="rounded-2xl border border-black/5 bg-surface p-8 text-center shadow-sm"
         >
-          <div className="mb-3 text-5xl">{passed ? '🌟' : '💪'}</div>
+          <div className="mb-3 text-5xl">{passed ? (isFirstWin ? '🏆' : '🌟') : '💪'}</div>
           <h2 className="font-heading text-2xl font-bold text-ink">
-            {passed ? 'Great work!' : 'Keep going!'}
+            {passed ? (isFirstWin ? 'First topic complete!' : 'Great work!') : 'Keep going!'}
           </h2>
           <p
             className="mt-2 text-4xl font-bold"

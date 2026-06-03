@@ -209,6 +209,16 @@ export async function POST(req: Request) {
       },
     })
 
+    // ── First-win detection ───────────────────────────────────────────────
+    // True when this pass is the child's very first completed topic ever.
+    let isFirstWin = false
+    if (passed) {
+      const completedCount = await tx.topicProgress.count({
+        where: { profile_id: profile.id, status: 'completed' },
+      })
+      isFirstWin = completedCount === 1
+    }
+
     // ── Card drop (on pass) ───────────────────────────────────────────────
     let droppedCard: DroppedCard | null = null
     if (passed) {
@@ -244,6 +254,7 @@ export async function POST(req: Request) {
 
     return {
       newTotalPoints,
+      isFirstWin,
       droppedCard,
       newBadges: newBadges
         .filter((b): b is NonNullable<typeof b> => b !== null)
@@ -298,6 +309,7 @@ export async function POST(req: Request) {
     droppedCard: result.droppedCard,
     newBadges: result.newBadges,
     shieldAwarded: result.shieldAwarded,
+    isFirstWin: result.isFirstWin,
   })
 }
 

@@ -119,9 +119,23 @@ export function ZoneMap({ zoneId, zoneName, theme, subjectColor, nodes, allCompl
 
           {/* Progress footer */}
           <div className="px-5 pb-4 pt-1">
-            <p className="text-xs text-muted">
-              {completedCount} / {nodes.length} topic{nodes.length !== 1 ? 's' : ''} complete
-            </p>
+            <div className="mb-1 flex items-center justify-between">
+              <p className="text-xs text-muted">
+                {completedCount} / {nodes.length} topic{nodes.length !== 1 ? 's' : ''} complete
+              </p>
+              <p className="text-xs font-bold" style={{ color: subjectColor }}>
+                {nodes.length > 0 ? Math.round((completedCount / nodes.length) * 100) : 0}%
+              </p>
+            </div>
+            <div className="h-2 overflow-hidden rounded-full bg-black/8">
+              <div
+                className="h-full rounded-full transition-all duration-500"
+                style={{
+                  width: `${nodes.length > 0 ? (completedCount / nodes.length) * 100 : 0}%`,
+                  backgroundColor: subjectColor,
+                }}
+              />
+            </div>
           </div>
         </>
       )}

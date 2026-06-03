@@ -19,14 +19,22 @@ interface Mission {
 export default function MissionsPage() {
   const [missions, setMissions] = useState<Mission[]>([])
   const [loading, setLoading]   = useState(true)
+  const [error, setError]       = useState(false)
   const [generating, setGenerating] = useState(false)
 
   async function load() {
     setLoading(true)
-    const res = await fetch('/api/missions')
-    const data = await res.json()
-    setMissions(data.missions ?? [])
-    setLoading(false)
+    setError(false)
+    try {
+      const res = await fetch('/api/missions')
+      if (!res.ok) throw new Error('failed')
+      const data = await res.json()
+      setMissions(data.missions ?? [])
+    } catch {
+      setError(true)
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => { void load() }, [])
@@ -45,6 +53,21 @@ export default function MissionsPage() {
     return (
       <div className="flex min-h-[40vh] items-center justify-center">
         <p className="text-sm text-muted">Loading missions…</p>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex min-h-[40vh] flex-col items-center justify-center gap-4 text-center px-4">
+        <p className="text-3xl">😕</p>
+        <p className="text-sm text-muted">Couldn't load your missions right now.</p>
+        <button
+          onClick={() => void load()}
+          className="rounded-xl bg-brand px-5 py-2.5 text-sm font-bold text-white hover:opacity-90"
+        >
+          Try again
+        </button>
       </div>
     )
   }

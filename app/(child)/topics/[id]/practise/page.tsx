@@ -4,9 +4,13 @@ import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { FillBlank } from '@/components/games/FillBlank'
 import { NumberLine } from '@/components/games/NumberLine'
 import { EquationBalancer } from '@/components/games/EquationBalancer'
+import { DragDrop } from '@/components/games/DragDrop'
+import { SpeedRound } from '@/components/games/SpeedRound'
 import { rotateFillBlankItems } from '@/lib/adaptive'
 import type { NumberLineConfig } from '@/components/games/NumberLine'
 import type { EquationBalancerConfig } from '@/components/games/EquationBalancer'
+import type { DragDropConfig } from '@/components/games/DragDrop'
+import type { SpeedRoundConfig } from '@/components/games/SpeedRound'
 
 // RLS: topics_select_published (is_published=true)
 // RLS: practice_games_select_via_published_topic
@@ -51,7 +55,28 @@ export default async function PractisePage({ params }: { params: { id: string } 
     .eq('status', 'published')
     .maybeSingle<GameRow>()
 
-  if (!game) notFound()
+  if (!game) {
+    return (
+      <div className="space-y-5">
+        <nav className="flex items-center gap-2 text-sm text-muted" aria-label="breadcrumb">
+          <a href="/dashboard/child" className="hover:text-ink">Home</a>
+          <span aria-hidden>/</span>
+          <span className="font-medium text-ink">{topic.title}</span>
+        </nav>
+        <div className="rounded-2xl border border-black/5 bg-surface p-8 text-center space-y-3">
+          <p className="text-3xl">🎮</p>
+          <h1 className="font-heading text-xl font-bold text-ink">{topic.title}</h1>
+          <p className="text-sm text-muted">Practice activities for this topic are coming soon.</p>
+          <a
+            href={`/topics/${params.id}/quiz`}
+            className="inline-flex min-h-[48px] items-center rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white"
+          >
+            Skip to Quiz →
+          </a>
+        </div>
+      </div>
+    )
+  }
 
   const header = (
     <>
@@ -87,6 +112,24 @@ export default async function PractisePage({ params }: { params: { id: string } 
       <div className="space-y-5">
         {header}
         <EquationBalancer config={game.config_json as EquationBalancerConfig} topicId={params.id} />
+      </div>
+    )
+  }
+
+  if (game.game_type === 'drag_drop') {
+    return (
+      <div className="space-y-5">
+        {header}
+        <DragDrop config={game.config_json as DragDropConfig} topicId={params.id} />
+      </div>
+    )
+  }
+
+  if (game.game_type === 'speed_round') {
+    return (
+      <div className="space-y-5">
+        {header}
+        <SpeedRound config={game.config_json as SpeedRoundConfig} topicId={params.id} />
       </div>
     )
   }

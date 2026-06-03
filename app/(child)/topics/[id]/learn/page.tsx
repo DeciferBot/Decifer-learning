@@ -71,7 +71,28 @@ export default async function LearnPage({
     .eq('status', 'published')
     .maybeSingle<ContentRow>()
 
-  if (!content) notFound()
+  if (!content) {
+    return (
+      <div className="space-y-5">
+        <nav className="flex items-center gap-2 text-sm text-muted" aria-label="breadcrumb">
+          <a href="/dashboard/child" className="hover:text-ink">Home</a>
+          <span aria-hidden>/</span>
+          <span className="font-medium text-ink">{topic.title}</span>
+        </nav>
+        <div className="rounded-2xl border border-black/5 bg-surface p-8 text-center space-y-3">
+          <p className="text-3xl">📚</p>
+          <h1 className="font-heading text-xl font-bold text-ink">{topic.title}</h1>
+          <p className="text-sm text-muted">This lesson is being prepared — check back soon.</p>
+          <a
+            href="/dashboard/child"
+            className="inline-flex min-h-[48px] items-center rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white"
+          >
+            ← Back to Home
+          </a>
+        </div>
+      </div>
+    )
+  }
 
   // Skip the Practise step when no published practice_game exists for this topic.
   const { data: practice } = await supabase

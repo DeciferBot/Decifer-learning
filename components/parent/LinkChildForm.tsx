@@ -50,15 +50,15 @@ function LinkByEmailForm({ onLinked }: { onLinked: () => void }) {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
+  // Confirmation step: hold the resolved display name before committing the link
+  const [pendingLink, setPendingLink] = useState<{ email: string; displayName: string } | null>(null)
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function handleLookup(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError(null)
-    setSuccess(null)
-
     startTransition(async () => {
       try {
-        const res = await fetch('/api/family/link', {
+        const res = await fetch('/api/family/lookup-child', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ childEmail: email.trim() }),
@@ -68,17 +68,72 @@ function LinkByEmailForm({ onLinked }: { onLinked: () => void }) {
           setError(data.error ?? 'Something went wrong.')
           return
         }
-        setSuccess(`${data.displayName} is now linked to your account.`)
-        setEmail('')
-        onLinked()
+        setPendingLink({ email: email.trim(), displayName: data.displayName })
       } catch {
         setError('Something went wrong. Please try again.')
       }
     })
   }
 
+  function handleConfirm() {
+    if (!pendingLink) return
+    startTransition(async () => {
+      try {
+        const res = await fetch('/api/family/link', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ childEmail: pendingLink.email }),
+        })
+        const data = await res.json()
+        if (!res.ok) {
+          setError(data.error ?? 'Something went wrong.')
+          setPendingLink(null)
+          return
+        }
+        setSuccess(`${data.displayName} is now linked to your account.`)
+        setEmail('')
+        setPendingLink(null)
+        onLinked()
+      } catch {
+        setError('Something went wrong. Please try again.')
+        setPendingLink(null)
+      }
+    })
+  }
+
+  if (pendingLink) {
+    return (
+      <div className="space-y-4">
+        <div className="rounded-2xl border border-black/5 bg-surface p-5 text-center space-y-2">
+          <p className="text-3xl">👤</p>
+          <p className="font-semibold text-ink">Is this your child?</p>
+          <p className="text-lg font-bold text-maths">{pendingLink.displayName}</p>
+          <p className="text-xs text-muted">{pendingLink.email}</p>
+        </div>
+        <button
+          onClick={handleConfirm}
+          disabled={isPending}
+          className="flex h-12 w-full items-center justify-center rounded-lg bg-maths font-semibold text-white transition active:scale-[0.98] disabled:opacity-60"
+        >
+          {isPending ? 'Linking…' : 'Yes, link this account'}
+        </button>
+        <button
+          onClick={() => setPendingLink(null)}
+          className="flex h-10 w-full items-center justify-center rounded-lg border border-black/10 text-sm text-muted hover:text-ink"
+        >
+          No, go back
+        </button>
+        {error && (
+          <p role="alert" className="rounded-md bg-incorrect/10 px-3 py-2 text-sm text-incorrect">
+            {error}
+          </p>
+        )}
+      </div>
+    )
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-3">
+    <form onSubmit={handleLookup} className="space-y-3">
       <p className="text-sm text-muted">
         Your child needs their own Decifer account first. Ask them to sign up at{' '}
         <strong>decifer.app/register</strong> and choose &ldquo;Student&rdquo;. Once
@@ -113,7 +168,7 @@ function LinkByEmailForm({ onLinked }: { onLinked: () => void }) {
         disabled={isPending}
         className="flex h-12 w-full items-center justify-center rounded-lg bg-maths font-semibold text-white transition active:scale-[0.98] disabled:opacity-60"
       >
-        {isPending ? 'Linking…' : 'Link child account'}
+        {isPending ? 'Looking up…' : 'Find child account'}
       </button>
     </form>
   )

@@ -3,6 +3,7 @@
 // No fake data, no AI generation, no seed imports.
 
 import Link from 'next/link'
+import { buildParentActions } from '@/lib/parent-recommendations'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { getUserDisplayName } from '@/lib/auth/roles'
 import { getCurrentProfile } from '@/lib/profile'
@@ -63,7 +64,14 @@ export default async function ParentDashboardPage() {
         getChildWeeklyDigestSummary(child.profileId).catch(() => null),
         yearGroupId ? getCurriculumProgress(child.profileId, yearGroupId) : Promise.resolve([]),
       ])
-      return { child, progress, weakAreas, recommended, vault, digest, curriculum }
+      const actions = buildParentActions(
+        child.displayName,
+        weakAreas,
+        digest,
+        recommended,
+        child.streakDays,
+      )
+      return { child, progress, weakAreas, recommended, vault, digest, curriculum, actions }
     }),
   )
 
@@ -123,7 +131,7 @@ export default async function ParentDashboardPage() {
       )}
 
       {/* Child cards */}
-      {childData.map(({ child, progress, weakAreas, recommended, vault, digest, curriculum }) => (
+      {childData.map(({ child, progress, weakAreas, recommended, vault, digest, curriculum, actions }) => (
         <div
           key={child.profileId}
           className="rounded-2xl border border-black/5 bg-surface shadow-sm overflow-hidden"
@@ -203,6 +211,24 @@ export default async function ParentDashboardPage() {
               ) : progress.quizAttempts > 0 ? (
                 <p className="text-xs text-science font-medium">✓ No struggle areas yet</p>
               ) : null}
+
+              {/* NL recommendations — "Here's what to do" */}
+              {actions.length > 0 && (
+                <div className="rounded-xl border border-maths/30 bg-maths/5 px-3 py-2.5 space-y-2">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-maths">What to do</p>
+                  <ul className="space-y-2">
+                    {actions.map((action, i) => (
+                      <li key={i} className="flex items-start gap-2">
+                        <span className={[
+                          'mt-0.5 h-2 w-2 flex-none rounded-full',
+                          action.urgency === 'high' ? 'bg-incorrect' : action.urgency === 'medium' ? 'bg-lightning' : 'bg-correct',
+                        ].join(' ')} />
+                        <p className="text-xs text-ink leading-relaxed">{action.text}</p>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
               {/* Weekly digest */}
               {digest && (
