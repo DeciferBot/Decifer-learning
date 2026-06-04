@@ -104,7 +104,12 @@ check('06', 'Child vault status API does not return budget, categories, or physi
 
 check('07', 'Admin vault route requires admin role', () => {
   const src = read('app/api/admin/vault/requests/route.ts')
-  return src.includes("getUserRole(user) !== 'admin'") || src.includes("=== 'admin'")
+  // Accepts either direct role check or the requireAdminApi() guard helper
+  return (
+    src.includes("getUserRole(user) !== 'admin'") ||
+    src.includes("=== 'admin'") ||
+    src.includes('requireAdminApi')
+  )
 })
 
 // ── 8. Parent can only manage linked child rewards ────────────────────────────
@@ -117,9 +122,14 @@ check('08', 'Parent respond route verifies parent-child link (via requests.ts UN
 
 // ── 9. Admin queue is admin-only ──────────────────────────────────────────────
 
-check('09', 'Admin vault page checks admin role via getUserRole', () => {
+check('09', 'Admin vault page checks admin role via requireAdmin or getUserRole', () => {
   const src = read('app/dashboard/admin/vault/page.tsx')
-  return src.includes("getUserRole(user) !== 'admin'") || src.includes("getUserRole(user) === 'admin'")
+  // Accepts either direct role check or the requireAdmin() guard helper
+  return (
+    src.includes("getUserRole(user) !== 'admin'") ||
+    src.includes("getUserRole(user) === 'admin'") ||
+    src.includes('requireAdmin')
+  )
 })
 
 // ── 10. Reward eligibility consumes verified learning data ────────────────────
@@ -414,10 +424,12 @@ check('26', 'lib/vault/catalogue.ts has safety comment blocking child-facing imp
 check('27', 'Admin catalogue API routes require admin role', () => {
   const getRoute = read('app/api/admin/vault/catalogue/route.ts')
   const patchRoute = read('app/api/admin/vault/catalogue/[itemId]/route.ts')
-  return (
-    (getRoute.includes("getUserRole(user) !== 'admin'") || getRoute.includes("=== 'admin'")) &&
-    (patchRoute.includes("getUserRole(user) !== 'admin'") || patchRoute.includes("=== 'admin'"))
-  )
+  // Accepts either direct role check or the requireAdminApi() guard helper
+  const isAdminGated = (src) =>
+    src.includes("getUserRole(user) !== 'admin'") ||
+    src.includes("=== 'admin'") ||
+    src.includes('requireAdminApi')
+  return isAdminGated(getRoute) && isAdminGated(patchRoute)
 })
 
 // ── 28. price_pence not exposed in parent or child UI ────────────────────────

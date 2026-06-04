@@ -27,6 +27,10 @@
     "learning:autopilot:plan": "node --env-file=.env.local scripts/learning-autopilot-plan.mjs",
     "learning:autopilot:queue": "/root/pipeline-venv/bin/python3 scripts/learning-autopilot-queue.py",
     "learning:autopilot:run": "/root/pipeline-venv/bin/python3 scripts/learning-autopilot-run.py",
+    "vault:seed": "node --env-file=.env.local scripts/seed-vault-catalogue.mjs",
+    "vault:seed:activate": "node --env-file=.env.local scripts/seed-vault-catalogue.mjs --activate",
+    "vault:seed:dry": "node --env-file=.env.local scripts/seed-vault-catalogue.mjs --dry-run",
+    "verify-vault-safety": "node --env-file=.env.local scripts/verify-reward-vault-safety.mjs",
     "test": "vitest run",
     "test:watch": "vitest"
   },

@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 import Link from 'next/link'
 import { requireAdmin } from '@/lib/auth/admin-guard'
 import { getAllRequests, getVaultStats } from '@/lib/vault/admin'
+import { FulfilmentControls } from './FulfilmentControls'
 
 export const metadata = { title: 'Vault Admin — Decifer Learning' }
 
@@ -108,20 +109,23 @@ export default async function AdminVaultPage() {
                   <p className="text-xs text-ink">Reward: {r.rewardLabel}</p>
                 )}
                 {r.fulfilmentStatus && (
-                  <div className="flex items-center gap-2">
-                    <span className={`rounded-full px-2 py-0.5 text-xs font-bold capitalize ${FULFILMENT_COLOUR[r.fulfilmentStatus] ?? 'bg-black/5 text-muted'}`}>
-                      Fulfilment: {r.fulfilmentStatus}
-                    </span>
-                    {r.shopifyOrderUrl && (
-                      <a
-                        href={r.shopifyOrderUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs text-brand hover:underline"
-                      >
-                        Shopify ↗
-                      </a>
-                    )}
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className={`rounded-full px-2 py-0.5 text-xs font-bold capitalize ${FULFILMENT_COLOUR[r.fulfilmentStatus] ?? 'bg-black/5 text-muted'}`}>
+                        📦 {r.fulfilmentStatus}
+                      </span>
+                      {r.shopifyOrderUrl && (
+                        <a
+                          href={r.shopifyOrderUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-brand hover:underline"
+                        >
+                          Shopify ↗
+                        </a>
+                      )}
+                    </div>
+                    <FulfilmentControls requestId={r.id} currentStatus={r.fulfilmentStatus} />
                   </div>
                 )}
               </li>
