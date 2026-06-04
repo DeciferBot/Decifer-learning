@@ -1,89 +1,68 @@
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { getCurrentProfile } from '@/lib/profile'
-import { DiscoveryCard, type CardData } from '@/components/cards/DiscoveryCard'
-import { EmptyState } from '@/components/ui/EmptyState'
-import { Layers } from '@/components/ui/icons'
+import { CollectionGrid } from './CollectionGrid'
 
 export const metadata = { title: 'My Collection — Decifer Learning' }
 
 export default async function CollectionPage() {
   const supabase = createSupabaseServerClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
   if (!user) notFound()
 
   const profile = await getCurrentProfile(supabase, user.id)
   if (!profile) notFound()
 
-  // All published cards visible to this child (year-group-specific + shared)
+  // Published cards for this year group + global cards
   const { data: allCards } = await supabase
     .from('card_catalog')
-    .select('id, title, fact_text, rarity, year_group_id')
+    .select('id, title, fact_text, rarity, year_group_id, subject_id')
     .eq('status', 'published')
     .eq('is_fusion', false)
     .or(`year_group_id.eq.${profile.year_group_id ?? 'null'},year_group_id.is.null`)
     .order('rarity')
 
-  // Cards this child has collected
+  // Cards this child owns
   const { data: owned } = await supabase
     .from('child_collection')
     .select('card_id, quantity')
     .eq('profile_id', profile.id)
 
+  // Subject list for filter pills (only subjects that have cards)
+  const { data: subjectRows } = await supabase
+    .from('subjects')
+    .select('id, name, colour_token')
+    .order('name')
+
   const ownedSet = new Set((owned ?? []).map((r: { card_id: string }) => r.card_id))
-  const cards = (allCards ?? []) as (CardData & { year_group_id: string | null })[]
+  const cards = (allCards ?? []) as Array<{ id: string; title: string; fact_text: string; rarity: string; year_group_id: string | null; subject_id: string | null }>
   const collectedCount = cards.filter((c) => ownedSet.has(c.id)).length
 
-  const RARITY_ORDER = ['common', 'uncommon', 'rare', 'epic', 'legendary']
-  const sorted = [...cards].sort(
-    (a, b) => RARITY_ORDER.indexOf(a.rarity) - RARITY_ORDER.indexOf(b.rarity),
-  )
+  // Only include subjects that actually appear in the card pool
+  const cardSubjectIds = new Set(cards.map((c) => c.subject_id).filter(Boolean))
+  const subjects = (subjectRows ?? []).filter((s) => cardSubjectIds.has(s.id))
 
   return (
-    <section className="space-y-5">
-      <div>
-        <h1 className="font-heading text-2xl font-bold text-ink">My Collection</h1>
-        <p className="mt-1 text-sm text-muted">
-          {collectedCount} / {cards.length} cards discovered
-        </p>
-      </div>
+    <section>
+      <h1
+        className="mb-5 font-extrabold"
+        style={{
+          fontFamily: 'var(--font-display)',
+          fontSize: 'var(--fs-h1)',
+          color: 'var(--text-heading)',
+          letterSpacing: '-0.02em',
+        }}
+      >
+        My Collection
+      </h1>
 
-      {/* Progress bar */}
-      <div className="h-2 overflow-hidden rounded-full bg-black/5">
-        <div
-          className="h-full rounded-full bg-maths transition-all"
-          style={{ width: cards.length > 0 ? `${(collectedCount / cards.length) * 100}%` : '0%' }}
-        />
-      </div>
-
-      {cards.length === 0 ? (
-        <EmptyState
-          icon={<Layers className="w-10 h-10 text-muted" aria-hidden />}
-          heading="No cards yet"
-          body="Complete a quiz to earn your first Discovery Card. Every quiz you pass drops one."
-          action={
-            <Link
-              href="/dashboard"
-              className="flex h-12 items-center justify-center rounded-xl bg-brand px-6 font-semibold text-white transition-colors hover:bg-brand-600"
-            >
-              Go to my topics
-            </Link>
-          }
-        />
-      ) : (
-        <div className="grid grid-cols-2 gap-3">
-          {sorted.map((card) => (
-            <DiscoveryCard
-              key={card.id}
-              card={card}
-              collected={ownedSet.has(card.id)}
-            />
-          ))}
-        </div>
-      )}
+      <CollectionGrid
+        cards={cards}
+        ownedSet={ownedSet}
+        subjects={subjects}
+        totalCards={cards.length}
+        collectedCount={collectedCount}
+      />
     </section>
   )
 }

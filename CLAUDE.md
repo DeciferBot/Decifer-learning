@@ -121,6 +121,11 @@ OAK_API_KEY                   # Oak National Academy OpenAPI (OGL v3.0 content).
                               # Used by scripts/ingest-oak-questions.py + ingest-oak-chunks.py
                               # NEVER expose in any public web service or commit to git.
 
+# DigitalOcean
+DO_API_TOKEN                  # DO read/write API token — used for DO GenAI serverless inference
+                              # (Llama 3.3 70B for pipeline consensus/constitutional checks)
+                              # Endpoint: https://inference.do-ai.run/v1
+
 # Reward Vault Stage 3 — Shopify integration (optional; absent = manual fulfilment)
 SHOPIFY_STORE_DOMAIN          # e.g. yourstore.myshopify.com (no https://)
 SHOPIFY_ADMIN_ACCESS_TOKEN    # Shopify Admin API access token (Custom App → API credentials)

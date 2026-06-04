@@ -11,7 +11,7 @@ const TABS: { href: string; label: string; Icon: TabIcon }[] = [
   { href: '/dashboard/child', label: 'Home',      Icon: Home },
   { href: '/world-map',       label: 'World Map',  Icon: MapFold },
   { href: '/collection',      label: 'Cards',      Icon: LayoutGrid },
-  { href: '/customise',       label: 'Profile',    Icon: UserCircle },
+  { href: '/profile',          label: 'Profile',    Icon: UserCircle },
 ]
 
 export function BottomNav() {

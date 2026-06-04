@@ -1,0 +1,551 @@
+/* ═══════════════════════════════════════════════════════════════════
+   DECIFER LEARNING — DESIGN TOKEN DICTIONARY v2.0
+   "Where curious minds level up"
+   Light theme only · UK National Curriculum · KS2–KS4
+   ═══════════════════════════════════════════════════════════════════
+
+   HOW TO USE
+   ──────────
+   Import this file in every screen/component:
+     <link rel="stylesheet" href="/tokens.css">
+   Never hardcode a hex, px, or ms value that has a token equivalent.
+   If you need a new colour, define it in OKLCH — never invent raw hex.
+
+   FILE MAP
+   ────────
+   1.  Existing brand colours (non-negotiable — do not change)
+   2.  Extended semantic colours
+   3.  Rarity / gamification colours
+   4.  Text colours
+   5.  Surface & border colours
+   6.  Shadows & elevation
+   7.  Typography
+   8.  Spacing (4 px grid)
+   9.  Layout / radii
+   10. Z-index scale
+   11. Icon sizes
+   12. Motion — durations
+   13. Motion — easings
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+
+  /* ─────────────────────────────────────────────────────────
+     1. EXISTING BRAND COLOURS (non-negotiable)
+     ───────────────────────────────────────────────────────── */
+  --background:   #FAFBFF;   /* app shell bg — off-white, hint of blue      */
+  --surface:      #FFFFFF;   /* cards, modals, panels                        */
+
+  /* Subject accent colours */
+  --maths:        #6C9EFF;   /* cobalt-blue  — Number Jungle / Crystal Lab   */
+  --english:      #FF8FAB;   /* rose-pink    — Whispering Woods / Library    */
+  --science:      #52D9A0;   /* emerald-green — Discovery Cave / Elemental   */
+
+  /* Tier / difficulty badges */
+  --sprout:       #A8E6CF;   /* easiest tier — Sprout badge/chip             */
+  --explorer:     #74C0FC;   /* mid tier     — Explorer badge/chip           */
+  --lightning:    #FFD43B;   /* hardest tier — Lightning badge/chip          */
+
+  /* Gamification */
+  --points-gold:  #FFC107;   /* point totals, coin icons                     */
+  --correct:      #40C057;   /* correct answer feedback                      */
+  --incorrect:    #FF6B6B;   /* wrong answer feedback                        */
+
+  /* Text */
+  --text-primary: #2D3748;   /* all body copy — 11.8:1 on --background       */
+  --text-muted:   #666666;   /* captions, meta — 5.74:1 on --background (AA) */
+
+
+  /* ─────────────────────────────────────────────────────────
+     2. EXTENDED SEMANTIC COLOURS
+     ───────────────────────────────────────────────────────── */
+
+  /* Borders */
+  --border-default:   #E2E8F4;   /* subtle card borders — cool-tinted grey       */
+  --border-strong:    #CBD5E8;   /* hover / active borders                       */
+  --border-focus:     #4A7FD4;   /* keyboard + touch focus ring — 3.1:1 on white */
+
+  /* Overlay */
+  --overlay:          rgba(15, 23, 42, 0.60);   /* modal scrim — dark navy       */
+
+  /* Success */
+  --success:          #40C057;   /* alias of --correct for semantic use          */
+  --success-bg:       #ECFDF5;   /* light tint — success banners, passed cards   */
+  --success-bdr:      #A3E6B8;   /* success card border                          */
+
+  /* Error */
+  --error:            #FF6B6B;   /* alias of --incorrect for semantic use        */
+  --error-bg:         #FFF5F5;   /* light tint — error banners, wrong state      */
+  --error-bdr:        #FFBDBD;   /* error card border                            */
+
+  /* Warning — streak at risk, time pressure */
+  --warning:          #F59F00;   /* amber                                        */
+  --warning-bg:       #FFFBEB;   /* light tint                                   */
+  --warning-bdr:      #FFE08A;   /* warning card border                          */
+
+  /* Info — hints, tooltips, neutral information */
+  --info:             #1C7ED6;   /* medium blue                                  */
+  --info-bg:          #EBF5FF;   /* light tint                                   */
+  --info-bdr:         #A5C8F0;   /* info card border                             */
+
+
+  /* ─────────────────────────────────────────────────────────
+     3. RARITY / GAMIFICATION COLOURS
+     ───────────────────────────────────────────────────────── */
+
+  /* Discovery Card rarities */
+  --common:           #94A3B8;   /* grey       — most cards                      */
+  --common-bg:        #F1F5F9;
+  --common-bdr:       #CBD5E1;
+
+  --uncommon:         #22C55E;   /* green      */
+  --uncommon-bg:      #F0FDF4;
+  --uncommon-bdr:     #86EFAC;
+
+  --rare:             #3B82F6;   /* blue       */
+  --rare-bg:          #EFF6FF;
+  --rare-bdr:         #93C5FD;
+
+  --epic:             #A855F7;   /* violet     */
+  --epic-bg:          #FAF5FF;
+  --epic-bdr:         #D8B4FE;
+
+  --legendary:        #F59E0B;   /* gold       — use with gradient below         */
+  --legendary-bg:     #FFFBEB;
+  --legendary-bdr:    #FCD34D;
+  --legendary-gradient: linear-gradient(135deg, #F59E0B 0%, #FBBF24 40%, #FEF08A 60%, #F59E0B 100%);
+
+  /* Zone / Guardian */
+  --guardian:         #5C3B8B;   /* deep purple — boss UI, Zone Guardian only    */
+  --guardian-bg:      #F3EEFF;
+  --guardian-bdr:     #C4B0E8;
+  --guardian-dark:    #2D1B4E;   /* full-bleed dark bg for battle screen         */
+
+  /* XP / Streak */
+  --xp:               #FFC107;   /* alias of --points-gold                       */
+  --xp-bg:            #FFFBEB;
+  --streak:           #FF6B35;   /* flame orange — distinct from --incorrect     */
+  --streak-bg:        #FFF4EF;
+  --streak-at-risk:   #F59F00;   /* --warning colour — dim flame state           */
+
+  /* Additional subject colours (beyond core 3) */
+  --history:          #9B59B6;   /* violet-purple  — UK history curriculum       */
+  --history-bg:       #FAF5FF;
+  --history-bdr:      #D8B4FE;
+
+  --geography:        #F97316;   /* amber-orange   — geography curriculum        */
+  --geography-bg:     #FFF7ED;
+  --geography-bdr:    #FED7AA;
+
+
+  /* ─────────────────────────────────────────────────────────
+     4. TEXT COLOURS
+     ───────────────────────────────────────────────────────── */
+  --text-heading:     #1A202C;   /* headings — maximum contrast 15.3:1 on --bg   */
+  --text-body:        #2D3748;   /* body copy (alias of --text-primary)           */
+  --text-secondary:   #4A5568;   /* secondary body — 7.4:1 on --background       */
+  --text-muted:       #666666;   /* captions, timestamps — 5.74:1 on --background*/
+  --text-placeholder: #A0AEC0;   /* input placeholders — 2.9:1 (decorative ok)   */
+  --text-disabled:    #CBD5E0;   /* disabled labels                               */
+  --text-inverse:     #FFFFFF;   /* text on dark/coloured backgrounds             */
+  --text-on-maths:    #1A365D;   /* text on --maths blue chip                     */
+  --text-on-english:  #7B1C33;   /* text on --english pink chip                   */
+  --text-on-science:  #1A4731;   /* text on --science green chip                  */
+  --text-link:        #1C7ED6;   /* links — matches --info                        */
+  --text-link-hover:  #1558A8;
+
+
+  /* ─────────────────────────────────────────────────────────
+     5. SURFACE & BORDER COLOURS
+     ───────────────────────────────────────────────────────── */
+  --surface-raised:   #F7F9FF;   /* slightly raised from --background             */
+  --surface-sunken:   #EDF2FF;   /* input bg, tag bg — recessed feel              */
+  --surface-maths:    #EEF3FF;   /* maths-tinted surface                          */
+  --surface-english:  #FFF0F4;   /* english-tinted surface                        */
+  --surface-science:  #EDFDF5;   /* science-tinted surface                        */
+  --surface-guardian: #F3EEFF;   /* guardian-tinted surface                       */
+
+  --border-maths:     #B8D0FF;
+  --border-english:   #FFB3C6;
+  --border-science:   #86EFBE;
+
+  --divider:          #EDF2F7;   /* horizontal/vertical rule                      */
+
+
+  /* ─────────────────────────────────────────────────────────
+     6. SHADOWS & ELEVATION
+     ───────────────────────────────────────────────────────── */
+  /* Cool-tinted shadows (slight blue cast matches --background) */
+  --shadow-card:      0 1px 3px rgba(66, 100, 200, 0.08),
+                      0 1px 2px rgba(66, 100, 200, 0.04);   /* elevation-1        */
+
+  --shadow-hover:     0 4px 12px rgba(66, 100, 200, 0.12),
+                      0 2px 4px  rgba(66, 100, 200, 0.06);  /* elevation-2        */
+
+  --shadow-sticky:    0 2px 8px  rgba(66, 100, 200, 0.10),
+                      0 1px 3px  rgba(66, 100, 200, 0.06);  /* elevation-3        */
+
+  --shadow-elevated:  0 8px 24px rgba(66, 100, 200, 0.16),
+                      0 3px 8px  rgba(66, 100, 200, 0.08);  /* elevation-4 modals */
+
+  --shadow-toast:     0 12px 32px rgba(66, 100, 200, 0.18),
+                      0 4px 12px  rgba(66, 100, 200, 0.10); /* elevation-5 toasts */
+
+  --shadow-primary-btn: 0 4px 14px rgba(108, 158, 255, 0.40);  /* maths-tinted  */
+  --shadow-correct:   0 0 0 4px rgba(64, 192, 87, 0.25);        /* correct glow  */
+  --shadow-guardian:  0 8px 32px rgba(92, 59, 139, 0.35);       /* boss glow     */
+
+
+  /* ─────────────────────────────────────────────────────────
+     7. TYPOGRAPHY
+     ───────────────────────────────────────────────────────── */
+  --font-display:   'Nunito', system-ui, sans-serif;   /* headings, game UI, labels  */
+  --font-body:      'Inter', system-ui, sans-serif;    /* body copy, parent dashboard*/
+  --font-mono:      'JetBrains Mono', 'Fira Code', monospace;  /* maths expressions */
+
+  /* Google Fonts URL (for reference — load in HTML <head>):
+     https://fonts.googleapis.com/css2?
+       family=Nunito:wght@400;500;600;700;800;900&
+       family=Inter:wght@400;500;600;700&
+       family=JetBrains+Mono:wght@400;500&
+       display=swap
+  */
+
+  /* Type scale ─────────────────────────────────────────────
+     Format: font-size / line-height / weight / letter-spacing
+  ─────────────────────────────────────────────────────────── */
+
+  /* display-xl: Hero numbers, XP totals on celebration screens */
+  --fs-display-xl:   4.5rem;    /* 72px */
+  --lh-display-xl:   1.0;
+  --fw-display-xl:   900;
+  --ls-display-xl:   -0.03em;
+  --ff-display-xl:   var(--font-display);
+
+  /* display-lg: Zone Guardian HP, card rarity text */
+  --fs-display-lg:   3.5rem;    /* 56px */
+  --lh-display-lg:   1.1;
+  --fw-display-lg:   800;
+  --ls-display-lg:   -0.02em;
+  --ff-display-lg:   var(--font-display);
+
+  /* heading-1: Page titles */
+  --fs-h1:   2.25rem;   /* 36px */
+  --lh-h1:   1.15;
+  --fw-h1:   800;
+  --ls-h1:   -0.02em;
+  --ff-h1:   var(--font-display);
+
+  /* heading-2: Section headers, zone names */
+  --fs-h2:   1.75rem;   /* 28px */
+  --lh-h2:   1.2;
+  --fw-h2:   700;
+  --ls-h2:   -0.01em;
+  --ff-h2:   var(--font-display);
+
+  /* heading-3: Card titles, topic names */
+  --fs-h3:   1.375rem;  /* 22px */
+  --lh-h3:   1.3;
+  --fw-h3:   700;
+  --ls-h3:   0em;
+  --ff-h3:   var(--font-display);
+
+  /* heading-4: Widget headers on parent dashboard */
+  --fs-h4:   1.125rem;  /* 18px */
+  --lh-h4:   1.4;
+  --fw-h4:   600;
+  --ls-h4:   0em;
+  --ff-h4:   var(--font-body);
+
+  /* label-lg: Primary button text, tab bar labels */
+  --fs-label-lg:   1rem;      /* 16px */
+  --lh-label-lg:   1.4;
+  --fw-label-lg:   700;
+  --ls-label-lg:   0.01em;
+  --ff-label-lg:   var(--font-display);
+
+  /* label-md: Secondary button text, chip labels, badge names */
+  --fs-label-md:   0.875rem;  /* 14px */
+  --lh-label-md:   1.4;
+  --fw-label-md:   700;
+  --ls-label-md:   0.01em;
+  --ff-label-md:   var(--font-display);
+
+  /* label-sm: Meta text, timestamps, tier labels */
+  --fs-label-sm:   0.75rem;   /* 12px */
+  --lh-label-sm:   1.4;
+  --fw-label-sm:   600;
+  --ls-label-sm:   0.02em;
+  --ff-label-sm:   var(--font-display);
+
+  /* body-lg: Learn page body copy (child) */
+  --fs-body-lg:   1.125rem;   /* 18px */
+  --lh-body-lg:   1.7;
+  --fw-body-lg:   400;
+  --ls-body-lg:   0em;
+  --ff-body-lg:   var(--font-body);
+
+  /* body-md: Quiz question text (most-read text in the app) — min 16px */
+  --fs-body-md:   1rem;       /* 16px */
+  --lh-body-md:   1.65;
+  --fw-body-md:   400;
+  --ls-body-md:   0em;
+  --ff-body-md:   var(--font-body);
+
+  /* body-sm: Hint text, explanation text */
+  --fs-body-sm:   0.875rem;   /* 14px */
+  --lh-body-sm:   1.6;
+  --fw-body-sm:   400;
+  --ls-body-sm:   0em;
+  --ff-body-sm:   var(--font-body);
+
+  /* caption: Image captions, footer notes */
+  --fs-caption:   0.75rem;    /* 12px */
+  --lh-caption:   1.5;
+  --fw-caption:   400;
+  --ls-caption:   0em;
+  --ff-caption:   var(--font-body);
+
+  /* code: Maths expressions */
+  --fs-code:   0.875rem;      /* 14px */
+  --lh-code:   1.6;
+  --fw-code:   400;
+  --ls-code:   0em;
+  --ff-code:   var(--font-mono);
+
+
+  /* ─────────────────────────────────────────────────────────
+     8. SPACING  (4 px base grid)
+     ───────────────────────────────────────────────────────── */
+  --space-1:    4px;
+  --space-2:    8px;
+  --space-3:   12px;
+  --space-4:   16px;
+  --space-5:   20px;
+  --space-6:   24px;
+  --space-8:   32px;
+  --space-10:  40px;
+  --space-12:  48px;
+  --space-16:  64px;
+  --space-20:  80px;
+  --space-24:  96px;
+
+
+  /* ─────────────────────────────────────────────────────────
+     9. LAYOUT & RADII
+     ───────────────────────────────────────────────────────── */
+  --content-max-width:   428px;   /* iPhone 14 Pro Max — widest common phone     */
+  --panel-padding:        16px;   /* default horizontal padding at 375px          */
+  --panel-padding-lg:     24px;   /* horizontal padding at tablet+               */
+
+  --radius-card:     16px;   /* topic cards, activity cards, discovery cards      */
+  --radius-button:   12px;   /* all buttons (not pill)                            */
+  --radius-chip:      8px;   /* badges, chips, tier tags                          */
+  --radius-modal:    24px;   /* modals, bottom sheets                             */
+  --radius-avatar:   50%;    /* avatar images                                     */
+  --radius-input:    12px;   /* text inputs, selects                              */
+  --radius-pill:    999px;   /* pill buttons, tab bars, full-round tags           */
+  --radius-sm:        8px;   /* small elements                                    */
+  --radius-lg:       20px;   /* larger cards                                      */
+  --radius-xl:       28px;   /* hero cards                                        */
+
+  /* Breakpoints (for reference in media queries) */
+  --bp-mobile:   375px;
+  --bp-phablet:  428px;
+  --bp-tablet:   768px;
+  --bp-desktop: 1024px;
+
+
+  /* ─────────────────────────────────────────────────────────
+     10. Z-INDEX SCALE
+     ───────────────────────────────────────────────────────── */
+  --z-base:         0;
+  --z-raised:      10;    /* cards in hover state                                 */
+  --z-sticky:     100;    /* sticky headers, bottom tab bar                       */
+  --z-dropdown:   200;    /* dropdowns, floating menus                            */
+  --z-overlay:    300;    /* modal backdrop                                       */
+  --z-modal:      400;    /* modal, drawer content                                */
+  --z-toast:      500;    /* toasts, tooltips                                     */
+  --z-top:        999;    /* critical overlays, loading screens                   */
+
+
+  /* ─────────────────────────────────────────────────────────
+     11. ICON SIZES
+     ───────────────────────────────────────────────────────── */
+  --icon-xs:   16px;   /* inline icons, tight spaces                              */
+  --icon-sm:   20px;   /* secondary UI icons                                      */
+  --icon-md:   24px;   /* standard UI icons (default Lucide size)                 */
+  --icon-lg:   32px;   /* feature icons, empty states                             */
+  --icon-xl:   48px;   /* illustration-scale icons, guardian screen               */
+
+  /* All interactive icons must have a minimum 48×48px tap target.
+     Use padding: calc((48px - var(--icon-md)) / 2) to achieve this. */
+
+
+  /* ─────────────────────────────────────────────────────────
+     12. MOTION — DURATIONS
+     ───────────────────────────────────────────────────────── */
+  --duration-instant:   80ms;    /* tap feedback, border-colour swaps             */
+  --duration-fast:     150ms;    /* button states, chip toggles                   */
+  --duration-normal:   250ms;    /* card transitions, drawer open                 */
+  --duration-slow:     400ms;    /* page transitions, modal appear                */
+  --duration-dramatic: 800ms;    /* card reveal, boss appear, level-up            */
+
+
+  /* ─────────────────────────────────────────────────────────
+     13. MOTION — EASINGS
+     ───────────────────────────────────────────────────────── */
+  /* Elements that "pop" — correct answer tick, badge award */
+  --ease-out-back:    cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Character / avatar movements — springy, alive */
+  --ease-spring:      cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  /* Page transitions — symmetrical, smooth */
+  --ease-in-out:      cubic-bezier(0.45, 0.00, 0.55, 1.00);
+
+  /* Overlays entering — fast start, gentle land */
+  --ease-out-expo:    cubic-bezier(0.16, 1.00, 0.30, 1.00);
+
+  /* Generic ease out — shadows, fades */
+  --ease-out:         cubic-bezier(0.22, 1.00, 0.36, 1.00);
+
+
+  /* ─────────────────────────────────────────────────────────
+     0. BRAND — DECIFER ORANGE  (added after v2 token spec)
+        Primary action colour. Orange is Decifer's identity.
+        Subjects (maths/english/science) are content colours,
+        not the brand colour — keep them separate.
+     ───────────────────────────────────────────────────────── */
+  --brand:           #E8601C;   /* Decifer orange — primary CTA, logo, active nav  */
+  --brand-hover:     #D4551A;   /* Slightly darker on hover                        */
+  --brand-active:    #BF4A17;   /* Pressed state                                   */
+  --brand-light:     #FEE9DC;   /* Light tint                                      */
+  --brand-surf:      #FFF4EE;   /* Surface tint (v1 alias: --brand-surf)           */
+  --brand-surface:   #FFF4EE;   /* Same — v2 name                                  */
+  --brand-border:    #F5A47C;   /* Orange border                                   */
+  --brand-shadow:    rgba(232, 96, 28, 0.30);  /* CTA button drop shadow          */
+
+
+  /* ─────────────────────────────────────────────────────────
+     V1 BACKWARD-COMPAT ALIASES
+     Maps v1 token names used in existing prototypes → v2.
+     Do not use these names in new code — use v2 names.
+     ───────────────────────────────────────────────────────── */
+  --font:        var(--font-display);
+  --bg-app:      var(--background);
+  --bg-surface:  var(--surface);
+  --bg-raised:   var(--surface-raised);
+  --bg-subtle:   var(--surface-sunken);
+
+  --ink:         var(--text-primary);
+  --ink-2:       var(--text-secondary);
+  --ink-3:       var(--text-muted);
+  --ink-4:       var(--text-placeholder);
+  --ink-inv:     var(--text-inverse);
+
+  --bdr:         var(--border-default);
+  --bdr-faint:   var(--border-default);
+  --bdr-strong:  var(--border-strong);
+  --bdr-dashed:  var(--border-default);
+
+  --text-xs:     var(--fs-label-sm);
+  --text-sm:     var(--fs-body-sm);
+  --text-base:   var(--fs-body-md);
+  --text-md:     var(--fs-label-lg);
+  --text-lg:     var(--fs-h4);
+  --text-xl:     var(--fs-h3);
+  --text-2xl:    var(--fs-h2);
+  --text-3xl:    var(--fs-h1);
+  --text-4xl:    var(--fs-display-lg);
+
+  --sp-1:  var(--space-1);  --sp-2:  var(--space-2);  --sp-3:  var(--space-3);
+  --sp-4:  var(--space-4);  --sp-5:  var(--space-5);  --sp-6:  var(--space-6);
+  --sp-7:  var(--space-8);  --sp-8:  var(--space-8);  --sp-10: var(--space-10);
+  --sp-12: var(--space-12); --sp-14: var(--space-12); --sp-16: var(--space-16);
+
+  --r-sm:   var(--radius-sm);
+  --r-md:   var(--radius-card);
+  --r-lg:   var(--radius-lg);
+  --r-xl:   var(--radius-xl);
+  --r-2xl:  var(--radius-modal);
+  --r-pill: var(--radius-pill);
+
+  --dur-xs: var(--duration-instant);
+  --dur-sm: var(--duration-fast);
+  --dur-md: var(--duration-normal);
+  --dur-lg: var(--duration-slow);
+  --dur-xl: var(--duration-dramatic);
+
+  --sh-xs:    var(--shadow-card);
+  --sh-sm:    var(--shadow-card);
+  --sh-md:    var(--shadow-hover);
+  --sh-lg:    var(--shadow-elevated);
+  --sh-float: var(--shadow-elevated);
+
+  --warn:     var(--warning);
+  --warn-bg:  var(--warning-bg);
+  --warn-bdr: var(--warning-bdr);
+  --danger:   var(--error);
+  --danger-bg:  var(--error-bg);
+  --danger-bdr: var(--error-bdr);
+
+  --geo:     var(--geography);
+  --geo-bg:  var(--geography-bg);
+  --geo-bdr: var(--geography-bdr);
+
+  --maths-bg:    var(--surface-maths);
+  --maths-bdr:   var(--border-maths);
+  --english-bg:  var(--surface-english);
+  --english-bdr: var(--border-english);
+  --science-bg:  var(--science-bg);
+  --science-bdr: var(--border-science);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   GLOBAL BASE STYLES
+   (Opt-in by importing this file — not scoped, applies globally)
+   ═══════════════════════════════════════════════════════════════════ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--fs-body-md);
+  line-height: var(--lh-body-md);
+  color: var(--text-primary);
+  background: var(--background);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Focus visible — 3:1 contrast, never suppress */
+:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

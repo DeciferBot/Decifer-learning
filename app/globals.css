@@ -2,40 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #FAFBFF;
-  --surface: #FFFFFF;
-  /* Brand accent — aligned to DECIFER mark orange */
-  --brand: #F05A28;
-  --brand-50: #FEF0E8;
-  --brand-600: #CC4A21;
-  /* Subject colours */
-  --maths: #6C9EFF;
-  --english: #FF8FAB;
-  --science: #52D9A0;
-  /* Rarity / difficulty tiers */
-  --sprout: #A8E6CF;
-  --explorer: #74C0FC;
-  --lightning: #FFD43B;
-  /* Feedback & gamification */
-  --points-gold: #FFC107;
-  --correct: #40C057;
-  --incorrect: #FF6B6B;
-  /* Typography */
-  --text-primary: #2D3748;
-  --text-muted: #666666;
-  /* State colours */
-  --color-success: #0dc47c;
-  --color-warning: #f59e0b;
-  --color-error: #ef4444;
-  --color-info: #3b82f6;
-  /* Radius scale */
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
-  --radius-2xl: 1.5rem;
-}
+/* Design system tokens v2 — full dictionary */
+@import '../styles/tokens.css';
 
 html,
 body {
