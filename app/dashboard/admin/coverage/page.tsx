@@ -1,6 +1,7 @@
 // Phase 11A: Admin coverage dashboard — server component only.
 // Uses service role (admin client) only.
 // Admin protection is enforced by middleware at /dashboard/admin/*.
+export const dynamic = 'force-dynamic'
 
 import { createSupabaseAdminClient } from '@/lib/supabase/admin'
 

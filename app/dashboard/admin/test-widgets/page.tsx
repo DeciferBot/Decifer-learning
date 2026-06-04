@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 /**
  * Widget test page — NOT auth-gated, dev-only.
  * Renders all widget types with realistic test data.

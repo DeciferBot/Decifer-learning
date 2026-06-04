@@ -5,6 +5,7 @@
 // (lib/auth/admin-gate.ts). Middleware guarantees that any session-less request
 // reaching this layout is a valid gate-holder, so we allow it through and label
 // the chrome "Admin".
+export const dynamic = 'force-dynamic'
 
 import { redirect } from 'next/navigation'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
