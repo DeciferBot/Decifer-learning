@@ -198,8 +198,74 @@ export default async function ChildDashboardPage() {
         </div>
       )}
 
-      {/* ── Suggested next topic ────────────────────────────────────────── */}
-      {firstTopic && (
+      {/* ── Your card is waiting ─────────────────────────────────────────── */}
+      {firstTopic && firstTopic.hasQuiz && (
+        <Link
+          href={`/topics/${firstTopic.id}/quiz`}
+          className="block rounded-3xl overflow-hidden"
+          style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%)', border: '2px solid rgba(255,193,7,0.3)' }}
+        >
+          <div className="flex items-center gap-4 px-5 py-4">
+            {/* Card visual */}
+            <div className="relative flex-none">
+              <div
+                className="w-14 h-20 rounded-xl flex items-center justify-center text-3xl"
+                style={{ background: 'linear-gradient(135deg, #FFD43B22, #FFC10722)', border: '2px solid rgba(255,193,7,0.5)' }}
+              >
+                🃏
+              </div>
+              <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#FFD43B] flex items-center justify-center">
+                <span className="text-[8px] font-black text-black">!</span>
+              </div>
+            </div>
+
+            {/* Text */}
+            <div className="flex-1 min-w-0">
+              <p className="text-[11px] font-bold uppercase tracking-widest mb-0.5" style={{ color: '#FFD43B' }}>
+                Your card is waiting
+              </p>
+              <p className="font-heading font-extrabold text-white text-base leading-snug">
+                Pass the {firstTopic.title} quiz
+              </p>
+              <p className="text-xs mt-1" style={{ color: 'rgba(255,255,255,0.6)' }}>
+                Score 70%+ → guaranteed Discovery Card 🎁
+              </p>
+            </div>
+
+            {/* Arrow */}
+            <div
+              className="flex-none w-9 h-9 rounded-full flex items-center justify-center font-bold text-black text-base"
+              style={{ background: '#FFD43B' }}
+            >
+              →
+            </div>
+          </div>
+
+          {/* Progress bar — shows collection momentum */}
+          <div className="px-5 pb-4">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[10px] font-semibold" style={{ color: 'rgba(255,255,255,0.45)' }}>
+                Your collection
+              </span>
+              <span className="text-[10px] font-bold" style={{ color: 'rgba(255,255,255,0.7)' }}>
+                {collectionCount} card{collectionCount !== 1 ? 's' : ''} so far
+              </span>
+            </div>
+            <div className="h-1.5 rounded-full w-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.12)' }}>
+              <div
+                className="h-full rounded-full"
+                style={{
+                  width: `${Math.min(100, ((collectionCount % 10) / 10) * 100)}%`,
+                  background: 'linear-gradient(90deg, #FFD43B, #FFA94D)',
+                }}
+              />
+            </div>
+          </div>
+        </Link>
+      )}
+
+      {/* ── Suggested next topic (no quiz available) ─────────────────────── */}
+      {firstTopic && !firstTopic.hasQuiz && (
         <div className="rounded-2xl bg-brand-50 p-5">
           <p className="mb-1 text-xs font-bold uppercase tracking-widest text-brand">
             Continue learning
@@ -207,10 +273,7 @@ export default async function ChildDashboardPage() {
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="font-heading font-bold text-ink">{firstTopic.title}</p>
-              <p className="text-xs text-muted flex items-center gap-1">
-                {firstTopic.subjects.name}
-                {firstTopic.hasQuiz && <> · <Layers className="w-3.5 h-3.5 inline" aria-hidden /> quiz to win a card</>}
-              </p>
+              <p className="text-xs text-muted">{firstTopic.subjects.name}</p>
             </div>
             <Link
               href={`/topics/${firstTopic.id}/learn`}

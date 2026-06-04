@@ -143,6 +143,23 @@ export default async function QuizPage({ params }: { params: { id: string } }) {
 
       <h1 className="font-heading text-2xl font-bold text-ink">{topic.title} — Quiz</h1>
 
+      {/* Reward promise — shown before quiz starts */}
+      <div
+        className="flex items-center gap-3 rounded-2xl px-4 py-3"
+        style={{ background: 'linear-gradient(90deg, #1a1a2e, #0f3460)', border: '1.5px solid rgba(255,193,7,0.35)' }}
+      >
+        <span className="text-2xl flex-none">🃏</span>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-extrabold text-white font-heading">Score 70%+ → win a Discovery Card</p>
+          <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.55)' }}>
+            Guaranteed reward — every quiz pass earns a card
+          </p>
+        </div>
+        <span className="flex-none text-xs font-bold px-2 py-1 rounded-full" style={{ background: 'rgba(255,193,7,0.2)', color: '#FFD43B' }}>
+          🎁 Free
+        </span>
+      </div>
+
       <QuizShell questions={questions} topicId={params.id} topicTitle={topic.title} initialShields={initialShields} />
     </div>
   )

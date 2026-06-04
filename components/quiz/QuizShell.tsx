@@ -461,7 +461,16 @@ export function QuizShell({
           </p>
 
           {submitting ? (
-            <p className="mt-4 text-sm text-muted">Saving results…</p>
+            <div className="mt-4 space-y-2 text-center">
+              {passed ? (
+                <>
+                  <p className="text-2xl animate-pulse">🃏</p>
+                  <p className="text-sm font-bold" style={{ color: '#FFD43B' }}>Opening your Discovery Card…</p>
+                </>
+              ) : (
+                <p className="text-sm text-muted">Saving results…</p>
+              )}
+            </div>
           ) : submittedOffline ? (
             <p className="mt-4 text-sm text-muted">
               Saved offline — your points will sync when you reconnect.
