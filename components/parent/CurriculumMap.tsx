@@ -9,6 +9,7 @@
  * Desktop: 3-column topic card grid per subject.
  */
 
+import { useState } from 'react'
 import type { CurriculumSubject, CurriculumTopic } from '@/lib/parent-dashboard'
 
 // ─── canonical subject order ─────────────────────────────────────────────────
@@ -114,11 +115,36 @@ function SubjectLane({ subject }: { subject: CurriculumSubject }) {
 }
 
 // ─── Weak areas ───────────────────────────────────────────────────────────────
-function WeakAreasPanel({ subjects }: { subjects: CurriculumSubject[] }) {
+function WeakAreasPanel({ subjects, childProfileId }: { subjects: CurriculumSubject[]; childProfileId?: string }) {
   const weak = subjects.flatMap((s) =>
     s.topics.filter((t) => t.progressStatus === 'completed' && (t.lastScore ?? 1) < 0.70).map((t) => ({ ...t, subjectName: s.subjectName }))
   )
+  const [assignedIds, setAssignedIds] = useState<Set<string>>(() => new Set(weak.filter((t) => t.isAssigned).map((t) => t.topicId)))
+  const [loadingId, setLoadingId] = useState<string | null>(null)
+
   if (weak.length === 0) return null
+
+  async function toggleAssign(topicId: string) {
+    if (!childProfileId) return
+    const isAssigned = assignedIds.has(topicId)
+    setLoadingId(topicId)
+    try {
+      const method = isAssigned ? 'DELETE' : 'POST'
+      await fetch('/api/parent/assign-topic', {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ childProfileId, topicId }),
+      })
+      setAssignedIds((prev) => {
+        const next = new Set(prev)
+        isAssigned ? next.delete(topicId) : next.add(topicId)
+        return next
+      })
+    } finally {
+      setLoadingId(null)
+    }
+  }
+
   return (
     <div className="mt-6 rounded-2xl border-2 border-[#FF6B6B]/25 bg-[#FFF5F5] p-4">
       <div className="flex items-center gap-2 mb-3">
@@ -126,9 +152,14 @@ function WeakAreasPanel({ subjects }: { subjects: CurriculumSubject[] }) {
         <h3 className="font-extrabold text-[#B91C1C] text-xs tracking-widest uppercase">Needs support</h3>
         <span className="ml-auto text-xs text-[#B91C1C]/70 bg-[#FF6B6B]/15 px-2 py-0.5 rounded-full font-semibold">{weak.length} topic{weak.length !== 1 ? 's' : ''}</span>
       </div>
+      {childProfileId && (
+        <p className="mb-3 text-[11px] text-[#B91C1C]/70">Tap 📌 to pin a topic for your child — it appears on their dashboard as a focus area.</p>
+      )}
       <div className="flex flex-col gap-1.5">
         {weak.map((t) => {
           const c = col(t.subjectName)
+          const assigned = assignedIds.has(t.topicId)
+          const loading = loadingId === t.topicId
           return (
             <div key={t.topicId} className="flex items-center gap-3 bg-white rounded-xl px-3 py-2.5 border border-[#FF6B6B]/15">
               <span className={`w-2 h-2 rounded-full flex-shrink-0 ${c.bg}`} />
@@ -137,6 +168,20 @@ function WeakAreasPanel({ subjects }: { subjects: CurriculumSubject[] }) {
                 <p className={`text-[10px] ${c.text} font-medium`}>{t.subjectName}</p>
               </div>
               <span className="text-sm font-bold text-[#B91C1C]">{Math.round((t.lastScore ?? 0) * 100)}%</span>
+              {childProfileId && (
+                <button
+                  onClick={() => toggleAssign(t.topicId)}
+                  disabled={loading}
+                  title={assigned ? 'Remove focus' : 'Assign for review'}
+                  className={`min-w-[48px] min-h-[48px] flex items-center justify-center rounded-xl border text-sm font-bold transition-colors ${
+                    assigned
+                      ? 'border-[#FF9F43] bg-[#FF9F43]/15 text-[#FF9F43]'
+                      : 'border-black/10 bg-white text-muted hover:bg-[#FF9F43]/10 hover:border-[#FF9F43] hover:text-[#FF9F43]'
+                  } ${loading ? 'opacity-50' : ''}`}
+                >
+                  {loading ? '…' : assigned ? '📌' : '＋'}
+                </button>
+              )}
             </div>
           )
         })}
@@ -167,7 +212,7 @@ function Legend() {
 }
 
 // ─── Main export ──────────────────────────────────────────────────────────────
-export function CurriculumMap({ subjects }: { subjects: CurriculumSubject[] }) {
+export function CurriculumMap({ subjects, childProfileId }: { subjects: CurriculumSubject[]; childProfileId?: string }) {
   const sorted = sortSubjects(subjects)
   return (
     <div className="w-full">
@@ -178,7 +223,7 @@ export function CurriculumMap({ subjects }: { subjects: CurriculumSubject[] }) {
       <div className="flex flex-col gap-6">
         {sorted.map((s) => <SubjectLane key={s.subjectId} subject={s} />)}
       </div>
-      <WeakAreasPanel subjects={sorted} />
+      <WeakAreasPanel subjects={sorted} childProfileId={childProfileId} />
     </div>
   )
 }

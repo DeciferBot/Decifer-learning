@@ -101,6 +101,8 @@ export default async function GuardianPage({ params }: { params: { zoneId: strin
         backLabel="Back to Map"
         winMessage="Guardian defeated!"
         initialShields={0}
+        isGuardian={true}
+        zoneName={zone.name}
       />
     </div>
   )

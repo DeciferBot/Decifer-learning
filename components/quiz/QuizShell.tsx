@@ -14,6 +14,7 @@ import { ReflectionPrompt } from './ReflectionPrompt'
 import type { DroppedCard, EarnedBadge } from '@/app/api/quiz/submit/route'
 import { DifficultyPicker, type DifficultyChoice } from './DifficultyPicker'
 import MathText from '@/components/ui/MathText'
+import { GuardianVictoryScreen } from './GuardianVictoryScreen'
 
 // Points awarded per attempt number (1-indexed). Exhausting all attempts = 0.
 const POINTS_BY_ATTEMPT = [3, 2, 1] as const
@@ -94,6 +95,8 @@ export function QuizShell({
   backHref = '/dashboard/child',
   backLabel = 'Back to Home',
   winMessage = 'Topic complete!',
+  isGuardian = false,
+  zoneName = '',
 }: {
   questions: QuizQuestion[]
   topicId: string | null
@@ -103,6 +106,8 @@ export function QuizShell({
   backHref?: string
   backLabel?: string
   winMessage?: string
+  isGuardian?: boolean
+  zoneName?: string
 }) {
   // Difficulty selection — shown before quiz starts
   const [difficulty, setDifficulty] = useState<DifficultyChoice | null>(null)
@@ -363,6 +368,35 @@ export function QuizShell({
         </button>
       </motion.div>
     )
+  }
+
+  // ── Guardian victory screen ───────────────────────────────────────────────
+  if (done && isGuardian) {
+    const passed = Math.round((questionsCorrect / activeQuestions.length) * 100) >= 70
+    if (passed && submitResult) {
+      return (
+        <GuardianVictoryScreen
+          zoneName={zoneName}
+          score={questionsCorrect}
+          total={activeQuestions.length}
+          points={submitResult.points ?? 0}
+          totalPoints={submitResult.totalPoints ?? 0}
+          streakDays={submitResult.streakDays ?? 0}
+          droppedCard={submitResult.droppedCard ?? null}
+          newBadges={submitResult.newBadges ?? []}
+          backHref={backHref}
+        />
+      )
+    }
+    if (passed && submitting) {
+      return (
+        <div className="rounded-2xl border border-black/5 bg-surface p-8 text-center shadow-sm">
+          <div className="mb-3 text-5xl">⚔️</div>
+          <h2 className="font-heading text-2xl font-bold text-ink">Guardian Defeated!</h2>
+          <p className="mt-4 text-sm text-muted">Saving results…</p>
+        </div>
+      )
+    }
   }
 
   // ── Quiz done → result screen ─────────────────────────────────────────────

@@ -287,7 +287,7 @@ export default async function ParentDashboardPage() {
             {/* RIGHT: curriculum map */}
             <div className="flex-1 min-w-0 px-5 py-4 border-t border-black/5 lg:border-t-0">
               {curriculum.length > 0
-                ? <CurriculumMap subjects={curriculum} />
+                ? <CurriculumMap subjects={curriculum} childProfileId={child.profileId} />
                 : <p className="text-sm text-muted">Curriculum map will appear once your child starts topics.</p>
               }
             </div>
