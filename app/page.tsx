@@ -322,7 +322,7 @@ export default function Home({
               Example topics
             </h2>
             <p className="mb-2 text-center text-sm text-muted">
-              Years 1 to 11. Maths, English, and Science.
+              Years 1 to 11. Maths, English, Science, History, and Geography.
             </p>
             <p className="mb-10 text-center text-xs text-muted">
               Each topic includes a guided lesson, practice exercises, and a quiz. Your child sees only verified, published content.
@@ -378,10 +378,10 @@ export default function Home({
                 What is available today
               </p>
               <h2 className="mb-4 font-heading text-xl font-bold text-ink md:text-2xl">
-                All three subjects. Years 1 to 11. Live now.
+                Five subjects. Years 1 to 11. Live now.
               </h2>
               <p className="mx-auto mb-6 max-w-lg text-sm leading-relaxed text-muted">
-                Maths, English, and Science are fully available from Year 1 to Year 11. Every topic has passed the six-stage quality process. Your child will only ever see content that is verified and ready.
+                Maths, English, Science, History, and Geography are fully available from Year 1 to Year 11. Every topic has passed the six-stage quality process. Your child will only ever see content that is verified and ready.
               </p>
               <div className="flex flex-wrap justify-center gap-3 text-sm">
                 <span className="flex items-center gap-1.5 rounded-full bg-maths/10 px-4 py-1.5 font-semibold text-ink">
@@ -392,6 +392,12 @@ export default function Home({
                 </span>
                 <span className="flex items-center gap-1.5 rounded-full bg-science/10 px-4 py-1.5 font-semibold text-ink">
                   <Check className="w-4 h-4" aria-hidden /> Science: Years 1 to 11
+                </span>
+                <span className="flex items-center gap-1.5 rounded-full bg-surface border border-gray-200 px-4 py-1.5 font-semibold text-ink">
+                  <Check className="w-4 h-4" aria-hidden /> History: Years 1 to 11
+                </span>
+                <span className="flex items-center gap-1.5 rounded-full bg-surface border border-gray-200 px-4 py-1.5 font-semibold text-ink">
+                  <Check className="w-4 h-4" aria-hidden /> Geography: Years 1 to 11
                 </span>
               </div>
             </div>
@@ -540,7 +546,7 @@ const LEARNING_INTELLIGENCE_CARDS: Array<{ Icon: Icon; title: string; body: stri
   {
     Icon: MapFold,
     title: 'Progress by subject',
-    body: 'See which topics your child has started, completed, and revisited across Maths, English, and Science. Based on their actual topic progress and quiz attempts.',
+    body: 'See which topics your child has started, completed, and revisited across all five subjects. Based on their actual topic progress and quiz attempts.',
     example: '"Completed 6 of 14 Maths topics. Last active 2 days ago."',
   },
   {
