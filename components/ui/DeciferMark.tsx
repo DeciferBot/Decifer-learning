@@ -1,12 +1,11 @@
-// Two opposing dialogue brackets — the DECIFER master mark.
-// Left bracket offset up, right bracket offset down. Both orange.
-// ViewBox 40×32: 10% vertical offset (2 units each side of centre).
+// Two offset angle brackets — the DECIFER master mark.
+// ViewBox 0 0 120 120 per master brand guide. Ember #FB5A24, strokeWidth 13.
 
-export const MARK_ORANGE = '#F05A28'
+export const EMBER = '#FB5A24'
 
 type MarkSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 
-const HEIGHT: Record<MarkSize, number> = {
+const SIZE: Record<MarkSize, number> = {
   xs: 14,
   sm: 18,
   md: 22,
@@ -24,33 +23,32 @@ export interface DeciferMarkProps {
 
 export function DeciferMark({
   size = 'md',
-  color = MARK_ORANGE,
+  color = EMBER,
   className = '',
   standalone = false,
 }: DeciferMarkProps) {
-  const h = HEIGHT[size]
-  const w = Math.round(h * 40 / 32)
+  const px = SIZE[size]
 
   const svg = (
     <svg
-      width={w}
-      height={h}
-      viewBox="0 0 40 32"
+      width={px}
+      height={px}
+      viewBox="0 0 120 120"
       fill="none"
       aria-hidden={!standalone}
       className={className}
     >
-      <polyline
-        points="13,5 5,15 13,25"
+      <path
+        d="M46 18L16 54L46 90"
         stroke={color}
-        strokeWidth="2.5"
+        strokeWidth="13"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <polyline
-        points="27,7 35,17 27,27"
+      <path
+        d="M74 30L104 66L74 102"
         stroke={color}
-        strokeWidth="2.5"
+        strokeWidth="13"
         strokeLinecap="round"
         strokeLinejoin="round"
       />

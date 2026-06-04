@@ -20,7 +20,7 @@ const FAMILY_FEATURES = [
   'All subjects: Maths, English, Science',
   'All year groups — Year 1 to Year 11',
   'Unlimited topics and quizzes',
-  'Parent dashboard with weak-area insights',
+  'Learning map showing strengths and where to focus',
   'Screen-time controls',
   'Spaced-repetition review scheduling',
   'Daily Mystery Challenge',

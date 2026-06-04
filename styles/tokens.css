@@ -33,8 +33,26 @@
   /* ─────────────────────────────────────────────────────────
      1. EXISTING BRAND COLOURS (non-negotiable)
      ───────────────────────────────────────────────────────── */
-  --background:   #FAFBFF;   /* app shell bg — off-white, hint of blue      */
+  /* ── MASTER BRAND TOKENS (locked — never change) ─────────── */
+  --ember:        #FB5A24;   /* primary brand — Ember                        */
+  --ember-bright: #FF7A4D;   /* hover state                                  */
+  --ember-deep:   #D63F11;   /* pressed state                                */
+  --azure:        #3E8EFF;   /* data / secondary actions                     */
+  --violet:       #9B7CFF;   /* AI-generated / synthesis outputs             */
+
+  /* ── LEARNING ADAPTATION LAYER ────────────────────────────── */
+  --background:   #FDF8F2;   /* warm paper — never clinical white            */
   --surface:      #FFFFFF;   /* cards, modals, panels                        */
+  --surface2:     #F7F2EB;   /* slightly raised surface                      */
+  --surface3:     #EDE7DC;   /* sunken / recessed surface                    */
+
+  /* Learning accent palette */
+  --fig:          #FDD868;   /* rewards · streaks · badges — never Ember     */
+  --fig-deep:     #E6BC2A;
+  --teal:         #2EC4A0;   /* progress bars · mastery — calm confidence    */
+  --teal-light:   rgba(46,196,160,.12);
+  --rose:         #F97DA8;   /* encouragement · wrong answers — never red    */
+  --sky:          #5BB8FF;   /* curiosity / explore states                   */
 
   /* Subject accent colours */
   --maths:        #6C9EFF;   /* cobalt-blue  — Number Jungle / Crystal Lab   */
@@ -46,14 +64,19 @@
   --explorer:     #74C0FC;   /* mid tier     — Explorer badge/chip           */
   --lightning:    #FFD43B;   /* hardest tier — Lightning badge/chip          */
 
-  /* Gamification */
-  --points-gold:  #FFC107;   /* point totals, coin icons                     */
-  --correct:      #40C057;   /* correct answer feedback                      */
-  --incorrect:    #FF6B6B;   /* wrong answer feedback                        */
+  /* Semantic scale (master brand — domain-adaptive) */
+  --up:           #29D17C;   /* mastered / positive                          */
+  --points-gold:  #F5A524;   /* in progress / caution                        */
+  --down:         #F05452;   /* struggling — data/analytics ONLY             */
+  /* For child-facing copy, use --rose instead of --down */
 
-  /* Text */
-  --text-primary: #2D3748;   /* all body copy — 11.8:1 on --background       */
-  --text-muted:   #666666;   /* captions, meta — 5.74:1 on --background (AA) */
+  /* Aliases for existing code */
+  --correct:      #29D17C;   /* correct answer feedback                      */
+  --incorrect:    #F97DA8;   /* wrong answer feedback — rose, not red        */
+
+  /* Text (warm — Learning adaptation) */
+  --text-primary: #1F1A14;   /* main ink — warm dark                         */
+  --text-muted:   #9A8E82;   /* captions, meta — ink-3                       */
 
 
   /* ─────────────────────────────────────────────────────────
@@ -61,20 +84,20 @@
      ───────────────────────────────────────────────────────── */
 
   /* Borders */
-  --border-default:   #E2E8F4;   /* subtle card borders — cool-tinted grey       */
-  --border-strong:    #CBD5E8;   /* hover / active borders                       */
-  --border-focus:     #4A7FD4;   /* keyboard + touch focus ring — 3.1:1 on white */
+  --border-default:   rgba(31,26,20,.07);   /* warm subtle border                  */
+  --border-strong:    rgba(31,26,20,.13);   /* hover / active borders               */
+  --border-focus:     #FB5A24;             /* ember focus ring                      */
 
   /* Overlay */
   --overlay:          rgba(15, 23, 42, 0.60);   /* modal scrim — dark navy       */
 
   /* Success */
-  --success:          #40C057;   /* alias of --correct for semantic use          */
+  --success:          #29D17C;   /* mastered / positive (--up)                   */
   --success-bg:       #ECFDF5;   /* light tint — success banners, passed cards   */
   --success-bdr:      #A3E6B8;   /* success card border                          */
 
   /* Error */
-  --error:            #FF6B6B;   /* alias of --incorrect for semantic use        */
+  --error:            #F05452;   /* struggling — data/analytics use (--down)     */
   --error-bg:         #FFF5F5;   /* light tint — error banners, wrong state      */
   --error-bdr:        #FFBDBD;   /* error card border                            */
 
@@ -141,25 +164,25 @@
   /* ─────────────────────────────────────────────────────────
      4. TEXT COLOURS
      ───────────────────────────────────────────────────────── */
-  --text-heading:     #1A202C;   /* headings — maximum contrast 15.3:1 on --bg   */
-  --text-body:        #2D3748;   /* body copy (alias of --text-primary)           */
-  --text-secondary:   #4A5568;   /* secondary body — 7.4:1 on --background       */
-  --text-muted:       #666666;   /* captions, timestamps — 5.74:1 on --background*/
-  --text-placeholder: #A0AEC0;   /* input placeholders — 2.9:1 (decorative ok)   */
-  --text-disabled:    #CBD5E0;   /* disabled labels                               */
+  --text-heading:     #1F1A14;   /* headings — warm dark (Learning ink)           */
+  --text-body:        #1F1A14;   /* body copy — ink                               */
+  --text-secondary:   #5C5147;   /* secondary — ink-2                             */
+  --text-muted:       #9A8E82;   /* captions, timestamps — ink-3                  */
+  --text-placeholder: #C4B8AC;   /* input placeholders                            */
+  --text-disabled:    #D4C8BC;   /* disabled labels                               */
   --text-inverse:     #FFFFFF;   /* text on dark/coloured backgrounds             */
   --text-on-maths:    #1A365D;   /* text on --maths blue chip                     */
   --text-on-english:  #7B1C33;   /* text on --english pink chip                   */
   --text-on-science:  #1A4731;   /* text on --science green chip                  */
-  --text-link:        #1C7ED6;   /* links — matches --info                        */
-  --text-link-hover:  #1558A8;
+  --text-link:        #3E8EFF;   /* links — azure                                 */
+  --text-link-hover:  #1C6FD4;
 
 
   /* ─────────────────────────────────────────────────────────
      5. SURFACE & BORDER COLOURS
      ───────────────────────────────────────────────────────── */
-  --surface-raised:   #F7F9FF;   /* slightly raised from --background             */
-  --surface-sunken:   #EDF2FF;   /* input bg, tag bg — recessed feel              */
+  --surface-raised:   #F7F2EB;   /* slightly raised — warm tint                   */
+  --surface-sunken:   #EDE7DC;   /* input bg, tag bg — recessed feel              */
   --surface-maths:    #EEF3FF;   /* maths-tinted surface                          */
   --surface-english:  #FFF0F4;   /* english-tinted surface                        */
   --surface-science:  #EDFDF5;   /* science-tinted surface                        */
@@ -169,7 +192,7 @@
   --border-english:   #FFB3C6;
   --border-science:   #86EFBE;
 
-  --divider:          #EDF2F7;   /* horizontal/vertical rule                      */
+  --divider:          rgba(31,26,20,.07);   /* warm divider                        */
 
 
   /* ─────────────────────────────────────────────────────────
@@ -191,24 +214,22 @@
   --shadow-toast:     0 12px 32px rgba(66, 100, 200, 0.18),
                       0 4px 12px  rgba(66, 100, 200, 0.10); /* elevation-5 toasts */
 
-  --shadow-primary-btn: 0 4px 14px rgba(108, 158, 255, 0.40);  /* maths-tinted  */
-  --shadow-correct:   0 0 0 4px rgba(64, 192, 87, 0.25);        /* correct glow  */
+  --shadow-primary-btn: 0 4px 14px rgba(251, 90, 36, 0.28);     /* ember-tinted  */
+  --shadow-correct:   0 0 0 4px rgba(46, 196, 160, 0.25);       /* teal glow     */
   --shadow-guardian:  0 8px 32px rgba(92, 59, 139, 0.35);       /* boss glow     */
 
 
   /* ─────────────────────────────────────────────────────────
      7. TYPOGRAPHY
      ───────────────────────────────────────────────────────── */
-  --font-display:   'Nunito', system-ui, sans-serif;   /* headings, game UI, labels  */
-  --font-body:      'Inter', system-ui, sans-serif;    /* body copy, parent dashboard*/
-  --font-mono:      'JetBrains Mono', 'Fira Code', monospace;  /* maths expressions */
+  /* Master brand typefaces (locked) */
+  --font-display:   var(--font-geist-sans), system-ui, sans-serif;         /* interface, headings, body */
+  --font-body:      var(--font-geist-sans), system-ui, sans-serif;         /* body copy                 */
+  --font-mono:      var(--font-geist-mono), ui-monospace, monospace;  /* numbers, data, eyebrows   */
+  --font-serif:     var(--font-instrument-serif), Georgia, serif;     /* human insight only        */
 
-  /* Google Fonts URL (for reference — load in HTML <head>):
-     https://fonts.googleapis.com/css2?
-       family=Nunito:wght@400;500;600;700;800;900&
-       family=Inter:wght@400;500;600;700&
-       family=JetBrains+Mono:wght@400;500&
-       display=swap
+  /* Loaded in app/layout.tsx via next/font/google:
+       Geist (sans) · Geist Mono · Instrument Serif (italic only)
   */
 
   /* Type scale ─────────────────────────────────────────────
@@ -417,14 +438,14 @@
         Subjects (maths/english/science) are content colours,
         not the brand colour — keep them separate.
      ───────────────────────────────────────────────────────── */
-  --brand:           #E8601C;   /* Decifer orange — primary CTA, logo, active nav  */
-  --brand-hover:     #D4551A;   /* Slightly darker on hover                        */
-  --brand-active:    #BF4A17;   /* Pressed state                                   */
-  --brand-light:     #FEE9DC;   /* Light tint                                      */
-  --brand-surf:      #FFF4EE;   /* Surface tint (v1 alias: --brand-surf)           */
-  --brand-surface:   #FFF4EE;   /* Same — v2 name                                  */
-  --brand-border:    #F5A47C;   /* Orange border                                   */
-  --brand-shadow:    rgba(232, 96, 28, 0.30);  /* CTA button drop shadow          */
+  --brand:           #FB5A24;   /* Ember — Decifer master brand orange             */
+  --brand-hover:     #FF7A4D;   /* Ember Bright — hover state                      */
+  --brand-active:    #D63F11;   /* Ember Deep — pressed state                      */
+  --brand-light:     rgba(251,90,36,.08);  /* tint for backgrounds                 */
+  --brand-surf:      rgba(251,90,36,.05);
+  --brand-surface:   rgba(251,90,36,.05);
+  --brand-border:    rgba(251,90,36,.22);  /* badge / chip borders                 */
+  --brand-shadow:    rgba(251,90,36,.28);  /* CTA button drop shadow               */
 
 
   /* ─────────────────────────────────────────────────────────

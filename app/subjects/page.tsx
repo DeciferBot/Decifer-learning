@@ -5,7 +5,7 @@ import { DeciferLogo } from '@/components/ui/DeciferLogo'
 export const metadata: Metadata = {
   title: 'What we cover — DECIFER Learning',
   description:
-    'Maths, English and Science for Year 1 to Year 11. UK National Curriculum — KS1, KS2, KS3 and GCSE.',
+    'Maths, English, and Science from Year 1 to Year 11. UK National Curriculum across all key stages, KS1 to KS4.',
 }
 
 const SUBJECTS = [

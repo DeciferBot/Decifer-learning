@@ -14,7 +14,7 @@ import {
   BookOpen, PencilLine, Zap, Star,
   Trophy, Flame, Medal, Gem,
   ClipboardList, Telescope, Target, CircleCheck, Bell,
-  Backpack, GraduationCap, Microscope,
+  Backpack, GraduationCap, Shield,
 } from '@/components/ui/icons'
 
 type Icon = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
@@ -22,7 +22,7 @@ type Icon = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
 export const metadata = {
   title: 'DECIFER Learning — UK National Curriculum for families',
   description:
-    'A learning map for parents. Decifer Learning gives parents a clear view of what their child needs to learn, what they are doing well, where they need support, and what to do next. UK National Curriculum, Years 1–9 — Maths, English, and Science.',
+    'Your child learns. You finally know where they stand. Decifer gives parents a clear picture of their child\'s learning. What the curriculum covers. What they know. What to do next. UK National Curriculum, Years 1 to 11.',
 }
 
 export default function Home({
@@ -69,23 +69,22 @@ export default function Home({
         <section className="mx-auto max-w-5xl px-4 py-12 md:py-20">
           <div className="grid gap-10 md:grid-cols-2 md:items-center">
 
-            {/* Left: copy */}
             <div>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-brand/20 bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-600">
-                UK National Curriculum · Years 1–9
+                UK National Curriculum · Years 1 to 11
               </span>
 
               <h1 className="mt-4 font-heading text-3xl font-black leading-tight text-ink sm:text-4xl lg:text-5xl">
-                Understand how your child{' '}
-                <span className="text-brand">is really learning.</span>
+                You know your child is working.{' '}
+                <span className="text-brand">You have no idea if they are learning.</span>
               </h1>
 
               <p className="mt-4 text-base leading-relaxed text-muted">
-                Decifer gives parents a clear learning map of their child&apos;s school year — showing what they need to learn, what they are doing well, where they need support, and what to do next.
+                Decifer gives parents a clear picture of their child&apos;s learning. What the curriculum covers. What they have done. Where they are strong. What to do next.
               </p>
 
               <p className="mt-3 text-sm leading-relaxed text-muted">
-                Not a school replacement. Not just another quiz app. Decifer helps parents make sense of their child&apos;s learning.
+                Not a school replacement. Not just another quiz app. Decifer is built for parents, not just for children.
               </p>
 
               {/* Trust chips */}
@@ -107,10 +106,10 @@ export default function Home({
                   href="/register"
                   className="flex h-12 items-center justify-center rounded-xl bg-brand-600 px-7 font-semibold text-white transition-colors hover:bg-brand-700"
                 >
-                  Start with your child&apos;s learning map
+                  See your child&apos;s learning map
                 </Link>
                 <Link
-                  href="/help/how-decifer-works"
+                  href="/how-it-works"
                   className="flex h-12 items-center justify-center rounded-xl border border-black/10 bg-white px-7 font-semibold text-ink transition-colors hover:bg-black/5"
                 >
                   How it works
@@ -128,10 +127,10 @@ export default function Home({
         <section className="bg-surface py-16">
           <div className="mx-auto max-w-5xl px-4">
             <h2 className="mb-2 text-center font-heading text-2xl font-bold text-ink md:text-3xl">
-              Most tools give your child something to do.<br className="hidden sm:block" /> Very few help parents understand what is happening.
+              Most tools are built for children.<br className="hidden sm:block" /> Very few are built for the parent who wants to understand what is happening.
             </h2>
             <p className="mx-auto mb-10 max-w-lg text-center text-sm text-muted">
-              A score tells you what happened. A learning map tells you why — and what to do next.
+              A score tells you what happened. Decifer tells you what it means.
             </p>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {PARENT_PROBLEM_CARDS.map((card, i) => (
@@ -175,7 +174,7 @@ export default function Home({
 
             <div className="mt-8 rounded-2xl border border-black/5 bg-surface px-6 py-4 text-center">
               <p className="text-xs text-muted">
-                Patterns are based on your child&apos;s activity in Decifer and may suggest a direction — they do not diagnose or predict. Every insight shows how many data points it is based on.
+                Patterns are based on your child&apos;s activity in Decifer. They may suggest a direction. They do not diagnose or predict. Every insight shows how many data points it is based on.
               </p>
             </div>
           </div>
@@ -198,10 +197,10 @@ export default function Home({
 
             <div className="mt-8 rounded-2xl bg-brand-50 px-6 py-4 text-center">
               <p className="font-heading text-sm font-semibold text-ink">
-                &ldquo;I tried. I improved. I can see progress. I want to continue.&rdquo;
+                I tried. I improved. I can see progress. I want to continue.
               </p>
               <p className="mt-1 text-xs text-muted">
-                That loop is what DECIFER Learning is built to create — and what parents can see in the learning map.
+                That loop is what Decifer is built to create. Parents can see every step of it in the learning map.
               </p>
             </div>
           </div>
@@ -217,7 +216,7 @@ export default function Home({
               Quality checked. Before your child sees it.
             </h2>
             <p className="mx-auto mb-10 max-w-xl text-center text-sm text-muted">
-              Every question and lesson passes a six-stage process before it is published. Content that does not meet the threshold is blocked — not published.
+              Every question and lesson passes a six-stage process before it is published. Content that does not meet the threshold is blocked, not published.
             </p>
 
             <QualityPipeline />
@@ -231,7 +230,7 @@ export default function Home({
               Built for children. A clear picture for parents.
             </h2>
             <p className="mx-auto mb-10 max-w-lg text-center text-sm text-muted">
-              Children feel progress. Parents see the learning behind it — clearly and honestly.
+              Children feel progress. Parents see the learning behind it.
             </p>
             <div className="grid gap-5 md:grid-cols-2">
 
@@ -265,7 +264,7 @@ export default function Home({
                   A learning map, not just a grade.
                 </h3>
                 <p className="mb-4 text-xs leading-relaxed text-muted">
-                  The learning map shows what your child has covered, what is going well, where more practice would help, and what to do next — all based on their actual activity in Decifer.
+                  The learning map shows what your child has covered, what is going well, where more practice would help, and what to do next. All based on their actual activity in Decifer.
                 </p>
                 <ul className="space-y-4">
                   {PARENT_FEATURES.map((f, i) => (
@@ -282,7 +281,7 @@ export default function Home({
                   href="/help/parent-guide"
                   className="mt-6 inline-flex min-h-[44px] items-center rounded-xl border border-brand-600/40 px-5 text-sm font-semibold text-brand-600 transition-colors hover:bg-brand-50"
                 >
-                  Read the parent guide{' '}<span aria-hidden="true">→</span>
+                  Read the parent guide <span aria-hidden="true">→</span>
                 </Link>
               </div>
             </div>
@@ -293,13 +292,13 @@ export default function Home({
         <section className="py-16">
           <div className="mx-auto max-w-5xl px-4">
             <h2 className="mb-2 text-center font-heading text-2xl font-bold text-ink md:text-3xl">
-              Game-like motivation, without losing the learning.
+              Winning happens every day, not just on results day.
             </h2>
             <p className="mb-2 text-center text-sm text-muted">
-              DECIFER Learning uses rewards to support consistency, not to replace learning. Children earn XP, build streaks, unlock badges, and collect Discovery Cards by completing real learning activity.
+              Most learning feels like something that happens to you. Decifer makes it something worth coming back to.
             </p>
             <p className="mb-10 text-center text-xs text-muted">
-              Rewards recognise effort, accuracy, and progress. They are not bought, traded, or used to pressure children.
+              Every correct answer earns points. Every topic completed is a win. Leaderboards, streaks, and Discovery Cards are earned through real learning activity. Not purchased. Not used to pressure children.
             </p>
             <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
               {GAMIFICATION_ITEMS.map((item, i) => (
@@ -323,7 +322,7 @@ export default function Home({
               Example topics
             </h2>
             <p className="mb-2 text-center text-sm text-muted">
-              Years 1–9 — Maths, English, and Science.
+              Years 1 to 11. Maths, English, and Science.
             </p>
             <p className="mb-10 text-center text-xs text-muted">
               Each topic includes a guided lesson, practice exercises, and a quiz. Your child sees only verified, published content.
@@ -365,7 +364,7 @@ export default function Home({
                 href="/register"
                 className="inline-flex min-h-[48px] items-center justify-center rounded-xl bg-brand-600 px-8 font-semibold text-white transition-colors hover:bg-brand-700"
               >
-                Start with your child&apos;s learning map
+                See your child&apos;s learning map
               </Link>
             </p>
           </div>
@@ -379,20 +378,20 @@ export default function Home({
                 What is available today
               </p>
               <h2 className="mb-4 font-heading text-xl font-bold text-ink md:text-2xl">
-                All three subjects. Four year groups. Live now.
+                All three subjects. Years 1 to 11. Live now.
               </h2>
               <p className="mx-auto mb-6 max-w-lg text-sm leading-relaxed text-muted">
-                Maths, English, and Science are fully available for Years 1–9. Every topic has passed the six-stage quality process. Your child will only ever see content that is verified and ready.
+                Maths, English, and Science are fully available from Year 1 to Year 11. Every topic has passed the six-stage quality process. Your child will only ever see content that is verified and ready.
               </p>
               <div className="flex flex-wrap justify-center gap-3 text-sm">
                 <span className="flex items-center gap-1.5 rounded-full bg-maths/10 px-4 py-1.5 font-semibold text-ink">
-                  <Check className="w-4 h-4" aria-hidden /> Maths: Years 1–9
+                  <Check className="w-4 h-4" aria-hidden /> Maths: Years 1 to 11
                 </span>
                 <span className="flex items-center gap-1.5 rounded-full bg-english/10 px-4 py-1.5 font-semibold text-ink">
-                  <Check className="w-4 h-4" aria-hidden /> English: Years 1–9
+                  <Check className="w-4 h-4" aria-hidden /> English: Years 1 to 11
                 </span>
                 <span className="flex items-center gap-1.5 rounded-full bg-science/10 px-4 py-1.5 font-semibold text-ink">
-                  <Check className="w-4 h-4" aria-hidden /> Science: Years 1–9
+                  <Check className="w-4 h-4" aria-hidden /> Science: Years 1 to 11
                 </span>
               </div>
             </div>
@@ -406,7 +405,7 @@ export default function Home({
               Help and guides
             </h2>
             <p className="mb-10 text-center text-sm text-muted">
-              Everything you need to get started and make the most of DECIFER Learning.
+              Everything you need to get started and make the most of Decifer Learning.
             </p>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               <GuideCard
@@ -419,13 +418,13 @@ export default function Home({
               <GuideCard
                 icon={<Backpack size={22} />}
                 title="Student guide"
-                description="How to use DECIFER Learning, earn XP, collect cards, and keep your streak going."
+                description="How to use Decifer Learning, earn XP, collect cards, and keep your streak going."
                 href="/help/student-guide"
                 audience="student"
               />
               <GuideCard
                 icon={<BookOpen size={22} />}
-                title="How DECIFER Learning works"
+                title="How Decifer Learning works"
                 description="The thinking behind the lessons, practice, quiz structure, and learning map."
                 href="/help/how-decifer-works"
                 audience="general"
@@ -440,7 +439,7 @@ export default function Home({
               <GuideCard
                 icon={<CircleCheck size={22} />}
                 title="Content quality"
-                description="How DECIFER Learning checks every question and lesson before it reaches your child."
+                description="How Decifer Learning checks every question and lesson before it reaches your child."
                 href="/help/content-quality"
                 audience="parent"
               />
@@ -460,17 +459,17 @@ export default function Home({
           <div className="mx-auto max-w-md px-4 text-center">
             <DeciferLogo size="lg" product="Learning" className="mb-6 justify-center" />
             <h2 className="mb-3 font-heading text-2xl font-bold text-ink">
-              Understand how your child is really learning.
+              Your child learns. You know exactly where they stand.
             </h2>
             <p className="mb-8 text-sm text-muted">
-              No credit card required. Set up takes two minutes. Your child can start their first topic today, and you will have a learning map from the first session.
+              No credit card required. Set up takes two minutes. Your child can start their first topic today and you will have a learning map from the first session.
             </p>
             <div className="flex flex-col gap-3">
               <Link
                 href="/register"
                 className="flex h-12 w-full items-center justify-center rounded-xl bg-brand-600 font-semibold text-white transition-colors hover:bg-brand-700"
               >
-                Start with your child&apos;s learning map
+                See your child&apos;s learning map
               </Link>
               <Link
                 href="/login"
@@ -508,23 +507,54 @@ export default function Home({
 // ── Static content ─────────────────────────────────────────────────────────────
 
 const TRUST_CHIPS: Array<{ Icon: Icon; label: string }> = [
-  { Icon: MapFold,      label: 'Learning map for parents' },
-  { Icon: Check,        label: 'Quality-checked content' },
-  { Icon: BarChart,     label: 'Evidence-based patterns' },
-  { Icon: GraduationCap, label: 'UK curriculum-aligned' },
+  { Icon: MapFold,       label: 'Learning map for parents' },
+  { Icon: Shield,        label: 'Six-stage quality pipeline' },
+  { Icon: GraduationCap, label: 'UK curriculum, Years 1 to 11' },
+  { Icon: Check,         label: 'No advertising. No pressure.' },
 ]
 
 const PARENT_PROBLEM_CARDS: Array<{ Icon: Icon; title: string; body: string }> = [
-  { Icon: BarChart,     title: 'You can see a score. Not what it cost.',        body: 'An 80% after three hints is very different from an 80% on the first try. Decifer shows both.' },
-  { Icon: Target,       title: 'You can see time spent. Not effort.',            body: 'Ten minutes rushing through is different from ten minutes working carefully. The learning map reflects that difference.' },
-  { Icon: ClipboardList, title: 'You know they finished. Not what was hard.',    body: 'Topic completed tells you nothing about where they hesitated, guessed, or needed support. Decifer surfaces those moments.' },
-  { Icon: Telescope,    title: 'You see the result. Not the pattern.',           body: 'A single score is a snapshot. Patterns across weeks show whether things are improving, staying steady, or needing a closer look.' },
+  {
+    Icon: BarChart,
+    title: 'You get a score. You do not know what it means.',
+    body: 'An 80% after three hints is very different from an 80% on the first attempt. Decifer shows you both.',
+  },
+  {
+    Icon: ClipboardList,
+    title: 'You are asked to help. Nobody tells you what they are supposed to learn.',
+    body: 'Most parents do not know what Year 5 Maths covers. Decifer shows you the curriculum alongside your child\'s progress.',
+  },
+  {
+    Icon: Target,
+    title: 'Your child has homework on multiple apps. None of them give you the full picture.',
+    body: 'Decifer brings it into one place and tells you what your child actually understands, not just what they submitted.',
+  },
+  {
+    Icon: Telescope,
+    title: 'Most parents find out their child is struggling at parents evening. By then, months have passed.',
+    body: 'Decifer gives you the same picture their teacher has. Updated after every session.',
+  },
 ]
 
 const LEARNING_INTELLIGENCE_CARDS: Array<{ Icon: Icon; title: string; body: string; example?: string }> = [
-  { Icon: MapFold,    title: 'Progress by subject',            body: 'See which topics your child has started, completed, and revisited — across Maths, English, and Science. Based on their actual topic progress and quiz attempts.', example: '"Completed 6 of 14 Maths topics. Last active 2 days ago."' },
-  { Icon: TrendingUp, title: 'What is going well',             body: 'Topics where your child scored well and completed more than once show up here — with the score and how many times they have revisited.', example: '"Completed with 85% on the last attempt. Reviewed twice."' },
-  { Icon: Search,     title: 'Where more practice would help', body: 'Topics with lower accuracy across multiple attempts, or where hints were used frequently, are highlighted with the evidence behind them.', example: '"Lower accuracy across 12 answers. Hints used in 7 of those."' },
+  {
+    Icon: MapFold,
+    title: 'Progress by subject',
+    body: 'See which topics your child has started, completed, and revisited across Maths, English, and Science. Based on their actual topic progress and quiz attempts.',
+    example: '"Completed 6 of 14 Maths topics. Last active 2 days ago."',
+  },
+  {
+    Icon: TrendingUp,
+    title: 'Where they are strong',
+    body: 'Topics where your child scored well and completed more than once show up here, with the score and how many times they have revisited.',
+    example: '"Completed with 85% on the last attempt. Reviewed twice."',
+  },
+  {
+    Icon: Search,
+    title: 'Where more practice would help',
+    body: 'Topics with lower accuracy across multiple attempts, or where hints were used frequently, are highlighted with the evidence behind them.',
+    example: '"Lower accuracy across 12 answers. Hints used in 7 of those."',
+  },
 ]
 
 const CHILD_FEATURES: Array<{ Icon: Icon; title: string; body: string }> = [
@@ -535,9 +565,9 @@ const CHILD_FEATURES: Array<{ Icon: Icon; title: string; body: string }> = [
 ]
 
 const PARENT_FEATURES: Array<{ Icon: Icon; title: string; body: string }> = [
-  { Icon: MapFold, title: 'The learning map',            body: 'A clear view of what your child has covered, what is going well, and where more practice would help — based on their actual activity.' },
+  { Icon: MapFold, title: 'The learning map',            body: 'A clear view of what your child has covered, what is going well, and where more practice would help. Based on their actual activity.' },
   { Icon: Search,  title: 'Learning patterns over time', body: 'Patterns based on quiz answers, lesson behaviour, and topic progress. Each pattern shows the evidence it is based on.' },
-  { Icon: MapPin,  title: 'A suggested next step',       body: 'Every insight includes a practical next step — something specific you or your child can do, not a vague recommendation.' },
+  { Icon: MapPin,  title: 'A suggested next step',       body: 'Every insight includes a practical next step. Something specific you or your child can do, not a vague recommendation.' },
   { Icon: Link2,   title: 'Linked from your account',    body: 'Create your account, link your child, and see their learning map straight away. No setup beyond the basics.' },
 ]
 
@@ -554,7 +584,7 @@ const SAMPLE_TOPICS = [
     subject: 'Maths',
     yearGroup: 'Year 3',
     color: '#6C9EFF',
-    description: 'Build speed and confidence with times tables up to 12 × 12.',
+    description: 'Build speed and confidence with times tables up to 12 x 12.',
   },
   {
     title: 'Persuasive Writing',
@@ -573,8 +603,8 @@ const SAMPLE_TOPICS = [
 ]
 
 const GAMIFICATION_ITEMS: Array<{ Icon: Icon; label: string; desc: string }> = [
-  { Icon: Star,  label: 'XP Points',      desc: 'Earn points for every correct answer, quiz, and daily login.' },
-  { Icon: Flame, label: 'Streaks',         desc: 'Keep your learning streak growing day by day.' },
-  { Icon: Medal, label: 'Badges',          desc: 'Unlock badges for achievements, perfect scores, and mastery.' },
-  { Icon: Gem,   label: 'Discovery Cards', desc: 'Collect rare cards that drop after completing quizzes.' },
+  { Icon: Star,  label: 'XP Points',      desc: 'Every correct answer earns points. Every quiz completed adds to the total.' },
+  { Icon: Flame, label: 'Streaks',         desc: 'Come back each day and the streak grows. A Streak Shield absorbs a missed day.' },
+  { Icon: Medal, label: 'Badges',          desc: 'Earned for real achievements. Perfect scores, topic mastery, and seven-day streaks.' },
+  { Icon: Gem,   label: 'Discovery Cards', desc: 'Five rarities. Collected after every passed quiz. Displayed in your child\'s album.' },
 ]

@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from 'next'
-import { Nunito, Inter } from 'next/font/google'
+import { GeistSans } from 'geist/font/sans'
+import { GeistMono } from 'geist/font/mono'
+import { Instrument_Serif } from 'next/font/google'
 // GoogleAnalytics REMOVED — Children's Code compliance.
 // UK Age Appropriate Design Code (ICO, Sept 2021) prohibits third-party tracking
 // of children without explicit consent. GA would require a cookie consent banner
@@ -12,15 +14,14 @@ import { OfflineBanner } from '@/components/ui/OfflineBanner'
 import { CookieConsent } from '@/components/ui/CookieConsent'
 import './globals.css'
 
-const nunito = Nunito({
-  subsets: ['latin'],
-  variable: '--font-nunito',
-  display: 'swap',
-})
+// GeistSans and GeistMono ship with CSS variables --font-geist-sans and --font-geist-mono
+// We re-export them under --font-geist and --font-geist-mono for our token system.
 
-const inter = Inter({
+const instrumentSerif = Instrument_Serif({
   subsets: ['latin'],
-  variable: '--font-inter',
+  weight: '400',
+  style: ['normal', 'italic'],
+  variable: '--font-instrument-serif',
   display: 'swap',
 })
 
@@ -98,7 +99,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: '#F05A28',
+  themeColor: '#FB5A24',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
@@ -111,7 +112,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en-GB" className={`${nunito.variable} ${inter.variable}`}>
+    <html lang="en-GB" className={`${GeistSans.variable} ${GeistMono.variable} ${instrumentSerif.variable}`}>
       <body className="font-body bg-background text-ink min-h-screen">
         <OfflineBanner />
         <CookieConsent />

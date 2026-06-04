@@ -1,7 +1,7 @@
 // DELETE /api/admin/users/[userId]
 // Deletes a user from Supabase auth (cascades to profiles and all gameplay rows).
 // Protected by the admin password gate.
-
+export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server'
 import { requireAdminApi } from '@/lib/auth/admin-guard'
 import { createSupabaseAdminClient } from '@/lib/supabase/admin'
