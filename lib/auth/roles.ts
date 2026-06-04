@@ -26,18 +26,31 @@ export function isSelfRegisterableRole(value: unknown): value is SelfRegisterabl
   )
 }
 
-// All supported year groups — Y1–Y9. Maths, English, Science available across all.
+// All supported year groups — Y1–Y11. KS4 (Y10/Y11) requires exam board selection.
 export const MVP_YEAR_GROUPS = [
-  { label: 'year-1', display: 'Year 1', keyStage: 'KS1' },
-  { label: 'year-2', display: 'Year 2', keyStage: 'KS1' },
-  { label: 'year-3', display: 'Year 3', keyStage: 'KS2' },
-  { label: 'year-4', display: 'Year 4', keyStage: 'KS2' },
-  { label: 'year-5', display: 'Year 5', keyStage: 'KS2' },
-  { label: 'year-6', display: 'Year 6', keyStage: 'KS2' },
-  { label: 'year-7', display: 'Year 7', keyStage: 'KS3' },
-  { label: 'year-8', display: 'Year 8', keyStage: 'KS3' },
-  { label: 'year-9', display: 'Year 9', keyStage: 'KS3' },
+  { label: 'year-1',  display: 'Year 1',  keyStage: 'KS1', requiresExamBoard: false },
+  { label: 'year-2',  display: 'Year 2',  keyStage: 'KS1', requiresExamBoard: false },
+  { label: 'year-3',  display: 'Year 3',  keyStage: 'KS2', requiresExamBoard: false },
+  { label: 'year-4',  display: 'Year 4',  keyStage: 'KS2', requiresExamBoard: false },
+  { label: 'year-5',  display: 'Year 5',  keyStage: 'KS2', requiresExamBoard: false },
+  { label: 'year-6',  display: 'Year 6',  keyStage: 'KS2', requiresExamBoard: false },
+  { label: 'year-7',  display: 'Year 7',  keyStage: 'KS3', requiresExamBoard: false },
+  { label: 'year-8',  display: 'Year 8',  keyStage: 'KS3', requiresExamBoard: false },
+  { label: 'year-9',  display: 'Year 9',  keyStage: 'KS3', requiresExamBoard: false },
+  { label: 'year-10', display: 'Year 10', keyStage: 'KS4', requiresExamBoard: true  },
+  { label: 'year-11', display: 'Year 11', keyStage: 'KS4', requiresExamBoard: true  },
 ] as const
+
+export const EXAM_BOARDS = ['AQA', 'Edexcel', 'OCR'] as const
+export type ExamBoard = (typeof EXAM_BOARDS)[number]
+
+export function isExamBoard(value: unknown): value is ExamBoard {
+  return typeof value === 'string' && (EXAM_BOARDS as readonly string[]).includes(value)
+}
+
+export function yearGroupRequiresExamBoard(label: YearGroupLabel): boolean {
+  return MVP_YEAR_GROUPS.find((y) => y.label === label)?.requiresExamBoard ?? false
+}
 
 export type YearGroupLabel = (typeof MVP_YEAR_GROUPS)[number]['label']
 

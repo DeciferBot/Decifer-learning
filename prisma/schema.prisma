@@ -59,6 +59,14 @@ model Profile {
   // Non-PII personalisation answers captured at onboarding (favourite subject,
   // interests, preferred learning styles, self-rated confidence). Editable later.
   learning_profile       Json?
+  // GDPR/UK Children's Code: for child accounts, records when the parent gave
+  // explicit consent and which parent's user_id gave it.
+  parental_consent_at    DateTime?
+  consented_by_user_id   String?   @db.Uuid
+  // KS4 only: 'AQA' | 'Edexcel' | 'OCR'. Null for KS1–KS3.
+  exam_board             String?
+  // Denormalised subscription tier for fast gating — kept in sync by webhook.
+  subscription_tier      String    @default("free")
   created_at             DateTime  @default(now())
 
   year_group       YearGroup?       @relation(fields: [year_group_id], references: [id])
@@ -785,4 +793,23 @@ model QuestionReport {
   @@index([question_id])
   @@index([status])
   @@map("question_reports")
+}
+
+// ---------- Subscriptions (Stripe) ----------
+
+model Subscription {
+  id                     String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id                String    @unique @db.Uuid // FK to auth.users
+  stripe_customer_id     String?   @unique
+  stripe_subscription_id String?   @unique
+  plan                   String    @default("free") // 'free' | 'family'
+  status                 String    @default("active") // 'active' | 'past_due' | 'canceled' | 'trialing'
+  current_period_end     DateTime?
+  cancel_at_period_end   Boolean   @default(false)
+  trial_end              DateTime?
+  created_at             DateTime  @default(now())
+  updated_at             DateTime  @updatedAt
+
+  @@index([stripe_customer_id])
+  @@map("subscriptions")
 }

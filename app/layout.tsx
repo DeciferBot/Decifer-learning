@@ -9,6 +9,7 @@ import { Nunito, Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { OfflineBanner } from '@/components/ui/OfflineBanner'
+import { CookieConsent } from '@/components/ui/CookieConsent'
 import './globals.css'
 
 const nunito = Nunito({
@@ -113,6 +114,7 @@ export default function RootLayout({
     <html lang="en-GB" className={`${nunito.variable} ${inter.variable}`}>
       <body className="font-body bg-background text-ink min-h-screen">
         <OfflineBanner />
+        <CookieConsent />
         {children}
         <script
           type="application/ld+json"

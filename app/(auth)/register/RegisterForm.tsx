@@ -2,26 +2,42 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 import {
   MVP_YEAR_GROUPS,
   SELF_REGISTERABLE_ROLES,
+  EXAM_BOARDS,
   isSelfRegisterableRole,
   isYearGroupLabel,
+  isExamBoard,
+  yearGroupRequiresExamBoard,
   type SelfRegisterableRole,
   type YearGroupLabel,
+  type ExamBoard,
 } from '@/lib/auth/roles'
+
+// Children under 13 require verifiable parental consent (UK Children's Code).
+// We gate on Year group as a proxy: Y1–Y6 (ages 5–11) always require consent;
+// Y7–Y11 may be 11–16, so we always ask to be safe.
+const ALWAYS_CONSENT_REQUIRED = true
 
 export function RegisterForm() {
   const router = useRouter()
   const [role, setRole] = useState<SelfRegisterableRole>('child')
-  const [yearGroup, setYearGroup] = useState<YearGroupLabel>('year-3')
+  const [yearGroup, setYearGroup] = useState<YearGroupLabel>('year-7')
+  const [examBoard, setExamBoard] = useState<ExamBoard | ''>('')
   const [displayName, setDisplayName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [parentalConsent, setParentalConsent] = useState(false)
+  const [ageConfirm, setAgeConfirm] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
+
+  const needsExamBoard = role === 'child' && yearGroupRequiresExamBoard(yearGroup)
+  const needsConsent = role === 'child' && ALWAYS_CONSENT_REQUIRED
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>): void {
     e.preventDefault()
@@ -29,17 +45,19 @@ export function RegisterForm() {
     setNotice(null)
 
     const trimmedName = displayName.trim()
-    if (!trimmedName) {
-      setError('Display name is required.')
-      return
+    if (!trimmedName) { setError('Display name is required.'); return }
+    if (!isSelfRegisterableRole(role)) { setError('Choose a role.'); return }
+    if (role === 'child') {
+      if (!isYearGroupLabel(yearGroup)) { setError('Choose a year group.'); return }
+      if (needsExamBoard && !isExamBoard(examBoard)) {
+        setError('Choose your exam board for GCSE subjects.'); return
+      }
+      if (needsConsent && !parentalConsent) {
+        setError('A parent or guardian must confirm consent before a child account can be created.'); return
+      }
     }
-    if (!isSelfRegisterableRole(role)) {
-      setError('Choose a role.')
-      return
-    }
-    if (role === 'child' && !isYearGroupLabel(yearGroup)) {
-      setError('Choose a year group.')
-      return
+    if (role === 'parent' && !ageConfirm) {
+      setError('Please confirm you are 18 or over.'); return
     }
 
     startTransition(async () => {
@@ -49,22 +67,17 @@ export function RegisterForm() {
           email: email.trim(),
           password,
           options: {
-            // Use the actual origin so the link works in both dev and production.
             emailRedirectTo: `${window.location.origin}/auth/callback`,
             data: {
               role,
               display_name: trimmedName,
               ...(role === 'child' ? { year_group: yearGroup } : {}),
+              ...(needsExamBoard && examBoard ? { exam_board: examBoard } : {}),
+              ...(needsConsent && parentalConsent ? { parental_consent_given: true } : {}),
             },
           },
         })
-        if (signUpError) {
-          setError(signUpError.message)
-          return
-        }
-        // Supabase returns a user but no session when email confirmation is required.
-        // It also returns a user with no identities when the email is already registered
-        // (it avoids revealing which emails exist). Treat both as "check your email".
+        if (signUpError) { setError(signUpError.message); return }
         if (!data.session) {
           setNotice('Check your email to confirm your account, then sign in.')
           return
@@ -79,6 +92,7 @@ export function RegisterForm() {
 
   return (
     <form onSubmit={handleSubmit} className="mt-5 space-y-4" noValidate>
+      {/* Role */}
       <fieldset>
         <legend className="text-sm font-medium">I am a…</legend>
         <div className="mt-2 grid grid-cols-2 gap-2">
@@ -103,17 +117,18 @@ export function RegisterForm() {
         </div>
       </fieldset>
 
+      {/* Year group (child only) */}
       {role === 'child' ? (
         <fieldset>
           <legend className="text-sm font-medium">Year group</legend>
-          <div className="mt-2 grid grid-cols-3 gap-2">
+          <div className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-4">
             {MVP_YEAR_GROUPS.map((y) => {
               const active = yearGroup === y.label
               return (
                 <button
                   key={y.label}
                   type="button"
-                  onClick={() => setYearGroup(y.label)}
+                  onClick={() => { setYearGroup(y.label); setExamBoard('') }}
                   aria-pressed={active}
                   className={`h-12 rounded-lg border text-sm font-semibold transition ${
                     active
@@ -132,8 +147,41 @@ export function RegisterForm() {
         </fieldset>
       ) : null}
 
+      {/* Exam board (Y10/Y11 only) */}
+      {needsExamBoard ? (
+        <fieldset>
+          <legend className="text-sm font-medium">Exam board</legend>
+          <p className="mt-0.5 text-xs text-muted">
+            Check your school's website if you're not sure.
+          </p>
+          <div className="mt-2 grid grid-cols-3 gap-2">
+            {EXAM_BOARDS.map((b) => {
+              const active = examBoard === b
+              return (
+                <button
+                  key={b}
+                  type="button"
+                  onClick={() => setExamBoard(b)}
+                  aria-pressed={active}
+                  className={`h-12 rounded-lg border text-sm font-semibold transition ${
+                    active
+                      ? 'border-maths bg-maths/10 text-maths'
+                      : 'border-black/10 bg-white text-ink'
+                  }`}
+                >
+                  {b}
+                </button>
+              )
+            })}
+          </div>
+        </fieldset>
+      ) : null}
+
+      {/* Display name */}
       <label className="block">
-        <span className="text-sm font-medium">Display name</span>
+        <span className="text-sm font-medium">
+          {role === 'child' ? 'Display name (shown in the app)' : 'Your name'}
+        </span>
         <input
           type="text"
           autoComplete="nickname"
@@ -170,6 +218,51 @@ export function RegisterForm() {
         <span className="mt-1 block text-xs text-muted">At least 8 characters.</span>
       </label>
 
+      {/* Parental consent (child accounts) */}
+      {needsConsent ? (
+        <div className="rounded-lg border border-black/10 bg-amber-50 p-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">
+            Parent or guardian — please read
+          </p>
+          <p className="mt-1 text-sm leading-relaxed text-ink">
+            Decifer Learning collects limited personal data (name, email, learning progress) to
+            operate the service. Under the UK Children&apos;s Code, a parent or guardian must
+            consent before a child account can be created.{' '}
+            <Link href="/legal/privacy" className="font-semibold text-maths underline">
+              Read our privacy policy.
+            </Link>
+          </p>
+          <label className="mt-3 flex cursor-pointer items-start gap-3">
+            <input
+              type="checkbox"
+              className="mt-0.5 h-5 w-5 shrink-0 rounded border-black/20 accent-maths"
+              checked={parentalConsent}
+              onChange={(e) => setParentalConsent(e.target.checked)}
+            />
+            <span className="text-sm leading-snug text-ink">
+              I am the parent or guardian of this child. I consent to Decifer Learning collecting
+              and processing their data as described in the privacy policy, and confirm they are
+              at least 5 years old.
+            </span>
+          </label>
+        </div>
+      ) : null}
+
+      {/* Age confirmation (parent accounts) */}
+      {role === 'parent' ? (
+        <label className="flex cursor-pointer items-start gap-3">
+          <input
+            type="checkbox"
+            className="mt-0.5 h-5 w-5 shrink-0 rounded border-black/20 accent-maths"
+            checked={ageConfirm}
+            onChange={(e) => setAgeConfirm(e.target.checked)}
+          />
+          <span className="text-sm leading-snug text-ink">
+            I confirm I am 18 years old or over.
+          </span>
+        </label>
+      ) : null}
+
       {error ? (
         <p role="alert" className="rounded-md bg-incorrect/10 px-3 py-2 text-sm text-incorrect">
           {error}
@@ -188,6 +281,13 @@ export function RegisterForm() {
       >
         {isPending ? 'Creating…' : 'Create account'}
       </button>
+
+      <p className="text-center text-xs text-muted">
+        By creating an account you agree to our{' '}
+        <Link href="/legal/terms" className="underline">Terms of Service</Link>{' '}
+        and{' '}
+        <Link href="/legal/privacy" className="underline">Privacy Policy</Link>.
+      </p>
     </form>
   )
 }
