@@ -1,6 +1,7 @@
 // Parent dashboard home — shows real child progress data from the DB.
 // Prerequisite: Lesson Store activation gate must pass before this sprint.
 // No fake data, no AI generation, no seed imports.
+export const dynamic = 'force-dynamic'
 
 import Link from 'next/link'
 import { buildParentActions } from '@/lib/parent-recommendations'

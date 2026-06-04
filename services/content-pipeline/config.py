@@ -49,6 +49,9 @@ CONFIDENCE_THRESHOLDS: dict[str, float] = {
     # Science — RAG-only
     "biology_factual":             90.0,
     "science_factual":             90.0,
+    # Humanities — RAG-only
+    "history_factual":             90.0,
+    "geography_factual":           90.0,
 }
 
 DEFAULT_CONFIDENCE_THRESHOLD = 90.0
@@ -63,6 +66,8 @@ RAG_REQUIRED_TYPES: frozenset[str] = frozenset({
     "english_literary_analysis",
     "biology_factual",
     "science_factual",
+    "history_factual",
+    "geography_factual",
 })
 
 

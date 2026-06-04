@@ -54,6 +54,17 @@ export async function POST(req: Request, { params }: Params) {
     },
   })
 
+  // Auto-flag: if 3 or more open reports exist, flag the question silently
+  const openReportCount = await prisma.questionReport.count({
+    where: { question_id: params.questionId, status: 'open' },
+  })
+  if (openReportCount >= 3) {
+    await prisma.quizQuestion.updateMany({
+      where: { id: params.questionId, status: 'published' },
+      data:  { status: 'flagged' },
+    })
+  }
+
   return NextResponse.json({ ok: true })
 }
 

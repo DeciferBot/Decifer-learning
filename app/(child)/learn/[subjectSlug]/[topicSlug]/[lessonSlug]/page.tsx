@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import Link from 'next/link'
 import { getPublishedLesson } from '@/lib/lesson-store'
 import { prisma } from '@/lib/prisma'

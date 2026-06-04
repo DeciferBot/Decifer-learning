@@ -1,6 +1,7 @@
 // Role gateway. Reads role from auth metadata, redirects to the role-scoped
 // placeholder. If role is missing (shouldn't happen post-Phase-1 registration),
 // fall back to /login so the user can re-authenticate.
+export const dynamic = 'force-dynamic'
 
 import { redirect } from 'next/navigation'
 import { createSupabaseServerClient } from '@/lib/supabase/server'

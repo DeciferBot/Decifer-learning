@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import Link from 'next/link'
 import { requireAdmin } from '@/lib/auth/admin-guard'
 import { getAllCatalogueItems } from '@/lib/vault/catalogue'

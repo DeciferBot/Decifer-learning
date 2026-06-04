@@ -2,13 +2,14 @@
 // links into the focused admin areas (Users, Monitoring, Coverage, Vault).
 // Admin-only: middleware gates /dashboard/admin/*, requireAdmin() re-checks the
 // role against the profiles table before any data is read.
+export const dynamic = 'force-dynamic'
 
 import Link from 'next/link'
 import { requireAdmin } from '@/lib/auth/admin-guard'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { getUserDisplayName } from '@/lib/auth/roles'
 import { prisma } from '@/lib/prisma'
-import { BarChart, Gift, Users, Flag, RefreshCw } from '@/components/ui/icons'
+import { BarChart, Gift, Users, Flag, RefreshCw, TrendingUp } from '@/components/ui/icons'
 import { LockButton } from './LockButton'
 
 export const metadata = { title: 'Admin — Decifer Learning' }
@@ -100,6 +101,12 @@ export default async function AdminDashboardPage() {
           icon={<RefreshCw className="w-5 h-5" aria-hidden />}
           title="Pipeline"
           desc="Run health and generation controls"
+        />
+        <NavCard
+          href="/dashboard/admin/calibration"
+          icon={<TrendingUp className="w-5 h-5" aria-hidden />}
+          title="Difficulty Calibration"
+          desc="Questions flagged as too hard or too easy from session data"
         />
         <NavCard
           href="/dashboard/admin/vault"

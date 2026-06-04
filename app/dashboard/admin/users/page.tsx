@@ -2,6 +2,7 @@
 // Tracks current users, new registrations, and engagement for app management.
 // Admin-only: middleware gates /dashboard/admin/*, and requireAdmin() re-checks
 // the role against the profiles table before any data is read.
+export const dynamic = 'force-dynamic'
 
 import Link from 'next/link'
 import { requireAdmin } from '@/lib/auth/admin-guard'

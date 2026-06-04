@@ -1,5 +1,6 @@
 // GET /api/profile/me
 // Returns the authenticated user's profile fields needed for customisation.
+export const dynamic = 'force-dynamic'
 
 import { NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/supabase/server'

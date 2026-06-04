@@ -1,6 +1,7 @@
 // GET /api/daily-challenge/today
 // Returns today's daily challenge for the authenticated child's year group.
 // Falls back gracefully if no challenge is seeded for today.
+export const dynamic = 'force-dynamic'
 
 import { NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/supabase/server'

@@ -1,6 +1,7 @@
 // Per-child detail page — full progress report including PLI v1 Learning Map.
 // Security: verifies parent→child link before returning any data.
 // No fake data, no AI generation, no diagnosis language.
+export const dynamic = 'force-dynamic'
 
 import Link from 'next/link'
 import { redirect, notFound } from 'next/navigation'

@@ -2,6 +2,7 @@
 // Returns family leaderboard — the authenticated child + all siblings linked to the
 // same parent, ranked by total_points.
 // Visibility gated by parent_controls.leaderboard_visible for each child.
+export const dynamic = 'force-dynamic'
 
 import { NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/supabase/server'

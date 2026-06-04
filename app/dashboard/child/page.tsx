@@ -1,5 +1,6 @@
 // Child dashboard — "What should I do next?"
 // Shows published topics for the child's year group grouped by subject.
+export const dynamic = 'force-dynamic'
 
 import Link from 'next/link'
 import { redirect } from 'next/navigation'

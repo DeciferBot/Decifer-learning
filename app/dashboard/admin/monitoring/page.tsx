@@ -1,5 +1,6 @@
 // Admin monitoring page.
 // Queries Prisma directly — no self-HTTP-fetch anti-pattern.
+export const dynamic = 'force-dynamic'
 
 import { requireAdmin } from '@/lib/auth/admin-guard'
 import { prisma } from '@/lib/prisma'

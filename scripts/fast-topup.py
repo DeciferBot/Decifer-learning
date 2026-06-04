@@ -189,6 +189,10 @@ def infer_qtype(subject: str, title: str) -> str:
         if any(k in t for k in ["element","compound","reaction","atom","periodic","chemistry","acid","mixture"]):
             return "science_chemistry_equation"
         return "biology_factual"
+    if subject == "Geography":
+        return "geography_factual"
+    if subject == "History":
+        return "history_factual"
     return "science_factual"
 
 # ── Stage 1: Batch generate 8 questions ──────────────────────────────────────
