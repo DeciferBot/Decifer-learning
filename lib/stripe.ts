@@ -40,15 +40,15 @@ export function isPaidPlan(tier: string | null | undefined): boolean {
   return tier === 'family'
 }
 
-// Check if a topic is accessible given a user's plan and the topic's order
-// index within its subject. Free users get the first FREE_TOPICS_PER_SUBJECT
-// topics of Maths; everything else requires Family plan.
-export function isTopicAccessible(opts: {
+// Content gating is currently disabled — all topics are open to all users.
+// Re-enable by replacing the body with the commented logic below.
+export function isTopicAccessible(_opts: {
   tier: string
   subjectSlug: string | null
   topicOrderIndex: number
 }): boolean {
-  if (isPaidPlan(opts.tier)) return true
-  if (opts.subjectSlug !== 'maths') return false
-  return opts.topicOrderIndex < FREE_TOPICS_PER_SUBJECT
+  return true
+  // if (isPaidPlan(_opts.tier)) return true
+  // if (_opts.subjectSlug !== 'maths') return false
+  // return _opts.topicOrderIndex < FREE_TOPICS_PER_SUBJECT
 }
