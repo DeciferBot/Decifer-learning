@@ -152,7 +152,7 @@ export function RegisterForm() {
         <fieldset>
           <legend className="text-sm font-medium">Exam board</legend>
           <p className="mt-0.5 text-xs text-muted">
-            Check your school's website if you're not sure.
+            Check your school&apos;s website if you&apos;re not sure.
           </p>
           <div className="mt-2 grid grid-cols-3 gap-2">
             {EXAM_BOARDS.map((b) => {
