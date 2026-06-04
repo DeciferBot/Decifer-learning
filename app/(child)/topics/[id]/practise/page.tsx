@@ -1,6 +1,9 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { prisma } from '@/lib/prisma'
+import { UpgradeWall } from '@/components/ui/UpgradeWall'
+import { isTopicAccessible } from '@/lib/stripe'
 import { FillBlank } from '@/components/games/FillBlank'
 import { NumberLine } from '@/components/games/NumberLine'
 import { EquationBalancer } from '@/components/games/EquationBalancer'
@@ -44,6 +47,22 @@ export default async function PractisePage({ params }: { params: { id: string } 
     .eq('id', params.id)
     .eq('is_published', true)
     .maybeSingle<TopicRow>()
+
+  // Subscription gate
+  {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user && topic) {
+      const [profileRow, topicRow] = await Promise.all([
+        prisma.profile.findUnique({ where: { user_id: user.id }, select: { subscription_tier: true } }),
+        prisma.topic.findUnique({ where: { id: params.id }, select: { order_index: true, subject: { select: { slug: true, name: true } } } }),
+      ])
+      if (profileRow && topicRow && profileRow.subscription_tier !== 'family') {
+        if (!isTopicAccessible({ tier: profileRow.subscription_tier, subjectSlug: topicRow.subject.slug, topicOrderIndex: topicRow.order_index })) {
+          return <UpgradeWall topicTitle={topic.title} subjectName={topicRow.subject.name} />
+        }
+      }
+    }
+  }
 
   if (!topic) notFound()
 

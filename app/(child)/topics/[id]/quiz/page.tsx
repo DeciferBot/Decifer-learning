@@ -6,6 +6,8 @@ import { getCurrentProfile } from '@/lib/profile'
 import { QuizShell, type QuizQuestion } from '@/components/quiz/QuizShell'
 import { selectQuizQuestions, selectInterleavedQuestions } from '@/lib/adaptive'
 import { QuizEventTracker } from '@/components/quiz/QuizEventTracker'
+import { UpgradeWall } from '@/components/ui/UpgradeWall'
+import { isTopicAccessible } from '@/lib/stripe'
 
 // RLS: topics_select_published (is_published=true)
 // RLS: quiz_questions_select_published (status='published') + FORCE RLS
@@ -28,12 +30,36 @@ export default async function QuizPage({ params }: { params: { id: string } }) {
 
   if (!topic) notFound()
 
-  // Resolve profile first so adaptive selection can consult attempt history.
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
   const profile = user ? await getCurrentProfile(supabase, user.id) : null
+
+  // Subscription gate: free users can only access 3 Maths topics
+  if (user) {
+    const profileFull = await prisma.profile.findUnique({
+      where: { user_id: user.id },
+      select: { subscription_tier: true },
+    })
+    const subjectInfo = await prisma.topic.findUnique({
+      where: { id: params.id },
+      select: {
+        order_index: true,
+        subject: { select: { slug: true, name: true } },
+      },
+    })
+    if (profileFull && subjectInfo && profileFull.subscription_tier !== 'family') {
+      const accessible = isTopicAccessible({
+        tier: profileFull.subscription_tier,
+        subjectSlug: subjectInfo.subject.slug,
+        topicOrderIndex: subjectInfo.order_index,
+      })
+      if (!accessible) {
+        return <UpgradeWall topicTitle={topic.title} subjectName={subjectInfo.subject.name} />
+      }
+    }
+  }
 
   // Within-session interleaving: if the child has 3+ completed topics in this
   // topic's zone, pull a mixed quiz across the 3 most recent completed topics.

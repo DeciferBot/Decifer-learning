@@ -21,6 +21,7 @@ import {
 } from '@/lib/parent-dashboard'
 import { LinkChildForm } from '@/components/parent/LinkChildForm'
 import { CurriculumMap } from '@/components/parent/CurriculumMap'
+import { SubscriptionStatus } from '@/components/parent/SubscriptionStatus'
 import { Star, Flame, Gift, BarChart, Target, MapPin, CalendarDays, Check } from '@/components/ui/icons'
 import type { ComponentType, SVGProps } from 'react'
 
@@ -44,6 +45,14 @@ export default async function ParentDashboardPage() {
   const displayName = profile?.display_name ?? (user ? getUserDisplayName(user) : 'Parent')
 
   const children = profile ? await getLinkedChildren(profile.user_id) : []
+
+  // Subscription status for the parent
+  const subscription = user
+    ? await prisma.subscription.findUnique({
+        where: { user_id: user.id },
+        select: { plan: true, status: true, current_period_end: true },
+      }).catch(() => null)
+    : null
 
   // Fetch per-child data in parallel
   // Need year_group_id for curriculum progress
@@ -95,6 +104,13 @@ export default async function ParentDashboardPage() {
               : "Here's how your children are getting on."}
         </p>
       </div>
+
+      {/* Subscription status */}
+      <SubscriptionStatus
+        plan={subscription?.plan ?? 'free'}
+        status={subscription?.status ?? null}
+        periodEnd={subscription?.current_period_end?.toISOString() ?? null}
+      />
 
       {/* No children linked — show form prominently */}
       {children.length === 0 && (

@@ -1,9 +1,12 @@
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { prisma } from '@/lib/prisma'
 import { LessonEventTracker, LessonCompleteCTA } from '@/components/learn/LessonEventTracker'
 import { LearnWidgetRenderer } from '@/components/learn/LearnWidgetRenderer'
 import { LearnWidget } from '@/lib/learn-widgets'
+import { UpgradeWall } from '@/components/ui/UpgradeWall'
+import { isTopicAccessible } from '@/lib/stripe'
 
 // RLS policy "topics_select_published" (is_published=true) is enforced at DB level.
 // RLS policy "learn_content_select_published" + FORCE RLS (status='published') is enforced at DB level.
@@ -57,6 +60,22 @@ export default async function LearnPage({
     .maybeSingle<TopicRow & { subject_id: string; pedagogy_mode: string; quiz_optional: boolean }>()
 
   if (!topic) notFound()
+
+  // Subscription gate
+  {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+      const [profileRow, topicRow] = await Promise.all([
+        prisma.profile.findUnique({ where: { user_id: user.id }, select: { subscription_tier: true } }),
+        prisma.topic.findUnique({ where: { id: params.id }, select: { order_index: true, subject: { select: { slug: true, name: true } } } }),
+      ])
+      if (profileRow && topicRow && profileRow.subscription_tier !== 'family') {
+        if (!isTopicAccessible({ tier: profileRow.subscription_tier, subjectSlug: topicRow.subject.slug, topicOrderIndex: topicRow.order_index })) {
+          return <UpgradeWall topicTitle={topic.title} subjectName={topicRow.subject.name} />
+        }
+      }
+    }
+  }
 
   // Pretest-first topics: send child to attempt a question before reading the lesson.
   // ?from=pretest signals a return visit after the pretest — skip the redirect.
