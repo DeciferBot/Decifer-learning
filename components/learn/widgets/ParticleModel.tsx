@@ -3,6 +3,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ParticleModelWidget } from '@/lib/learn-widgets'
 import { WidgetWrapper } from './WidgetWrapper'
+import { Flame } from '@/components/ui/icons'
 
 interface Props {
   widget: ParticleModelWidget
@@ -357,9 +358,9 @@ export function ParticleModel({ widget }: Props) {
       {/* Temperature bar */}
       <div className="mb-4 px-1">
         <div className="flex items-center justify-between mb-1.5">
-          <span className="text-xs text-[#718096]">❄️ Cold</span>
+          <span className="text-xs text-[#718096]">Cold</span>
           <span className="text-xs font-semibold text-[#2D3748]">{temperature}°</span>
-          <span className="text-xs text-[#718096]">Hot 🔥</span>
+          <span className="text-xs text-[#718096] flex items-center gap-0.5">Hot <Flame className="w-3 h-3" aria-hidden /></span>
         </div>
         <div
           className="relative h-5 rounded-full overflow-hidden"
@@ -425,7 +426,7 @@ export function ParticleModel({ widget }: Props) {
                 : 'border-[#FF8FAB]/50 bg-[#FF8FAB]/10 text-[#FF8FAB] cursor-pointer hover:bg-[#FF8FAB]/20 active:bg-[#FF8FAB]/30',
             ].join(' ')}
           >
-            <span className="text-xl" aria-hidden="true">🔥</span>
+            <Flame className="w-5 h-5" aria-hidden />
             Heat
           </motion.button>
         </div>

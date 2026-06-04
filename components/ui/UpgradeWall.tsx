@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { Lock } from '@/components/ui/icons'
 
 type Props = {
   topicTitle?: string
@@ -8,8 +9,8 @@ type Props = {
 export function UpgradeWall({ topicTitle, subjectName }: Props) {
   return (
     <div className="flex min-h-[50vh] flex-col items-center justify-center px-6 py-12 text-center">
-      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-maths/10 text-3xl">
-        🔒
+      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-maths/10">
+        <Lock className="w-8 h-8 text-maths" aria-hidden />
       </div>
       <h1 className="font-heading text-2xl font-bold text-ink">
         {topicTitle ? `${topicTitle} is on the Family plan` : 'This topic is on the Family plan'}

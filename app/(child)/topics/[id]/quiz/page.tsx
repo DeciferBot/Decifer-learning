@@ -5,6 +5,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import { getCurrentProfile } from '@/lib/profile'
 import { QuizShell, type QuizQuestion } from '@/components/quiz/QuizShell'
+import { Gift } from '@/components/ui/icons'
 import { selectQuizQuestions, selectInterleavedQuestions } from '@/lib/adaptive'
 import { QuizEventTracker } from '@/components/quiz/QuizEventTracker'
 import { UpgradeWall } from '@/components/ui/UpgradeWall'
@@ -148,7 +149,7 @@ export default async function QuizPage({ params }: { params: { id: string } }) {
         className="flex items-center gap-3 rounded-2xl px-4 py-3"
         style={{ background: 'linear-gradient(90deg, #1a1a2e, #0f3460)', border: '1.5px solid rgba(255,193,7,0.35)' }}
       >
-        <span className="text-2xl flex-none">🃏</span>
+        <Gift className="w-6 h-6 flex-none" style={{ color: '#FFD43B' }} aria-hidden />
         <div className="flex-1 min-w-0">
           <p className="text-sm font-extrabold text-white font-heading">Score 70%+ → win a Discovery Card</p>
           <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.55)' }}>
@@ -156,7 +157,7 @@ export default async function QuizPage({ params }: { params: { id: string } }) {
           </p>
         </div>
         <span className="flex-none text-xs font-bold px-2 py-1 rounded-full" style={{ background: 'rgba(255,193,7,0.2)', color: '#FFD43B' }}>
-          🎁 Free
+          Reward
         </span>
       </div>
 

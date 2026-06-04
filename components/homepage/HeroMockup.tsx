@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { ProgressRing } from '@/components/ui/ProgressRing'
 import { XPBadge } from '@/components/ui/XPBadge'
+import { Flame } from '@/components/ui/icons'
 
 const MOCK_STATS = [
   { label: 'Topics done', value: '4' },
@@ -122,7 +123,7 @@ export function HeroMockup() {
           </div>
           <div className="mt-2 space-y-1.5">
             <XPBadge points={80} size="sm" variant="gold" />
-            <p className="text-xs text-muted">🔥 5 day streak</p>
+            <p className="text-xs text-muted flex items-center gap-1"><Flame className="w-3 h-3" aria-hidden /> 5 day streak</p>
           </div>
         </div>
       </div>

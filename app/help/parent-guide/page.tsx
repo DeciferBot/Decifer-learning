@@ -1,4 +1,7 @@
 import Link from 'next/link'
+import { BarChart, Target, TrendingUp, AlertTriangle, ArrowRight, Medal } from '@/components/ui/icons'
+import type { ComponentType, SVGProps } from 'react'
+type IconComp = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
 
 export const metadata = {
   title: 'Parent guide — Decifer Learning',
@@ -33,7 +36,7 @@ export default function ParentGuidePage() {
         <ul className="space-y-3">
           {PARENT_CAN_SEE.map((item, i) => (
             <li key={i} className="flex items-start gap-3 rounded-xl border border-black/5 bg-surface px-4 py-3 shadow-sm">
-              <span className="mt-0.5 text-lg" aria-hidden>{item.icon}</span>
+              <span className="mt-0.5 flex-none">{item.icon}</span>
               <div>
                 <p className="font-semibold text-ink">{item.title}</p>
                 <p className="text-sm text-muted">{item.body}</p>
@@ -130,12 +133,12 @@ function Prose({ children }: { children: React.ReactNode }) {
 // ── Static content ──────────────────────────────────────────────────────────
 
 const PARENT_CAN_SEE = [
-  { icon: '📊', title: 'Topics started and mastered', body: 'A clear count of how many topics your child has begun and completed.' },
-  { icon: '🎯', title: 'Average quiz accuracy', body: 'Their overall score across all quiz attempts, as a percentage.' },
-  { icon: '📈', title: 'Activity this week', body: 'Quizzes taken in the last 7 days so you know if they\'re keeping up their habit.' },
-  { icon: '⚠️', title: 'Areas to strengthen', body: 'Topics where your child struggled the most, shown as topics with high error rates.' },
-  { icon: '➡️', title: 'Recommended next lesson', body: 'The most logical next topic to continue, based on their progress.' },
-  { icon: '🏅', title: 'Badges and cards earned', body: 'A count of rewards earned, a quick signal of engagement and effort.' },
+  { icon: <BarChart className="w-4 h-4 text-muted" aria-hidden />,       title: 'Topics started and mastered', body: 'A clear count of how many topics your child has begun and completed.' },
+  { icon: <Target className="w-4 h-4 text-muted" aria-hidden />,         title: 'Average quiz accuracy', body: 'Their overall score across all quiz attempts, as a percentage.' },
+  { icon: <TrendingUp className="w-4 h-4 text-muted" aria-hidden />,     title: 'Activity this week', body: 'Quizzes taken in the last 7 days so you know if they\'re keeping up their habit.' },
+  { icon: <AlertTriangle className="w-4 h-4 text-muted" aria-hidden />,  title: 'Areas to strengthen', body: 'Topics where your child struggled the most, shown as topics with high error rates.' },
+  { icon: <ArrowRight className="w-4 h-4 text-muted" aria-hidden />,     title: 'Recommended next lesson', body: 'The most logical next topic to continue, based on their progress.' },
+  { icon: <Medal className="w-4 h-4 text-muted" aria-hidden />,          title: 'Badges and cards earned', body: 'A count of rewards earned, a quick signal of engagement and effort.' },
 ]
 
 const SUPPORT_TIPS = [

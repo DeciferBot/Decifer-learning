@@ -8,6 +8,7 @@ import { LearnWidgetRenderer } from '@/components/learn/LearnWidgetRenderer'
 import { LearnWidget } from '@/lib/learn-widgets'
 import { UpgradeWall } from '@/components/ui/UpgradeWall'
 import { isTopicAccessible } from '@/lib/stripe'
+import { BookOpen } from '@/components/ui/icons'
 
 // RLS policy "topics_select_published" (is_published=true) is enforced at DB level.
 // RLS policy "learn_content_select_published" + FORCE RLS (status='published') is enforced at DB level.
@@ -100,7 +101,7 @@ export default async function LearnPage({
           <span className="font-medium text-ink">{topic.title}</span>
         </nav>
         <div className="rounded-2xl border border-black/5 bg-surface p-8 text-center space-y-3">
-          <p className="text-3xl">📚</p>
+          <div className="flex justify-center"><BookOpen className="w-8 h-8 text-muted" aria-hidden /></div>
           <h1 className="font-heading text-xl font-bold text-ink">{topic.title}</h1>
           <p className="text-sm text-muted">This lesson is being prepared — check back soon.</p>
           <a

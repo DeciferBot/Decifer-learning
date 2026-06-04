@@ -5,7 +5,10 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { AVATARS, BUDDIES } from '@/lib/customise-config'
 import { AVATAR_ICONS, BUDDY_ICONS } from '@/lib/icon-tokens'
-import { Check } from '@/components/ui/icons'
+import { Check, Target, BookOpen, FlaskConical, Search, Telescope, Dragon, PencilLine, Layers, Music, Leaf, Anvil, Eye, Zap, TrendingUp, Star, Trophy } from '@/components/ui/icons'
+import type { ComponentType, SVGProps } from 'react'
+type IconComp = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
+const CHOICE_ICONS: Record<string, IconComp> = { Target, BookOpen, FlaskConical, Search, Telescope, Dragon, PencilLine, Layers, Music, Leaf, Anvil, Eye, Zap, TrendingUp, Star, Trophy }
 import {
   FAVOURITE_SUBJECTS,
   INTERESTS,
@@ -228,7 +231,7 @@ export default function CustomisePage() {
       <Section title="Favourite subject">
         <div className="grid grid-cols-4 gap-2">
           {FAVOURITE_SUBJECTS.map((s) => (
-            <Chip key={s.id} emoji={s.emoji} label={s.label}
+            <Chip key={s.id} iconName={s.iconName} label={s.label}
               active={favSubject === s.id}
               onClick={() => setFavSubject(favSubject === s.id ? null : s.id)} />
           ))}
@@ -238,7 +241,7 @@ export default function CustomisePage() {
       <Section title="Things I'm into">
         <div className="grid grid-cols-3 gap-2">
           {INTERESTS.map((i) => (
-            <Chip key={i.id} emoji={i.emoji} label={i.label}
+            <Chip key={i.id} iconName={i.iconName} label={i.label}
               active={interests.includes(i.id)}
               onClick={() => toggle(interests, setInterests, i.id)} />
           ))}
@@ -248,7 +251,7 @@ export default function CustomisePage() {
       <Section title="How I like to learn">
         <div className="grid grid-cols-2 gap-2">
           {LEARN_STYLES.map((l) => (
-            <Chip key={l.id} emoji={l.emoji} label={l.label}
+            <Chip key={l.id} iconName={l.iconName} label={l.label}
               active={learnStyles.includes(l.id)}
               onClick={() => toggle(learnStyles, setLearnStyles, l.id)} />
           ))}
@@ -262,7 +265,7 @@ export default function CustomisePage() {
               <p className="mb-2 text-sm font-semibold text-ink">{area.label}</p>
               <div className="grid grid-cols-4 gap-2">
                 {CONFIDENCE_LEVELS.map((lvl) => (
-                  <Chip key={lvl.value} emoji={lvl.emoji} label={lvl.label}
+                  <Chip key={lvl.value} iconName={lvl.iconName} label={lvl.label}
                     active={confidence[area.id] === lvl.value}
                     onClick={() =>
                       setConfidence((c) =>
@@ -302,8 +305,8 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   )
 }
 
-function Chip({ emoji, label, active, onClick }: {
-  emoji: string; label: string; active: boolean; onClick: () => void
+function Chip({ iconName, label, active, onClick }: {
+  iconName: string; label: string; active: boolean; onClick: () => void
 }) {
   return (
     <button
@@ -315,7 +318,7 @@ function Chip({ emoji, label, active, onClick }: {
           : 'border-black/10 bg-black/[0.02] hover:border-brand/40'
       }`}
     >
-      <span className="text-xl" aria-hidden>{emoji}</span>
+      {(() => { const Icon = CHOICE_ICONS[iconName] ?? Target; return <Icon className={`w-5 h-5 ${active ? 'text-brand' : 'text-muted'}`} aria-hidden /> })()}
       <span className={`text-[11px] font-semibold leading-tight ${active ? 'text-brand' : 'text-ink'}`}>{label}</span>
     </button>
   )

@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { MVP_YEAR_GROUPS, type YearGroupLabel } from '@/lib/auth/roles'
+import { Check, UserCircle } from '@/components/ui/icons'
 
 type Tab = 'existing' | 'create'
 
@@ -105,7 +106,7 @@ function LinkByEmailForm({ onLinked }: { onLinked: () => void }) {
     return (
       <div className="space-y-4">
         <div className="rounded-2xl border border-black/5 bg-surface p-5 text-center space-y-2">
-          <p className="text-3xl">👤</p>
+          <div className="flex justify-center"><UserCircle className="w-10 h-10 text-muted" aria-hidden /></div>
           <p className="font-semibold text-ink">Is this your child?</p>
           <p className="text-lg font-bold text-maths">{pendingLink.displayName}</p>
           <p className="text-xs text-muted">{pendingLink.email}</p>
@@ -159,7 +160,7 @@ function LinkByEmailForm({ onLinked }: { onLinked: () => void }) {
       )}
       {success && (
         <p role="status" className="rounded-md bg-science/10 px-3 py-2 text-sm text-science">
-          ✓ {success}
+          <Check className="w-4 h-4 inline mr-1" aria-hidden />{success}
         </p>
       )}
 
@@ -304,7 +305,7 @@ function CreateChildForm({ onCreated }: { onCreated: () => void }) {
       )}
       {success && (
         <p role="status" className="rounded-md bg-science/10 px-3 py-2 text-sm text-science">
-          ✓ {success}
+          <Check className="w-4 h-4 inline mr-1" aria-hidden />{success}
         </p>
       )}
 

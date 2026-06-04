@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { HintButton } from './HintButton'
 import type { QuizQuestion } from './QuizShell'
+import { Brain, Lightbulb, Check } from '@/components/ui/icons'
 
 type Phase = 'attempt' | 'explanation' | 'done'
 
@@ -45,8 +46,8 @@ export function PreTestShell({ question, nextHref, nextLabel }: Props) {
     <div className="space-y-4">
       {/* Phase badge */}
       <div className="flex items-center gap-2">
-        <span className="rounded-full bg-explorer/20 px-3 py-1 text-xs font-bold text-explorer">
-          {phase === 'attempt' ? '🧠 Try it first!' : '💡 Now let\'s learn'}
+        <span className="rounded-full bg-explorer/20 px-3 py-1 text-xs font-bold text-explorer flex items-center gap-1 w-fit">
+          {phase === 'attempt' ? <><Brain className="w-3.5 h-3.5" aria-hidden /> Try it first!</> : <><Lightbulb className="w-3.5 h-3.5" aria-hidden /> Now let&apos;s learn</>}
         </span>
       </div>
 
@@ -107,7 +108,7 @@ export function PreTestShell({ question, nextHref, nextLabel }: Props) {
                 style={{ color: isCorrect ? '#40C057' : '#FF6B6B' }}
               >
                 {isCorrect
-                  ? '✓ You got it! Great intuition.'
+                  ? <span className="flex items-center gap-1"><Check className="w-4 h-4" aria-hidden /> You got it! Great intuition.</span>
                   : `Not quite — the answer is ${question.correct_answer}`}
               </p>
               {question.explanation && (

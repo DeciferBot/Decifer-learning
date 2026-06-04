@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
+import { Zap, Target, RefreshCw, Clock } from '@/components/ui/icons'
 
 export type SpeedRoundConfig = {
   title: string
@@ -79,7 +80,9 @@ export function SpeedRound({ config, topicId }: { config: SpeedRoundConfig; topi
         animate={{ opacity: 1, scale: 1 }}
         className="rounded-2xl border border-black/5 bg-surface p-8 text-center shadow-sm"
       >
-        <div className="mb-3 text-5xl">{pct >= 80 ? '⚡' : pct >= 60 ? '🎯' : '💪'}</div>
+        <div className="flex justify-center mb-3">
+          {pct >= 80 ? <Zap className="w-12 h-12 text-lightning" aria-hidden /> : pct >= 60 ? <Target className="w-12 h-12 text-maths" aria-hidden /> : <RefreshCw className="w-12 h-12 text-muted" aria-hidden />}
+        </div>
         <h2 className="font-heading text-2xl font-bold text-ink">Speed Round Done!</h2>
         <p className="mt-1 text-muted">
           {correctCount} / {questions.length} correct · {pct}%
@@ -192,7 +195,7 @@ export function SpeedRound({ config, topicId }: { config: SpeedRoundConfig; topi
                 animate={{ opacity: 1 }}
                 className="mt-3 text-center text-sm font-bold text-muted"
               >
-                ⏱ Time&apos;s up! The answer was: {q.correct}
+                <span className="flex items-center justify-center gap-1"><Clock className="w-4 h-4" aria-hidden /> Time&apos;s up! The answer was: {q.correct}</span>
               </motion.p>
             )}
           </AnimatePresence>

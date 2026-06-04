@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { Lock, Check } from '@/components/ui/icons'
 
 export const metadata: Metadata = {
   title: 'Your Privacy — Decifer Learning',
@@ -19,8 +20,8 @@ export default function PrivacyForKidsPage() {
         ← Back to home
       </Link>
 
-      <h1 className="font-heading text-2xl font-bold text-ink">
-        🔒 Your Privacy on Decifer Learning
+      <h1 className="font-heading text-2xl font-bold text-ink flex items-center gap-2">
+        <Lock className="w-6 h-6" aria-hidden /> Your Privacy on Decifer Learning
       </h1>
       <p className="mt-1 text-sm text-muted">Written for you — not just for grown-ups!</p>
 
@@ -117,7 +118,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function Item({ children }: { children: React.ReactNode }) {
   return (
     <li className="flex items-start gap-2">
-      <span className="mt-0.5 text-correct">✓</span>
+      <Check className="mt-0.5 w-4 h-4 flex-none text-correct" aria-hidden />
       <span>{children}</span>
     </li>
   )

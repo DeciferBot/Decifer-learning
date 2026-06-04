@@ -1,20 +1,21 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import { Layers, Leaf, Search, Zap } from '@/components/ui/icons'
 
 export type DifficultyChoice = 'sprout' | 'explorer' | 'lightning' | 'mixed'
 
 const OPTIONS: {
   value: DifficultyChoice
   label: string
-  emoji: string
+  icon: React.ReactNode
   desc: string
   color: string
 }[] = [
-  { value: 'mixed',     label: 'Mixed',     emoji: '🎲', desc: 'A bit of everything',        color: '#6C9EFF' },
-  { value: 'sprout',    label: 'Sprout',    emoji: '🌱', desc: 'Build your confidence',      color: '#A8E6CF' },
-  { value: 'explorer',  label: 'Explorer',  emoji: '🔍', desc: 'Your normal level',          color: '#74C0FC' },
-  { value: 'lightning', label: 'Lightning', emoji: '⚡', desc: 'Push yourself',              color: '#FFD43B' },
+  { value: 'mixed',     label: 'Mixed',     icon: <Layers className="w-6 h-6" aria-hidden />,  desc: 'A bit of everything',        color: '#6C9EFF' },
+  { value: 'sprout',    label: 'Sprout',    icon: <Leaf className="w-6 h-6" aria-hidden />,    desc: 'Build your confidence',      color: '#A8E6CF' },
+  { value: 'explorer',  label: 'Explorer',  icon: <Search className="w-6 h-6" aria-hidden />,  desc: 'Your normal level',          color: '#74C0FC' },
+  { value: 'lightning', label: 'Lightning', icon: <Zap className="w-6 h-6" aria-hidden />,     desc: 'Push yourself',              color: '#FFD43B' },
 ]
 
 export function DifficultyPicker({
@@ -48,7 +49,7 @@ export function DifficultyPicker({
               ((e.currentTarget as HTMLButtonElement).style.borderColor = '')
             }
           >
-            <span className="text-2xl">{opt.emoji}</span>
+            <span style={{ color: opt.color }}>{opt.icon}</span>
             <span className="font-heading font-bold text-ink">{opt.label}</span>
             <span className="text-xs text-muted">{opt.desc}</span>
           </motion.button>

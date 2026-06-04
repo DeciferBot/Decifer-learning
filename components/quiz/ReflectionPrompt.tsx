@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { Sparkles } from '@/components/ui/icons'
 
 type Props = {
   topicId: string
@@ -51,7 +52,7 @@ export function ReflectionPrompt({ topicId, topicTitle, onDone }: Props) {
         animate={{ opacity: 1, scale: 1 }}
         className="rounded-2xl border border-science/30 bg-science/5 p-6 text-center"
       >
-        <p className="text-2xl">✨</p>
+        <div className="flex justify-center"><Sparkles className="w-8 h-8 text-science" aria-hidden /></div>
         <p className="mt-1 font-heading font-bold text-ink">Saved!</p>
       </motion.div>
     )
@@ -63,8 +64,8 @@ export function ReflectionPrompt({ topicId, topicTitle, onDone }: Props) {
       animate={{ opacity: 1, y: 0 }}
       className="rounded-2xl border border-science/30 bg-science/5 p-5"
     >
-      <p className="mb-1 text-xs font-bold uppercase tracking-wide text-science">
-        One more thing ✨
+      <p className="mb-1 text-xs font-bold uppercase tracking-wide text-science flex items-center gap-1">
+        <Sparkles className="w-3.5 h-3.5" aria-hidden /> One more thing
       </p>
       <p className="mb-3 font-heading text-base font-bold text-ink">
         What&apos;s one thing you figured out in {topicTitle}?

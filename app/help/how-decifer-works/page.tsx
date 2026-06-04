@@ -1,5 +1,9 @@
 import Link from 'next/link'
 import { DeciferLogo } from '@/components/ui/DeciferLogo'
+import { BookOpen, PencilLine, Zap } from '@/components/ui/icons'
+import type { ReactNode } from 'react'
+import type { ComponentType, SVGProps } from 'react'
+type IconComp = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
 
 export const metadata = {
   title: 'How Decifer works — Decifer Learning',
@@ -36,7 +40,7 @@ export default function HowDeciferWorksPage() {
         <div className="space-y-3">
           {LOOP_STAGES.map((stage) => (
             <div key={stage.label} className="flex items-start gap-4 rounded-xl border border-black/5 bg-surface px-4 py-4 shadow-sm">
-              <span className="mt-0.5 text-2xl flex-none" aria-hidden>{stage.icon}</span>
+              <stage.icon className="mt-0.5 w-5 h-5 flex-none text-muted" aria-hidden />
               <div>
                 <p className="font-heading font-semibold text-ink">{stage.label}</p>
                 <p className="mt-1 text-sm text-muted">{stage.body}</p>
@@ -95,19 +99,19 @@ export default function HowDeciferWorksPage() {
   )
 }
 
-const LOOP_STAGES = [
+const LOOP_STAGES: { icon: IconComp; label: string; body: string }[] = [
   {
-    icon: '📖',
+    icon: BookOpen,
     label: 'Learn',
     body: 'The topic is explained clearly with worked examples. This stage is about building a mental model before any pressure to perform. You can re-read it as many times as you like.',
   },
   {
-    icon: '✏️',
+    icon: PencilLine,
     label: 'Practise',
     body: 'Guided exercises let you apply the idea with support. Practise builds the connection between understanding and doing, which is what makes the quiz feel achievable rather than scary.',
   },
   {
-    icon: '⚡',
+    icon: Zap,
     label: 'Quiz',
     body: 'The quiz tests real understanding with 10 questions across three difficulty tiers. Hints are always available. Retrying is always allowed. Your highest score counts.',
   },

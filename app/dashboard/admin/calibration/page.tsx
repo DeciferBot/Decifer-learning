@@ -6,6 +6,7 @@ export const dynamic = 'force-dynamic'
 import { requireAdmin } from '@/lib/auth/admin-guard'
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
+import { BarChart, Check } from '@/components/ui/icons'
 
 export const metadata = { title: 'Difficulty Calibration — Admin' }
 export const revalidate = 60
@@ -139,7 +140,7 @@ export default async function CalibrationPage() {
       {/* Empty state or table */}
       {totalWithData === 0 ? (
         <div className="rounded-2xl border border-black/5 bg-surface px-6 py-10 text-center shadow-sm">
-          <p className="text-3xl mb-3" aria-hidden>📊</p>
+          <div className="flex justify-center mb-3"><BarChart className="w-10 h-10 text-muted" aria-hidden /></div>
           <p className="font-heading text-base font-semibold text-ink">No calibration data yet</p>
           <p className="mt-1 text-sm text-muted max-w-sm mx-auto leading-relaxed">
             Calibration data will appear here once children start using the app. Check back after 50+ quiz attempts.
@@ -147,7 +148,7 @@ export default async function CalibrationPage() {
         </div>
       ) : flaggedQuestions.length === 0 ? (
         <div className="rounded-2xl border border-correct/20 bg-correct/5 px-6 py-8 text-center shadow-sm">
-          <p className="font-heading text-base font-semibold text-correct">All calibrated ✓</p>
+          <p className="font-heading text-base font-semibold text-correct flex items-center justify-center gap-1"><Check className="w-4 h-4" aria-hidden /> All calibrated</p>
           <p className="mt-1 text-sm text-muted">
             {totalWithData} question{totalWithData === 1 ? '' : 's'} analysed — none outside the difficulty thresholds.
           </p>

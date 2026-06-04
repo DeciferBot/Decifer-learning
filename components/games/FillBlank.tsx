@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
+import { Sparkles, Check } from '@/components/ui/icons'
 
 type Question = { display: string; answer: string }
 type Config = { title: string; instructions: string; questions: Question[] }
@@ -43,7 +44,7 @@ export function FillBlank({ config, topicId }: { config: Config; topicId: string
         animate={{ opacity: 1, scale: 1 }}
         className="rounded-2xl border border-black/5 bg-surface p-8 text-center shadow-sm"
       >
-        <div className="mb-3 text-5xl">🎉</div>
+        <div className="flex justify-center mb-3"><Sparkles className="w-12 h-12 text-maths" aria-hidden /></div>
         <h2 className="font-heading text-2xl font-bold text-ink">Practice Complete!</h2>
         <p className="mt-2 text-muted">You worked through all {total} questions.</p>
         <Link
@@ -131,7 +132,7 @@ export function FillBlank({ config, topicId }: { config: Config; topicId: string
                 }`}
               >
                 {feedback === 'correct'
-                  ? '✓ Correct!'
+                  ? <span className="flex items-center justify-center gap-1"><Check className="w-4 h-4" aria-hidden /> Correct!</span>
                   : `✗ The answer is ${q.answer} — moving on…`}
               </motion.p>
             )}

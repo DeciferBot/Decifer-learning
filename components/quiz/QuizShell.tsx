@@ -15,6 +15,7 @@ import type { DroppedCard, EarnedBadge } from '@/app/api/quiz/submit/route'
 import { DifficultyPicker, type DifficultyChoice } from './DifficultyPicker'
 import MathText from '@/components/ui/MathText'
 import { GuardianVictoryScreen } from './GuardianVictoryScreen'
+import { HeartCrack, Swords, Sparkles, Trophy, Star, RefreshCw, Gift, Flame, Shield, Lightbulb, Target, Check } from '@/components/ui/icons'
 
 // Points awarded per attempt number (1-indexed). Exhausting all attempts = 0.
 const POINTS_BY_ATTEMPT = [3, 2, 1] as const
@@ -131,7 +132,7 @@ export function QuizShell({
   const [pointsFlash, setPointsFlash] = useState<number | null>(null)
 
   // Challenge milestones
-  const [bonusIndex, setBonusIndex] = useState(-1)         // which question is the ⭐ bonus challenge
+  const [bonusIndex, setBonusIndex] = useState(-1)         // which question is the bonus challenge
   const [hintlessStreak, setHintlessStreak] = useState(0)  // correct answers with no hints used
   const [showStreakBonus, setShowStreakBonus] = useState(false)
   const [showHalfway, setShowHalfway] = useState(false)
@@ -357,7 +358,7 @@ export function QuizShell({
         animate={{ opacity: 1, scale: 1 }}
         className="rounded-2xl border border-black/5 bg-surface p-8 text-center shadow-sm"
       >
-        <div className="mb-3 text-5xl">💔</div>
+        <div className="flex justify-center mb-3"><HeartCrack className="w-12 h-12 text-incorrect" aria-hidden /></div>
         <h2 className="font-heading text-2xl font-bold text-ink">Out of hearts!</h2>
         <p className="mt-2 text-muted">Don&apos;t worry — no score saved. Give it another go!</p>
         <button
@@ -391,7 +392,7 @@ export function QuizShell({
     if (passed && submitting) {
       return (
         <div className="rounded-2xl border border-black/5 bg-surface p-8 text-center shadow-sm">
-          <div className="mb-3 text-5xl">⚔️</div>
+          <div className="flex justify-center mb-3"><Swords className="w-12 h-12 text-maths" aria-hidden /></div>
           <h2 className="font-heading text-2xl font-bold text-ink">Guardian Defeated!</h2>
           <p className="mt-4 text-sm text-muted">Saving results…</p>
         </div>
@@ -433,7 +434,7 @@ export function QuizShell({
             className="mb-4 overflow-hidden rounded-2xl p-5 text-center"
             style={{ background: 'linear-gradient(135deg, #6C9EFF22 0%, #52D9A022 100%)', border: '2px solid #6C9EFF' }}
           >
-            <p className="text-3xl">🎊</p>
+            <div className="flex justify-center mb-1"><Sparkles className="w-8 h-8 text-maths" aria-hidden /></div>
             <p className="mt-1 font-heading text-lg font-bold text-ink">You completed your first topic!</p>
             <p className="mt-1 text-sm text-muted">
               You&apos;ve earned your first Discovery Card. Keep going — the world map is waiting!
@@ -446,7 +447,9 @@ export function QuizShell({
           animate={{ opacity: 1, scale: 1 }}
           className="rounded-2xl border border-black/5 bg-surface p-8 text-center shadow-sm"
         >
-          <div className="mb-3 text-5xl">{passed ? (isFirstWin ? '🏆' : '🌟') : '💪'}</div>
+          <div className="flex justify-center mb-3">
+            {passed ? (isFirstWin ? <Trophy className="w-12 h-12 text-points-gold" aria-hidden /> : <Star className="w-12 h-12 text-points-gold" aria-hidden />) : <RefreshCw className="w-12 h-12 text-muted" aria-hidden />}
+          </div>
           <h2 className="font-heading text-2xl font-bold text-ink">
             {passed ? (isFirstWin ? 'First topic complete!' : 'Great work!') : 'Keep going!'}
           </h2>
@@ -464,7 +467,7 @@ export function QuizShell({
             <div className="mt-4 space-y-2 text-center">
               {passed ? (
                 <>
-                  <p className="text-2xl animate-pulse">🃏</p>
+                  <div className="flex justify-center animate-pulse"><Gift className="w-8 h-8" style={{ color: '#FFD43B' }} aria-hidden /></div>
                   <p className="text-sm font-bold" style={{ color: '#FFD43B' }}>Opening your Discovery Card…</p>
                 </>
               ) : (
@@ -486,11 +489,11 @@ export function QuizShell({
                 <p className="text-sm text-muted">Total: {serverTotalPoints.toLocaleString()} pts</p>
               )}
               {typeof streakDays === 'number' && streakDays > 0 && (
-                <p className="text-sm text-muted">🔥 {streakDays} day streak</p>
+                <p className="text-sm text-muted flex items-center gap-1"><Flame className="w-3.5 h-3.5" aria-hidden /> {streakDays} day streak</p>
               )}
               {shieldAwarded && (
-                <p className="text-sm font-bold" style={{ color: '#74C0FC' }}>
-                  🛡️ Streak Shield awarded!
+                <p className="text-sm font-bold flex items-center gap-1" style={{ color: '#74C0FC' }}>
+                  <Shield className="w-3.5 h-3.5" aria-hidden /> Streak Shield awarded!
                 </p>
               )}
             </div>
@@ -563,8 +566,8 @@ export function QuizShell({
             exit={{ opacity: 0, scale: 0.8, y: -10 }}
             className="rounded-2xl bg-points-gold/20 px-5 py-3 text-center"
           >
-            <p className="font-heading text-lg font-bold" style={{ color: '#FFC107' }}>
-              🔥 3-in-a-row! Bonus +5 pts!
+            <p className="font-heading text-lg font-bold flex items-center justify-center gap-1.5" style={{ color: '#FFC107' }}>
+              <Flame className="w-5 h-5" aria-hidden /> 3-in-a-row! Bonus +5 pts!
             </p>
           </motion.div>
         )}
@@ -579,8 +582,8 @@ export function QuizShell({
             exit={{ opacity: 0, scale: 0.85 }}
             className="rounded-2xl bg-maths/15 px-5 py-3 text-center"
           >
-            <p className="font-heading text-lg font-bold text-maths">
-              🎯 Halfway there — keep going!
+            <p className="font-heading text-lg font-bold text-maths flex items-center justify-center gap-1.5">
+              <Target className="w-5 h-5" aria-hidden /> Halfway there — keep going!
             </p>
           </motion.div>
         )}
@@ -594,11 +597,11 @@ export function QuizShell({
             <motion.span
               animate={shieldFlash ? { scale: [1, 1.4, 1], opacity: [1, 0.5, 1] } : {}}
               transition={{ duration: 0.4 }}
-              className="text-sm font-bold"
+              className="flex items-center gap-0.5 text-sm font-bold"
               style={{ color: '#74C0FC' }}
               title="Streak Shields — absorb 1 heart loss each"
             >
-              🛡️ ×{shields}
+              <Shield className="w-4 h-4" aria-hidden /> ×{shields}
             </motion.span>
           )}
           {/* Live score display */}
@@ -667,7 +670,7 @@ export function QuizShell({
               className="mb-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold"
               style={{ background: '#FFF3CD', color: '#B8860B' }}
             >
-              ⭐ Bonus Challenge — double points!
+              <Star className="w-3.5 h-3.5" aria-hidden /> Bonus Challenge — double points!
             </motion.div>
           )}
 
@@ -685,7 +688,7 @@ export function QuizShell({
                   animate={{ opacity: 1, y: 0 }}
                   className="rounded-xl border border-black/8 bg-yellow-50 px-4 py-3 text-sm text-ink"
                 >
-                  <span className="mr-2 font-bold text-yellow-600">💡 Hint {i + 1}:</span>
+                  <span className="mr-2 font-bold text-yellow-600 inline-flex items-center gap-1"><Lightbulb className="w-3.5 h-3.5" aria-hidden /> Hint {i + 1}:</span>
                   <MathText text={hint} />
                 </motion.div>
               ))}
@@ -768,8 +771,10 @@ export function QuizShell({
                 >
                   {answeredCorrectly
                     ? attempts === 0
-                      ? isBonusQuestion ? '✓ Correct! Double points! ⭐' : '✓ Correct! Full marks!'
-                      : `✓ Got it on attempt ${attempts + 1}!`
+                      ? isBonusQuestion
+                        ? <span className="flex items-center gap-1"><Check className="w-4 h-4" aria-hidden /> Correct! Double points! <Star className="w-4 h-4" aria-hidden /></span>
+                        : <span className="flex items-center gap-1"><Check className="w-4 h-4" aria-hidden /> Correct! Full marks!</span>
+                      : <span className="flex items-center gap-1"><Check className="w-4 h-4" aria-hidden /> Got it on attempt {attempts + 1}!</span>
                     : `✗ The answer is ${q.correct_answer}`}
                 </p>
                 {isExhausted && (

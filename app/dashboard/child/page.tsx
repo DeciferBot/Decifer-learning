@@ -16,7 +16,7 @@ import { getCurriculumProgress } from '@/lib/parent-dashboard'
 import { StreakPing } from './StreakPing'
 import { getVaultStatus } from '@/lib/vault/status'
 import { NewParentLinkNotice } from './NewParentLinkNotice'
-import { MapFold, Layers, Star, Target, Trophy, PencilLine, Microscope, BookOpen, Gift, Flame, Zap } from '@/components/ui/icons'
+import { MapFold, Layers, Star, Target, Trophy, PencilLine, Microscope, BookOpen, Gift, Flame, Zap, MapPin } from '@/components/ui/icons'
 
 export const metadata = { title: 'Dashboard — Decifer Learning' }
 
@@ -147,7 +147,7 @@ export default async function ChildDashboardPage() {
       <div className="flex items-start justify-between gap-2">
         <div>
           <h1 className="font-heading text-2xl font-bold text-ink">
-            Hi {displayName} 👋
+            Hi {displayName}
           </h1>
           {yearGroup && (
             <p className="mt-0.5 text-sm text-muted">
@@ -173,7 +173,7 @@ export default async function ChildDashboardPage() {
       {assignedMissions.length > 0 && (
         <div className="rounded-2xl border-2 border-points-gold/40 bg-points-gold/8 px-4 py-4 space-y-2">
           <p className="text-xs font-bold uppercase tracking-widest text-points-gold flex items-center gap-1.5">
-            📌 Focus topics from your parent
+            <MapPin className="w-3.5 h-3.5" aria-hidden /> Focus topics from your parent
           </p>
           <ul className="space-y-1.5">
             {assignedMissions.map((m) => m.topic && (
@@ -209,10 +209,10 @@ export default async function ChildDashboardPage() {
             {/* Card visual */}
             <div className="relative flex-none">
               <div
-                className="w-14 h-20 rounded-xl flex items-center justify-center text-3xl"
+                className="w-14 h-20 rounded-xl flex items-center justify-center"
                 style={{ background: 'linear-gradient(135deg, #FFD43B22, #FFC10722)', border: '2px solid rgba(255,193,7,0.5)' }}
               >
-                🃏
+                <Gift className="w-7 h-7" style={{ color: '#FFD43B' }} aria-hidden />
               </div>
               <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#FFD43B] flex items-center justify-center">
                 <span className="text-[8px] font-black text-black">!</span>
@@ -227,8 +227,8 @@ export default async function ChildDashboardPage() {
               <p className="font-heading font-extrabold text-white text-base leading-snug">
                 Pass the {firstTopic.title} quiz
               </p>
-              <p className="text-xs mt-1" style={{ color: 'rgba(255,255,255,0.6)' }}>
-                Score 70%+ → guaranteed Discovery Card 🎁
+              <p className="text-xs mt-1 flex items-center gap-1" style={{ color: 'rgba(255,255,255,0.6)' }}>
+                Score 70%+ → guaranteed Discovery Card <Gift className="w-3.5 h-3.5" aria-hidden />
               </p>
             </div>
 

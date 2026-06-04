@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { Lock, Star } from '@/components/ui/icons'
 
 interface TopicCardProps {
   id: string
@@ -31,7 +32,7 @@ export function TopicCard({
           <span className="text-xs font-bold uppercase tracking-wide text-muted">{subjectName}</span>
         </div>
         <h3 className="font-heading text-base font-bold text-muted">{title}</h3>
-        <p className="mt-2 text-xs text-muted">🔒 Complete earlier topics to unlock this one.</p>
+        <p className="mt-2 text-xs text-muted flex items-center gap-1"><Lock className="w-3.5 h-3.5" aria-hidden /> Complete earlier topics to unlock this one.</p>
       </div>
     )
   }
@@ -82,8 +83,8 @@ export function TopicCard({
 
         {/* XP available */}
         {xpAvailable != null && xpAvailable > 0 && (
-          <p className="mt-2 text-xs text-muted">
-            <span className="text-points-gold" aria-hidden>⭐</span>{' '}
+          <p className="mt-2 text-xs text-muted flex items-center gap-1">
+            <Star className="w-3.5 h-3.5 text-points-gold" aria-hidden />
             {xpAvailable} XP available
           </p>
         )}

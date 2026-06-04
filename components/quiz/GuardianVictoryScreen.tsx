@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { CardReveal } from '@/components/cards/CardReveal'
 import { BadgePopup } from '@/components/quiz/BadgePopup'
 import type { DroppedCard, EarnedBadge } from '@/app/api/quiz/submit/route'
+import { Trophy, Crown, Flame, Swords } from '@/components/ui/icons'
 
 // ── Confetti particle ─────────────────────────────────────────────────────────
 type Particle = {
@@ -171,9 +172,9 @@ export function GuardianVictoryScreen({
               initial={{ scale: 0.3, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ type: 'spring', stiffness: 180, damping: 14, delay: 0.1 }}
-              className="mb-6 text-8xl"
+              className="mb-6 flex justify-center"
             >
-              🏆
+              <Trophy className="w-24 h-24 text-points-gold" aria-hidden />
             </motion.div>
             <motion.h1
               initial={{ y: 24, opacity: 0 }}
@@ -221,7 +222,7 @@ export function GuardianVictoryScreen({
               className="overflow-hidden rounded-3xl p-6 text-center"
               style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%)', border: '2px solid rgba(255,193,7,0.35)' }}
             >
-              <div className="mb-2 text-5xl">🏆</div>
+              <div className="mb-2 flex justify-center"><Trophy className="w-12 h-12 text-points-gold" aria-hidden /></div>
               <h2 className="font-heading text-2xl font-extrabold text-white">Guardian Defeated!</h2>
               <p className="mt-1 font-semibold" style={{ color: '#FFD43B' }}>{zoneName}</p>
 
@@ -241,13 +242,13 @@ export function GuardianVictoryScreen({
                 <p className="mt-0.5 text-[11px] font-semibold text-muted">Points</p>
               </div>
               <div className="rounded-2xl bg-surface p-3 text-center shadow-sm border border-black/5">
-                <p className="text-2xl">👑</p>
+                <div className="flex justify-center"><Crown className="w-6 h-6 text-points-gold" aria-hidden /></div>
                 <p className="mt-0.5 text-[11px] font-semibold text-muted">Legendary card</p>
               </div>
               <div className="rounded-2xl bg-surface p-3 text-center shadow-sm border border-black/5">
                 {streakDays > 0 ? (
                   <>
-                    <p className="text-2xl font-extrabold font-heading" style={{ color: '#FF6B6B' }}>🔥{streakDays}</p>
+                    <div className="flex items-center justify-center gap-1"><Flame className="w-5 h-5" style={{ color: '#FF6B6B' }} aria-hidden /><span className="text-2xl font-extrabold font-heading" style={{ color: '#FF6B6B' }}>{streakDays}</span></div>
                     <p className="mt-0.5 text-[11px] font-semibold text-muted">Day streak</p>
                   </>
                 ) : (
@@ -267,7 +268,7 @@ export function GuardianVictoryScreen({
                 className="relative flex min-h-[52px] w-full items-center justify-center gap-2 overflow-hidden rounded-2xl font-heading text-base font-bold text-white transition-opacity hover:opacity-90 active:scale-[0.98]"
                 style={{ background: 'linear-gradient(90deg, #6C9EFF 0%, #A78BFA 100%)' }}
               >
-                <span className="text-lg">⚔️</span>
+                <Swords className="w-5 h-5" aria-hidden />
                 {copied ? 'Link copied!' : 'Challenge a friend'}
               </button>
 

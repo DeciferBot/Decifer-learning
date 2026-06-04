@@ -3,13 +3,19 @@ export const dynamic = 'force-dynamic'
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Check } from '@/components/ui/icons'
+import { Check, AlertTriangle, BookOpen, Target, Flame, Star, Layers, Trophy } from '@/components/ui/icons'
+import type { ComponentType, SVGProps } from 'react'
+
+type IconComp = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
+const MISSION_ICONS: Record<string, IconComp> = {
+  BookOpen, Target, Flame, Star, Layers, Trophy,
+}
 
 interface Mission {
   id: string
   type: string
   title: string
-  emoji: string
+  iconName: string
   targetValue: number | null
   currentValue: number
   completed: boolean
@@ -61,7 +67,7 @@ export default function MissionsPage() {
   if (error) {
     return (
       <div className="flex min-h-[40vh] flex-col items-center justify-center gap-4 text-center px-4">
-        <p className="text-3xl">😕</p>
+        <AlertTriangle className="w-8 h-8 text-muted" aria-hidden />
         <p className="text-sm text-muted">Couldn&apos;t load your missions right now.</p>
         <button
           onClick={() => void load()}
@@ -111,7 +117,7 @@ export default function MissionsPage() {
           <p className="text-xs font-bold uppercase tracking-widest text-muted px-1">Completed</p>
           {completed.map((m) => (
             <div key={m.id} className="flex items-center gap-3 rounded-2xl border border-black/5 bg-black/[0.02] p-4 opacity-60">
-              <span className="text-xl">{m.emoji}</span>
+              {(() => { const Icon = MISSION_ICONS[m.iconName] ?? Target; return <Icon className="w-5 h-5 text-muted flex-none" aria-hidden /> })()}
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-ink line-through">{m.title}</p>
                 {m.completedAt && (
@@ -135,7 +141,7 @@ function MissionCard({ mission: m }: { mission: Mission }) {
   return (
     <div className="rounded-2xl border border-black/5 bg-surface p-5 shadow-sm space-y-3">
       <div className="flex items-start gap-3">
-        <span className="text-2xl flex-none">{m.emoji}</span>
+        {(() => { const Icon = MISSION_ICONS[m.iconName] ?? Target; return <Icon className="w-6 h-6 flex-none text-brand" aria-hidden /> })()}
         <div className="flex-1 min-w-0">
           <p className="font-semibold text-ink text-sm leading-snug">{m.title}</p>
           {m.targetValue !== null && (

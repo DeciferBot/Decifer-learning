@@ -11,6 +11,7 @@
 
 import { useState } from 'react'
 import type { CurriculumSubject, CurriculumTopic } from '@/lib/parent-dashboard'
+import { Clock, Star, Check, AlertTriangle, MapPin } from '@/components/ui/icons'
 
 // ─── canonical subject order ─────────────────────────────────────────────────
 const SUBJECT_ORDER = ['Maths', 'English', 'Science', 'Geography', 'History']
@@ -38,14 +39,14 @@ function getStatus(topic: CurriculumTopic, subjectName: string) {
   const c = col(subjectName)
   const score = topic.lastScore ?? 0
   if (topic.progressStatus === 'not_started')
-    return { label: 'Not started', icon: '○', cardBg: c.warmBg,       cardBorder: 'border border-gray-200/80',          badgeBg: 'bg-gray-100',        badgeText: 'text-gray-400' }
+    return { label: 'Not started', icon: null as React.ReactNode, cardBg: c.warmBg,       cardBorder: 'border border-gray-200/80',          badgeBg: 'bg-gray-100',        badgeText: 'text-gray-400' }
   if (topic.progressStatus === 'in_progress')
-    return { label: 'In progress', icon: '◐', cardBg: c.light,        cardBorder: `border-2 border-solid ${c.border}`,  badgeBg: c.pill,               badgeText: c.text }
+    return { label: 'In progress', icon: <Clock className="w-2.5 h-2.5" aria-hidden /> as React.ReactNode, cardBg: c.light,        cardBorder: `border-2 border-solid ${c.border}`,  badgeBg: c.pill,               badgeText: c.text }
   if (score >= 0.95)
-    return { label: 'Excelled ⭐', icon: '★', cardBg: 'bg-[#FFFBEA]', cardBorder: 'border-2 border-solid border-[#FFC107]', badgeBg: 'bg-[#FFC107]/20', badgeText: 'text-[#B45309]' }
+    return { label: 'Excelled', icon: <Star className="w-2.5 h-2.5" aria-hidden /> as React.ReactNode, cardBg: 'bg-[#FFFBEA]', cardBorder: 'border-2 border-solid border-[#FFC107]', badgeBg: 'bg-[#FFC107]/20', badgeText: 'text-[#B45309]' }
   if (score >= 0.70)
-    return { label: 'Passed',      icon: '✓', cardBg: 'bg-[#F0FDF4]', cardBorder: 'border-2 border-solid border-[#40C057]', badgeBg: 'bg-[#40C057]/15', badgeText: 'text-[#166534]' }
-  return   { label: 'Needs support', icon: '!', cardBg: 'bg-[#FFF5F5]', cardBorder: 'border-2 border-solid border-[#FF6B6B]', badgeBg: 'bg-[#FF6B6B]/15', badgeText: 'text-[#B91C1C]' }
+    return { label: 'Passed',      icon: <Check className="w-2.5 h-2.5" aria-hidden /> as React.ReactNode, cardBg: 'bg-[#F0FDF4]', cardBorder: 'border-2 border-solid border-[#40C057]', badgeBg: 'bg-[#40C057]/15', badgeText: 'text-[#166534]' }
+  return   { label: 'Needs support', icon: <AlertTriangle className="w-2.5 h-2.5" aria-hidden /> as React.ReactNode, cardBg: 'bg-[#FFF5F5]', cardBorder: 'border-2 border-solid border-[#FF6B6B]', badgeBg: 'bg-[#FF6B6B]/15', badgeText: 'text-[#B91C1C]' }
 }
 
 // ─── Topic card ───────────────────────────────────────────────────────────────
@@ -78,8 +79,8 @@ function TopicCard({ topic, subjectName }: { topic: CurriculumTopic; subjectName
         <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${st.badgeBg} ${st.badgeText}`}>{st.label}</span>
         {scoreLabel && <span className={`text-[11px] font-bold ${st.badgeText}`}>{scoreLabel}</span>}
       </div>
-      {isFailed && <span className="text-[10px] text-[#B91C1C] font-medium">⚠ Review recommended</span>}
-      {topic.isAssigned && <span className="text-[10px] text-[#FF9F43] font-semibold">📌 Parent focus</span>}
+      {isFailed && <span className="text-[10px] text-[#B91C1C] font-medium flex items-center gap-0.5"><AlertTriangle className="w-2.5 h-2.5" aria-hidden /> Review recommended</span>}
+      {topic.isAssigned && <span className="text-[10px] text-[#FF9F43] font-semibold flex items-center gap-0.5"><MapPin className="w-2.5 h-2.5" aria-hidden /> Parent focus</span>}
     </div>
   )
 }
@@ -148,12 +149,12 @@ function WeakAreasPanel({ subjects, childProfileId }: { subjects: CurriculumSubj
   return (
     <div className="mt-6 rounded-2xl border-2 border-[#FF6B6B]/25 bg-[#FFF5F5] p-4">
       <div className="flex items-center gap-2 mb-3">
-        <span>⚠️</span>
+        <AlertTriangle className="w-4 h-4 text-[#B91C1C]" aria-hidden />
         <h3 className="font-extrabold text-[#B91C1C] text-xs tracking-widest uppercase">Needs support</h3>
         <span className="ml-auto text-xs text-[#B91C1C]/70 bg-[#FF6B6B]/15 px-2 py-0.5 rounded-full font-semibold">{weak.length} topic{weak.length !== 1 ? 's' : ''}</span>
       </div>
       {childProfileId && (
-        <p className="mb-3 text-[11px] text-[#B91C1C]/70">Tap 📌 to pin a topic for your child — it appears on their dashboard as a focus area.</p>
+        <p className="mb-3 text-[11px] text-[#B91C1C]/70">Tap the pin icon to pin a topic for your child — it appears on their dashboard as a focus area.</p>
       )}
       <div className="flex flex-col gap-1.5">
         {weak.map((t) => {
@@ -179,7 +180,7 @@ function WeakAreasPanel({ subjects, childProfileId }: { subjects: CurriculumSubj
                       : 'border-black/10 bg-white text-muted hover:bg-[#FF9F43]/10 hover:border-[#FF9F43] hover:text-[#FF9F43]'
                   } ${loading ? 'opacity-50' : ''}`}
                 >
-                  {loading ? '…' : assigned ? '📌' : '＋'}
+                  {loading ? '…' : assigned ? <MapPin className="w-4 h-4" aria-hidden /> : '＋'}
                 </button>
               )}
             </div>
@@ -192,18 +193,18 @@ function WeakAreasPanel({ subjects, childProfileId }: { subjects: CurriculumSubj
 
 // ─── Legend ───────────────────────────────────────────────────────────────────
 function Legend() {
-  const items = [
-    { icon: '○', bg: 'bg-gray-100',      text: 'text-gray-400',   label: 'Not started' },
-    { icon: '◐', bg: 'bg-[#6C9EFF]/15', text: 'text-[#6C9EFF]', label: 'In progress' },
-    { icon: '✓', bg: 'bg-[#40C057]/15', text: 'text-[#166534]', label: 'Passed' },
-    { icon: '★', bg: 'bg-[#FFC107]/20', text: 'text-[#B45309]', label: 'Excelled' },
-    { icon: '!', bg: 'bg-[#FF6B6B]/15', text: 'text-[#B91C1C]', label: 'Needs support' },
+  const items: { icon: React.ReactNode; bg: string; text: string; label: string }[] = [
+    { icon: null,                                                               bg: 'bg-gray-100',      text: 'text-gray-400',   label: 'Not started' },
+    { icon: <Clock className="w-2.5 h-2.5" aria-hidden />,                    bg: 'bg-[#6C9EFF]/15', text: 'text-[#6C9EFF]', label: 'In progress' },
+    { icon: <Check className="w-2.5 h-2.5" aria-hidden />,                    bg: 'bg-[#40C057]/15', text: 'text-[#166534]', label: 'Passed' },
+    { icon: <Star className="w-2.5 h-2.5" aria-hidden />,                     bg: 'bg-[#FFC107]/20', text: 'text-[#B45309]', label: 'Excelled' },
+    { icon: <AlertTriangle className="w-2.5 h-2.5" aria-hidden />,            bg: 'bg-[#FF6B6B]/15', text: 'text-[#B91C1C]', label: 'Needs support' },
   ]
   return (
     <div className="flex flex-wrap gap-2.5 mb-5">
       {items.map((i) => (
         <div key={i.label} className="flex items-center gap-1.5">
-          <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold ${i.bg} ${i.text}`}>{i.icon}</span>
+          <span className={`w-4 h-4 rounded-full flex items-center justify-center ${i.bg} ${i.text}`}>{i.icon}</span>
           <span className="text-[11px] text-gray-400 font-medium">{i.label}</span>
         </div>
       ))}

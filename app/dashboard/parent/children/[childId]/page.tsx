@@ -26,7 +26,7 @@ import { getSignalsForChild } from '@/lib/learning-signals-runner'
 import type { LearningSignal } from '@/lib/learning-signals'
 import { ScreenTimeControls } from './ScreenTimeControls'
 import { SyllabusHeatmap } from './SyllabusHeatmap'
-import { Star, Flame, Medal, Layers } from '@/components/ui/icons'
+import { Star, Flame, Medal, Layers, Check, ChevronRight } from '@/components/ui/icons'
 
 export const metadata = { title: 'Child report — Decifer Learning' }
 
@@ -695,11 +695,11 @@ function CurriculumTracker({
                     >
                       <div className="flex items-center gap-2 min-w-0">
                         {/* Status icon */}
-                        <span className="flex-none text-base" aria-hidden>
+                        <span className="flex-none flex items-center" aria-hidden>
                           {topic.progressStatus === 'completed'
-                            ? '✓'
+                            ? <Check className="w-3.5 h-3.5" />
                             : topic.progressStatus === 'in_progress'
-                              ? '▶'
+                              ? <ChevronRight className="w-3.5 h-3.5" />
                               : isNext
                                 ? '→'
                                 : '○'}

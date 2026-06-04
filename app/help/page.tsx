@@ -1,4 +1,5 @@
 import { GuideCard } from '@/components/ui/GuideCard'
+import { Users, CircleCheck, Backpack, Star, Search, BookOpen } from '@/components/ui/icons'
 
 export const metadata = {
   title: 'Help — Decifer Learning',
@@ -20,14 +21,14 @@ export default function HelpPage() {
           For parents
         </h2>
         <GuideCard
-          icon="👨‍👩‍👧"
+          icon={<Users className="w-5 h-5" aria-hidden />}
           title="Parent guide"
           description="Set up your child's account, track progress, and support their learning at home."
           href="/help/parent-guide"
           audience="parent"
         />
         <GuideCard
-          icon="✅"
+          icon={<CircleCheck className="w-5 h-5" aria-hidden />}
           title="Content quality"
           description="How every question and lesson is checked before your child ever sees it."
           href="/help/content-quality"
@@ -40,14 +41,14 @@ export default function HelpPage() {
           For students
         </h2>
         <GuideCard
-          icon="🎒"
+          icon={<Backpack className="w-5 h-5" aria-hidden />}
           title="Student guide"
           description="How to use Decifer: lessons, practice, quizzes, XP, cards, and streaks."
           href="/help/student-guide"
           audience="student"
         />
         <GuideCard
-          icon="⭐"
+          icon={<Star className="w-5 h-5" aria-hidden />}
           title="Gamification explained"
           description="XP, badges, streaks, shields, and Discovery Cards: what they mean and how to earn them."
           href="/help/gamification"
@@ -60,14 +61,14 @@ export default function HelpPage() {
           About Decifer
         </h2>
         <GuideCard
-          icon="< >"
+          icon={<Search className="w-5 h-5" aria-hidden />}
           title="How Decifer works"
           description="The thinking behind our lessons, practice, quiz structure, and guided learning approach."
           href="/help/how-decifer-works"
           audience="general"
         />
         <GuideCard
-          icon="💬"
+          icon={<BookOpen className="w-5 h-5" aria-hidden />}
           title="Frequently asked questions"
           description="Answers to common questions from parents and students."
           href="/help/faq"

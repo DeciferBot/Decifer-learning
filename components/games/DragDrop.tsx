@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
+import { Sparkles } from '@/components/ui/icons'
 
 export type DragDropConfig = {
   title: string
@@ -72,7 +73,7 @@ export function DragDrop({ config, topicId }: { config: DragDropConfig; topicId:
         animate={{ opacity: 1, scale: 1 }}
         className="rounded-2xl border border-black/5 bg-surface p-8 text-center shadow-sm"
       >
-        <div className="mb-3 text-5xl">🎉</div>
+        <div className="flex justify-center mb-3"><Sparkles className="w-12 h-12 text-maths" aria-hidden /></div>
         <h2 className="font-heading text-2xl font-bold text-ink">Perfect Match!</h2>
         <p className="mt-2 text-muted">You matched all {pairs.length} pairs correctly.</p>
         <Link

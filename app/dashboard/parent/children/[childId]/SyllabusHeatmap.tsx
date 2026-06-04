@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef } from 'react'
 import type { CurriculumSubject, CurriculumTopic, CurriculumOutcomeItem } from '@/lib/parent-dashboard'
+import { MapPin, Check, ChevronRight } from '@/components/ui/icons'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -199,8 +200,8 @@ export function SyllabusHeatmap({ subjects, childName, childProfileId, yearGroup
             </button>
           ))}
           {assignedIds.size > 0 && (
-            <span className="ml-auto flex-none rounded-lg bg-points-gold/15 px-3 py-1 text-xs font-semibold text-points-gold">
-              📌 {assignedIds.size} assigned
+            <span className="ml-auto flex-none rounded-lg bg-points-gold/15 px-3 py-1 text-xs font-semibold text-points-gold flex items-center gap-1">
+              <MapPin className="w-3 h-3" aria-hidden /> {assignedIds.size} assigned
             </span>
           )}
         </div>
@@ -271,11 +272,11 @@ export function SyllabusHeatmap({ subjects, childName, childProfileId, yearGroup
                         {/* Assigned pin */}
                         {isAssigned && (
                           <span
-                            className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full text-[9px] shadow-sm"
+                            className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full shadow-sm"
                             style={{ background: '#FFC107' }}
                             aria-label="Assigned"
                           >
-                            📌
+                            <MapPin className="w-2.5 h-2.5 text-white" aria-hidden />
                           </span>
                         )}
 
@@ -317,11 +318,11 @@ export function SyllabusHeatmap({ subjects, childName, childProfileId, yearGroup
                         {/* Compact view: status icon only */}
                         {!showLabel && (
                           <div className="flex h-full items-center justify-center">
-                            <span className="text-base" aria-hidden>
+                            <span className="flex items-center justify-center" aria-hidden>
                               {topic.progressStatus === 'completed'
-                                ? '✓'
+                                ? <Check className="w-3.5 h-3.5" />
                                 : topic.progressStatus === 'in_progress'
-                                  ? '▶'
+                                  ? <ChevronRight className="w-3.5 h-3.5" />
                                   : '·'}
                             </span>
                           </div>
@@ -520,8 +521,8 @@ function TopicModal({
         <div className="sticky bottom-0 bg-surface border-t border-black/5 px-5 py-4">
           {topic.progressStatus === 'completed' ? (
             <div className="rounded-xl bg-correct/8 border border-correct/15 px-4 py-3 text-center">
-              <p className="text-sm font-semibold text-correct">
-                ✓ {childName} has completed this topic
+              <p className="text-sm font-semibold text-correct flex items-center justify-center gap-1">
+                <Check className="w-4 h-4" aria-hidden /> {childName} has completed this topic
               </p>
               {topic.lastScore !== null && (
                 <p className="text-xs text-muted mt-0.5">Last score: {Math.round(topic.lastScore * 100)}%</p>
@@ -541,8 +542,8 @@ function TopicModal({
               {assigning
                 ? '…'
                 : isAssigned
-                  ? '📌 Remove focus assignment'
-                  : `📌 Assign as focus topic for ${childName}`}
+                  ? <span className="flex items-center justify-center gap-1.5"><MapPin className="w-4 h-4" aria-hidden /> Remove focus assignment</span>
+                  : <span className="flex items-center justify-center gap-1.5"><MapPin className="w-4 h-4" aria-hidden /> Assign as focus topic for {childName}</span>}
             </button>
           )}
           <p className="mt-2 text-center text-xs text-muted">

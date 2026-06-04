@@ -12,6 +12,19 @@ import {
   CONFIDENCE_LEVELS,
   type LearningProfile,
 } from '@/lib/onboarding-config'
+import {
+  Target, BookOpen, FlaskConical, Search,
+  Telescope, Dragon, PencilLine, Layers, Music, Leaf, Anvil,
+  Eye, Zap, TrendingUp, Star, Trophy,
+} from '@/components/ui/icons'
+import type { ComponentType, SVGProps } from 'react'
+
+type IconComp = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
+const ONBOARDING_ICONS: Record<string, IconComp> = {
+  Target, BookOpen, FlaskConical, Search,
+  Telescope, Dragon, PencilLine, Layers, Music, Leaf, Anvil,
+  Eye, Zap, TrendingUp, Star, Trophy,
+}
 
 // Accent colours — mirrors the Customise page palette.
 const COLOURS = [
@@ -124,7 +137,7 @@ export function OnboardingWizard({
       {/* ── Step content ─────────────────────────────────────────────────── */}
       {stepName === 'avatar' && (
         <Step
-          title={`Hi ${displayName}! 👋`}
+          title={`Hi ${displayName}!`}
           subtitle="Pick a character to be your avatar."
         >
           <div className="grid grid-cols-4 gap-2">
@@ -200,7 +213,7 @@ export function OnboardingWizard({
             {FAVOURITE_SUBJECTS.map((s) => (
               <ChoiceCard
                 key={s.id}
-                emoji={s.emoji}
+                iconName={s.iconName}
                 label={s.label}
                 active={favSubject === s.id}
                 onClick={() => setFavSubject(favSubject === s.id ? null : s.id)}
@@ -216,7 +229,7 @@ export function OnboardingWizard({
             {INTERESTS.map((i) => (
               <ChoiceCard
                 key={i.id}
-                emoji={i.emoji}
+                iconName={i.iconName}
                 label={i.label}
                 active={interests.includes(i.id)}
                 onClick={() => toggle(interests, setInterests, i.id)}
@@ -232,7 +245,7 @@ export function OnboardingWizard({
             {LEARN_STYLES.map((l) => (
               <ChoiceCard
                 key={l.id}
-                emoji={l.emoji}
+                iconName={l.iconName}
                 label={l.label}
                 active={learnStyles.includes(l.id)}
                 onClick={() => toggle(learnStyles, setLearnStyles, l.id)}
@@ -269,7 +282,7 @@ export function OnboardingWizard({
                             : 'border-black/10 bg-black/[0.02] hover:border-brand/40'
                         }`}
                       >
-                        <span className="text-2xl" aria-hidden>{lvl.emoji}</span>
+                        {(() => { const Icon = ONBOARDING_ICONS[lvl.iconName] ?? Star; return <Icon className="w-6 h-6 text-muted" aria-hidden /> })()}
                         <span className="text-[10px] font-medium leading-tight text-muted">{lvl.label}</span>
                       </button>
                     )
@@ -321,12 +334,12 @@ function Step({ title, subtitle, children }: { title: string; subtitle: string; 
 }
 
 function ChoiceCard({
-  emoji,
+  iconName,
   label,
   active,
   onClick,
 }: {
-  emoji: string
+  iconName: string
   label: string
   active: boolean
   onClick: () => void
@@ -341,7 +354,7 @@ function ChoiceCard({
           : 'border-black/10 bg-black/[0.02] hover:border-brand/40'
       }`}
     >
-      <span className="text-2xl" aria-hidden>{emoji}</span>
+      {(() => { const Icon = ONBOARDING_ICONS[iconName] ?? Target; return <Icon className={`w-6 h-6 ${active ? 'text-brand' : 'text-muted'}`} aria-hidden /> })()}
       <span className={`text-xs font-semibold ${active ? 'text-brand' : 'text-ink'}`}>{label}</span>
     </button>
   )

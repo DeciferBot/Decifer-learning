@@ -1,3 +1,5 @@
+import { Star } from '@/components/ui/icons'
+
 interface XPBadgeProps {
   points: number
   size?: 'sm' | 'md' | 'lg'
@@ -22,7 +24,7 @@ export function XPBadge({ points, size = 'md', variant = 'gold' }: XPBadgeProps)
       className={`inline-flex items-center rounded-full border font-semibold font-heading ${VARIANT_STYLES[variant]} ${SIZE_STYLES[size]}`}
       aria-label={`${points} XP`}
     >
-      <span aria-hidden>⭐</span>
+      <Star className="w-3.5 h-3.5" aria-hidden />
       <span>{points.toLocaleString()} XP</span>
     </span>
   )

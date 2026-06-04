@@ -6,13 +6,13 @@ import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 
 // Mission types and their display config
-const MISSION_LABELS: Record<string, { title: (v: number, topic?: string) => string; emoji: string }> = {
-  complete_topic:   { emoji: '📖', title: (v, t) => `Complete ${t ?? 'a topic'}` },
-  quiz_score:       { emoji: '🎯', title: (v) => `Score ${v}% or higher on a quiz` },
-  streak_days:      { emoji: '🔥', title: (v) => `Keep a ${v}-day streak` },
-  earn_points:      { emoji: '⭐', title: (v) => `Earn ${v.toLocaleString()} points` },
-  collect_cards:    { emoji: '🃏', title: (v) => `Collect ${v} Discovery Cards` },
-  complete_topics:  { emoji: '🏆', title: (v) => `Complete ${v} topics` },
+const MISSION_LABELS: Record<string, { title: (v: number, topic?: string) => string; iconName: string }> = {
+  complete_topic:   { iconName: 'BookOpen', title: (v, t) => `Complete ${t ?? 'a topic'}` },
+  quiz_score:       { iconName: 'Target',   title: (v) => `Score ${v}% or higher on a quiz` },
+  streak_days:      { iconName: 'Flame',    title: (v) => `Keep a ${v}-day streak` },
+  earn_points:      { iconName: 'Star',     title: (v) => `Earn ${v.toLocaleString()} points` },
+  collect_cards:    { iconName: 'Layers',   title: (v) => `Collect ${v} Discovery Cards` },
+  complete_topics:  { iconName: 'Trophy',   title: (v) => `Complete ${v} topics` },
 }
 
 export async function GET() {
@@ -42,7 +42,7 @@ export async function GET() {
       id:           m.id,
       type:         m.mission_type,
       title:        cfg?.title(m.target_value ?? 0, topicTitle) ?? m.mission_type,
-      emoji:        cfg?.emoji ?? '🎯',
+      iconName:     cfg?.iconName ?? 'Target',
       targetValue:  m.target_value,
       currentValue: m.current_value,
       targetTier:   m.target_tier,

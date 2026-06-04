@@ -6,6 +6,7 @@ import { getCurrentProfile } from '@/lib/profile'
 import { prisma } from '@/lib/prisma'
 import { ZoneMap, type ZoneNode } from '@/components/world-map/ZoneMap'
 import type { NodeState } from '@/components/world-map/TopicNode'
+import { MapFold } from '@/components/ui/icons'
 
 export const metadata = { title: 'World Map — Decifer Learning' }
 
@@ -95,7 +96,7 @@ export default async function WorldMapPage() {
 
       {zones.length === 0 && (
         <div className="rounded-2xl border border-black/5 bg-surface px-5 py-10 text-center shadow-sm">
-          <p className="text-3xl" aria-hidden>🗺️</p>
+          <div className="flex justify-center"><MapFold className="w-8 h-8 text-muted" aria-hidden /></div>
           <p className="mt-3 font-heading text-base font-bold text-ink">Your world map is being built</p>
           <p className="mt-1 text-sm text-muted">Check back soon — your zones will appear here.</p>
         </div>

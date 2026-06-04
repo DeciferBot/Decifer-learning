@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { BookOpen } from '@/components/ui/icons'
 
 type Props = {
   example: string
@@ -31,8 +32,8 @@ export function WorkedExample({ example }: Props) {
             className="overflow-hidden"
           >
             <div className="mt-2 rounded-xl border border-explorer/30 bg-explorer/5 p-4">
-              <p className="mb-2 text-xs font-bold uppercase tracking-wide text-explorer">
-                📖 Worked Example
+              <p className="mb-2 text-xs font-bold uppercase tracking-wide text-explorer flex items-center gap-1">
+                <BookOpen className="w-3.5 h-3.5" aria-hidden /> Worked Example
               </p>
               {/* Render newlines as paragraphs for step-by-step readability */}
               <div className="space-y-1.5">

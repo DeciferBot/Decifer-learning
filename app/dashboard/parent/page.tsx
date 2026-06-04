@@ -23,7 +23,7 @@ import {
 import { LinkChildForm } from '@/components/parent/LinkChildForm'
 import { CurriculumMap } from '@/components/parent/CurriculumMap'
 import { SubscriptionStatus } from '@/components/parent/SubscriptionStatus'
-import { Star, Flame, Gift, BarChart, Target, MapPin, CalendarDays, Check } from '@/components/ui/icons'
+import { Star, Flame, Gift, BarChart, Target, MapPin, CalendarDays, Check, CircleCheck } from '@/components/ui/icons'
 import type { ComponentType, SVGProps } from 'react'
 
 type IconComponent = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
@@ -224,7 +224,7 @@ export default async function ParentDashboardPage() {
                   </ul>
                 </div>
               ) : progress.quizAttempts > 0 ? (
-                <p className="text-xs text-science font-medium">✓ No struggle areas yet</p>
+                <p className="text-xs text-science font-medium flex items-center gap-1"><Check className="w-3 h-3" aria-hidden /> No struggle areas yet</p>
               ) : null}
 
               {/* NL recommendations — "Here's what to do" */}

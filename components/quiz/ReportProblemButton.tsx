@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { Flag, Check } from '@/components/ui/icons'
 
 interface Props {
   questionId: string
@@ -36,8 +37,8 @@ export function ReportProblemButton({ questionId }: Props) {
 
   if (state === 'done') {
     return (
-      <p className="mt-3 text-center text-xs text-correct">
-        ✓ Report received — our team will review it.
+      <p className="mt-3 text-center text-xs text-correct flex items-center justify-center gap-1">
+        <Check className="w-3.5 h-3.5" aria-hidden /> Report received — our team will review it.
       </p>
     )
   }
@@ -90,7 +91,7 @@ export function ReportProblemButton({ questionId }: Props) {
       onClick={() => setState('open')}
       className="mt-3 flex items-center gap-1 text-xs text-muted hover:text-ink transition-colors"
     >
-      <span aria-hidden>🚩</span> Report a problem
+      <Flag className="w-3.5 h-3.5" aria-hidden /> Report a problem
     </button>
   )
 }

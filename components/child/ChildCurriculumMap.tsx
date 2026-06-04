@@ -9,6 +9,7 @@
 
 import Link from 'next/link'
 import type { CurriculumSubject, CurriculumTopic } from '@/lib/parent-dashboard'
+import { Clock, Star, Check, AlertTriangle, MapPin, BookOpen, PencilLine, Zap, Flame } from '@/components/ui/icons'
 
 // ─── canonical subject order ─────────────────────────────────────────────────
 const SUBJECT_ORDER = ['Maths', 'English', 'Science', 'Geography', 'History']
@@ -37,14 +38,14 @@ function statusMeta(topic: CurriculumTopic, subjectName: string) {
   const col = c(subjectName)
   const score = topic.lastScore ?? 0
   if (topic.progressStatus === 'not_started')
-    return { icon: '○', label: 'Not started', ring: 'border border-gray-200/80', bg: col.light.replace('bg-[#', 'bg-[#').replace(']', ']/40'), badge: 'bg-gray-100 text-gray-400' }
+    return { icon: null as React.ReactNode, label: 'Not started', ring: 'border border-gray-200/80', bg: col.light.replace('bg-[#', 'bg-[#').replace(']', ']/40'), badge: 'bg-gray-100 text-gray-400' }
   if (topic.progressStatus === 'in_progress')
-    return { icon: '◐', label: 'In progress',  ring: 'border-solid', bg: '',          badge: 'bg-[#6C9EFF]/15 text-[#6C9EFF]' }
+    return { icon: <Clock className="w-2.5 h-2.5" aria-hidden /> as React.ReactNode, label: 'In progress',  ring: 'border-solid', bg: '',          badge: 'bg-[#6C9EFF]/15 text-[#6C9EFF]' }
   if (score >= 0.95)
-    return { icon: '★', label: 'Excelled!',    ring: 'border-solid border-[#FFC107]', bg: 'bg-[#FFFBEA]', badge: 'bg-[#FFC107]/20 text-[#B45309]' }
+    return { icon: <Star className="w-2.5 h-2.5" aria-hidden /> as React.ReactNode, label: 'Excelled!',    ring: 'border-solid border-[#FFC107]', bg: 'bg-[#FFFBEA]', badge: 'bg-[#FFC107]/20 text-[#B45309]' }
   if (score >= 0.70)
-    return { icon: '✓', label: 'Passed',       ring: 'border-solid border-[#40C057]', bg: 'bg-[#F0FDF4]', badge: 'bg-[#40C057]/15 text-[#166534]' }
-  return   { icon: '!', label: 'Try again',    ring: 'border-solid border-[#FF6B6B]', bg: 'bg-[#FFF5F5]', badge: 'bg-[#FF6B6B]/15 text-[#B91C1C]' }
+    return { icon: <Check className="w-2.5 h-2.5" aria-hidden /> as React.ReactNode, label: 'Passed',       ring: 'border-solid border-[#40C057]', bg: 'bg-[#F0FDF4]', badge: 'bg-[#40C057]/15 text-[#166534]' }
+  return   { icon: <AlertTriangle className="w-2.5 h-2.5" aria-hidden /> as React.ReactNode, label: 'Try again',    ring: 'border-solid border-[#FF6B6B]', bg: 'bg-[#FFF5F5]', badge: 'bg-[#FF6B6B]/15 text-[#B91C1C]' }
 }
 
 // ─── Topic card ──────────────────────────────────────────────────────────────
@@ -92,37 +93,37 @@ function TopicCard({
 
       {/* score */}
       {topic.progressStatus === 'completed' && (
-        <p className={`text-xs font-bold ${st.badge.split(' ')[1]}`}>
-          {Math.round(score * 100)}% {excelled ? '🌟' : score >= 0.70 ? '✓' : '— try again'}
+        <p className={`text-xs font-bold flex items-center gap-0.5 ${st.badge.split(' ')[1]}`}>
+          {Math.round(score * 100)}% {excelled ? <Star className="w-3 h-3" aria-hidden /> : score >= 0.70 ? <Check className="w-3 h-3" aria-hidden /> : '— try again'}
         </p>
       )}
 
       {/* parent-assigned flag */}
       {topic.isAssigned && (
-        <span className="text-[10px] font-semibold text-[#FF9F43]">📌 Focus topic</span>
+        <span className="text-[10px] font-semibold text-[#FF9F43] flex items-center gap-0.5"><MapPin className="w-2.5 h-2.5" aria-hidden /> Focus topic</span>
       )}
 
       {/* action buttons */}
       <div className="flex gap-1.5 mt-auto">
         <Link
           href={`/topics/${topic.topicId}/learn`}
-          className={`flex-1 min-h-[36px] flex items-center justify-center rounded-xl text-[11px] font-bold transition-colors ${col.btnBg}`}
+          className={`flex-1 min-h-[36px] flex items-center justify-center gap-1 rounded-xl text-[11px] font-bold transition-colors ${col.btnBg}`}
         >
-          📖 Learn
+          <BookOpen className="w-3 h-3" aria-hidden /> Learn
         </Link>
         {hasPractice && (
           <Link
             href={`/topics/${topic.topicId}/practise`}
-            className="flex-1 min-h-[36px] flex items-center justify-center rounded-xl text-[11px] font-bold bg-[#52D9A0]/10 hover:bg-[#52D9A0]/20 text-[#52D9A0] transition-colors"
+            className="flex-1 min-h-[36px] flex items-center justify-center gap-1 rounded-xl text-[11px] font-bold bg-[#52D9A0]/10 hover:bg-[#52D9A0]/20 text-[#52D9A0] transition-colors"
           >
-            ✏️ Practise
+            <PencilLine className="w-3 h-3" aria-hidden /> Practise
           </Link>
         )}
         <Link
           href={`/topics/${topic.topicId}/quiz`}
-          className="flex-1 min-h-[36px] flex items-center justify-center rounded-xl text-[11px] font-bold bg-[#FFD43B]/20 hover:bg-[#FFD43B]/35 text-[#92400E] transition-colors"
+          className="flex-1 min-h-[36px] flex items-center justify-center gap-1 rounded-xl text-[11px] font-bold bg-[#FFD43B]/20 hover:bg-[#FFD43B]/35 text-[#92400E] transition-colors"
         >
-          ⚡ Quiz
+          <Zap className="w-3 h-3" aria-hidden /> Quiz
         </Link>
       </div>
     </div>
@@ -185,9 +186,9 @@ function SummaryBar({ subjects, streak, points }: { subjects: CurriculumSubject[
 
   const stats = [
     { label: 'Topics done',   value: `${completed}/${total}`, sub: `${pct}% of your year`, colour: 'text-[#2D3748]' },
-    { label: '⚡ In progress', value: inProg,                  sub: 'keep going!',           colour: 'text-[#6C9EFF]' },
-    { label: '🌟 Excelled',   value: excelled,                 sub: '95%+ score',            colour: 'text-[#B45309]' },
-    { label: '🔥 Streak',     value: streak,                   sub: 'days in a row',         colour: 'text-[#FF9F43]' },
+    { label: 'In progress',   value: inProg,                  sub: 'keep going!',           colour: 'text-[#6C9EFF]' },
+    { label: 'Excelled',      value: excelled,                sub: '95%+ score',            colour: 'text-[#B45309]' },
+    { label: 'Streak',        value: streak,                  sub: 'days in a row',         colour: 'text-[#FF9F43]' },
   ]
 
   return (
@@ -206,18 +207,18 @@ function SummaryBar({ subjects, streak, points }: { subjects: CurriculumSubject[
 // ─── Legend ──────────────────────────────────────────────────────────────────
 
 function Legend() {
-  const items = [
-    { icon: '○', bg: 'bg-gray-100',       text: 'text-gray-400',   label: 'Not started' },
-    { icon: '◐', bg: 'bg-[#6C9EFF]/15',  text: 'text-[#6C9EFF]', label: 'In progress' },
-    { icon: '✓', bg: 'bg-[#40C057]/15',  text: 'text-[#166534]', label: 'Passed' },
-    { icon: '★', bg: 'bg-[#FFC107]/20',  text: 'text-[#B45309]', label: 'Excelled' },
-    { icon: '!', bg: 'bg-[#FF6B6B]/15',  text: 'text-[#B91C1C]', label: 'Try again' },
+  const items: { icon: React.ReactNode; bg: string; text: string; label: string }[] = [
+    { icon: null,                                                              bg: 'bg-gray-100',      text: 'text-gray-400',   label: 'Not started' },
+    { icon: <Clock className="w-2.5 h-2.5" aria-hidden />,                   bg: 'bg-[#6C9EFF]/15', text: 'text-[#6C9EFF]', label: 'In progress' },
+    { icon: <Check className="w-2.5 h-2.5" aria-hidden />,                   bg: 'bg-[#40C057]/15', text: 'text-[#166534]', label: 'Passed' },
+    { icon: <Star className="w-2.5 h-2.5" aria-hidden />,                    bg: 'bg-[#FFC107]/20', text: 'text-[#B45309]', label: 'Excelled' },
+    { icon: <AlertTriangle className="w-2.5 h-2.5" aria-hidden />,           bg: 'bg-[#FF6B6B]/15', text: 'text-[#B91C1C]', label: 'Try again' },
   ]
   return (
     <div className="flex flex-wrap gap-3 mb-6">
       {items.map((i) => (
         <div key={i.label} className="flex items-center gap-1.5">
-          <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${i.bg} ${i.text}`}>{i.icon}</span>
+          <span className={`w-5 h-5 rounded-full flex items-center justify-center ${i.bg} ${i.text}`}>{i.icon}</span>
           <span className="text-[11px] text-gray-500 font-medium">{i.label}</span>
         </div>
       ))}
@@ -254,7 +255,7 @@ export function ChildCurriculumMap({
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 80% 50%, white 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
         <p className="text-xs font-bold uppercase tracking-widest opacity-75 mb-1">{yearLabel} · Your full curriculum</p>
         <h2 className="text-2xl font-extrabold leading-tight mb-3">
-          {totalDone === 0 ? `Let's get started, ${displayName}! 🚀` : `Keep going, ${displayName}! 🌟`}
+          {totalDone === 0 ? `Let's get started, ${displayName}!` : `Keep going, ${displayName}!`}
         </h2>
         <div className="flex items-center gap-3">
           <div className="flex-1 h-2 bg-white/30 rounded-full overflow-hidden">
@@ -263,8 +264,8 @@ export function ChildCurriculumMap({
           <span className="text-sm font-bold tabular-nums">{totalDone}/{totalTopics} topics</span>
         </div>
         <div className="flex gap-4 mt-3 text-xs font-semibold opacity-80">
-          {streak > 0 && <span>🔥 {streak} day streak</span>}
-          {points > 0 && <span>⭐ {points.toLocaleString()} pts</span>}
+          {streak > 0 && <span className="flex items-center gap-1"><Flame className="w-3 h-3" aria-hidden /> {streak} day streak</span>}
+          {points > 0 && <span className="flex items-center gap-1"><Star className="w-3 h-3" aria-hidden /> {points.toLocaleString()} pts</span>}
           <span>{sorted.length} subjects</span>
         </div>
       </div>

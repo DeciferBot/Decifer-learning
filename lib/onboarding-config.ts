@@ -10,33 +10,33 @@
 // configuration, like AVATARS in lib/customise-config.ts.
 
 export const FAVOURITE_SUBJECTS = [
-  { id: 'maths',   label: 'Maths',   emoji: '🔢' },
-  { id: 'english', label: 'English', emoji: '📚' },
-  { id: 'science', label: 'Science', emoji: '🔬' },
-  { id: 'unsure',  label: 'Not sure yet', emoji: '🤔' },
+  { id: 'maths',   label: 'Maths',        iconName: 'Target' },
+  { id: 'english', label: 'English',      iconName: 'BookOpen' },
+  { id: 'science', label: 'Science',      iconName: 'FlaskConical' },
+  { id: 'unsure',  label: 'Not sure yet', iconName: 'Search' },
 ] as const
 
 export type FavouriteSubjectId = typeof FAVOURITE_SUBJECTS[number]['id']
 
 export const INTERESTS = [
-  { id: 'space',     label: 'Space',     emoji: '🚀' },
-  { id: 'animals',   label: 'Animals',   emoji: '🐾' },
-  { id: 'sport',     label: 'Sport',     emoji: '⚽' },
-  { id: 'art',       label: 'Art',       emoji: '🎨' },
-  { id: 'dinosaurs', label: 'Dinosaurs', emoji: '🦕' },
-  { id: 'games',     label: 'Games',     emoji: '🎮' },
-  { id: 'music',     label: 'Music',     emoji: '🎵' },
-  { id: 'nature',    label: 'Nature',    emoji: '🌿' },
-  { id: 'building',  label: 'Building',  emoji: '🧱' },
+  { id: 'space',     label: 'Space',     iconName: 'Telescope' },
+  { id: 'animals',   label: 'Animals',   iconName: 'Dragon' },
+  { id: 'sport',     label: 'Sport',     iconName: 'Target' },
+  { id: 'art',       label: 'Art',       iconName: 'PencilLine' },
+  { id: 'dinosaurs', label: 'Dinosaurs', iconName: 'Dragon' },
+  { id: 'games',     label: 'Games',     iconName: 'Layers' },
+  { id: 'music',     label: 'Music',     iconName: 'Music' },
+  { id: 'nature',    label: 'Nature',    iconName: 'Leaf' },
+  { id: 'building',  label: 'Building',  iconName: 'Anvil' },
 ] as const
 
 export type InterestId = typeof INTERESTS[number]['id']
 
 export const LEARN_STYLES = [
-  { id: 'videos',    label: 'Watching videos', emoji: '🎬' },
-  { id: 'games',     label: 'Playing games',   emoji: '🕹️' },
-  { id: 'reading',   label: 'Reading',         emoji: '📖' },
-  { id: 'hands_on',  label: 'Hands-on',        emoji: '✋' },
+  { id: 'videos',    label: 'Watching videos', iconName: 'Eye' },
+  { id: 'games',     label: 'Playing games',   iconName: 'Layers' },
+  { id: 'reading',   label: 'Reading',         iconName: 'BookOpen' },
+  { id: 'hands_on',  label: 'Hands-on',        iconName: 'Zap' },
 ] as const
 
 export type LearnStyleId = typeof LEARN_STYLES[number]['id']
@@ -50,10 +50,10 @@ export const CONFIDENCE_AREAS = [
 export type ConfidenceAreaId = typeof CONFIDENCE_AREAS[number]['id']
 
 export const CONFIDENCE_LEVELS = [
-  { value: 1, label: 'Just starting', emoji: '🌱' },
-  { value: 2, label: 'Getting there', emoji: '🙂' },
-  { value: 3, label: 'Pretty good',   emoji: '😄' },
-  { value: 4, label: 'Love it!',      emoji: '🤩' },
+  { value: 1, label: 'Just starting', iconName: 'Leaf' },
+  { value: 2, label: 'Getting there', iconName: 'TrendingUp' },
+  { value: 3, label: 'Pretty good',   iconName: 'Star' },
+  { value: 4, label: 'Love it!',      iconName: 'Trophy' },
 ] as const
 
 export type ConfidenceLevel = typeof CONFIDENCE_LEVELS[number]['value']

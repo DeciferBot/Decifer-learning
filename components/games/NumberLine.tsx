@@ -3,6 +3,7 @@
 import { useRef, useState } from 'react'
 import { motion, useDragControls } from 'framer-motion'
 import Link from 'next/link'
+import { Sparkles, Check } from '@/components/ui/icons'
 
 // Number line simulation for Year 3 Maths.
 // config_json shape: { min: number, max: number, step: number, questions: NumberLineQuestion[] }
@@ -183,7 +184,7 @@ function QuestionView({
             className={`mt-4 rounded-xl p-3 text-center ${correct ? 'bg-correct/10' : 'bg-incorrect/10'}`}
           >
             <p className="font-bold" style={{ color: correct ? '#40C057' : '#FF6B6B' }}>
-              {correct ? '✓ Correct!' : `Not quite — ${question.label} is ${question.target}`}
+              {correct ? <span className="flex items-center justify-center gap-1"><Check className="w-4 h-4" aria-hidden /> Correct!</span> : `Not quite — ${question.label} is ${question.target}`}
             </p>
           </motion.div>
         )}
@@ -221,7 +222,7 @@ export function NumberLine({ config, topicId }: Props) {
         animate={{ opacity: 1, scale: 1 }}
         className="rounded-2xl border border-black/5 bg-surface p-8 text-center shadow-sm"
       >
-        <div className="mb-3 text-5xl">🎉</div>
+        <div className="flex justify-center mb-3"><Sparkles className="w-12 h-12 text-maths" aria-hidden /></div>
         <h2 className="font-heading text-2xl font-bold text-ink">Practice complete!</h2>
         <p className="mt-2 text-muted">You nailed the number line. Ready for the quiz?</p>
         <Link

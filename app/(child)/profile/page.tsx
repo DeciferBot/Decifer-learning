@@ -6,7 +6,7 @@ import { prisma } from '@/lib/prisma'
 import { getUserDisplayName, MVP_YEAR_GROUPS } from '@/lib/auth/roles'
 import {
   Star, Flame, Layers, Trophy, Shield, PencilLine,
-  Compass, Gem, Crown, Leaf, Target,
+  Compass, Gem, Crown, Leaf, Target, Fox, Medal,
 } from '@/components/ui/icons'
 
 export const metadata = { title: 'My Profile — Decifer Learning' }
@@ -104,7 +104,7 @@ export default async function ProfilePage() {
           style={{ background: avatarColour, boxShadow: '0 2px 8px rgba(0,0,0,0.12)' }}
           aria-hidden
         >
-          {(avatarCfg?.base ?? '🦊')}
+          {avatarCfg?.base ? <span>{avatarCfg.base}</span> : <Fox className="w-8 h-8" aria-hidden />}
         </div>
 
         <div className="min-w-0 flex-1">
@@ -219,7 +219,7 @@ export default async function ProfilePage() {
                 }}
                 title={`${badge.description} — earned ${new Date(awarded_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`}
               >
-                <span aria-hidden className="text-base">{badge.icon_url ?? '🏅'}</span>
+                {badge.icon_url ? <img src={badge.icon_url} className="w-5 h-5" alt="" /> : <Medal className="w-5 h-5" aria-hidden />}
                 <span
                   className="text-xs font-bold"
                   style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-display)' }}

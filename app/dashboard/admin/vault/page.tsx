@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { requireAdmin } from '@/lib/auth/admin-guard'
 import { getAllRequests, getVaultStats } from '@/lib/vault/admin'
 import { FulfilmentControls } from './FulfilmentControls'
+import { Gift, Package, Truck } from '@/components/ui/icons'
 
 export const metadata = { title: 'Vault Admin — Decifer Learning' }
 
@@ -37,9 +38,9 @@ export default async function AdminVaultPage() {
         <div className="flex items-center gap-3">
           <Link
             href="/dashboard/admin/vault/catalogue"
-            className="rounded-xl border border-black/10 px-3 py-1.5 text-xs font-semibold text-muted hover:border-brand/40 hover:text-brand"
+            className="rounded-xl border border-black/10 px-3 py-1.5 text-xs font-semibold text-muted hover:border-brand/40 hover:text-brand flex items-center gap-1"
           >
-            🎁 Catalogue
+            <Gift className="w-3.5 h-3.5" aria-hidden /> Catalogue
           </Link>
           <a
             href="/api/admin/vault/requests?format=csv&limit=1000"
@@ -87,8 +88,8 @@ export default async function AdminVaultPage() {
                   </div>
                   <div className="flex items-center gap-1.5 flex-shrink-0">
                     {r.rewardType === 'physical' && (
-                      <span className="rounded-full bg-science/15 px-2 py-0.5 text-xs font-bold text-science">
-                        📦 Physical
+                      <span className="rounded-full bg-science/15 px-2 py-0.5 text-xs font-bold text-science flex items-center gap-1">
+                        <Package className="w-3.5 h-3.5" aria-hidden /> Physical
                       </span>
                     )}
                     <span className={`rounded-full px-2 py-0.5 text-xs font-bold capitalize ${STATUS_COLOUR[r.status] ?? 'bg-black/5 text-muted'}`}>
@@ -111,8 +112,8 @@ export default async function AdminVaultPage() {
                 {r.fulfilmentStatus && (
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className={`rounded-full px-2 py-0.5 text-xs font-bold capitalize ${FULFILMENT_COLOUR[r.fulfilmentStatus] ?? 'bg-black/5 text-muted'}`}>
-                        📦 {r.fulfilmentStatus}
+                      <span className={`rounded-full px-2 py-0.5 text-xs font-bold capitalize flex items-center gap-1 ${FULFILMENT_COLOUR[r.fulfilmentStatus] ?? 'bg-black/5 text-muted'}`}>
+                        <Truck className="w-3.5 h-3.5" aria-hidden /> {r.fulfilmentStatus}
                       </span>
                       {r.shopifyOrderUrl && (
                         <a

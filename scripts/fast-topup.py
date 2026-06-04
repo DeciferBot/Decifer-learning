@@ -107,7 +107,8 @@ def get_gaps() -> list[dict]:
             WHERE t.is_published = true
             GROUP BY t.id, t.title, s.name, yg.label, yg.key_stage
             HAVING
-                COUNT(qq.id) FILTER (WHERE qq.status='published' AND qq.tier='explorer')  < 3
+                COUNT(qq.id) FILTER (WHERE qq.status='published' AND qq.tier='sprout')    < 3
+                OR COUNT(qq.id) FILTER (WHERE qq.status='published' AND qq.tier='explorer')  < 3
                 OR COUNT(qq.id) FILTER (WHERE qq.status='published' AND qq.tier='lightning') < 3
             ORDER BY yg.label, s.name, t.title
         """)
@@ -116,6 +117,8 @@ def get_gaps() -> list[dict]:
     # Expand into (topic, tier) work items
     items = []
     for r in rows:
+        if r["sprout"] < 3:
+            items.append({**r, "tier": "sprout", "need": 8 - r["sprout"]})
         if r["explorer"] < 3:
             items.append({**r, "tier": "explorer", "need": 8 - r["explorer"]})
         if r["lightning"] < 3:

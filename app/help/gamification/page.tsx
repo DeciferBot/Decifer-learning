@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { Star, Medal, Flame, Shield, Layers, Target, CircleX, Check } from '@/components/ui/icons'
 
 export const metadata = {
   title: 'Gamification explained — Decifer Learning',
@@ -31,12 +32,12 @@ export default function GamificationPage() {
       </div>
 
       <section className="space-y-4">
-        <h2 className="font-heading text-xl font-bold text-ink">XP Points ⭐</h2>
+        <h2 className="font-heading text-xl font-bold text-ink flex items-center gap-2"><Star className="w-5 h-5 text-points-gold" aria-hidden /> XP Points</h2>
         <p className="text-sm text-muted">XP (experience points) are earned through learning activity. They represent effort, not perfection.</p>
         <ul className="space-y-2">
           {XP_EARN.map((item, i) => (
             <li key={i} className="flex items-start gap-3 rounded-xl border border-black/5 bg-surface px-4 py-3 text-sm shadow-sm">
-              <span className="text-lg" aria-hidden>{item.icon}</span>
+              <span className="flex-none mt-0.5">{item.icon}</span>
               <span className="text-muted">{item.body}</span>
             </li>
           ))}
@@ -44,7 +45,7 @@ export default function GamificationPage() {
       </section>
 
       <section className="space-y-4">
-        <h2 className="font-heading text-xl font-bold text-ink">Badges 🏅</h2>
+        <h2 className="font-heading text-xl font-bold text-ink flex items-center gap-2"><Medal className="w-5 h-5 text-points-gold" aria-hidden /> Badges</h2>
         <p className="text-sm text-muted">Badges mark real achievements. They do not expire and cannot be taken away.</p>
         <div className="grid gap-3 sm:grid-cols-2">
           {BADGES.map((badge) => (
@@ -57,7 +58,7 @@ export default function GamificationPage() {
       </section>
 
       <section className="space-y-4">
-        <h2 className="font-heading text-xl font-bold text-ink">Streaks 🔥</h2>
+        <h2 className="font-heading text-xl font-bold text-ink flex items-center gap-2"><Flame className="w-5 h-5 text-incorrect" aria-hidden /> Streaks</h2>
         <div className="text-sm text-muted space-y-2">
           <p>A streak represents the number of consecutive days you have logged in and engaged with Decifer. It is a <strong className="text-ink">consistency signal</strong>, not a pressure mechanism.</p>
           <p>If you miss a day, your streak resets unless you have a Streak Shield. Losing a streak is not a punishment. Starting again is just as valid as continuing one.</p>
@@ -65,7 +66,7 @@ export default function GamificationPage() {
       </section>
 
       <section className="space-y-4">
-        <h2 className="font-heading text-xl font-bold text-ink">Streak Shields 🛡️</h2>
+        <h2 className="font-heading text-xl font-bold text-ink flex items-center gap-2"><Shield className="w-5 h-5 text-maths" aria-hidden /> Streak Shields</h2>
         <div className="text-sm text-muted space-y-2">
           <p>Streak Shields protect your streak from a single missed day. They are earned by completing quizzes and maintaining streaks, not bought or gifted.</p>
           <p>You can hold multiple shields at once. They are used automatically when you miss a day, so your streak survives. Think of them as earned insurance, not a free pass.</p>
@@ -73,7 +74,7 @@ export default function GamificationPage() {
       </section>
 
       <section className="space-y-4">
-        <h2 className="font-heading text-xl font-bold text-ink">Discovery Cards 🃏</h2>
+        <h2 className="font-heading text-xl font-bold text-ink flex items-center gap-2"><Layers className="w-5 h-5 text-english" aria-hidden /> Discovery Cards</h2>
         <p className="text-sm text-muted">A Discovery Card drops after every quiz you pass. Cards come in five rarities:</p>
         <div className="space-y-2">
           {RARITIES.map((r) => (
@@ -94,7 +95,7 @@ export default function GamificationPage() {
         <ul className="space-y-2">
           {MUST_NOT.map((item, i) => (
             <li key={i} className="flex items-start gap-2 text-sm text-muted">
-              <span className="mt-0.5 flex-none font-bold text-incorrect">✗</span>
+              <CircleX className="mt-0.5 flex-none w-4 h-4 text-incorrect" aria-hidden />
               <span>{item}</span>
             </li>
           ))}
@@ -117,10 +118,10 @@ export default function GamificationPage() {
 }
 
 const XP_EARN = [
-  { icon: '✅', body: 'Correct answer in a quiz: XP awarded for every right answer.' },
-  { icon: '🎯', body: 'Perfect quiz with no hints: bonus XP for a clean run.' },
-  { icon: '🔥', body: 'Daily login: maintaining a streak earns a small daily bonus.' },
-  { icon: '💡', body: 'Using a hint: a small cost is deducted, but XP is still earned for correct answers.' },
+  { icon: <Check className="w-4 h-4 text-correct" aria-hidden />, body: 'Correct answer in a quiz: XP awarded for every right answer.' },
+  { icon: <Target className="w-4 h-4 text-maths" aria-hidden />, body: 'Perfect quiz with no hints: bonus XP for a clean run.' },
+  { icon: <Flame className="w-4 h-4 text-incorrect" aria-hidden />, body: 'Daily login: maintaining a streak earns a small daily bonus.' },
+  { icon: <Shield className="w-4 h-4 text-muted" aria-hidden />, body: 'Using a hint: a small cost is deducted, but XP is still earned for correct answers.' },
 ]
 
 const BADGES = [

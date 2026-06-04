@@ -11,6 +11,7 @@ import { EquationBalancer } from '@/components/games/EquationBalancer'
 import { DragDrop } from '@/components/games/DragDrop'
 import { SpeedRound } from '@/components/games/SpeedRound'
 import { rotateFillBlankItems } from '@/lib/adaptive'
+import { Layers } from '@/components/ui/icons'
 import type { NumberLineConfig } from '@/components/games/NumberLine'
 import type { EquationBalancerConfig } from '@/components/games/EquationBalancer'
 import type { DragDropConfig } from '@/components/games/DragDrop'
@@ -84,7 +85,7 @@ export default async function PractisePage({ params }: { params: { id: string } 
           <span className="font-medium text-ink">{topic.title}</span>
         </nav>
         <div className="rounded-2xl border border-black/5 bg-surface p-8 text-center space-y-3">
-          <p className="text-3xl">🎮</p>
+          <div className="flex justify-center"><Layers className="w-8 h-8 text-muted" aria-hidden /></div>
           <h1 className="font-heading text-xl font-bold text-ink">{topic.title}</h1>
           <p className="text-sm text-muted">Practice activities for this topic are coming soon.</p>
           <a

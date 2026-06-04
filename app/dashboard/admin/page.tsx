@@ -7,7 +7,7 @@ import { requireAdmin } from '@/lib/auth/admin-guard'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { getUserDisplayName } from '@/lib/auth/roles'
 import { prisma } from '@/lib/prisma'
-import { BarChart, Gift, Users, Flag, RefreshCw, TrendingUp, BookOpen } from '@/components/ui/icons'
+import { BarChart, Gift, Users, Flag, RefreshCw, TrendingUp, BookOpen, Bell, AlertTriangle } from '@/components/ui/icons'
 import { LockButton } from './LockButton'
 
 export const metadata = { title: 'Admin — Decifer Learning' }
@@ -86,15 +86,15 @@ export default async function AdminDashboardPage() {
   const avgScore = avgScore7d._avg.score
   const topicsHealthPct = totalTopics > 0 ? Math.round((publishedTopics / totalTopics) * 100) : 0
 
-  const alerts: { colour: 'red' | 'yellow'; icon: string; message: string; href?: string }[] = []
+  const alerts: { colour: 'red' | 'yellow'; icon: React.ReactNode; message: string; href?: string }[] = []
   if (flaggedQ > 0)
-    alerts.push({ colour: 'red', icon: '🚩', message: `${flaggedQ} flagged question${flaggedQ === 1 ? '' : 's'} — hidden from children`, href: '/dashboard/admin/monitoring' })
+    alerts.push({ colour: 'red', icon: <Flag className="w-4 h-4" aria-hidden />, message: `${flaggedQ} flagged question${flaggedQ === 1 ? '' : 's'} — hidden from children`, href: '/dashboard/admin/monitoring' })
   if (openReports > 0)
-    alerts.push({ colour: 'yellow', icon: '📣', message: `${openReports} open problem report${openReports === 1 ? '' : 's'} from children`, href: '/dashboard/admin/monitoring' })
+    alerts.push({ colour: 'yellow', icon: <Bell className="w-4 h-4" aria-hidden />, message: `${openReports} open problem report${openReports === 1 ? '' : 's'} from children`, href: '/dashboard/admin/monitoring' })
   if (pendingVaultRequests > 0)
-    alerts.push({ colour: 'yellow', icon: '🎁', message: `${pendingVaultRequests} vault reward request${pendingVaultRequests === 1 ? '' : 's'} awaiting fulfilment`, href: '/dashboard/admin/vault' })
+    alerts.push({ colour: 'yellow', icon: <Gift className="w-4 h-4" aria-hidden />, message: `${pendingVaultRequests} vault reward request${pendingVaultRequests === 1 ? '' : 's'} awaiting fulfilment`, href: '/dashboard/admin/vault' })
   if (stagedQ > 200)
-    alerts.push({ colour: 'yellow', icon: '⚠️', message: `${stagedQ} staged questions — promote only via the pipeline gate` })
+    alerts.push({ colour: 'yellow', icon: <AlertTriangle className="w-4 h-4" aria-hidden />, message: `${stagedQ} staged questions — promote only via the pipeline gate` })
 
   return (
     <section className="space-y-6 pb-10">

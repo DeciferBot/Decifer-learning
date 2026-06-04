@@ -1,4 +1,7 @@
 import Link from 'next/link'
+import { BookOpen, PencilLine, Zap, CircleCheck, Target, Lightbulb, Flame } from '@/components/ui/icons'
+import type { ComponentType, SVGProps } from 'react'
+type IconComp = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
 
 export const metadata = {
   title: 'Student guide — Decifer Learning',
@@ -23,7 +26,7 @@ export default function StudentGuidePage() {
         <div className="grid gap-3 sm:grid-cols-3">
           {THREE_STEPS.map((step) => (
             <div key={step.label} className="rounded-2xl border border-black/5 bg-surface p-4 shadow-sm text-center">
-              <span className="text-3xl" aria-hidden>{step.icon}</span>
+              <step.icon className="w-7 h-7 text-muted" aria-hidden />
               <p className="mt-2 font-heading font-bold text-ink">{step.label}</p>
               <p className="mt-1 text-xs text-muted">{step.body}</p>
             </div>
@@ -45,7 +48,7 @@ export default function StudentGuidePage() {
         <ul className="space-y-2">
           {XP_RULES.map((rule, i) => (
             <li key={i} className="flex items-start gap-3 rounded-xl border border-black/5 bg-surface px-4 py-3 text-sm shadow-sm">
-              <span className="text-lg" aria-hidden>{rule.icon}</span>
+              <span className="flex-none mt-0.5">{rule.icon}</span>
               <span className="text-muted">{rule.body}</span>
             </li>
           ))}
@@ -101,17 +104,17 @@ export default function StudentGuidePage() {
   )
 }
 
-const THREE_STEPS = [
-  { icon: '📖', label: 'Learn', body: 'Read the explanation and worked examples for the topic.' },
-  { icon: '✏️', label: 'Practise', body: 'Work through guided exercises to build confidence.' },
-  { icon: '⚡', label: 'Quiz', body: 'Answer 10 questions to test your real understanding.' },
+const THREE_STEPS: { icon: IconComp; label: string; body: string }[] = [
+  { icon: BookOpen,  label: 'Learn',    body: 'Read the explanation and worked examples for the topic.' },
+  { icon: PencilLine, label: 'Practise', body: 'Work through guided exercises to build confidence.' },
+  { icon: Zap,       label: 'Quiz',     body: 'Answer 10 questions to test your real understanding.' },
 ]
 
 const XP_RULES = [
-  { icon: '✅', body: 'Correct answer in a quiz: earn XP for every question you get right.' },
-  { icon: '🎯', body: 'Perfect quiz: bonus XP for completing a quiz without any wrong answers.' },
-  { icon: '💡', body: 'Using hints: hints cost a small amount of XP each, but that\'s okay.' },
-  { icon: '🔥', body: 'Daily login: keeping your streak going earns bonus XP every day.' },
+  { icon: <CircleCheck className="w-4 h-4 text-correct" aria-hidden />, body: 'Correct answer in a quiz: earn XP for every question you get right.' },
+  { icon: <Target className="w-4 h-4 text-maths" aria-hidden />,        body: 'Perfect quiz: bonus XP for completing a quiz without any wrong answers.' },
+  { icon: <Lightbulb className="w-4 h-4 text-points-gold" aria-hidden />, body: 'Using hints: hints cost a small amount of XP each, but that\'s okay.' },
+  { icon: <Flame className="w-4 h-4 text-incorrect" aria-hidden />,     body: 'Daily login: keeping your streak going earns bonus XP every day.' },
 ]
 
 const TIPS = [
