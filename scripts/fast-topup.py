@@ -44,6 +44,7 @@ sys.path.insert(0, "/root/decifer-learning/services/content-pipeline")
 import config
 import psycopg2, psycopg2.extras
 import anthropic
+import openai
 
 logging.basicConfig(
     level=logging.INFO,
@@ -57,12 +58,33 @@ log = logging.getLogger("fast-topup")
 
 _STOP = Path("/root/decifer-learning/.PIPELINE_STOP")
 _client: Optional[anthropic.Anthropic] = None
+_do_client: Optional[openai.OpenAI] = None
+
+DO_MODEL = "llama3.3-70b-instruct"  # Llama 3.3 70B via DO GenAI — used for stages 3+4
 
 def _anthropic() -> anthropic.Anthropic:
     global _client
     if _client is None:
         _client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
     return _client
+
+def _do_llama() -> openai.OpenAI:
+    global _do_client
+    if _do_client is None:
+        _do_client = openai.OpenAI(
+            api_key=os.environ["DO_API_TOKEN"],
+            base_url="https://inference.do-ai.run/v1",
+        )
+    return _do_client
+
+def _llama_call(prompt: str, max_tokens: int = 1024) -> str:
+    """Call DO Llama 3.3 70B. Returns response text."""
+    resp = _do_llama().chat.completions.create(
+        model=DO_MODEL,
+        max_tokens=max_tokens,
+        messages=[{"role": "user", "content": prompt}],
+    )
+    return resp.choices[0].message.content.strip()
 
 # ── DB helpers ────────────────────────────────────────────────────────────────
 def _conn():
@@ -284,14 +306,8 @@ Be strict on factual correctness. Be lenient on minor wording. Mark pass=false o
 
     for attempt in range(3):
         try:
-            msg = _anthropic().messages.create(
-                model=config.CLAUDE_MODEL,
-                max_tokens=1024,
-                messages=[{"role": "user", "content": prompt}],
-            )
-            text = msg.content[0].text.strip()
+            text = _llama_call(prompt, max_tokens=1024)
             text = re.sub(r"```[a-z]*\n?", "", text).strip()
-            # Extract JSON array robustly
             m = re.search(r'\[[\s\S]*\]', text)
             if not m:
                 raise ValueError(f"No JSON array found: {text[:100]}")
@@ -306,7 +322,6 @@ Be strict on factual correctness. Be lenient on minor wording. Mark pass=false o
         except Exception as e:
             log.warning(f"    Stage 3 attempt {attempt+1} failed: {e}")
             time.sleep(1)
-    # If consensus fails entirely, pass all through
     log.warning("    Consensus failed all attempts — passing all through")
     return questions
 
@@ -338,12 +353,7 @@ Only flag clear violations. Minor wording imperfections = pass."""
 
     for attempt in range(3):
         try:
-            msg = _anthropic().messages.create(
-                model=config.CLAUDE_MODEL,
-                max_tokens=1024,
-                messages=[{"role": "user", "content": prompt}],
-            )
-            text = msg.content[0].text.strip()
+            text = _llama_call(prompt, max_tokens=1024)
             text = re.sub(r"```[a-z]*\n?", "", text).strip()
             m = re.search(r'\[[\s\S]*\]', text)
             if not m:
@@ -352,7 +362,6 @@ Only flag clear violations. Minor wording imperfections = pass."""
             passed = []
             for r in results:
                 idx = r.get("index", 0) - 1
-                # Only reject on explicit violations list that is non-empty
                 violations = r.get("violations", [])
                 if 0 <= idx < len(questions) and not violations:
                     passed.append(questions[idx])

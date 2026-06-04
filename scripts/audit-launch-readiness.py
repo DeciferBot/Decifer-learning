@@ -66,7 +66,8 @@ def main():
     MIN_Q    = 10
     MIN_TIER = 2   # at least 2 per tier
     MIN_LEARN = 1
-    MIN_GAME  = 1
+    # practice_game is optional — app gracefully skips Practise step when absent.
+    # Missing games are reported as warnings but do not cause a HOLD.
 
     header = f"{'Year':<8} {'Subject':<12} {'Topic':<45} {'Q':>4} {'S':>3} {'E':>3} {'L':>3} {'Lrn':>4} {'Gm':>4} Status"
     print(header)
@@ -81,14 +82,17 @@ def main():
          learn_rows, game_rows) = row
 
         failures = []
+        warnings = []
         if total_q < MIN_Q:          failures.append(f"only {total_q} questions")
         if sprout < MIN_TIER:        failures.append(f"sprout:{sprout}")
         if explorer < MIN_TIER:      failures.append(f"explorer:{explorer}")
         if lightning < MIN_TIER:     failures.append(f"lightning:{lightning}")
         if learn_rows < MIN_LEARN:   failures.append("no learn_content")
-        if game_rows < MIN_GAME:     failures.append("no practice_game")
+        if game_rows < 1:            warnings.append("no practice_game (optional)")
 
         status = "✓ OK" if not failures else "✗ HOLD"
+        if not failures and warnings:
+            status = "⚠ WARN"
         total += 1
         if failures:
             hold += 1
