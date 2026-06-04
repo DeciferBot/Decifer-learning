@@ -136,6 +136,11 @@ _PROSE_SUPPRESSED_MESSAGE_FRAGMENTS: frozenset[str] = frozenset({
     "Unpaired symbol",
     "Use a comma before",
     "Consider adding a comma",
+    # Explanations and hints often quote example sentences that start lowercase
+    # (e.g. "'where is my cat?' is incorrect because..."). These are intentional quotes,
+    # not prose grammar errors.
+    "does not start with an uppercase letter",
+    "This sentence does not start",
 })
 
 # LT rule IDs suppressed in punctuation demonstration STIMULUS text.
@@ -255,12 +260,13 @@ def _verify_intentional_error_question(data: dict, qtype: str) -> Tuple[bool, st
     if not ok:
         return False, detail
 
-    # If no intentional_error_type → identification question; stimulus must be clean
+    # If no intentional_error_type → identification question.
+    # stimulus_text in identification questions intentionally contains example sentences
+    # including incorrect ones (e.g. "where is my cat?" to show a capitalisation error).
+    # LanguageTool MUST NOT be run on the stimulus here — the incorrect examples are
+    # deliberate teaching material, not pipeline bugs. Prose fields (explanation, hints)
+    # are already checked above.
     if not intentional_error_type:
-        stim_errors = _lt_errors(str(stimulus_text))
-        if stim_errors:
-            detail = "; ".join(e["message"] for e in stim_errors[:3])
-            return False, f"Grammar error in stimulus_text (identification question, no error expected): {detail}"
         return True, f"{qtype} identification question verified (no intentional error)"
 
     # Validate stimulus_text against intentional_error_span
