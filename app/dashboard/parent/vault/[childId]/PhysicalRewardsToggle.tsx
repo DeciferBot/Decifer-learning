@@ -14,25 +14,28 @@ export function PhysicalRewardsToggle({ childId, initialEnabled }: Props) {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  async function toggle() {
+  function toggle() {
+    if (saving) return
+    const next = !enabled
+    setEnabled(next)   // optimistic
     setSaving(true)
     setError(null)
-    try {
-      const res = await fetch(`/api/vault/parent/settings/${childId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ physicalRewardsEnabled: !enabled }),
+    fetch(`/api/vault/parent/settings/${childId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ physicalRewardsEnabled: next }),
+    })
+      .then(async (res) => {
+        if (!res.ok) {
+          const body = await res.json()
+          setError(body.error ?? 'Could not update — please try again')
+          setEnabled(!next)  // roll back
+        } else {
+          router.refresh()
+        }
       })
-      if (!res.ok) {
-        const body = await res.json()
-        setError(body.error ?? 'Could not update — please try again')
-        return
-      }
-      setEnabled(!enabled)
-      router.refresh()
-    } finally {
-      setSaving(false)
-    }
+      .catch(() => { setError('Network error — please try again'); setEnabled(!next) })
+      .finally(() => setSaving(false))
   }
 
   return (

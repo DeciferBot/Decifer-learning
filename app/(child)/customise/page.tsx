@@ -91,14 +91,14 @@ export default function CustomisePage() {
     if (interests.length) learningProfile.interests = interests
     if (learnStyles.length) learningProfile.learn_styles = learnStyles
     if (Object.keys(confidence).length) learningProfile.confidence = confidence
-    await fetch('/api/profile/customise', {
+    // Optimistic: show saved immediately; router.refresh syncs server state in background
+    setSaving(false)
+    setSaved(true)
+    fetch('/api/profile/customise', {
       method:  'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ avatarBase, avatarColour, theme, studyBuddy: buddy, learningProfile }),
-    })
-    setSaving(false)
-    setSaved(true)
-    router.refresh()
+    }).then(() => router.refresh()).catch(() => {})
   }
 
   if (loading) {

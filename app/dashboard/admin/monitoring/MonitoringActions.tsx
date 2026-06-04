@@ -38,7 +38,7 @@ export function MonitoringActions({ reportId, questionId }: Props) {
       })
       if (!res.ok) throw new Error('Request failed')
       setDone(true)
-      router.refresh()
+      router.refresh()  // background — done state shown immediately
     } catch {
       setBusy(false)
     }

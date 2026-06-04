@@ -32,7 +32,7 @@ export function RegenerateButton() {
           : `Triggered ${triggered} — ${published} published, ${failed} failed.`,
       )
       setState('done')
-      router.refresh()
+      router.refresh()  // background — summary already displayed
     } catch (err) {
       setSummary(err instanceof Error ? err.message : 'Unknown error')
       setState('error')

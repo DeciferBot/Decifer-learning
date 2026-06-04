@@ -56,26 +56,36 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Invalid body' }, { status: 400 })
   }
 
-  const profile = await prisma.profile.findUnique({ where: { user_id: user.id } })
-  if (!profile) return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
+  // Wave 1: profile + correct answers in parallel (correct answers need only topicId, not profile.id)
+  const questionIds = answers.map((a) => a.questionId)
+  const [profile, correctAnswers] = await Promise.all([
+    prisma.profile.findUnique({ where: { user_id: user.id } }),
+    prisma.quizQuestion.findMany({
+      where:  { id: { in: questionIds }, topic_id: topicId, status: 'published' },
+      select: { id: true, correct_answer: true },
+    }),
+  ])
 
-  // ── Topic year-group guard ─────────────────────────────────────────────────
-  // Verify the submitted topic belongs to this child's year group.
+  if (!profile) return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
   if (!profile.year_group_id) {
     return NextResponse.json({ error: 'Profile has no year group assigned' }, { status: 403 })
   }
-  const topicRow = await prisma.topic.findFirst({
-    where:  { id: topicId, year_group_id: profile.year_group_id },
-    select: { id: true },
-  })
+
+  // Wave 2: topic guard + parent controls in parallel (both need profile.id / year_group_id)
+  const [topicRow, controls] = await Promise.all([
+    prisma.topic.findFirst({
+      where:  { id: topicId, year_group_id: profile.year_group_id },
+      select: { id: true },
+    }),
+    prisma.parentControl.findUnique({
+      where:  { child_profile_id: profile.id },
+      select: { daily_time_limit_minutes: true },
+    }),
+  ])
+
   if (!topicRow) return NextResponse.json({ error: 'Topic not found' }, { status: 404 })
-  // ── End topic guard ───────────────────────────────────────────────────────
 
   // ── Screen-time enforcement ───────────────────────────────────────────────
-  const controls = await prisma.parentControl.findUnique({
-    where:  { child_profile_id: profile.id },
-    select: { daily_time_limit_minutes: true },
-  })
   if (controls) {
     const limitSeconds  = controls.daily_time_limit_minutes * 60
     const todayStart    = new Date(); todayStart.setHours(0, 0, 0, 0)
@@ -83,7 +93,6 @@ export async function POST(req: Request) {
       where: { profile_id: profile.id, created_at: { gte: todayStart } },
       _sum:  { time_taken_seconds: true },
     })
-    // Include the current quiz duration in the gate so the limit is precise
     const usedSeconds = (_sum.time_taken_seconds ?? 0) + (timeTakenSeconds ?? 0)
     if (usedSeconds >= limitSeconds) {
       return NextResponse.json(
@@ -93,14 +102,6 @@ export async function POST(req: Request) {
     }
   }
   // ── End screen-time enforcement ───────────────────────────────────────────
-
-  // ── Server-side answer scoring ────────────────────────────────────────────
-  // Never trust wasCorrect from the client — fetch correct answers and score here.
-  const questionIds    = answers.map((a) => a.questionId)
-  const correctAnswers = await prisma.quizQuestion.findMany({
-    where:  { id: { in: questionIds }, topic_id: topicId, status: 'published' },
-    select: { id: true, correct_answer: true },
-  })
   const correctMap = new Map(correctAnswers.map((q) => [q.id, q.correct_answer]))
 
   const scoredAnswers = answers.map((a) => ({

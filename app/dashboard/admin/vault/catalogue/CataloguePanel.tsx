@@ -18,8 +18,9 @@ interface Props {
   items: CatalogueItem[]
 }
 
-export function CataloguePanel({ items }: Props) {
+export function CataloguePanel({ items: initialItems }: Props) {
   const router = useRouter()
+  const [localItems, setLocalItems] = useState(initialItems)
   const [adding, setAdding] = useState(false)
   const [form, setForm] = useState({ name: '', description: '', category: '', min_milestone: '', price_pence: '', shopify_variant_id: '' })
   const [saving, setSaving] = useState(false)
@@ -31,22 +32,27 @@ export function CataloguePanel({ items }: Props) {
     setError(null)
     try {
       const pence = form.price_pence ? parseInt(form.price_pence, 10) : 0
+      const payload = {
+        name: form.name.trim(),
+        description: form.description.trim() || undefined,
+        category: form.category.trim() || undefined,
+        min_milestone: form.min_milestone || undefined,
+        price_pence: isNaN(pence) ? 0 : pence,
+        shopify_variant_id: form.shopify_variant_id.trim() || undefined,
+      }
       const res = await fetch('/api/admin/vault/catalogue', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: form.name.trim(),
-          description: form.description.trim() || undefined,
-          category: form.category.trim() || undefined,
-          min_milestone: form.min_milestone || undefined,
-          price_pence: isNaN(pence) ? 0 : pence,
-          shopify_variant_id: form.shopify_variant_id.trim() || undefined,
-        }),
+        body: JSON.stringify(payload),
       })
       if (!res.ok) {
         const body = await res.json()
         setError(body.error ?? 'Could not create item')
         return
+      }
+      const created = await res.json() as CatalogueItem
+      if (created?.id) {
+        setLocalItems((prev) => [...prev, created])
       }
       setForm({ name: '', description: '', category: '', min_milestone: '', price_pence: '', shopify_variant_id: '' })
       setAdding(false)
@@ -56,22 +62,25 @@ export function CataloguePanel({ items }: Props) {
     }
   }
 
-  async function toggleActive(item: CatalogueItem) {
+  function toggleActive(item: CatalogueItem) {
     setTogglingId(item.id)
-    try {
-      await fetch(`/api/admin/vault/catalogue/${item.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ is_active: !item.is_active }),
+    // Optimistic toggle
+    setLocalItems((prev) => prev.map((i) => i.id === item.id ? { ...i, is_active: !i.is_active } : i))
+    fetch(`/api/admin/vault/catalogue/${item.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ is_active: !item.is_active }),
+    })
+      .then((res) => {
+        if (!res.ok) setLocalItems((prev) => prev.map((i) => i.id === item.id ? { ...i, is_active: item.is_active } : i))
+        else router.refresh()
       })
-      router.refresh()
-    } finally {
-      setTogglingId(null)
-    }
+      .catch(() => setLocalItems((prev) => prev.map((i) => i.id === item.id ? { ...i, is_active: item.is_active } : i)))
+      .finally(() => setTogglingId(null))
   }
 
   const grouped: Record<string, CatalogueItem[]> = {}
-  for (const item of items) {
+  for (const item of localItems) {
     const cat = item.category ?? 'Uncategorised'
     if (!grouped[cat]) grouped[cat] = []
     grouped[cat].push(item)
@@ -163,7 +172,7 @@ export function CataloguePanel({ items }: Props) {
       )}
 
       {/* ── Item list ── */}
-      {items.length === 0 ? (
+      {localItems.length === 0 ? (
         <p className="text-sm text-muted">No prizes yet — add one above.</p>
       ) : (
         Object.entries(grouped).map(([cat, catItems]) => (

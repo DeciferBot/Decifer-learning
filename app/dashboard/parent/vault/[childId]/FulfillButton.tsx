@@ -33,6 +33,7 @@ export function FulfillButton({ requestId }: Props) {
                 setConfirming(false)
                 return
               }
+              setConfirming(false)
               router.refresh()
             } finally {
               setSubmitting(false)

@@ -53,36 +53,34 @@ export default async function ParentDashboardPage() {
   })
   const yearGroupIdMap = new Map(childProfiles.map((p) => [p.id, p.year_group_id]))
 
-  const childData = await Promise.all(
-    children.map(async (child) => {
-      const yearGroupId = yearGroupIdMap.get(child.profileId) ?? null
-      const [progress, weakAreas, recommended, vault, digest, curriculum] = await Promise.all([
-        getChildProgressSummary(child.profileId),
-        getChildWeakAreas(child.profileId, 2),
-        getRecommendedNextLesson(child.profileId, child.yearGroupLabel),
-        getChildVaultSummary(child.profileId).catch(() => ({ creditBalance: 0, currentBand: 'none', pendingRequestCount: 0 })),
-        getChildWeeklyDigestSummary(child.profileId).catch(() => null),
-        yearGroupId ? getCurriculumProgress(child.profileId, yearGroupId) : Promise.resolve([]),
-      ])
-      const actions = buildParentActions(
-        child.displayName,
-        weakAreas,
-        digest,
-        recommended,
-        child.streakDays,
-      )
-      return { child, progress, weakAreas, recommended, vault, digest, curriculum, actions }
-    }),
-  )
-
-  const parentProfile = profile ? await prisma.profile.findUnique({
-    where: { user_id: profile.user_id },
-    select: { id: true },
-  }) : null
-
-  const pendingVaultRequests = parentProfile
-    ? await getPendingVaultRequests(parentProfile.id).catch(() => [])
-    : []
+  // Run per-child data + pending vault requests in parallel (both are independent)
+  const [childData, pendingVaultRequests] = await Promise.all([
+    Promise.all(
+      children.map(async (child) => {
+        const yearGroupId = yearGroupIdMap.get(child.profileId) ?? null
+        const [progress, weakAreas, recommended, vault, digest, curriculum] = await Promise.all([
+          getChildProgressSummary(child.profileId),
+          getChildWeakAreas(child.profileId, 2),
+          getRecommendedNextLesson(child.profileId, child.yearGroupLabel),
+          getChildVaultSummary(child.profileId).catch(() => ({ creditBalance: 0, currentBand: 'none', pendingRequestCount: 0 })),
+          getChildWeeklyDigestSummary(child.profileId).catch(() => null),
+          yearGroupId ? getCurriculumProgress(child.profileId, yearGroupId) : Promise.resolve([]),
+        ])
+        const actions = buildParentActions(
+          child.displayName,
+          weakAreas,
+          digest,
+          recommended,
+          child.streakDays,
+        )
+        return { child, progress, weakAreas, recommended, vault, digest, curriculum, actions }
+      }),
+    ),
+    // profile.id is already fetched above — no need for a second findUnique
+    profile?.id
+      ? getPendingVaultRequests(profile.id).catch(() => [])
+      : Promise.resolve([]),
+  ])
 
   return (
     <section className="space-y-6">

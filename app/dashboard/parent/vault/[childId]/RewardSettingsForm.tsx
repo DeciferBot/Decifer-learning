@@ -111,7 +111,7 @@ export function RewardSettingsForm({ childId, initialOptions }: Props) {
                 return
               }
               setEditing(false)
-              router.refresh()
+              router.refresh()  // background — form already closed
             } finally {
               setSaving(false)
             }

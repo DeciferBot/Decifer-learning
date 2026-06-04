@@ -29,6 +29,7 @@ export function RespondButtons({
 }: Props) {
   const router = useRouter()
   const [action, setAction] = useState<'approve' | 'reject' | 'counter_offer' | null>(null)
+  const [done, setDone] = useState(false)
   const [approveTab, setApproveTab] = useState<ApproveTab>('family')
   const [note, setNote] = useState('')
   const [rewardLabel, setRewardLabel] = useState('')
@@ -84,10 +85,21 @@ export function RespondButtons({
         setError(resBody.error ?? 'Something went wrong')
         return
       }
+      // Optimistic: update local status immediately; background refresh syncs server state
+      setAction(null)
+      setDone(true)
       router.refresh()
     } finally {
       setSubmitting(false)
     }
+  }
+
+  if (done) {
+    return (
+      <div className="rounded-2xl border border-correct/20 bg-correct/5 p-4">
+        <p className="text-sm font-bold text-correct">Done — syncing…</p>
+      </div>
+    )
   }
 
   if (status === 'counter_offered') {

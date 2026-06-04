@@ -44,8 +44,8 @@ export function LoginForm() {
           password,
         })
         if (signInError) { setError(signInError.message); return }
-        router.push(redirectTo)
         router.refresh()
+        router.push(redirectTo)
       } catch {
         setError('Something went wrong. Please try again.')
       }
@@ -320,8 +320,8 @@ function PinLoginForm({ redirectTo }: { redirectTo: string }) {
           setError('Incorrect PIN. Please try again.')
           return
         }
-        router.push(redirectTo)
         router.refresh()
+        router.push(redirectTo)
       } catch {
         setError('Something went wrong. Please try again.')
       }

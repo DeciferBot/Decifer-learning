@@ -69,8 +69,8 @@ export function RegisterForm() {
           setNotice('Check your email to confirm your account, then sign in.')
           return
         }
-        router.push('/dashboard')
         router.refresh()
+        router.push('/dashboard')
       } catch {
         setError('Something went wrong. Please try again.')
       }

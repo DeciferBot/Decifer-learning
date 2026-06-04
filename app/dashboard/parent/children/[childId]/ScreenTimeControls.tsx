@@ -18,17 +18,17 @@ export function ScreenTimeControls({ childId, initialLimit, leaderboardVisible }
   const [saving,  setSaving]  = useState(false)
   const [saved,   setSaved]   = useState(false)
 
-  async function save() {
+  function save() {
     setSaving(true)
     setSaved(false)
-    await fetch(`/api/parent/screen-time/${childId}`, {
+    fetch(`/api/parent/screen-time/${childId}`, {
       method:  'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ dailyTimeLimitMinutes: limit, leaderboardVisible: lb }),
     })
-    setSaving(false)
-    setSaved(true)
-    router.refresh()
+      .then(() => router.refresh())
+      .catch(() => {})
+      .finally(() => { setSaving(false); setSaved(true) })
   }
 
   return (

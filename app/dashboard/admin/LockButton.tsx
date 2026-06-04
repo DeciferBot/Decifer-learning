@@ -18,7 +18,7 @@ export function LockButton() {
       // ignore — navigate regardless
     }
     router.replace('/admin-unlock')
-    router.refresh()
+    // router.refresh() not needed — replace navigates away from admin entirely
   }
 
   return (

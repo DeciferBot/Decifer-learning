@@ -176,7 +176,7 @@ export function DeliveryAddressForm({ childId, initialAddress }: Props) {
                 return
               }
               setEditing(false)
-              router.refresh()
+              router.refresh()  // background — form already closed
             } finally {
               setSaving(false)
             }

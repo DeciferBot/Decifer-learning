@@ -41,7 +41,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Invalid body' }, { status: 400 })
   }
 
-  const profile = await prisma.profile.findUnique({ where: { user_id: user.id } })
+  const [profile] = await Promise.all([
+    prisma.profile.findUnique({ where: { user_id: user.id }, select: { id: true } }),
+  ])
   if (!profile) return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
 
   const correct = answers.filter((a) => a.wasCorrect).length

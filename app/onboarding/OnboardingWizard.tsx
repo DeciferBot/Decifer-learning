@@ -86,8 +86,8 @@ export function OnboardingWizard({
     } catch {
       /* best-effort: onboarded_at write is idempotent; dashboard gate will retry */
     }
-    router.push('/dashboard/child')
     router.refresh()
+    router.push('/dashboard/child')
   }
 
   function next() {
