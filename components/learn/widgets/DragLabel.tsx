@@ -167,6 +167,74 @@ function WaterCycleDiagram() {
   )
 }
 
+// Shows N equal groups each containing dots — for multiplication/division topics.
+// Hotspot positions are pre-set for 2–4 groups + a Total label.
+function MultiplicationGroupsDiagram() {
+  // 3 groups of 4 dots (most common Y3 multiplication label task)
+  const groups = [
+    { cx: 22, cy: 50 },
+    { cx: 50, cy: 50 },
+    { cx: 78, cy: 50 },
+  ]
+  const dotOffsets = [
+    [-8, -8], [0, -8], [8, -8],
+    [-8,  0], [0,  0], [8,  0],
+    [-8,  8], [0,  8],  // 4 dots per group shown as 2×4 arrangement, drop last 2 for "4 each"
+    [0, 8],
+  ]
+  // Use first 4 offsets per group (2×2 grid = 4 dots)
+  const dotsPerGroup = [
+    [-8, -8], [8, -8],
+    [-8,  8], [8,  8],
+  ]
+  return (
+    <svg viewBox="0 0 100 100" className="w-full h-full" aria-hidden="true">
+      {groups.map((g, gi) => (
+        <g key={gi}>
+          <circle cx={g.cx} cy={g.cy} r="18" fill="#EFF6FF" stroke="#6C9EFF" strokeWidth="1.5" />
+          {dotsPerGroup.map(([dx, dy], di) => (
+            <circle key={di} cx={g.cx + dx} cy={g.cy + dy} r="3" fill="#6C9EFF" />
+          ))}
+        </g>
+      ))}
+      {/* Total box at bottom */}
+      <rect x="35" y="80" width="30" height="14" rx="3" fill="#F0FFF4" stroke="#40C057" strokeWidth="1.2" />
+      <text x="50" y="90" textAnchor="middle" fontSize="7" fill="#2D3748" fontFamily="sans-serif" fontWeight="bold">
+        Total
+      </text>
+      {/* Bracket lines from groups to total */}
+      {groups.map((g, gi) => (
+        <line key={gi} x1={g.cx} y1={g.cy + 18} x2={50} y2={80} stroke="#94a3b8" strokeWidth="0.8" strokeDasharray="2 1" />
+      ))}
+    </svg>
+  )
+}
+
+// Bar model diagram — shows equal bars for addition/multiplication/fractions.
+// Hotspot positions: each bar label ~(50, 20), (50, 38), (50, 56) and total at (50, 78).
+function BarModelDiagram() {
+  const bars = [
+    { y: 15, label: '' },
+    { y: 33, label: '' },
+    { y: 51, label: '' },
+  ]
+  return (
+    <svg viewBox="0 0 100 100" className="w-full h-full" aria-hidden="true">
+      {/* Total outer bar */}
+      <rect x="8" y="70" width="84" height="14" rx="3" fill="#FFF9C4" stroke="#FFD43B" strokeWidth="1.5" />
+      <text x="50" y="80" textAnchor="middle" fontSize="7" fill="#2D3748" fontFamily="sans-serif" fontWeight="bold">Total</text>
+      {/* Equal part bars */}
+      {bars.map((b, i) => (
+        <rect key={i} x="8" y={b.y} width="84" height="12" rx="3" fill="#EFF6FF" stroke="#6C9EFF" strokeWidth="1.2" />
+      ))}
+      {/* Bracket from parts to total */}
+      <line x1="92" y1="15" x2="92" y2="69" stroke="#94a3b8" strokeWidth="0.8" />
+      <line x1="89" y1="15" x2="92" y2="15" stroke="#94a3b8" strokeWidth="0.8" />
+      <line x1="89" y1="69" x2="92" y2="69" stroke="#94a3b8" strokeWidth="0.8" />
+    </svg>
+  )
+}
+
 function PlaceholderDiagram({ label }: { label: string }) {
   return (
     <svg viewBox="0 0 100 100" className="w-full h-full" aria-hidden="true">
@@ -187,6 +255,8 @@ function getDiagramSvg(diagramType: string): ReactNode {
     case 'plant':        return <PlantDiagram />
     case 'animal_cell':  return <AnimalCellDiagram />
     case 'water_cycle':  return <WaterCycleDiagram />
+    case 'multiplication_groups': return <MultiplicationGroupsDiagram />
+    case 'bar_model':    return <BarModelDiagram />
     default:             return <PlaceholderDiagram label={diagramType} />
   }
 }
@@ -197,8 +267,10 @@ const ASPECT_RATIO: Record<string, number> = {
   triangle:     100,
   right_triangle: 100,
   plant:        120,
-  animal_cell:  83,   // 100/120
-  water_cycle:  75,   // 120/160
+  animal_cell:  83,
+  water_cycle:  75,
+  multiplication_groups: 100,
+  bar_model:    100,
   human_heart:  100,
   volcano:      100,
   river:        100,

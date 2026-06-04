@@ -17,6 +17,8 @@
     "verify-phase8a": "node scripts/verify-phase8a.mjs",
     "verify-parent-dashboard-safety": "node scripts/verify-parent-dashboard-safety.mjs",
     "verify-lesson-store-safety": "node --env-file=.env.local scripts/verify-lesson-store-safety.mjs",
+    "audit:widgets": "npx tsx scripts/audit-widget-configs.ts",
+    "audit:widgets:fix": "npx tsx scripts/audit-widget-configs.ts --fix",
     "verify-pli": "node scripts/verify-parent-learning-intelligence.mjs",
     "verify-autopilot-safety": "node scripts/verify-autopilot-safety.mjs",
     "verify-autopilot-2b2-safety": "node scripts/verify-autopilot-2b2-safety.mjs",

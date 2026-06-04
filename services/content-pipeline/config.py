@@ -21,7 +21,7 @@ CLAUDE_MODEL = "claude-sonnet-4-6"
 
 PIPELINE_VERSION = "1.1.1"  # Phase 2A.12
 
-DEDUP_SIMILARITY_THRESHOLD = 0.82
+DEDUP_SIMILARITY_THRESHOLD = 0.78  # tightened from 0.82 — catches near-paraphrases of the same fact
 MAX_PIPELINE_CYCLES        = 5
 
 # ── Per-type confidence thresholds (CLAUDE.md §8) ────────────────────────

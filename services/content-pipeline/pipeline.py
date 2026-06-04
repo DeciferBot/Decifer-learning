@@ -890,7 +890,31 @@ def stage5_dedup(
     if not existing:
         result.log_stage("  no existing published questions — passes dedup")
     else:
-        q_embedding = embed_text(question_data.get("question_text", ""))
+        new_text = question_data.get("question_text", "")
+        new_answer = str(question_data.get("correct_answer", "")).strip()
+
+        # Fast exact-text check before expensive embedding
+        for row in existing:
+            if row.get("question_text", "").strip() == new_text.strip():
+                result.log_stage("  exact duplicate detected")
+                return False
+
+        # Number-fingerprint check: questions that share the same set of numeric values
+        # and the same correct answer are almost certainly paraphrases of the same fact.
+        import re as _re
+        def _num_fingerprint(text: str, answer: str) -> frozenset:
+            nums = frozenset(_re.findall(r"\b\d[\d,\.]*\b", text))
+            return nums | {answer.strip().lower()}
+
+        new_fp = _num_fingerprint(new_text, new_answer)
+        for row in existing:
+            ex_fp = _num_fingerprint(row.get("question_text", ""), str(row.get("correct_answer", "")))
+            # If all numbers AND the answer are identical, it's almost certainly the same question
+            if len(new_fp) >= 3 and new_fp == ex_fp:
+                result.log_stage(f"  number-fingerprint duplicate detected (shared values: {new_fp})")
+                return False
+
+        q_embedding = embed_text(new_text)
         if q_embedding is None:
             result.log_stage("  embedding failed — skipping dedup")
         else:
@@ -903,10 +927,10 @@ def stage5_dedup(
                     / (np.linalg.norm(q_embedding) * np.linalg.norm(ex_embedding) + 1e-12)
                 )
                 if similarity > config.DEDUP_SIMILARITY_THRESHOLD:
-                    result.log_stage(f"  duplicate detected (similarity={similarity:.3f})")
+                    result.log_stage(f"  semantic duplicate detected (similarity={similarity:.3f})")
                     return False
 
-        result.log_stage("  no semantic duplicates found")
+        result.log_stage("  no duplicates found")
 
     # English answer-diversity check: reject if this correct_answer is already used
     # by >40% of published questions in the topic.  Prevents the pattern where every

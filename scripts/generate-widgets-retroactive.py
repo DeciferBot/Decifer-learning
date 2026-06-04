@@ -168,8 +168,10 @@ The lesson content is:
 {body_html_truncated}
 
 Available widget types:
-- drag_label: A diagram where students drag labels to correct positions. Use for: labelling diagrams of cells, plants, shapes, the water cycle, geographical features.
-  Config: diagram_type (one of: circle, triangle, plant, animal_cell, water_cycle, right_triangle, volcano, river), items (array of {{id, label, hotspot: {{x, y}}}} where x/y are 0-100 percentage positions)
+- drag_label: A diagram where students drag labels to correct positions. Use ONLY for: labelling diagrams of cells, plants, geometric shapes (circle/triangle parts), the water cycle, geographical features, or multiplication/bar-model grouping diagrams.
+  Config: diagram_type (one of: circle, triangle, right_triangle, plant, animal_cell, water_cycle, volcano, river, multiplication_groups, bar_model), items (array of {{id, label, hotspot: {{x, y}}}} where x/y are 0-100 percentage positions)
+  - multiplication_groups: 3 equal circles each with 4 dots. Hotspots: Group 1 at (22,50), Group 2 at (50,50), Group 3 at (78,50), Total at (50,90). Use for multiplication/division grouping topics.
+  - bar_model: 3 equal bars + a total bar below. Hotspots: Part 1 at (50,21), Part 2 at (50,39), Part 3 at (50,57), Total at (50,77). Use for addition/fraction part-whole topics.
 
 - sentence_builder: An interactive sentence-building exercise where students tap word tiles into numbered slots to form a grammatically correct sentence. Use for: English grammar topics such as fronted adverbials, conjunctions, punctuation, verb tenses, word classes, and sentence structure.
   Config: title (string), instructions (string), tiles (array of {{id, text, type}} where type is one of: noun, verb, adjective, adverb, conjunction, preposition, punctuation, other), slots (array of {{id, accepts, placeholder}} where accepts is a list of tile ids that are valid for that slot), target_sentence (the complete correct sentence as a string).
@@ -179,14 +181,17 @@ Return ONLY valid JSON — either an empty array [] if no widget is appropriate,
 
 Rules:
 - Only suggest drag_label for topics where labelling a diagram is genuinely useful
-- x/y hotspot positions must be realistic for the diagram type
+- x/y hotspot positions must be realistic for the diagram type (see hotspot guides above)
 - Maximum 6 label items per drag_label widget
 - Maths geometry topics: use 'circle' or 'triangle' or 'right_triangle' diagram
+- Maths multiplication/division grouping: use 'multiplication_groups' diagram
+- Maths addition/fractions part-whole: use 'bar_model' diagram
+- NEVER use 'circle' for arithmetic or multiplication topics — 'circle' is only for geometry (radius, diameter, chord, circumference)
 - Science biology topics: use 'plant' or 'animal_cell' diagram
 - Science physics/earth: use 'water_cycle', 'volcano', or 'river'
 - Use sentence_builder for English grammar topics (fronted adverbials, conjunctions, punctuation, verb tenses, word classes). Do NOT use it for comprehension or creative writing topics.
 - sentence_builder tiles: include every word and punctuation mark in the sentence as a separate tile; add 1-2 plausible distractor tiles to increase challenge. Each slot's accepts list normally has one correct tile id, but may include alternatives where grammatically equivalent words fit.
-- abstract Maths and History: return []
+- Abstract Maths (number bonds, mental arithmetic, times tables recall, place value without a diagram): return []
 - Position: use 'end' (after the lesson text, as a check activity)
 
 Example output for Y3 Science - Plants:

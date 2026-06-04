@@ -27,6 +27,8 @@ export interface DragLabelWidget extends BaseWidget {
       | 'volcano'
       | 'river'
       | 'right_triangle'
+      | 'multiplication_groups'
+      | 'bar_model'
     items: DragLabelItem[]
   }
 }
