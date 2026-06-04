@@ -6,8 +6,12 @@ export const dynamic = 'force-dynamic'
 import { redirect } from 'next/navigation'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { getUserRole, ROLE_HOME } from '@/lib/auth/roles'
+import { hasAdminGate } from '@/lib/auth/admin-guard'
 
 export default async function DashboardGatewayPage() {
+  // Admin gate takes priority — if the password cookie is set, go straight to admin.
+  if (await hasAdminGate()) redirect('/dashboard/admin')
+
   const supabase = createSupabaseServerClient()
   const {
     data: { user },

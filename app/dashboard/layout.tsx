@@ -27,9 +27,11 @@ export default async function DashboardLayout({
   // request is a password-gated admin (no Supabase session, but a valid gate cookie).
   if (!user && !(await hasAdminGate())) redirect('/login')
 
+  const isAdmin = await hasAdminGate()
+
   return (
     <div className="min-h-screen bg-background">
-      <TopBar displayName={user ? getUserDisplayName(user) : 'Admin'} />
+      <TopBar displayName={user ? getUserDisplayName(user) : 'Admin'} showAdminLink={isAdmin} />
       <div className="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-10 py-6">{children}</div>
     </div>
   )
