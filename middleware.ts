@@ -15,12 +15,15 @@ import { ADMIN_GATE_COOKIE, isGateTokenValid } from '@/lib/auth/admin-gate'
 
 const PUBLIC_EXACT = new Set<string>([
   '/', '/login', '/register', '/reset-password',
+  // Marketing + legal pages — must be reachable without a session.
+  '/pricing', '/subjects', '/how-it-works',
+  '/legal/terms', '/legal/privacy', '/legal/privacy-for-kids',
   // Admin password-gate entry points — must be reachable with no Supabase session.
   '/admin', '/api/admin/unlock',
 ])
 // Auth callback must be public so the middleware never redirects the token exchange request.
 // Help pages are public so unauthenticated visitors can read guides linked from the homepage.
-const PUBLIC_PREFIX = ['/auth/callback', '/_next/', '/help', '/opengraph-image', '/twitter-image', '/sitemap', '/robots']
+const PUBLIC_PREFIX = ['/auth/callback', '/_next/', '/help', '/opengraph-image', '/twitter-image', '/sitemap', '/robots', '/legal/']
 const STATIC_EXT =
   /\.(svg|png|jpg|jpeg|gif|webp|ico|css|js|map|woff2?|ttf|otf|txt|xml|json)$/i
 

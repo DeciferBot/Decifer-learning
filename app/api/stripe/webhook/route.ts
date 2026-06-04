@@ -6,7 +6,6 @@ import { prisma } from '@/lib/prisma'
 
 export const runtime = 'nodejs'
 
-// Stripe sends the raw body — Next.js must NOT parse it.
 export async function POST(req: Request) {
   const body = await req.text()
   const sig = headers().get('stripe-signature')
@@ -45,14 +44,13 @@ export async function POST(req: Request) {
         break
       }
       case 'invoice.payment_failed': {
+        // Access subscription via parent object lookup
         const invoice = event.data.object as Stripe.Invoice
-        if (invoice.subscription) {
-          await markPastDue(invoice.subscription as string)
-        }
+        const subId = (invoice as unknown as { subscription?: string }).subscription
+        if (subId) await markPastDue(subId)
         break
       }
       default:
-        // Ignore unhandled events
         break
     }
   } catch (err) {
@@ -69,7 +67,11 @@ async function handleSubscriptionActivated(
   stripeSubscriptionId: string
 ) {
   const sub = await stripe.subscriptions.retrieve(stripeSubscriptionId)
-  const periodEnd = new Date(sub.current_period_end * 1000)
+  // current_period_end lives on sub.items.data[0] in newer API versions
+  const item = sub.items.data[0]
+  const periodEnd = item
+    ? new Date((item as unknown as { current_period_end: number }).current_period_end * 1000)
+    : null
 
   await prisma.$transaction([
     prisma.subscription.upsert({
@@ -106,9 +108,12 @@ async function handleSubscriptionChanged(sub: Stripe.Subscription) {
 
   const isActive = sub.status === 'active' || sub.status === 'trialing'
   const plan = isActive ? 'family' : 'free'
-  const periodEnd = sub.current_period_end
-    ? new Date(sub.current_period_end * 1000)
-    : null
+
+  const item = sub.items.data[0]
+  const rawEnd = item
+    ? (item as unknown as { current_period_end?: number }).current_period_end
+    : undefined
+  const periodEnd = rawEnd ? new Date(rawEnd * 1000) : null
 
   await prisma.$transaction([
     prisma.subscription.update({
@@ -128,7 +133,7 @@ async function handleSubscriptionChanged(sub: Stripe.Subscription) {
 }
 
 async function markPastDue(stripeSubscriptionId: string) {
-  await prisma.subscription.update({
+  await prisma.subscription.updateMany({
     where: { stripe_subscription_id: stripeSubscriptionId },
     data: { status: 'past_due' },
   })
