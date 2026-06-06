@@ -9,6 +9,7 @@ import { TrueFalseGrid, type TrueFalseStatement } from './TrueFalseGrid'
 import { OrderedList, type OrderedListItem } from './OrderedList'
 import SourceAnalysis, { type SourceAnalysisSubQ } from './SourceAnalysis'
 import ExplainExample, { type ExplainExamplePart } from './ExplainExample'
+import StructuredAnswer, { type MarkingCriterion } from './StructuredAnswer'
 import { HeartsDisplay } from './HeartsDisplay'
 import { CardReveal } from '@/components/cards/CardReveal'
 import { BadgePopup } from '@/components/quiz/BadgePopup'
@@ -24,7 +25,7 @@ import { HeartCrack, Swords, Sparkles, Trophy, Star, RefreshCw, Gift, Flame, Shi
 // Points awarded per attempt number (1-indexed). Exhausting all attempts = 0.
 const POINTS_BY_ATTEMPT = [3, 2, 1] as const
 // These types render their own per-item feedback — QuizShell skips the raw correct_answer header.
-const MULTIPART_QTYPES = new Set(['true_false_grid', 'ordered_list', 'source_analysis', 'explain_example'])
+const MULTIPART_QTYPES = new Set(['true_false_grid', 'ordered_list', 'source_analysis', 'explain_example', 'structured_answer'])
 const MAX_ATTEMPTS = 3
 const MAX_HEARTS = 3
 // Hearts are lost when a question is fully exhausted (all attempts wrong),
@@ -46,7 +47,7 @@ export type QuizQuestion = {
   technique_type: string | null
   technique_hint: string | null
   technique_note: string | null
-  answer_parts: unknown   // TrueFalseStatement[] | OrderedListItem[] | SourceAnalysisSubQ[] | ExplainExamplePart[] | null
+  answer_parts: unknown   // TrueFalseStatement[] | OrderedListItem[] | SourceAnalysisSubQ[] | ExplainExamplePart[] | MarkingCriterion[] | null
   // Source analysis fields (Sprint 4)
   source_text: string | null
   source_label: string | null
@@ -915,6 +916,15 @@ export function QuizShell({
             <div className="mt-4">
               <ExplainExample
                 parts={q.answer_parts as ExplainExamplePart[]}
+                onAnswer={handleMultiPartAnswer}
+                disabled={questionDone}
+              />
+            </div>
+          ) : q.question_type === 'structured_answer' && q.answer_parts ? (
+            <div className="mt-4">
+              <StructuredAnswer
+                criteria={q.answer_parts as MarkingCriterion[]}
+                questionId={q.id}
                 onAnswer={handleMultiPartAnswer}
                 disabled={questionDone}
               />

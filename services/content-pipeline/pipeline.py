@@ -802,7 +802,7 @@ _ENGLISH_TYPES = {
 _PHYSICS_TYPES = {"science_physics_calculation"}
 _CHEMISTRY_TYPES = {"science_chemistry_equation", "chemistry_element_fact", "biology_factual", "science_factual"}
 # Multi-part types: structural verification only (no code or LanguageTool check)
-_MULTIPART_TYPES = {"true_false_grid", "ordered_list", "source_analysis", "explain_example"}
+_MULTIPART_TYPES = {"true_false_grid", "ordered_list", "source_analysis", "explain_example", "structured_answer"}
 
 
 def _verify_multipart(question_data: dict) -> tuple[bool, str]:
@@ -878,6 +878,27 @@ def _verify_multipart(question_data: dict) -> tuple[bool, str]:
                 return False, f"answer_parts[{i}].correct must be a valid index (0–3)"
         return True, "ok — explain_example: example part + explain part, each with 4 options"
 
+    if qtype == "structured_answer":
+        if not question_data.get("correct_answer", "").strip():
+            return False, "structured_answer requires a non-empty correct_answer (model answer)"
+        if len(parts) < 2 or len(parts) > 6:
+            return False, f"structured_answer must have 2–6 marking criteria, got {len(parts)}"
+        total_marks = 0
+        for i, criterion in enumerate(parts):
+            if not isinstance(criterion, dict):
+                return False, f"answer_parts[{i}] must be a dict"
+            if "criterion" not in criterion:
+                return False, f"answer_parts[{i}] missing 'criterion'"
+            if not isinstance(criterion.get("criterion"), str) or not criterion["criterion"].strip():
+                return False, f"answer_parts[{i}].criterion must be a non-empty string"
+            marks = criterion.get("marks", 1)
+            if not isinstance(marks, int) or marks < 1 or marks > 4:
+                return False, f"answer_parts[{i}].marks must be an integer 1–4"
+            total_marks += marks
+        if total_marks < 2 or total_marks > 10:
+            return False, f"structured_answer total marks must be 2–10, got {total_marks}"
+        return True, f"ok — structured_answer: {len(parts)} criteria, {total_marks} marks total"
+
     return False, f"Unknown multipart type: {qtype!r}"
 
 
@@ -899,6 +920,46 @@ def _build_multipart_prompt(topic: dict, tier: str, qtype: str, chunks: list[dic
     else:
         source_section = "Use your curriculum knowledge for this year group and subject."
         chunk_ids = "[]"
+
+    if qtype == "structured_answer":
+        return f"""You are an expert UK {subject} curriculum writer generating a structured written-answer question for {year_label} pupils ({key_stage}).
+
+Topic: {topic['title']}
+Difficulty tier: {tier} — {tier_desc}
+
+{source_section}
+
+Generate a STRUCTURED ANSWER question worth 4 marks. The pupil writes a short paragraph response; Claude will mark it against the rubric.
+Rules:
+- question_text: clear, specific question ending with "[4 marks]" — suitable for a UK school exam
+- correct_answer: a complete, concise model answer (3–6 sentences) that would earn full marks
+- answer_parts: exactly 4 marking criteria, each worth 1 mark
+  - Each criterion must be independently achievable (awarding one does not require another)
+  - State criteria as "Identifies / Explains / Names / Gives / Describes..." (active verb + specific content)
+  - Together they must cover all key ideas in the model answer
+- hint_1: broad structural hint (e.g. "Think about causes, then effects")
+- hint_2: more specific hint (e.g. "What specific example could you give?")
+- hint_3: near-answer hint (e.g. "Think about what happened in 1348 and why people reacted that way")
+- distractors: always []
+
+Return ONLY valid JSON:
+{{
+  "question_text": "<specific exam-style question> [4 marks]",
+  "question_type": "structured_answer",
+  "correct_answer": "<model answer: 3–6 complete sentences covering all 4 criteria>",
+  "distractors": [],
+  "hint_1": "<broad structural hint>",
+  "hint_2": "<more specific hint>",
+  "hint_3": "<near-answer hint>",
+  "explanation": "<brief explanation of what a full-mark answer must include>",
+  "source_chunk_ids": {chunk_ids},
+  "answer_parts": [
+    {{"criterion": "<specific, independently-achievable marking point>", "marks": 1}},
+    {{"criterion": "<second independent marking point>", "marks": 1}},
+    {{"criterion": "<third independent marking point>", "marks": 1}},
+    {{"criterion": "<fourth independent marking point>", "marks": 1}}
+  ]
+}}"""
 
     if qtype == "true_false_grid":
         return f"""You are an expert UK {subject} curriculum writer generating a true/false grid question for {year_label} pupils ({key_stage}).
