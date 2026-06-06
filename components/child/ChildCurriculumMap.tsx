@@ -7,6 +7,7 @@
  * Desktop (lg+): 3-column grid per subject.
  */
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import type { CurriculumSubject, CurriculumTopic } from '@/lib/parent-dashboard'
 import { Clock, Star, Check, AlertTriangle, MapPin, BookOpen, PencilLine, Zap, Flame } from '@/components/ui/icons'
@@ -248,6 +249,14 @@ export function ChildCurriculumMap({
   const totalDone   = sorted.reduce((n, s) => n + s.completedCount, 0)
   const pct = totalTopics > 0 ? Math.round((totalDone / totalTopics) * 100) : 0
 
+  // Render first subject immediately (above the fold), defer the rest until
+  // after first paint so they don't block the Speed Index metric.
+  const [visibleCount, setVisibleCount] = useState(1)
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setVisibleCount(sorted.length))
+    return () => cancelAnimationFrame(id)
+  }, [sorted.length])
+
   return (
     <section className="w-full">
       {/* hero banner */}
@@ -274,7 +283,7 @@ export function ChildCurriculumMap({
       <Legend />
 
       <div className="flex flex-col gap-8">
-        {sorted.map((s) => (
+        {sorted.slice(0, visibleCount).map((s) => (
           <SubjectLane key={s.subjectId} subject={s} practiceMap={practiceMap} />
         ))}
       </div>
