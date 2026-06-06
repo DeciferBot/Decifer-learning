@@ -38,6 +38,8 @@
     "@anthropic-ai/sdk": "^0.101.0",
     "@next/third-parties": "^16.2.6",
     "@prisma/client": "^5.22.0",
+    "@react-three/drei": "^9.122.0",
+    "@react-three/fiber": "^8.17.10",
     "@stripe/stripe-js": "^9.7.0",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.106.0",
@@ -54,12 +56,14 @@
     "react-katex": "^3.1.0",
     "resend": "^6.12.4",
     "stripe": "^22.2.0",
+    "three": "^0.184.0",
     "web-push": "^3.6.7"
   },
   "devDependencies": {
     "@types/node": "^20.16.0",
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.0",
+    "@types/three": "^0.184.1",
     "@types/web-push": "^3.6.4",
     "@vitest/coverage-v8": "^4.1.7",
     "autoprefixer": "^10.4.20",
