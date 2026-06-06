@@ -107,7 +107,7 @@ export async function POST(req: Request) {
 
   // Multi-part types (true_false_grid, ordered_list) are scored client-side;
   // trust the client's wasCorrect rather than attempting a string compare.
-  const MULTIPART_TYPES = new Set(['true_false_grid', 'ordered_list'])
+  const MULTIPART_TYPES = new Set(['true_false_grid', 'ordered_list', 'source_analysis', 'explain_example'])
 
   const scoredAnswers = answers.map((a) => ({
     ...a,

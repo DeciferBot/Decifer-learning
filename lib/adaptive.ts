@@ -29,6 +29,9 @@ export interface AdaptiveQuestion {
   technique_hint: string | null
   technique_note: string | null
   answer_parts: unknown
+  source_text: string | null
+  source_label: string | null
+  source_type: string | null
 }
 
 export interface SelectionAuditLog {
@@ -188,7 +191,7 @@ export async function selectQuizQuestions(
   // Fetch full published pool — .eq('status','published') is defence-in-depth; RLS enforces too.
   const { data: pool } = await supabase
     .from('quiz_questions')
-    .select('id, tier, question_type, question_text, correct_answer, distractors, hint_1, hint_2, hint_3, explanation, worked_example, technique_type, technique_hint, technique_note, answer_parts')
+    .select('id, tier, question_type, question_text, correct_answer, distractors, hint_1, hint_2, hint_3, explanation, worked_example, technique_type, technique_hint, technique_note, answer_parts, source_text, source_label, source_type')
     .eq('topic_id', topicId)
     .eq('status', 'published')
     .order('created_at', { ascending: true })
@@ -277,7 +280,7 @@ export async function selectInterleavedQuestions(
     topicIds.map(async (topicId) => {
       const { data } = await supabase
         .from('quiz_questions')
-        .select('id, tier, question_type, question_text, correct_answer, distractors, hint_1, hint_2, hint_3, explanation, worked_example, technique_type, technique_hint, technique_note, answer_parts')
+        .select('id, tier, question_type, question_text, correct_answer, distractors, hint_1, hint_2, hint_3, explanation, worked_example, technique_type, technique_hint, technique_note, answer_parts, source_text, source_label, source_type')
         .eq('topic_id', topicId)
         .eq('status', 'published')
         .order('created_at', { ascending: true })
@@ -338,7 +341,7 @@ export async function selectPracticeItems(
 
   const { data: pool } = await supabase
     .from('quiz_questions')
-    .select('id, tier, question_type, question_text, correct_answer, distractors, hint_1, hint_2, hint_3, explanation, worked_example, technique_type, technique_hint, technique_note, answer_parts')
+    .select('id, tier, question_type, question_text, correct_answer, distractors, hint_1, hint_2, hint_3, explanation, worked_example, technique_type, technique_hint, technique_note, answer_parts, source_text, source_label, source_type')
     .eq('topic_id', topicId)
     .eq('status', 'published')
     .order('created_at', { ascending: true })

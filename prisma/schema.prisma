@@ -306,6 +306,13 @@ model QuizQuestion {
   // true_false_grid: [{statement: string, correct: boolean}]
   // ordered_list:    [{item: string}]  (stored in correct order; component shuffles for display)
   answer_parts      Json?
+  // Source analysis question type (Sprint 4)
+  // source_text holds the primary source excerpt rendered above the question
+  // source_label identifies the source: "Source A — medieval chronicle, 1350"
+  // source_type classifies format: 'quote' | 'table' | 'graph_description'
+  source_text       String?
+  source_label      String?
+  source_type       String?
   // Phase 11A provenance fields
   question_metadata Json?
   generator_version String?

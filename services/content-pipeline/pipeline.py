@@ -802,7 +802,7 @@ _ENGLISH_TYPES = {
 _PHYSICS_TYPES = {"science_physics_calculation"}
 _CHEMISTRY_TYPES = {"science_chemistry_equation", "chemistry_element_fact", "biology_factual", "science_factual"}
 # Multi-part types: structural verification only (no code or LanguageTool check)
-_MULTIPART_TYPES = {"true_false_grid", "ordered_list"}
+_MULTIPART_TYPES = {"true_false_grid", "ordered_list", "source_analysis", "explain_example"}
 
 
 def _verify_multipart(question_data: dict) -> tuple[bool, str]:
@@ -838,6 +838,42 @@ def _verify_multipart(question_data: dict) -> tuple[bool, str]:
         if len(parts) < 3 or len(parts) > 8:
             return False, f"ordered_list must have 3–8 items, got {len(parts)}"
         return True, f"ok — {len(parts)} items to order"
+
+    if qtype == "source_analysis":
+        if not question_data.get("source_text", "").strip():
+            return False, "source_analysis requires non-empty source_text"
+        if not question_data.get("source_label", "").strip():
+            return False, "source_analysis requires non-empty source_label"
+        for i, sub in enumerate(parts):
+            if not isinstance(sub, dict):
+                return False, f"answer_parts[{i}] must be a dict"
+            for key in ("prompt", "options", "correct"):
+                if key not in sub:
+                    return False, f"answer_parts[{i}] missing '{key}'"
+            if not isinstance(sub["options"], list) or len(sub["options"]) < 2:
+                return False, f"answer_parts[{i}].options must have at least 2 items"
+            if not isinstance(sub["correct"], int) or sub["correct"] not in range(len(sub["options"])):
+                return False, f"answer_parts[{i}].correct must be a valid index"
+        if len(parts) != 2:
+            return False, f"source_analysis must have exactly 2 sub-questions, got {len(parts)}"
+        return True, f"ok — source_analysis with {len(parts)} sub-questions"
+
+    if qtype == "explain_example":
+        if len(parts) != 2:
+            return False, f"explain_example must have exactly 2 parts, got {len(parts)}"
+        for i, part in enumerate(parts):
+            if not isinstance(part, dict):
+                return False, f"answer_parts[{i}] must be a dict"
+            for key in ("part", "prompt", "options", "correct"):
+                if key not in part:
+                    return False, f"answer_parts[{i}] missing '{key}'"
+            if part["part"] not in ("example", "explain"):
+                return False, f"answer_parts[{i}].part must be 'example' or 'explain'"
+            if not isinstance(part["options"], list) or len(part["options"]) < 2:
+                return False, f"answer_parts[{i}].options must have at least 2 items"
+            if not isinstance(part["correct"], int) or part["correct"] not in range(len(part["options"])):
+                return False, f"answer_parts[{i}].correct must be a valid index"
+        return True, "ok — explain_example with example + explain parts"
 
     return False, f"Unknown multipart type: {qtype!r}"
 
@@ -894,6 +930,95 @@ Return ONLY valid JSON:
     {{"statement": "<statement 2>", "correct": false}},
     {{"statement": "<statement 3>", "correct": true}},
     {{"statement": "<statement 4>", "correct": false}}
+  ]
+}}"""
+
+    if qtype == "source_analysis":
+        return f"""You are an expert UK {subject} curriculum writer generating a source analysis question for {year_label} pupils ({key_stage}).
+
+Topic: {topic['title']}
+Difficulty tier: {tier} — {tier_desc}
+
+{source_section}
+
+Generate a SOURCE ANALYSIS question. Write a short primary source excerpt (50–120 words) related to the topic, then ask two questions that require evidence from it.
+Rules:
+- source_text: a realistic primary source excerpt (a quote from a document, diary, letter, speech, chronicle, or report)
+- source_label: e.g. "Source A — An extract from a medieval chronicle, 1350"
+- source_type: one of "quote" | "table" | "graph_description"
+- 2 sub-questions, each with 4 options and one correct answer
+- Options must be plausible — wrong answers should come from misreading the source
+- Both questions should be answerable using ONLY the source text provided
+- correct_answer: brief summary string, e.g. "Q1: option text | Q2: option text"
+
+Return ONLY valid JSON:
+{{
+  "question_text": "Read Source A carefully and answer the questions below.",
+  "question_type": "source_analysis",
+  "source_text": "<50–120 word primary source excerpt>",
+  "source_label": "Source A — <brief description of source, date>",
+  "source_type": "quote",
+  "correct_answer": "<Q1 correct option text> | <Q2 correct option text>",
+  "distractors": [],
+  "hint_1": "<hint about where in the source to look>",
+  "hint_2": "<more specific location hint>",
+  "hint_3": "<direct quote from source that hints at the answer>",
+  "explanation": "<explanation of what the source tells us and why each answer is correct>",
+  "source_chunk_ids": {chunk_ids},
+  "answer_parts": [
+    {{
+      "prompt": "<specific question about the source — e.g. What does the source suggest about...?>",
+      "options": ["<option A>", "<option B>", "<option C>", "<option D>"],
+      "correct": 0
+    }},
+    {{
+      "prompt": "<second specific question about the source>",
+      "options": ["<option A>", "<option B>", "<option C>", "<option D>"],
+      "correct": 1
+    }}
+  ]
+}}"""
+
+    if qtype == "explain_example":
+        return f"""You are an expert UK {subject} curriculum writer generating an explain-with-example question for {year_label} pupils ({key_stage}).
+
+Topic: {topic['title']}
+Difficulty tier: {tier} — {tier_desc}
+
+{source_section}
+
+Generate an EXPLAIN WITH EXAMPLE question. This teaches pupils to give a specific example AND explain why it demonstrates the idea.
+Rules:
+- question_text: asks the pupil to explain a concept with a specific example (e.g. "Explain, with an example, why people fled cities during the Black Death.")
+- Part 1 (example): asks for a specific example — 4 options, one clearly best
+- Part 2 (explain): asks why that example demonstrates the concept — 4 options, one clearly best
+- Wrong options for both parts must be plausible distractors
+- correct_answer: brief model answer string combining both parts
+
+Return ONLY valid JSON:
+{{
+  "question_text": "<question asking pupil to explain X with a specific example>",
+  "question_type": "explain_example",
+  "correct_answer": "<model answer combining example + explanation>",
+  "distractors": [],
+  "hint_1": "<hint about the concept being explained>",
+  "hint_2": "<hint about what counts as a good example>",
+  "hint_3": "<near-answer hint about both parts>",
+  "explanation": "<full explanation of the best example and why it works>",
+  "source_chunk_ids": {chunk_ids},
+  "answer_parts": [
+    {{
+      "part": "example",
+      "prompt": "Which of these is the most specific example?",
+      "options": ["<example A>", "<example B>", "<example C>", "<example D>"],
+      "correct": 0
+    }},
+    {{
+      "part": "explain",
+      "prompt": "Why does this example show <the concept>?",
+      "options": ["<explanation A>", "<explanation B>", "<explanation C>", "<explanation D>"],
+      "correct": 0
+    }}
   ]
 }}"""
 

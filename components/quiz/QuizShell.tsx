@@ -7,6 +7,8 @@ import Link from 'next/link'
 import { HintButton } from './HintButton'
 import { TrueFalseGrid, type TrueFalseStatement } from './TrueFalseGrid'
 import { OrderedList, type OrderedListItem } from './OrderedList'
+import SourceAnalysis, { type SourceAnalysisSubQ } from './SourceAnalysis'
+import ExplainExample, { type ExplainExamplePart } from './ExplainExample'
 import { HeartsDisplay } from './HeartsDisplay'
 import { CardReveal } from '@/components/cards/CardReveal'
 import { BadgePopup } from '@/components/quiz/BadgePopup'
@@ -42,7 +44,11 @@ export type QuizQuestion = {
   technique_type: string | null
   technique_hint: string | null
   technique_note: string | null
-  answer_parts: unknown   // TrueFalseStatement[] | OrderedListItem[] | null
+  answer_parts: unknown   // TrueFalseStatement[] | OrderedListItem[] | SourceAnalysisSubQ[] | ExplainExamplePart[] | null
+  // Source analysis fields (Sprint 4)
+  source_text: string | null
+  source_label: string | null
+  source_type: string | null
 }
 
 type AnswerLog = {
@@ -886,6 +892,25 @@ export function QuizShell({
             <div className="mt-4">
               <OrderedList
                 items={q.answer_parts as OrderedListItem[]}
+                onAnswer={handleMultiPartAnswer}
+                disabled={questionDone}
+              />
+            </div>
+          ) : q.question_type === 'source_analysis' && q.answer_parts && q.source_text ? (
+            <div className="mt-4">
+              <SourceAnalysis
+                sourceText={q.source_text}
+                sourceLabel={q.source_label ?? 'Source'}
+                sourceType={q.source_type ?? 'quote'}
+                subQuestions={q.answer_parts as SourceAnalysisSubQ[]}
+                onAnswer={handleMultiPartAnswer}
+                disabled={questionDone}
+              />
+            </div>
+          ) : q.question_type === 'explain_example' && q.answer_parts ? (
+            <div className="mt-4">
+              <ExplainExample
+                parts={q.answer_parts as ExplainExamplePart[]}
                 onAnswer={handleMultiPartAnswer}
                 disabled={questionDone}
               />
