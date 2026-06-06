@@ -33,8 +33,9 @@ type Part = { type: 'text' | 'math'; value: string }
 function splitMath(text: string): Part[] {
   // Match $...$, \(...\), or {N}^\circ \text{C} style bare LaTeX
   const parts: Part[] = []
-  // Regex: $...$ or \(...\)
-  const re = /\$([^$]+)\$|\\\((.+?)\\\)/g
+  // Regex: $...$ (max 80 chars — prevents currency amounts being parsed as LaTeX)
+  // or \(...\) for explicit inline math
+  const re = /\$([^$\n]{1,80})\$|\\\((.+?)\\\)/g
   let last = 0
   let match: RegExpExecArray | null
   while ((match = re.exec(text)) !== null) {

@@ -275,7 +275,9 @@ export async function POST(req: Request) {
   // Non-blocking milestone check — fires after response is returned.
   // Vault writes are isolated; any failure here must not affect the quiz result.
   if (passed) {
-    void checkAndUpdateMilestone(profile.id).catch(() => {})
+    void checkAndUpdateMilestone(profile.id).catch((err) => {
+      console.error('[quiz/submit] milestone check failed:', err)
+    })
   }
 
   // PLI v1: record quiz_completed event (non-blocking, never fails the quiz response)

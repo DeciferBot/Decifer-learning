@@ -149,6 +149,8 @@ export default async function LearnPage({
   ])
   const subjectColor = subjectRow?.subject?.colour_token ?? '#6C9EFF'
 
+  const hasChapters = units.length > 0
+
   return (
     <div className="space-y-5">
       {/* PLI v1: fire lesson_opened on mount, record active time on unmount */}
@@ -182,46 +184,92 @@ export default async function LearnPage({
         )}
       </div>
 
-      <ChapterStrip units={units} subjectColor={subjectColor} topicId={params.id} />
-
       <h1 className="font-heading text-2xl font-bold text-ink">{topic.title}</h1>
 
-      {/* Top widgets — before any content */}
-      <LearnWidgetRenderer widgets={widgets} position="top" />
+      {hasChapters ? (
+        /* ── Chapter-hub layout ── */
+        <>
+          <p className="text-sm text-muted">
+            This topic has {units.length} chapter{units.length !== 1 ? 's' : ''}. Read each one before taking the quiz.
+          </p>
 
-      {/* First section (intro) */}
-      <div className="rounded-2xl border border-black/5 bg-surface p-6 shadow-sm">
-        <div className="learn-content" dangerouslySetInnerHTML={{ __html: sections[0] }} />
-      </div>
+          <ol className="space-y-3">
+            {units.map((unit, i) => (
+              <li key={unit.id}>
+                <Link
+                  href={`/topics/${params.id}/units/${unit.id}`}
+                  className="flex items-start gap-4 rounded-2xl border border-black/5 bg-surface p-4 shadow-sm transition-shadow hover:shadow-md active:opacity-80"
+                >
+                  <span
+                    className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
+                    style={{ backgroundColor: subjectColor }}
+                    aria-hidden
+                  >
+                    {i + 1}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-heading font-bold text-ink leading-snug">{unit.title}</p>
+                    {unit.description && (
+                      <p className="mt-0.5 text-xs text-muted line-clamp-2">{unit.description}</p>
+                    )}
+                  </div>
+                  <svg className="mt-1 h-4 w-4 shrink-0 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
+              </li>
+            ))}
+          </ol>
 
-      {/* After-intro widgets — between section 0 and section 1 */}
-      <LearnWidgetRenderer widgets={widgets} position="after_intro" />
+          <LearnWidgetRenderer widgets={widgets} position="top" />
+          <LearnWidgetRenderer widgets={widgets} position="middle" />
+          <LearnWidgetRenderer widgets={widgets} position="end" />
 
-      {/* Remaining sections */}
-      {sections.slice(1).map((section, i) => (
-        <div key={i} className="rounded-2xl border border-black/5 bg-surface p-6 shadow-sm">
-          <div className="learn-content" dangerouslySetInnerHTML={{ __html: section }} />
-        </div>
-      ))}
+          <div className="flex justify-end">
+            <LessonCompleteCTA
+              href={nextHref}
+              topicId={topic.id}
+              lessonId={topic.id}
+              subjectId={topic.subject_id ?? null}
+              className="inline-flex min-h-[48px] items-center gap-2 rounded-xl px-6 py-3 font-heading font-bold text-white shadow-sm transition-opacity hover:opacity-90 bg-maths"
+            >
+              {nextLabel}
+            </LessonCompleteCTA>
+          </div>
+        </>
+      ) : (
+        /* ── Flat content layout (no chapters) ── */
+        <>
+          <LearnWidgetRenderer widgets={widgets} position="top" />
 
-      {/* Middle widgets — after the main body */}
-      <LearnWidgetRenderer widgets={widgets} position="middle" />
+          <div className="rounded-2xl border border-black/5 bg-surface p-6 shadow-sm">
+            <div className="learn-content" dangerouslySetInnerHTML={{ __html: sections[0] }} />
+          </div>
 
-      {/* End widgets — just before the CTA */}
-      <LearnWidgetRenderer widgets={widgets} position="end" />
+          <LearnWidgetRenderer widgets={widgets} position="after_intro" />
 
-      <div className="flex justify-end">
-        {/* PLI v1: records lesson_completed before navigating */}
-        <LessonCompleteCTA
-          href={nextHref}
-          topicId={topic.id}
-          lessonId={topic.id}
-          subjectId={topic.subject_id ?? null}
-          className="inline-flex min-h-[48px] items-center gap-2 rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white shadow-sm transition-opacity hover:opacity-90"
-        >
-          {nextLabel}
-        </LessonCompleteCTA>
-      </div>
+          {sections.slice(1).map((section, i) => (
+            <div key={i} className="rounded-2xl border border-black/5 bg-surface p-6 shadow-sm">
+              <div className="learn-content" dangerouslySetInnerHTML={{ __html: section }} />
+            </div>
+          ))}
+
+          <LearnWidgetRenderer widgets={widgets} position="middle" />
+          <LearnWidgetRenderer widgets={widgets} position="end" />
+
+          <div className="flex justify-end">
+            <LessonCompleteCTA
+              href={nextHref}
+              topicId={topic.id}
+              lessonId={topic.id}
+              subjectId={topic.subject_id ?? null}
+              className="inline-flex min-h-[48px] items-center gap-2 rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white shadow-sm transition-opacity hover:opacity-90"
+            >
+              {nextLabel}
+            </LessonCompleteCTA>
+          </div>
+        </>
+      )}
     </div>
   )
 }
