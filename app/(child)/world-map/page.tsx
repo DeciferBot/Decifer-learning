@@ -1,6 +1,5 @@
 export const dynamic = 'force-dynamic'
 import { redirect } from 'next/navigation'
-import Link from 'next/link'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { getCurrentProfile } from '@/lib/profile'
 import { prisma } from '@/lib/prisma'
@@ -93,17 +92,9 @@ export default async function WorldMapPage() {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="font-heading text-2xl font-bold text-ink">World Map</h1>
-          <p className="mt-1 text-sm text-muted">Your learning adventure</p>
-        </div>
-        <Link
-          href="/dashboard/child"
-          className="text-sm font-bold text-muted hover:text-ink"
-        >
-          ← Home
-        </Link>
+      <div>
+        <h1 className="font-heading text-2xl font-bold text-ink">World Map</h1>
+        <p className="mt-1 text-sm text-muted">Your learning adventure</p>
       </div>
 
       {zones.length === 0 && (

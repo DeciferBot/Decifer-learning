@@ -89,7 +89,7 @@ export function getUserDisplayName(user: Pick<User, 'user_metadata' | 'email'>):
 // Home path per role. Phase 1 keeps these inside /dashboard/* to avoid the
 // route-group dashboard conflict noted in the Phase 1 gate report.
 export const ROLE_HOME: Record<Role, string> = {
-  child: '/dashboard/child',
+  child: '/world-map',
   parent: '/dashboard/parent',
   admin: '/dashboard/admin',
 }

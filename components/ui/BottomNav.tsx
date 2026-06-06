@@ -8,8 +8,8 @@ import type { SVGProps } from 'react'
 type TabIcon = (props: SVGProps<SVGSVGElement> & { size?: number }) => JSX.Element
 
 const TABS: { href: string; label: string; Icon: TabIcon }[] = [
-  { href: '/dashboard/child', label: 'Home',      Icon: Home },
-  { href: '/world-map',       label: 'World Map',  Icon: MapFold },
+  { href: '/world-map',       label: 'Home',       Icon: Home },
+  { href: '/dashboard/child', label: 'Progress',   Icon: MapFold },
   { href: '/explore',         label: 'Explore',    Icon: Telescope },
   { href: '/collection',      label: 'Cards',      Icon: LayoutGrid },
   { href: '/profile',          label: 'Profile',    Icon: UserCircle },
