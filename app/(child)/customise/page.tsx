@@ -1,5 +1,4 @@
 'use client'
-export const dynamic = 'force-dynamic'
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -97,13 +96,14 @@ export default function CustomisePage() {
     if (learnStyles.length)  learningProfile.learn_styles = learnStyles
     if (Object.keys(confidence).length) learningProfile.confidence = confidence
 
-    setSaving(false)
-    setSaved(true)
     fetch('/api/profile/customise', {
       method:  'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ avatarConfig: avatarCfg, theme, studyBuddy: buddy, learningProfile }),
-    }).then(() => router.refresh()).catch(() => {})
+    })
+      .then((r) => { if (r.ok) { setSaved(true); router.refresh() } })
+      .catch(() => {})
+      .finally(() => setSaving(false))
   }
 
   if (loading) {
@@ -173,7 +173,7 @@ export default function CustomisePage() {
                 </span>
                 {!unlocked && (
                   <span className="absolute top-1 right-1 flex items-center gap-0.5 text-[9px] text-muted font-bold">
-                    <Lock className="w-2.5 h-2.5" />{(s.unlock!.xp / 1000).toFixed(s.unlock!.xp < 1000 ? 0 : 1)}k
+                    <Lock className="w-2.5 h-2.5" />{s.unlock!.xp >= 1000 ? `${(s.unlock!.xp / 1000).toFixed(1)}k` : s.unlock!.xp}
                   </span>
                 )}
               </button>
