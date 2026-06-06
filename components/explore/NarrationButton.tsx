@@ -61,10 +61,14 @@ export function NarrationButton({ text, muted, onToggleMute, autoPlay = false }:
     const assignVoice = () => {
       const voices = window.speechSynthesis.getVoices()
       if (voices.length === 0) return
+      // Prefer high-quality deep UK male voices, then any UK English
       const ukVoice =
-        voices.find(v => v.lang === 'en-GB' && v.name.toLowerCase().includes('daniel')) ||
-        voices.find(v => v.lang === 'en-GB' && v.name.toLowerCase().includes('male')) ||
+        voices.find(v => v.lang === 'en-GB' && v.name === 'Daniel') ||
+        voices.find(v => v.lang === 'en-GB' && /daniel|arthur|oliver|george/i.test(v.name)) ||
+        voices.find(v => v.lang === 'en-GB' && v.localService) ||
         voices.find(v => v.lang === 'en-GB') ||
+        voices.find(v => /en-AU|en-NZ/i.test(v.lang) && v.localService) ||
+        voices.find(v => v.lang.startsWith('en') && v.localService) ||
         voices.find(v => v.lang.startsWith('en'))
       if (ukVoice) utter.voice = ukVoice
     }

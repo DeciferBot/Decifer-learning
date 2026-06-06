@@ -721,7 +721,7 @@ function InfoPanel({ planet, onClose, onAskDecifer, onOpenWonder, muted, onToggl
       transition={{ type: 'spring', damping: 28, stiffness: 300 }}
       className="fixed inset-x-0 bottom-0 z-50 rounded-t-3xl overflow-y-auto"
       style={{
-        maxHeight: '68vh',
+        maxHeight: '50vh',
         background: 'linear-gradient(160deg, #1a1a3e 0%, #0d0d20 100%)',
         border: '1px solid rgba(255,255,255,0.1)',
         paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))',
@@ -916,13 +916,14 @@ function JourneyPanel({ planet, step, total, muted, onToggleMute, onNext, onStay
       transition={{ type: 'spring', damping: 28, stiffness: 300 }}
       className="fixed inset-x-0 bottom-0 z-50 rounded-t-3xl"
       style={{
+        maxHeight: '44vh',
         background: 'linear-gradient(160deg, #1a1a3e 0%, #0d0d20 100%)',
         border: '1px solid rgba(255,255,255,0.1)',
-        paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))',
+        paddingBottom: 'max(1rem, env(safe-area-inset-bottom))',
       }}
     >
       {/* Progress dots */}
-      <div className="flex justify-center gap-2 pt-4 pb-2">
+      <div className="flex justify-center gap-2 pt-3 pb-1">
         {Array.from({ length: total }).map((_, i) => (
           <motion.div
             key={i}
@@ -938,26 +939,26 @@ function JourneyPanel({ planet, step, total, muted, onToggleMute, onNext, onStay
       </div>
 
       {/* Planet header */}
-      <div className="flex items-center gap-3 px-5 pt-3 pb-2">
+      <div className="flex items-center gap-3 px-5 pt-2 pb-1">
         <div
-          className="h-12 w-12 rounded-full flex-none"
+          className="h-10 w-10 rounded-full flex-none"
           style={{ background: `radial-gradient(circle at 35% 35%, ${planet.glowColor}, ${planet.color})` }}
         />
         <div className="flex-1">
           <p className="text-[10px] text-white/40 uppercase tracking-widest">World {step + 1} of {total}</p>
-          <h2 className="text-xl font-bold text-white leading-tight">{planet.name}</h2>
+          <h2 className="text-lg font-bold text-white leading-tight">{planet.name}</h2>
         </div>
         <NarrationButton text={layer.narration} muted={muted} onToggleMute={onToggleMute} autoPlay />
       </div>
 
       {/* Wonder fact */}
-      <div className="mx-5 mt-2 rounded-2xl p-4" style={{ background: 'rgba(255,215,0,0.1)', border: '1px solid rgba(255,215,0,0.2)' }}>
-        <p className="text-xs font-bold text-yellow-300 uppercase tracking-wider mb-1.5">🌟 Wonder</p>
-        <p className="text-sm text-white/90 leading-relaxed">{layer.text}</p>
+      <div className="mx-5 mt-1.5 rounded-2xl px-4 py-3" style={{ background: 'rgba(255,215,0,0.1)', border: '1px solid rgba(255,215,0,0.2)' }}>
+        <p className="text-[10px] font-bold text-yellow-300 uppercase tracking-wider mb-1">🌟 Wonder</p>
+        <p className="text-xs text-white/90 leading-relaxed">{layer.text}</p>
       </div>
 
       {/* Actions */}
-      <div className="flex gap-3 px-5 mt-4">
+      <div className="flex gap-3 px-5 mt-3">
         <button
           onClick={onStayHere}
           className="flex-1 rounded-2xl px-4 py-3 text-sm font-semibold text-white/70 transition-all active:scale-95"
@@ -1037,7 +1038,15 @@ export function SolarSystem({ onAskDecifer, onExplore }: SolarSystemProps) {
   const displaySelected = journeyActive ? PLANETS[journeyStep] : selected
 
   const handleSelect = useCallback((planet: Planet | null) => {
-    if (journeyActive) return // block free-select during journey
+    if (journeyActive) {
+      // Tapping a planet during journey exits journey and selects that planet freely
+      if (planet) {
+        stopNarration()
+        setJourneyStep(null)
+        setSelected(planet)
+      }
+      return
+    }
     setSelected(planet)
     setPaused(planet !== null)
   }, [journeyActive])
