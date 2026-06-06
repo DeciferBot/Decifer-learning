@@ -24,12 +24,21 @@ export function NarrationButton({ text, muted, onToggleMute, autoPlay = false }:
   // Always hold latest text + muted in refs so closures are never stale
   const textRef = useRef(text)
   const mutedRef = useRef(muted)
+  // Holds any pending voiceschanged listener so it can be cleaned up on unmount
+  const voicesHandlerRef = useRef<(() => void) | null>(null)
   textRef.current = text
   mutedRef.current = muted
 
   useEffect(() => {
     setSupported('speechSynthesis' in window)
-    return () => { mountedRef.current = false }
+    return () => {
+      mountedRef.current = false
+      // Remove any orphaned voiceschanged listener if component unmounts before voices load
+      if (voicesHandlerRef.current) {
+        window.speechSynthesis?.removeEventListener('voiceschanged', voicesHandlerRef.current)
+        voicesHandlerRef.current = null
+      }
+    }
   }, [])
 
   const stop = useCallback(() => {
@@ -61,9 +70,14 @@ export function NarrationButton({ text, muted, onToggleMute, autoPlay = false }:
     }
 
     assignVoice()
-    // If voices were empty, wait for voiceschanged (fires once, Chrome/Firefox)
+    // If voices were empty, wait for voiceschanged (fires once on Chrome/Firefox)
     if (!utter.voice) {
-      const handler = () => { assignVoice(); window.speechSynthesis.removeEventListener('voiceschanged', handler) }
+      const handler = () => {
+        assignVoice()
+        window.speechSynthesis.removeEventListener('voiceschanged', handler)
+        voicesHandlerRef.current = null
+      }
+      voicesHandlerRef.current = handler
       window.speechSynthesis.addEventListener('voiceschanged', handler)
     }
 
