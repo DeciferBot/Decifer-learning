@@ -7,13 +7,14 @@ import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import { parseLearningProfile } from '@/lib/onboarding-config'
 import {
-  HAIR_STYLES, HAIR_COLOURS, SKIN_TONES, EYE_STYLES, ACCESSORIES,
+  HAIR_STYLES, HAIR_COLOURS, SKIN_TONES, EYE_STYLES, ACCESSORIES, OUTFIT_COLOURS,
   type AvatarConfig,
 } from '@/lib/avatar-catalogue'
 
 const VALID_THEMES  = ['default', 'maths', 'english', 'science', 'night'] as const
 const VALID_BUDDIES = ['owl', 'fox', 'robot', 'dragon'] as const
-const VALID_OUTFIT_COLOURS = ['#6C9EFF', '#FF8FAB', '#52D9A0', '#FFC107', '#9B59B6', '#FB5A24']
+// Derived from catalogue so it stays in sync automatically
+const VALID_OUTFIT_COLOURS = OUTFIT_COLOURS.map((c) => c.hex)
 
 // Derived valid-id sets from catalogue
 const VALID_SKIN_TONES  = new Set(SKIN_TONES.map((s) => s.id))

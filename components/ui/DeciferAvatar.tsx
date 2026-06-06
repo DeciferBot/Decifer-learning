@@ -37,8 +37,8 @@ interface DeciferAvatarProps {
 
 export function DeciferAvatar({ config: partial = {}, size = 80, className }: DeciferAvatarProps) {
   const cfg: AvatarConfig = { ...DEFAULT_AVATAR_CONFIG, ...partial }
-  const sk  = SKIN_PAL[cfg.skinTone]
-  const hr  = HAIR_PAL[cfg.hairColour]
+  const sk  = SKIN_PAL[cfg.skinTone]  ?? SKIN_PAL[DEFAULT_AVATAR_CONFIG.skinTone]
+  const hr  = HAIR_PAL[cfg.hairColour] ?? HAIR_PAL[DEFAULT_AVATAR_CONFIG.hairColour]
 
   return (
     <svg
