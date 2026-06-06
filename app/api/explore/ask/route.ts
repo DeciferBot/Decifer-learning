@@ -11,6 +11,8 @@ export async function POST(req: NextRequest) {
 
   const { message, aid, context, yearGroup, history = [] } = await req.json()
 
+  if (!message?.trim()) return new Response('Bad request', { status: 400 })
+
   const systemPrompt = `You are Decifer, a brilliant and enthusiastic assistant teacher in the Decifer Learning app.
 You're currently helping a child who is exploring the ${aid} in the interactive learning area.
 ${context ? `They are currently looking at: ${context}.` : ''}
@@ -28,37 +30,47 @@ Your personality:
 
 You know everything about: science, space, geography, history, biology, chemistry, animals, and all school subjects.`
 
+  // Anthropic requires conversation to start with a user turn.
+  // Strip any leading assistant messages (injected UI greetings from the client).
+  const rawHistory: { role: string; content: string }[] = Array.isArray(history)
+    ? history.slice(-6)
+    : []
+  const firstUserIdx = rawHistory.findIndex(m => m.role === 'user')
+  const safeHistory = firstUserIdx === -1 ? [] : rawHistory.slice(firstUserIdx)
+
   const messages = [
-    ...history.slice(-6).map((m: { role: string; content: string }) => ({
+    ...safeHistory.map(m => ({
       role: m.role as 'user' | 'assistant',
       content: m.content,
     })),
     { role: 'user' as const, content: message },
   ]
 
-  const stream = anthropic.messages.stream({
-    model: 'claude-haiku-4-5-20251001',
-    max_tokens: 512,
-    system: systemPrompt,
-    messages,
-  })
-
   const encoder = new TextEncoder()
   const readable = new ReadableStream({
     async start(controller) {
-      for await (const chunk of stream) {
-        if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
-          controller.enqueue(encoder.encode(chunk.delta.text))
+      try {
+        const stream = anthropic.messages.stream({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 512,
+          system: systemPrompt,
+          messages,
+        })
+        for await (const chunk of stream) {
+          if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
+            controller.enqueue(encoder.encode(chunk.delta.text))
+          }
         }
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Stream error'
+        controller.enqueue(encoder.encode(`\n\n[Error: ${msg}]`))
+      } finally {
+        controller.close()
       }
-      controller.close()
     },
   })
 
   return new Response(readable, {
-    headers: {
-      'Content-Type': 'text/plain; charset=utf-8',
-      'Transfer-Encoding': 'chunked',
-    },
+    headers: { 'Content-Type': 'text/plain; charset=utf-8' },
   })
 }

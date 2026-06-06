@@ -91,6 +91,12 @@ export function AskDecifer({ aid, initialContext, yearGroup, onAskCountChange }:
         ])
         bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
       }
+      // Flush any remaining bytes buffered inside the decoder
+      const tail = decoder.decode()
+      if (tail) {
+        reply += tail
+        setMessages(prev => [...prev.slice(0, -1), { role: 'assistant', content: reply }])
+      }
     } catch {
       setMessages(prev => [...prev, { role: 'assistant', content: 'Oops, something went wrong. Try again?' }])
     } finally {

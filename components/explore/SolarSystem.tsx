@@ -428,18 +428,21 @@ function OrbitingPlanet({ planet, paused, isSelected, onSelect }: {
 }
 
 function Stars() {
-  const stars = useRef<{ x: number; y: number; r: number; o: number }[]>(
-    Array.from({ length: 180 }, () => ({
+  // Empty on server — populated after mount to avoid SSR/client hydration mismatch
+  const [stars, setStars] = useState<{ x: number; y: number; r: number; o: number }[]>([])
+
+  useEffect(() => {
+    setStars(Array.from({ length: 180 }, () => ({
       x: Math.random() * 100,
       y: Math.random() * 100,
       r: Math.random() * 1.5 + 0.3,
       o: Math.random() * 0.7 + 0.2,
-    }))
-  )
+    })))
+  }, [])
 
   return (
     <svg className="absolute inset-0 w-full h-full pointer-events-none" aria-hidden>
-      {stars.current.map((s, i) => (
+      {stars.map((s, i) => (
         <circle key={i} cx={`${s.x}%`} cy={`${s.y}%`} r={s.r} fill="white" opacity={s.o} />
       ))}
     </svg>

@@ -56,10 +56,13 @@ function isAdminGateExempt(pathname: string): boolean {
 }
 
 export async function middleware(request: NextRequest): Promise<NextResponse> {
-  const { response, user } = await updateSession(request)
   const { pathname } = request.nextUrl
 
-  if (isPublic(pathname)) return response
+  // Skip the Supabase auth network call entirely for public routes — it adds
+  // 500–3000 ms of latency on every request, including the public homepage.
+  if (isPublic(pathname)) return NextResponse.next()
+
+  const { response, user } = await updateSession(request)
 
   // ── Admin password gate ── (runs before the Supabase auth/role checks)
   if (isAdminArea(pathname) && !isAdminGateExempt(pathname)) {
