@@ -660,6 +660,15 @@ Question text is clear and unambiguous.
 Only flag violations that are clear and significant. Do not flag minor wording imperfections."""
 
 
+_TECHNIQUE_TYPES = (
+    "recall",           # direct knowledge retrieval — default for most questions
+    "perspective",      # answer from a historical/scientific viewpoint, not modern knowledge
+    "evidence_cite",    # must quote or reference a source/text in the answer
+    "show_working",     # must write out steps, not just the final answer
+    "two_part",         # requires both an example AND an explanation
+    "causation",        # must distinguish cause from effect
+)
+
 _CONSTITUTIONAL_PROMPT_TEMPLATE = """You are a quality reviewer for a UK educational app for children.
 
 Review the following {subject} question against this constitution:
@@ -676,8 +685,28 @@ Hint 3: {hint_3}
 Explanation: {explanation}
 
 List any violations of the constitution. Empty list if none.
+
+Also assign a technique_type that describes the answering skill this question tests:
+  recall           — direct knowledge retrieval (most questions)
+  perspective      — answer from a historical/scientific viewpoint, not modern knowledge
+                     (e.g. "what did people in 1348 believe?", "how did Victorian scientists explain X?")
+  evidence_cite    — must quote or reference a source, text, or data in the answer
+  show_working     — must write steps, not just the final answer (multi-step maths, method questions)
+  two_part         — requires both a specific example AND an explanation
+  causation        — must distinguish cause from effect, or sequence events/reasons
+
+And generate two short strings:
+  technique_hint — 1–2 sentences shown to the child when they answer incorrectly, before content hints.
+                   Teaches HOW to approach the question. Does NOT reveal content or the answer.
+                   Example for perspective: "This question wants you to think like someone living in 1348 —
+                   what would THEY have believed, before modern medicine existed?"
+  technique_note — 1 sentence shown in the post-answer explanation.
+                   Reinforces the technique. Example: "Remember: when a question asks what people
+                   'thought' or 'believed', answer from their perspective, not ours."
+  For technique_type=recall, set technique_hint and technique_note to null (no technique coaching needed).
+
 Respond with ONLY valid JSON:
-{{"violations": []}}"""
+{{"violations": [], "technique_type": "recall", "technique_hint": null, "technique_note": null}}"""
 
 
 # ── Result dataclass ──────────────────────────────────────────────────────
@@ -836,7 +865,11 @@ def stage3_consensus(topic: dict, tier: str, question_data: dict, result: Pipeli
 def stage4_constitutional(
     topic: dict, tier: str, question_data: dict, result: PipelineResult
 ) -> list[str]:
-    """Stage 4: constitutional critique. Returns list of violations."""
+    """Stage 4: constitutional critique. Returns list of violations.
+
+    Side-effect: writes technique_type, technique_hint, technique_note back into
+    question_data so Stage 6 can persist them alongside the question row.
+    """
     result.log_stage("Stage 4: constitutional critique")
     year_label, _ = _YEAR_GROUP_DISPLAY.get(
         topic["year_group_label"], (topic["year_group_label"], "")
@@ -857,7 +890,7 @@ def stage4_constitutional(
     try:
         msg = _anthropic().messages.create(
             model=config.CLAUDE_MODEL,
-            max_tokens=512,
+            max_tokens=600,
             temperature=0,
             messages=[{"role": "user", "content": prompt}],
         )
@@ -867,10 +900,25 @@ def stage4_constitutional(
             text = "\n".join(l for l in text.splitlines() if not l.startswith("```"))
         critique = json.loads(_extract_json(text))
         violations = critique.get("violations", [])
-        result.log_stage(f"  violations={violations}")
+
+        # Extract technique fields and write back into question_data for db.write_question
+        technique_type = critique.get("technique_type", "recall")
+        if technique_type not in _TECHNIQUE_TYPES:
+            technique_type = "recall"
+        question_data["technique_type"] = technique_type
+        question_data["technique_hint"] = critique.get("technique_hint") or None
+        question_data["technique_note"] = critique.get("technique_note") or None
+
+        result.log_stage(
+            f"  violations={violations} technique_type={technique_type}"
+        )
         return violations
     except Exception as exc:
         result.log_stage(f"  constitutional error: {exc}")
+        # Fail-safe: default to recall so the question can still be written
+        question_data.setdefault("technique_type", "recall")
+        question_data.setdefault("technique_hint", None)
+        question_data.setdefault("technique_note", None)
         return []
 
 

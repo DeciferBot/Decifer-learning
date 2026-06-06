@@ -298,6 +298,10 @@ model QuizQuestion {
   status            ContentStatus @default(staged)
   source_chunk_ids  Json?
   created_at        DateTime      @default(now())
+  // Exam technique layer (Sprint 1)
+  technique_type    String?   // 'recall' | 'perspective' | 'evidence_cite' | 'show_working' | 'two_part' | 'causation'
+  technique_hint    String?   // fires before hint_1 on first wrong answer; teaches HOW to answer, not content
+  technique_note    String?   // shown in post-answer explanation; reinforces technique used
   // Phase 11A provenance fields
   question_metadata Json?
   generator_version String?

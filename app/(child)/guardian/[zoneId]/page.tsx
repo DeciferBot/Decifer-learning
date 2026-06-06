@@ -68,6 +68,9 @@ export default async function GuardianPage({ params }: { params: { zoneId: strin
       hint_3: true,
       explanation: true,
       worked_example: true,
+      technique_type: true,
+      technique_hint: true,
+      technique_note: true,
     },
   })
 
@@ -88,6 +91,9 @@ export default async function GuardianPage({ params }: { params: { zoneId: strin
       hint_3: q.hint_3,
       explanation: q.explanation,
       worked_example: q.worked_example,
+      technique_type: q.technique_type,
+      technique_hint: q.technique_hint,
+      technique_note: q.technique_note,
     }))
 
   return (

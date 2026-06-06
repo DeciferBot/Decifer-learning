@@ -25,6 +25,9 @@ export interface AdaptiveQuestion {
   hint_3: string | null
   explanation: string | null
   worked_example: string | null
+  technique_type: string | null
+  technique_hint: string | null
+  technique_note: string | null
 }
 
 export interface SelectionAuditLog {
@@ -184,7 +187,7 @@ export async function selectQuizQuestions(
   // Fetch full published pool — .eq('status','published') is defence-in-depth; RLS enforces too.
   const { data: pool } = await supabase
     .from('quiz_questions')
-    .select('id, tier, question_type, question_text, correct_answer, distractors, hint_1, hint_2, hint_3, explanation, worked_example')
+    .select('id, tier, question_type, question_text, correct_answer, distractors, hint_1, hint_2, hint_3, explanation, worked_example, technique_type, technique_hint, technique_note')
     .eq('topic_id', topicId)
     .eq('status', 'published')
     .order('created_at', { ascending: true })
@@ -273,7 +276,7 @@ export async function selectInterleavedQuestions(
     topicIds.map(async (topicId) => {
       const { data } = await supabase
         .from('quiz_questions')
-        .select('id, tier, question_type, question_text, correct_answer, distractors, hint_1, hint_2, hint_3, explanation, worked_example')
+        .select('id, tier, question_type, question_text, correct_answer, distractors, hint_1, hint_2, hint_3, explanation, worked_example, technique_type, technique_hint, technique_note')
         .eq('topic_id', topicId)
         .eq('status', 'published')
         .order('created_at', { ascending: true })
@@ -334,7 +337,7 @@ export async function selectPracticeItems(
 
   const { data: pool } = await supabase
     .from('quiz_questions')
-    .select('id, tier, question_type, question_text, correct_answer, distractors, hint_1, hint_2, hint_3, explanation, worked_example')
+    .select('id, tier, question_type, question_text, correct_answer, distractors, hint_1, hint_2, hint_3, explanation, worked_example, technique_type, technique_hint, technique_note')
     .eq('topic_id', topicId)
     .eq('status', 'published')
     .order('created_at', { ascending: true })

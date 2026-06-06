@@ -37,6 +37,9 @@ export type QuizQuestion = {
   hint_3: string | null
   explanation: string | null
   worked_example: string | null
+  technique_type: string | null
+  technique_hint: string | null
+  technique_note: string | null
 }
 
 type AnswerLog = {
@@ -132,6 +135,10 @@ export function QuizShell({
   const [questionsCorrect, setQuestionsCorrect] = useState(0)
   const [pointsFlash, setPointsFlash] = useState<number | null>(null)
 
+  // Technique score: non-recall questions answered correctly on first attempt
+  const [techniqueCorrect, setTechniqueCorrect] = useState(0)
+  const [techniqueTotal, setTechniqueTotal] = useState(0)
+
   // Challenge milestones
   const [bonusIndex, setBonusIndex] = useState(-1)         // which question is the bonus challenge
   const [hintlessStreak, setHintlessStreak] = useState(0)  // correct answers with no hints used
@@ -202,6 +209,13 @@ export function QuizShell({
       setTotalPoints((p) => p + pts)
       setQuestionsCorrect((n) => n + 1)
       setPointsFlash(pts)
+
+      // Technique tracking: count non-recall questions and first-attempt wins
+      const tType = q.technique_type
+      if (tType && tType !== 'recall') {
+        setTechniqueTotal((n) => n + 1)
+        if (attempts === 0) setTechniqueCorrect((n) => n + 1)
+      }
       setTimeout(() => setPointsFlash(null), 1200)
       setAnsweredCorrectly(true)
       setQuestionDone(true)
@@ -297,6 +311,8 @@ export function QuizShell({
     setTotalPoints(0)
     setQuestionsCorrect(0)
     setPointsFlash(null)
+    setTechniqueCorrect(0)
+    setTechniqueTotal(0)
     setDone(false)
     setHeartsDead(false)
     setHearts(MAX_HEARTS)
@@ -468,6 +484,14 @@ export function QuizShell({
           <p className="mt-1 text-muted">
             {pct}% — {passed ? winMessage : 'Try again to improve your score.'}
           </p>
+
+          {/* Technique score — only shown when quiz had non-recall questions */}
+          {techniqueTotal > 0 && (
+            <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-maths/10 px-4 py-1.5 text-sm font-semibold text-maths">
+              <Target className="w-3.5 h-3.5 flex-none" aria-hidden />
+              Exam technique: {techniqueCorrect}/{techniqueTotal} question{techniqueTotal !== 1 ? 's' : ''} answered in the right format
+            </div>
+          )}
 
           {submitting ? (
             <div className="mt-4 space-y-2 text-center">
@@ -772,6 +796,23 @@ export function QuizShell({
             />
           )}
 
+          {/* Technique hint — shown on first wrong attempt if question has a non-recall technique */}
+          <AnimatePresence>
+            {attempts === 1 && !questionDone && q.technique_hint && (
+              <motion.div
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className="mb-3 rounded-xl border border-maths/30 bg-maths/10 px-4 py-3 text-sm text-ink"
+              >
+                <span className="mr-1.5 font-bold text-maths inline-flex items-center gap-1">
+                  <Target className="w-3.5 h-3.5" aria-hidden /> How to answer:
+                </span>
+                {q.technique_hint}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* Wrong-answer nudge */}
           <AnimatePresence>
             {attempts > 0 && !questionDone && (
@@ -782,7 +823,9 @@ export function QuizShell({
                 className="mb-3 text-sm font-bold"
                 style={{ color: '#FF6B6B' }}
               >
-                Not quite — here&apos;s a hint. Try again!
+                {attempts === 1 && q.technique_hint
+                  ? "Not quite — read the tip above and try again!"
+                  : "Not quite — here's a hint. Try again!"}
               </motion.p>
             )}
           </AnimatePresence>
@@ -848,6 +891,11 @@ export function QuizShell({
                 )}
                 {q.explanation && (
                   <p className="mt-1 text-sm text-muted">{q.explanation}</p>
+                )}
+                {q.technique_note && (
+                  <p className="mt-2 text-xs font-semibold text-maths border-t border-maths/20 pt-2">
+                    💡 {q.technique_note}
+                  </p>
                 )}
               </motion.div>
             )}
