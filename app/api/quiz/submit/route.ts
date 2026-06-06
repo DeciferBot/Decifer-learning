@@ -220,12 +220,6 @@ export async function POST(req: Request) {
       isFirstWin = completedCount === 1
     }
 
-    // ── Card drop (on pass) ───────────────────────────────────────────────
-    let droppedCard: DroppedCard | null = null
-    if (passed) {
-      droppedCard = await dropCard(tx, profile.id, profile.year_group_id)
-    }
-
     // ── Badge checks ──────────────────────────────────────────────────────
     const newBadges = await checkBadges(tx, {
       profileId: profile.id,
@@ -256,7 +250,6 @@ export async function POST(req: Request) {
     return {
       newTotalPoints,
       isFirstWin,
-      droppedCard,
       newBadges: newBadges
         .filter((b): b is NonNullable<typeof b> => b !== null)
         .map((b) => ({
@@ -267,6 +260,17 @@ export async function POST(req: Request) {
       shieldAwarded,
     }
   }, { timeout: 15000 })
+
+  // ── Card drop — runs OUTSIDE the main transaction so quiz results always save ─
+  // A failure here logs and returns null; it never breaks the quiz response.
+  let droppedCard: DroppedCard | null = null
+  if (passed) {
+    try {
+      droppedCard = await dropCard(prisma, profile.id, profile.year_group_id)
+    } catch (err) {
+      console.error('[quiz/submit] card drop failed:', err)
+    }
+  }
 
   // Non-blocking milestone check — fires after response is returned.
   // Vault writes are isolated; any failure here must not affect the quiz result.
@@ -307,7 +311,7 @@ export async function POST(req: Request) {
     totalPoints: result.newTotalPoints,
     streakDays,
     newStreak,
-    droppedCard: result.droppedCard,
+    droppedCard,
     newBadges: result.newBadges,
     shieldAwarded: result.shieldAwarded,
     isFirstWin: result.isFirstWin,
@@ -317,14 +321,15 @@ export async function POST(req: Request) {
 // ── Card drop ─────────────────────────────────────────────────────────────
 
 async function dropCard(
-  tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0],
+  db: typeof prisma,
   profileId: string,
   yearGroupId: string | null,
 ): Promise<DroppedCard | null> {
   const rarity = pickRarity()
+  console.log('[dropCard] rarity:', rarity, 'yearGroupId:', yearGroupId)
 
   // Find published cards for this rarity: year-group-specific OR shared (null)
-  const candidates = await tx.cardCatalog.findMany({
+  const candidates = await db.cardCatalog.findMany({
     where: {
       rarity,
       status: 'published',
@@ -338,20 +343,23 @@ async function dropCard(
 
   const card = candidates[Math.floor(Math.random() * candidates.length)]
 
+  console.log('[dropCard] candidates found:', candidates.length, 'picking card:', card.id, card.title)
+
   // Upsert child_collection
-  const existing = await tx.childCollection.findUnique({
+  const existing = await db.childCollection.findUnique({
     where: { profile_id_card_id: { profile_id: profileId, card_id: card.id } },
   })
   if (existing) {
-    await tx.childCollection.update({
+    await db.childCollection.update({
       where: { profile_id_card_id: { profile_id: profileId, card_id: card.id } },
       data: { quantity: { increment: 1 } },
     })
   } else {
-    await tx.childCollection.create({
+    await db.childCollection.create({
       data: { profile_id: profileId, card_id: card.id, quantity: 1 },
     })
   }
+  console.log('[dropCard] card written to collection, isNew:', !existing)
 
   return {
     id: card.id,
