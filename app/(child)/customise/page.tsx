@@ -3,60 +3,51 @@ export const dynamic = 'force-dynamic'
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { AVATARS, BUDDIES } from '@/lib/customise-config'
-import { AVATAR_ICONS, BUDDY_ICONS } from '@/lib/icon-tokens'
-import { Check, Target, BookOpen, FlaskConical, Search, Telescope, Dragon, PencilLine, Layers, Music, Leaf, Anvil, Eye, Zap, TrendingUp, Star, Trophy } from '@/components/ui/icons'
-import type { ComponentType, SVGProps } from 'react'
-type IconComp = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
-const CHOICE_ICONS: Record<string, IconComp> = { Target, BookOpen, FlaskConical, Search, Telescope, Dragon, PencilLine, Layers, Music, Leaf, Anvil, Eye, Zap, TrendingUp, Star, Trophy }
+import { DeciferAvatar } from '@/components/ui/DeciferAvatar'
 import {
-  FAVOURITE_SUBJECTS,
-  INTERESTS,
-  LEARN_STYLES,
-  CONFIDENCE_AREAS,
-  CONFIDENCE_LEVELS,
+  SKIN_TONES, HAIR_STYLES, HAIR_COLOURS, EYE_STYLES, ACCESSORIES, OUTFIT_COLOURS,
+  DEFAULT_AVATAR_CONFIG, isUnlocked,
+  type AvatarConfig, type SkinTone, type HairStyle, type HairColour, type EyeStyle, type Accessory,
+} from '@/lib/avatar-catalogue'
+import { BUDDIES } from '@/lib/customise-config'
+import { BUDDY_ICONS } from '@/lib/icon-tokens'
+import { Check, Lock } from '@/components/ui/icons'
+import {
+  FAVOURITE_SUBJECTS, INTERESTS, LEARN_STYLES,
+  CONFIDENCE_AREAS, CONFIDENCE_LEVELS,
   type LearningProfile,
 } from '@/lib/onboarding-config'
+import type { ComponentType, SVGProps } from 'react'
+import { Target, BookOpen, FlaskConical, Search, Telescope, Dragon, PencilLine, Layers, Music, Leaf, Anvil, Eye, Zap, TrendingUp, Star, Trophy } from '@/components/ui/icons'
 
-const COLOURS = [
-  { id: 'blue',   label: 'Blue',   hex: '#6C9EFF' },
-  { id: 'pink',   label: 'Pink',   hex: '#FF8FAB' },
-  { id: 'green',  label: 'Green',  hex: '#52D9A0' },
-  { id: 'gold',   label: 'Gold',   hex: '#FFC107' },
-  { id: 'purple', label: 'Purple', hex: '#9B59B6' },
-  { id: 'orange', label: 'Orange', hex: '#FF8C00' },
-] as const
+type IconComp = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
+const CHOICE_ICONS: Record<string, IconComp> = { Target, BookOpen, FlaskConical, Search, Telescope, Dragon, PencilLine, Layers, Music, Leaf, Anvil, Eye, Zap, TrendingUp, Star, Trophy }
 
 const THEMES = [
   { id: 'default', label: 'Classic',    bg: '#FAFBFF', accent: '#6C9EFF' },
   { id: 'maths',   label: 'Maths',      bg: '#EFF4FF', accent: '#6C9EFF' },
   { id: 'english', label: 'English',    bg: '#FFF0F5', accent: '#FF8FAB' },
   { id: 'science', label: 'Science',    bg: '#EDFFF7', accent: '#52D9A0' },
-  { id: 'night',   label: 'Night mode', bg: '#1A1D2E', accent: '#9B59B6' },
+  { id: 'night',   label: 'Night',      bg: '#0F111A', accent: '#9B59B6' },
 ] as const
 
-interface Profile {
-  avatarBase:      string
-  avatarColour:    string
-  theme:           string
-  studyBuddy:      string | null
-  learningProfile: LearningProfile
-}
+// ── Page ─────────────────────────────────────────────────────────────────────
 
 export default function CustomisePage() {
-  const router   = useRouter()
-  const [profile, setProfile]   = useState<Profile | null>(null)
-  const [loading, setLoading]   = useState(true)
-  const [saving,  setSaving]    = useState(false)
-  const [saved,   setSaved]     = useState(false)
+  const router = useRouter()
+  const [loading,     setLoading]     = useState(true)
+  const [saving,      setSaving]      = useState(false)
+  const [saved,       setSaved]       = useState(false)
+  const [totalPoints, setTotalPoints] = useState(0)
 
-  // local working state
-  const [avatarBase,   setAvatarBase]   = useState('explorer')
-  const [avatarColour, setAvatarColour] = useState('blue')
-  const [theme,        setTheme]        = useState('default')
-  const [buddy,        setBuddy]        = useState<string | null>(null)
+  // Avatar
+  const [avatarCfg, setAvatarCfg] = useState<AvatarConfig>(DEFAULT_AVATAR_CONFIG)
 
-  // "About me" — non-PII personalisation, editable here after onboarding.
+  // Decor
+  const [theme,  setTheme]  = useState('default')
+  const [buddy,  setBuddy]  = useState<string | null>(null)
+
+  // About me
   const [favSubject,  setFavSubject]  = useState<string | null>(null)
   const [interests,   setInterests]   = useState<string[]>([])
   const [learnStyles, setLearnStyles] = useState<string[]>([])
@@ -65,23 +56,33 @@ export default function CustomisePage() {
   useEffect(() => {
     fetch('/api/profile/me')
       .then((r) => r.json())
-      .then((d: { profile?: Profile }) => {
-        if (d.profile) {
-          setProfile(d.profile)
-          setAvatarBase(d.profile.avatarBase   || 'explorer')
-          setAvatarColour(d.profile.avatarColour || 'blue')
-          setTheme(d.profile.theme             || 'default')
-          setBuddy(d.profile.studyBuddy        ?? null)
-          const lp = d.profile.learningProfile ?? {}
-          setFavSubject(lp.favourite_subject ?? null)
-          setInterests(lp.interests ?? [])
-          setLearnStyles(lp.learn_styles ?? [])
-          setConfidence((lp.confidence as Record<string, number>) ?? {})
+      .then((d: { profile?: {
+        avatarConfig?: Partial<AvatarConfig>
+        theme?: string
+        studyBuddy?: string | null
+        learningProfile?: LearningProfile
+        totalPoints?: number
+      } }) => {
+        if (!d.profile) return
+        if (d.profile.avatarConfig) {
+          setAvatarCfg({ ...DEFAULT_AVATAR_CONFIG, ...d.profile.avatarConfig })
         }
+        setTheme(d.profile.theme ?? 'default')
+        setBuddy(d.profile.studyBuddy ?? null)
+        setTotalPoints(d.profile.totalPoints ?? 0)
+        const lp = d.profile.learningProfile ?? {}
+        setFavSubject(lp.favourite_subject ?? null)
+        setInterests(lp.interests ?? [])
+        setLearnStyles(lp.learn_styles ?? [])
+        setConfidence((lp.confidence as Record<string, number>) ?? {})
       })
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [])
+
+  function setAvatar<K extends keyof AvatarConfig>(key: K, val: AvatarConfig[K]) {
+    setAvatarCfg((prev) => ({ ...prev, [key]: val }))
+  }
 
   function toggle(list: string[], setList: (v: string[]) => void, id: string) {
     setList(list.includes(id) ? list.filter((x) => x !== id) : [...list, id])
@@ -91,17 +92,17 @@ export default function CustomisePage() {
     setSaving(true)
     setSaved(false)
     const learningProfile: Record<string, unknown> = {}
-    if (favSubject) learningProfile.favourite_subject = favSubject
-    if (interests.length) learningProfile.interests = interests
-    if (learnStyles.length) learningProfile.learn_styles = learnStyles
+    if (favSubject)          learningProfile.favourite_subject = favSubject
+    if (interests.length)    learningProfile.interests = interests
+    if (learnStyles.length)  learningProfile.learn_styles = learnStyles
     if (Object.keys(confidence).length) learningProfile.confidence = confidence
-    // Optimistic: show saved immediately; router.refresh syncs server state in background
+
     setSaving(false)
     setSaved(true)
     fetch('/api/profile/customise', {
       method:  'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ avatarBase, avatarColour, theme, studyBuddy: buddy, learningProfile }),
+      body: JSON.stringify({ avatarConfig: avatarCfg, theme, studyBuddy: buddy, learningProfile }),
     }).then(() => router.refresh()).catch(() => {})
   }
 
@@ -113,82 +114,184 @@ export default function CustomisePage() {
     )
   }
 
-  const AvatarIcon = AVATAR_ICONS[avatarBase] ?? AVATAR_ICONS.explorer
-  const colourHex  = COLOURS.find((c) => c.id === avatarColour)?.hex ?? '#6C9EFF'
-
   return (
     <div className="max-w-lg mx-auto px-4 space-y-6 pb-10">
       <div className="flex items-center justify-between pt-2">
-        <h1 className="font-heading text-2xl font-bold text-ink">Customise</h1>
-        <button onClick={() => router.back()} className="text-sm text-muted hover:text-ink">
-          ← Back
-        </button>
+        <h1 className="font-heading text-2xl font-bold text-ink">My Avatar</h1>
+        <button onClick={() => router.back()} className="text-sm text-muted hover:text-ink">← Back</button>
       </div>
 
-      {/* Preview */}
-      <div className="rounded-2xl border border-black/5 bg-surface p-5 shadow-sm flex items-center gap-5">
-        <div
-          className="h-20 w-20 rounded-full flex items-center justify-center flex-none"
-          style={{ backgroundColor: colourHex + '22', border: `3px solid ${colourHex}`, color: colourHex }}
-        >
-          <AvatarIcon size={40} aria-hidden />
-        </div>
-        <div>
-          <p className="font-heading font-bold text-ink text-lg">
-            {AVATARS.find((a) => a.id === avatarBase)?.name ?? 'Explorer'}
-          </p>
-          <p className="text-sm font-medium mt-0.5" style={{ color: colourHex }}>
-            {COLOURS.find((c) => c.id === avatarColour)?.label} theme
-          </p>
-          <p className="text-xs text-muted mt-0.5">
-            {buddy ? `Buddy: ${BUDDIES.find((b) => b.id === buddy)?.name}` : 'No study buddy'}
-          </p>
-        </div>
+      {/* ── Preview ───────────────────────────────────────── */}
+      <div className="rounded-2xl border border-black/5 bg-surface shadow-sm p-6 flex flex-col items-center gap-3">
+        <DeciferAvatar config={avatarCfg} size={120} />
+        <p className="font-heading font-bold text-ink text-lg">{buddy ? `+ ${BUDDIES.find((b) => b.id === buddy)?.name}` : 'Your Decifer character'}</p>
+        <p className="text-xs text-muted">{totalPoints.toLocaleString()} XP earned · more unlocks as you learn</p>
       </div>
 
-      {/* Avatar character */}
-      <Section title="Avatar character">
+      {/* ── Skin tone ─────────────────────────────────────── */}
+      <Section title="Skin tone">
+        <div className="flex gap-3 flex-wrap">
+          {SKIN_TONES.map((s) => (
+            <button
+              key={s.id}
+              onClick={() => setAvatar('skinTone', s.id as SkinTone)}
+              aria-label={s.name}
+              aria-pressed={avatarCfg.skinTone === s.id}
+              className={`h-10 w-10 rounded-full border-2 transition-transform ${
+                avatarCfg.skinTone === s.id ? 'scale-125 border-ink shadow-md' : 'border-transparent hover:scale-110'
+              }`}
+              style={{ backgroundColor: s.swatch }}
+            />
+          ))}
+        </div>
+      </Section>
+
+      {/* ── Hair style ────────────────────────────────────── */}
+      <Section title="Hair style">
         <div className="grid grid-cols-4 gap-2">
-          {AVATARS.map((a) => {
-            const Icon = AVATAR_ICONS[a.id]
-            const isSelected = avatarBase === a.id
+          {HAIR_STYLES.map((s) => {
+            const unlocked = isUnlocked(s.unlock, totalPoints)
+            const selected = avatarCfg.hairStyle === s.id
             return (
               <button
-                key={a.id}
-                onClick={() => setAvatarBase(a.id)}
-                className={`flex flex-col items-center justify-center gap-1.5 rounded-2xl border py-3 px-1 transition-all ${
-                  isSelected
-                    ? 'border-brand bg-brand/10 shadow-sm scale-105 text-brand'
-                    : 'border-black/10 bg-black/[0.02] hover:border-brand/40 text-muted'
+                key={s.id}
+                onClick={() => unlocked && setAvatar('hairStyle', s.id as HairStyle)}
+                aria-pressed={selected}
+                disabled={!unlocked}
+                className={`relative flex flex-col items-center gap-1.5 rounded-2xl border py-3 px-1 transition-all ${
+                  selected    ? 'border-brand bg-brand/10 shadow-sm scale-105'
+                  : unlocked  ? 'border-black/10 bg-black/[0.02] hover:border-brand/40'
+                              : 'border-black/5 bg-black/[0.02] opacity-50 cursor-not-allowed'
                 }`}
-                aria-label={a.name}
-                aria-pressed={isSelected}
               >
-                <div
-                  className="h-11 w-11 rounded-full flex items-center justify-center"
-                  style={isSelected ? { backgroundColor: colourHex + '22', color: colourHex } : {}}
-                >
-                  <Icon size={28} aria-hidden />
-                </div>
-                <span className="text-[10px] font-semibold leading-tight truncate w-full text-center">
-                  {a.name}
+                <DeciferAvatar
+                  config={{ ...avatarCfg, hairStyle: s.id as HairStyle }}
+                  size={44}
+                />
+                <span className={`text-[10px] font-semibold leading-tight ${selected ? 'text-brand' : 'text-muted'}`}>
+                  {s.name}
                 </span>
+                {!unlocked && (
+                  <span className="absolute top-1 right-1 flex items-center gap-0.5 text-[9px] text-muted font-bold">
+                    <Lock className="w-2.5 h-2.5" />{(s.unlock!.xp / 1000).toFixed(s.unlock!.xp < 1000 ? 0 : 1)}k
+                  </span>
+                )}
               </button>
             )
           })}
         </div>
       </Section>
 
-      {/* Avatar colour */}
-      <Section title="Accent colour">
+      {/* ── Hair colour ───────────────────────────────────── */}
+      <Section title="Hair colour">
         <div className="flex gap-3 flex-wrap">
-          {COLOURS.map((c) => (
+          {HAIR_COLOURS.map((c) => {
+            const unlocked = isUnlocked(c.unlock, totalPoints)
+            const selected = avatarCfg.hairColour === c.id
+            return (
+              <div key={c.id} className="relative">
+                <button
+                  onClick={() => unlocked && setAvatar('hairColour', c.id as HairColour)}
+                  aria-label={c.name}
+                  aria-pressed={selected}
+                  disabled={!unlocked}
+                  className={`h-10 w-10 rounded-full border-2 transition-transform ${
+                    selected   ? 'scale-125 border-ink shadow-md'
+                    : unlocked ? 'border-transparent hover:scale-110'
+                               : 'border-transparent opacity-40 cursor-not-allowed'
+                  }`}
+                  style={{ backgroundColor: c.hex }}
+                />
+                {!unlocked && (
+                  <Lock className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 text-muted bg-surface rounded-full p-0.5" />
+                )}
+              </div>
+            )
+          })}
+        </div>
+      </Section>
+
+      {/* ── Eyes ──────────────────────────────────────────── */}
+      <Section title="Eyes">
+        <div className="grid grid-cols-5 gap-2">
+          {EYE_STYLES.map((e) => {
+            const unlocked = isUnlocked(e.unlock, totalPoints)
+            const selected = avatarCfg.eyeStyle === e.id
+            return (
+              <button
+                key={e.id}
+                onClick={() => unlocked && setAvatar('eyeStyle', e.id as EyeStyle)}
+                aria-pressed={selected}
+                disabled={!unlocked}
+                className={`relative flex flex-col items-center gap-1.5 rounded-2xl border py-3 px-1 transition-all ${
+                  selected    ? 'border-brand bg-brand/10 shadow-sm scale-105'
+                  : unlocked  ? 'border-black/10 bg-black/[0.02] hover:border-brand/40'
+                              : 'border-black/5 bg-black/[0.02] opacity-50 cursor-not-allowed'
+                }`}
+              >
+                <DeciferAvatar
+                  config={{ ...avatarCfg, eyeStyle: e.id as EyeStyle }}
+                  size={44}
+                />
+                <span className={`text-[10px] font-semibold leading-tight ${selected ? 'text-brand' : 'text-muted'}`}>
+                  {e.name}
+                </span>
+                {!unlocked && (
+                  <Lock className="absolute top-1 right-1 w-3 h-3 text-muted" />
+                )}
+              </button>
+            )
+          })}
+        </div>
+      </Section>
+
+      {/* ── Accessories ───────────────────────────────────── */}
+      <Section title="Accessories">
+        <div className="grid grid-cols-4 gap-2">
+          {ACCESSORIES.map((a) => {
+            const unlocked = isUnlocked(a.unlock, totalPoints)
+            const selected = avatarCfg.accessory === a.id
+            return (
+              <button
+                key={a.id}
+                onClick={() => unlocked && setAvatar('accessory', a.id as Accessory)}
+                aria-pressed={selected}
+                disabled={!unlocked}
+                className={`relative flex flex-col items-center gap-1.5 rounded-2xl border py-3 px-1 transition-all ${
+                  selected    ? 'border-brand bg-brand/10 shadow-sm scale-105'
+                  : unlocked  ? 'border-black/10 bg-black/[0.02] hover:border-brand/40'
+                              : 'border-black/5 bg-black/[0.02] opacity-50 cursor-not-allowed'
+                }`}
+              >
+                <DeciferAvatar
+                  config={{ ...avatarCfg, accessory: a.id as Accessory }}
+                  size={44}
+                />
+                <span className={`text-[10px] font-semibold leading-tight ${selected ? 'text-brand' : 'text-muted'}`}>
+                  {a.name}
+                </span>
+                {!unlocked && a.unlock && (
+                  <span className="absolute top-1 right-1 flex items-center gap-0.5 text-[9px] text-muted font-bold">
+                    <Lock className="w-2.5 h-2.5" />{a.unlock.xp >= 1000 ? `${(a.unlock.xp/1000).toFixed(1)}k` : a.unlock.xp}
+                  </span>
+                )}
+              </button>
+            )
+          })}
+        </div>
+      </Section>
+
+      {/* ── Outfit colour ─────────────────────────────────── */}
+      <Section title="Outfit colour">
+        <div className="flex gap-3 flex-wrap">
+          {OUTFIT_COLOURS.map((c) => (
             <button
               key={c.id}
-              onClick={() => setAvatarColour(c.id)}
-              aria-label={c.label}
+              onClick={() => setAvatar('outfitColour', c.hex)}
+              aria-label={c.name}
+              aria-pressed={avatarCfg.outfitColour === c.hex}
               className={`h-10 w-10 rounded-full border-2 transition-transform ${
-                avatarColour === c.id ? 'scale-125 border-ink' : 'border-transparent hover:scale-110'
+                avatarCfg.outfitColour === c.hex ? 'scale-125 border-ink shadow-md' : 'border-transparent hover:scale-110'
               }`}
               style={{ backgroundColor: c.hex }}
             />
@@ -196,53 +299,19 @@ export default function CustomisePage() {
         </div>
       </Section>
 
-      {/* Theme */}
-      <Section title="Theme">
-        <div className="grid grid-cols-5 gap-2">
-          {THEMES.map((t) => {
-            const isSelected = theme === t.id
-            const isNight = t.id === 'night'
-            return (
-              <button
-                key={t.id}
-                onClick={() => setTheme(t.id)}
-                aria-pressed={isSelected}
-                className={`flex flex-col items-center gap-1.5 rounded-2xl border p-2 transition-all ${
-                  isSelected
-                    ? 'border-brand shadow-sm'
-                    : 'border-black/10 hover:border-brand/40'
-                }`}
-                style={isNight ? { backgroundColor: '#1A1D2E' } : { backgroundColor: isSelected ? 'rgba(251,90,36,0.08)' : 'rgba(0,0,0,0.02)' }}
-              >
-                <div
-                  className="h-8 w-8 rounded-xl flex items-center justify-center"
-                  style={{ backgroundColor: t.accent + '33', border: `2px solid ${t.accent}` }}
-                >
-                  <div className="h-3 w-3 rounded-full" style={{ backgroundColor: t.accent }} />
-                </div>
-                <span
-                  className="text-[10px] font-semibold leading-tight"
-                  style={{ color: isNight ? '#A8A4BC' : undefined }}
-                >
-                  {t.label}
-                </span>
-              </button>
-            )
-          })}
-        </div>
-      </Section>
-
-      {/* Study buddy */}
+      {/* ── Study buddy ───────────────────────────────────── */}
       <Section title="Study buddy">
         <div className="grid grid-cols-4 gap-2">
           {BUDDIES.map((b) => {
             const Icon = BUDDY_ICONS[b.id]
+            const selected = buddy === b.id
             return (
               <button
                 key={b.id}
-                onClick={() => setBuddy(buddy === b.id ? null : b.id)}
+                onClick={() => setBuddy(selected ? null : b.id)}
+                aria-pressed={selected}
                 className={`flex flex-col items-center gap-1 rounded-2xl border p-3 transition-all ${
-                  buddy === b.id
+                  selected
                     ? 'border-brand bg-brand/10 shadow-sm scale-105 text-brand'
                     : 'border-black/10 bg-black/[0.02] hover:border-brand/40 text-muted'
                 }`}
@@ -255,7 +324,42 @@ export default function CustomisePage() {
         </div>
       </Section>
 
-      {/* About me — non-PII personalisation */}
+      {/* ── Theme ─────────────────────────────────────────── */}
+      <Section title="Theme">
+        <div className="grid grid-cols-5 gap-2">
+          {THEMES.map((t) => {
+            const selected = theme === t.id
+            const isNight  = t.id === 'night'
+            return (
+              <button
+                key={t.id}
+                onClick={() => setTheme(t.id)}
+                aria-pressed={selected}
+                className={`flex flex-col items-center gap-1.5 rounded-2xl border p-2 transition-all ${
+                  selected ? 'border-brand shadow-sm' : 'border-black/10 hover:border-brand/40'
+                }`}
+                style={{
+                  backgroundColor: isNight ? '#1A1D2E'
+                    : selected ? 'rgba(251,90,36,0.08)'
+                    : 'rgba(0,0,0,0.02)',
+                }}
+              >
+                <div
+                  className="h-8 w-8 rounded-xl flex items-center justify-center"
+                  style={{ backgroundColor: t.accent + '33', border: `2px solid ${t.accent}` }}
+                >
+                  <div className="h-3 w-3 rounded-full" style={{ backgroundColor: t.accent }} />
+                </div>
+                <span className="text-[10px] font-semibold leading-tight" style={{ color: isNight ? '#A8A4BC' : undefined }}>
+                  {t.label}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+      </Section>
+
+      {/* ── About me ──────────────────────────────────────── */}
       <Section title="Favourite subject">
         <div className="grid grid-cols-4 gap-2">
           {FAVOURITE_SUBJECTS.map((s) => (
@@ -309,20 +413,23 @@ export default function CustomisePage() {
         </div>
       </Section>
 
-      {/* Save */}
+      {/* ── Save ──────────────────────────────────────────── */}
       <button
         onClick={save}
         disabled={saving}
         className="w-full rounded-2xl bg-brand py-4 font-heading font-bold text-white shadow-sm hover:opacity-90 disabled:opacity-60 transition-opacity"
       >
-        {saving ? 'Saving…' : saved
-          ? <span className="flex items-center justify-center gap-1"><Check className="w-4 h-4" aria-hidden /> Saved!</span>
-          : 'Save changes'
+        {saving ? 'Saving…'
+          : saved
+            ? <span className="flex items-center justify-center gap-1"><Check className="w-4 h-4" aria-hidden /> Saved!</span>
+            : 'Save changes'
         }
       </button>
     </div>
   )
 }
+
+// ── Sub-components ────────────────────────────────────────────────────────────
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (

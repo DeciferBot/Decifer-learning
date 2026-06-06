@@ -17,14 +17,30 @@ export async function GET() {
   })
   if (!profile) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
-  const avatarCfg = profile.avatar_config as { base?: string; colour?: string } | null
+  const rawCfg = profile.avatar_config as Record<string, unknown> | null
+
+  const LEGACY_COLOUR_HEX: Record<string, string> = {
+    blue: '#6C9EFF', pink: '#FF8FAB', green: '#52D9A0',
+    gold: '#FFC107', purple: '#9B59B6', orange: '#FB5A24',
+  }
+
+  // Detect new AvatarConfig format (has skinTone) vs legacy { base, colour }
+  const avatarConfig = rawCfg && 'skinTone' in rawCfg
+    ? rawCfg
+    : {
+        skinTone:     'medium',
+        hairStyle:    'short',
+        hairColour:   'brown',
+        eyeStyle:     'round',
+        accessory:    'none',
+        outfitColour: LEGACY_COLOUR_HEX[(rawCfg?.colour as string) ?? 'blue'] ?? '#6C9EFF',
+      }
 
   return NextResponse.json({
     profile: {
       id:              profile.id,
       displayName:     profile.display_name,
-      avatarBase:      avatarCfg?.base   ?? 'explorer',
-      avatarColour:    avatarCfg?.colour ?? 'blue',
+      avatarConfig,
       theme:           profile.theme_name ?? 'default',
       studyBuddy:      profile.study_buddy,
       learningProfile: profile.learning_profile ?? {},

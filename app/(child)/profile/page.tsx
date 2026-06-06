@@ -8,6 +8,9 @@ import {
   Star, Flame, Layers, Trophy, Shield, PencilLine,
   Compass, Gem, Crown, Leaf, Target, Fox, Medal,
 } from '@/components/ui/icons'
+import { DeciferAvatar } from '@/components/ui/DeciferAvatar'
+import { DEFAULT_AVATAR_CONFIG } from '@/lib/avatar-catalogue'
+import type { AvatarConfig } from '@/lib/avatar-catalogue'
 
 export const metadata = { title: 'My Profile — Decifer Learning' }
 export const dynamic = 'force-dynamic'
@@ -60,8 +63,17 @@ export default async function ProfilePage() {
   const xpInLevel = points % 500
   const xpPct = Math.round((xpInLevel / 500) * 100)
 
-  const avatarCfg = rawProfile?.avatar_config as { base?: string; colour?: string } | null
-  const avatarColour = avatarCfg?.colour ?? 'var(--brand)'
+  const rawAvatarCfg = rawProfile?.avatar_config as Record<string, unknown> | null
+  const LEGACY_HEX: Record<string, string> = {
+    blue: '#6C9EFF', pink: '#FF8FAB', green: '#52D9A0',
+    gold: '#FFC107', purple: '#9B59B6', orange: '#FB5A24',
+  }
+  const avatarConfig: Partial<AvatarConfig> = rawAvatarCfg && 'skinTone' in rawAvatarCfg
+    ? rawAvatarCfg as Partial<AvatarConfig>
+    : {
+        ...DEFAULT_AVATAR_CONFIG,
+        outfitColour: LEGACY_HEX[(rawAvatarCfg?.colour as string) ?? 'blue'] ?? '#6C9EFF',
+      }
 
   return (
     <section className="space-y-5">
@@ -98,13 +110,9 @@ export default async function ProfilePage() {
           borderRadius: 'var(--radius-card)',
         }}
       >
-        {/* Avatar circle */}
-        <div
-          className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full text-2xl"
-          style={{ background: avatarColour, boxShadow: '0 2px 8px rgba(0,0,0,0.12)' }}
-          aria-hidden
-        >
-          {avatarCfg?.base ? <span>{avatarCfg.base}</span> : <Fox className="w-8 h-8" aria-hidden />}
+        {/* Avatar */}
+        <div className="flex-shrink-0" aria-hidden>
+          <DeciferAvatar config={avatarConfig} size={72} />
         </div>
 
         <div className="min-w-0 flex-1">
