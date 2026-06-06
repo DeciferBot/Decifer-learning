@@ -879,8 +879,11 @@ def _verify_multipart(question_data: dict) -> tuple[bool, str]:
         return True, "ok — explain_example: example part + explain part, each with 4 options"
 
     if qtype == "structured_answer":
-        if not question_data.get("correct_answer", "").strip():
+        model_answer = question_data.get("correct_answer", "").strip()
+        if not model_answer:
             return False, "structured_answer requires a non-empty correct_answer (model answer)"
+        if len(model_answer.split()) < 30:
+            return False, f"structured_answer model answer too short ({len(model_answer.split())} words) — must cover all criteria"
         if len(parts) < 2 or len(parts) > 6:
             return False, f"structured_answer must have 2–6 marking criteria, got {len(parts)}"
         total_marks = 0

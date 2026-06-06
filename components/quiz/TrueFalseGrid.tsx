@@ -134,7 +134,7 @@ export function TrueFalseGrid({ statements, onAnswer, disabled }: Props) {
           >
             <span className="font-bold text-correct">Correct answers: </span>
             {statements.map((s, i) => (
-              <span key={i} className="mr-2">
+              <span key={s.statement} className="mr-2">
                 Row {i + 1}: <strong>{s.correct ? 'True' : 'False'}</strong>
               </span>
             ))}

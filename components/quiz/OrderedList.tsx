@@ -10,7 +10,7 @@ export type OrderedListItem = {
 
 type Props = {
   items: OrderedListItem[]      // in correct order — component shuffles for display
-  onAnswer: (result: { allCorrect: boolean }) => void
+  onAnswer: (result: { allCorrect: boolean; correctCount: number; totalCount: number }) => void
   disabled: boolean
 }
 
@@ -51,9 +51,11 @@ export function OrderedList({ items, onAnswer, disabled }: Props) {
 
   function submit() {
     if (submitted || disabled) return
-    const allCorrect = currentOrder.every((item, i) => item === correctOrder[i])
+    const totalCount = correctOrder.length
+    const correctCount = currentOrder.filter((item, i) => item === correctOrder[i]).length
+    const allCorrect = correctCount === totalCount
     setSubmitted(true)
-    onAnswer({ allCorrect })
+    onAnswer({ allCorrect, correctCount, totalCount })
   }
 
   return (

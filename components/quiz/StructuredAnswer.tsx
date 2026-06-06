@@ -14,7 +14,7 @@ type Phase = 'writing' | 'marking' | 'done' | 'error'
 type Props = {
   criteria: MarkingCriterion[]
   questionId: string
-  onAnswer: (result: { allCorrect: boolean; correctCount: number; totalCount: number }) => void
+  onAnswer: (result: { allCorrect: boolean; correctCount: number; totalCount: number; childAnswer: string }) => void
   disabled: boolean
 }
 
@@ -58,6 +58,7 @@ export default function StructuredAnswer({ criteria, questionId, onAnswer, disab
         allCorrect: passed,
         correctCount: data.marksAwarded,
         totalCount: data.marksAvailable,
+        childAnswer: text,
       })
     } catch (err) {
       console.error('[StructuredAnswer] network error:', err)

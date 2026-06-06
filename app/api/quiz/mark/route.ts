@@ -4,6 +4,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 
 const anthropic = new Anthropic()
+const MARKING_MODEL = 'claude-haiku-4-5-20251001'
 
 type MarkingCriterion = {
   criterion: string
@@ -102,7 +103,7 @@ Return ONLY valid JSON:
   let markingResult: MarkingResult
   try {
     const msg = await anthropic.messages.create({
-      model: 'claude-haiku-4-5-20251001',  // Fast + cheap for marking
+      model: MARKING_MODEL,
       max_tokens: 300,
       temperature: 0,
       messages: [{ role: 'user', content: markingPrompt }],

@@ -284,16 +284,19 @@ export function QuizShell({
     }
   }
 
-  // Called by TrueFalseGrid and OrderedList when child submits multi-part answer.
+  // Called by multipart components when child submits.
   // No retry for these types — one submission, immediate result.
+  // childAnswer is optional: structured_answer passes the essay text; others pass nothing.
   function handleMultiPartAnswer({
     allCorrect,
     correctCount,
     totalCount,
+    childAnswer,
   }: {
     allCorrect: boolean
     correctCount?: number
     totalCount?: number
+    childAnswer?: string
   }) {
     const timeSeconds = Math.max(1, Math.round((Date.now() - questionStartRef.current) / 1000))
     // Points: full (3) for all correct, partial based on fraction; 2× for bonus challenge
@@ -319,7 +322,7 @@ export function QuizShell({
 
     answerLogRef.current.push({
       questionId: q.id,
-      childAnswer: allCorrect ? 'correct' : 'incorrect',
+      childAnswer: childAnswer ?? (allCorrect ? 'correct' : 'incorrect'),
       wasCorrect: allCorrect,
       hintNumber: manualHintsRevealed,
       timeSeconds,
@@ -885,7 +888,7 @@ export function QuizShell({
           </AnimatePresence>
 
           {/* Answer area — dispatched by question_type */}
-          {q.question_type === 'true_false_grid' && q.answer_parts ? (
+          {q.question_type === 'true_false_grid' && Array.isArray(q.answer_parts) && (q.answer_parts as TrueFalseStatement[])[0]?.statement !== undefined ? (
             <div className="mt-4">
               <TrueFalseGrid
                 statements={q.answer_parts as TrueFalseStatement[]}
@@ -893,7 +896,7 @@ export function QuizShell({
                 disabled={questionDone}
               />
             </div>
-          ) : q.question_type === 'ordered_list' && q.answer_parts ? (
+          ) : q.question_type === 'ordered_list' && Array.isArray(q.answer_parts) && (q.answer_parts as OrderedListItem[])[0]?.item !== undefined ? (
             <div className="mt-4">
               <OrderedList
                 items={q.answer_parts as OrderedListItem[]}
@@ -901,7 +904,7 @@ export function QuizShell({
                 disabled={questionDone}
               />
             </div>
-          ) : q.question_type === 'source_analysis' && q.answer_parts && q.source_text ? (
+          ) : q.question_type === 'source_analysis' && Array.isArray(q.answer_parts) && q.source_text ? (
             <div className="mt-4">
               <SourceAnalysis
                 sourceText={q.source_text}
@@ -912,7 +915,7 @@ export function QuizShell({
                 disabled={questionDone}
               />
             </div>
-          ) : q.question_type === 'explain_example' && q.answer_parts ? (
+          ) : q.question_type === 'explain_example' && Array.isArray(q.answer_parts) ? (
             <div className="mt-4">
               <ExplainExample
                 parts={q.answer_parts as ExplainExamplePart[]}
@@ -920,7 +923,7 @@ export function QuizShell({
                 disabled={questionDone}
               />
             </div>
-          ) : q.question_type === 'structured_answer' && q.answer_parts ? (
+          ) : q.question_type === 'structured_answer' && Array.isArray(q.answer_parts) && (q.answer_parts as MarkingCriterion[])[0]?.criterion !== undefined ? (
             <div className="mt-4">
               <StructuredAnswer
                 criteria={q.answer_parts as MarkingCriterion[]}
