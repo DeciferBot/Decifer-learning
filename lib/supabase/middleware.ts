@@ -36,9 +36,14 @@ export async function updateSession(request: NextRequest): Promise<{
     },
   })
 
+  // Use getSession() here — it reads the JWT from cookies without a network
+  // round-trip to Supabase. getUser() (network-verified) is ~500–3000 ms per
+  // request and runs on every page; middleware only needs to know whether a
+  // session exists for route gating. Server components and API routes that
+  // need a verified user call getUser() themselves.
   const {
-    data: { user },
-  } = await supabase.auth.getUser()
+    data: { session },
+  } = await supabase.auth.getSession()
 
-  return { response, user }
+  return { response, user: session?.user ?? null }
 }

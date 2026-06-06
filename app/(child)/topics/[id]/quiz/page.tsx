@@ -25,10 +25,10 @@ export default async function QuizPage({ params }: { params: { id: string } }) {
 
   const { data: topic } = await supabase
     .from('topics')
-    .select('id, title, subject_id, zone_id')
+    .select('id, title, subject_id, zone_id, subjects(name)')
     .eq('id', params.id)
     .eq('is_published', true)
-    .maybeSingle<{ id: string; title: string; subject_id: string; zone_id: string | null }>()
+    .maybeSingle<{ id: string; title: string; subject_id: string; zone_id: string | null; subjects: { name: string } | null }>()
 
   if (!topic) notFound()
 
@@ -74,7 +74,7 @@ export default async function QuizPage({ params }: { params: { id: string } }) {
       where: {
         profile_id: profile.id,
         status: 'completed',
-        topic: { zone_id: topic.zone_id, is_published: true },
+        topic: { zone_id: topic.zone_id, subject_id: topic.subject_id, is_published: true },
       },
       orderBy: { completed_at: 'desc' },
       take: 3,
@@ -131,6 +131,12 @@ export default async function QuizPage({ params }: { params: { id: string } }) {
       <nav className="flex items-center gap-2 text-sm text-muted" aria-label="breadcrumb">
         <Link href="/dashboard/child" className="hover:text-ink">Home</Link>
         <span aria-hidden>/</span>
+        {topic.subjects?.name && (
+          <>
+            <span className="hover:text-ink">{topic.subjects.name}</span>
+            <span aria-hidden>/</span>
+          </>
+        )}
         <Link href={`/topics/${params.id}/learn`} className="hover:text-ink">{topic.title}</Link>
         <span aria-hidden>/</span>
         <span className="font-medium text-ink">Quiz</span>

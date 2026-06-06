@@ -144,7 +144,7 @@ export default async function LearnPage({
     }),
     prisma.topic.findUnique({
       where: { id: params.id },
-      select: { subject: { select: { colour_token: true } } },
+      select: { subject: { select: { colour_token: true, name: true } } },
     }),
   ])
   const subjectColor = subjectRow?.subject?.colour_token ?? '#6C9EFF'
@@ -161,6 +161,12 @@ export default async function LearnPage({
       <nav className="flex items-center gap-2 text-sm text-muted" aria-label="breadcrumb">
         <Link href="/dashboard/child" className="hover:text-ink">Home</Link>
         <span aria-hidden>/</span>
+        {subjectRow?.subject?.name && (
+          <>
+            <span>{subjectRow.subject.name}</span>
+            <span aria-hidden>/</span>
+          </>
+        )}
         <span className="font-medium text-ink">{topic.title}</span>
       </nav>
 

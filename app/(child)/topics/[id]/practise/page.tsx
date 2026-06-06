@@ -68,6 +68,12 @@ export default async function PractisePage({ params }: { params: { id: string } 
 
   if (!topic) notFound()
 
+  const subjectRow = await prisma.topic.findUnique({
+    where: { id: params.id },
+    select: { subject: { select: { name: true } } },
+  })
+  const subjectName = subjectRow?.subject?.name ?? null
+
   // Phase 11A: filter status='published' so only approved practice games reach children.
   const { data: game } = await supabase
     .from('practice_games')
@@ -82,6 +88,7 @@ export default async function PractisePage({ params }: { params: { id: string } 
         <nav className="flex items-center gap-2 text-sm text-muted" aria-label="breadcrumb">
           <a href="/dashboard/child" className="hover:text-ink">Home</a>
           <span aria-hidden>/</span>
+          {subjectName && <><span>{subjectName}</span><span aria-hidden>/</span></>}
           <span className="font-medium text-ink">{topic.title}</span>
         </nav>
         <div className="rounded-2xl border border-black/5 bg-surface p-8 text-center space-y-3">
@@ -104,6 +111,7 @@ export default async function PractisePage({ params }: { params: { id: string } 
       <nav className="flex items-center gap-2 text-sm text-muted" aria-label="breadcrumb">
         <Link href="/dashboard/child" className="hover:text-ink">Home</Link>
         <span aria-hidden>/</span>
+        {subjectName && <><span>{subjectName}</span><span aria-hidden>/</span></>}
         <Link href={`/topics/${params.id}/learn`} className="hover:text-ink">{topic.title}</Link>
         <span aria-hidden>/</span>
         <span className="font-medium text-ink">Practise</span>
