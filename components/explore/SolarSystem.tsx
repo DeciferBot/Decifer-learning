@@ -563,7 +563,7 @@ interface SceneProps {
 function Scene({ paused, selected, onSelect, onFirstVisit, visitedRef }: SceneProps) {
   return (
     <>
-      <ambientLight intensity={0.1} />
+      <ambientLight intensity={0.55} />
       <Stars radius={150} depth={60} count={3000} factor={4} saturation={0.3} fade speed={0.5} />
       <Sun />
       {PLANETS.map((planet, i) => (
@@ -593,7 +593,7 @@ function Scene({ paused, selected, onSelect, onFirstVisit, visitedRef }: ScenePr
 // Camera controller
 // ---------------------------------------------------------------------------
 
-function CameraController({ selected }: { selected: Planet | null }) {
+function CameraController({ selected, zoom }: { selected: Planet | null; zoom: number }) {
   const { camera } = useThree()
   const targetPos = useRef(new THREE.Vector3(0, 30, 80))
   const currentPos = useRef(new THREE.Vector3(0, 30, 80))
@@ -606,7 +606,10 @@ function CameraController({ selected }: { selected: Planet | null }) {
         selected.orbitRadius * 1.1,
       )
     } else {
-      targetPos.current.set(0, 30, 80)
+      // Apply zoom: zoom > 1 = zoomed in (camera closer), zoom < 1 = zoomed out
+      const z = 80 / zoom
+      const y = 30 / zoom
+      targetPos.current.set(0, y, z)
     }
     currentPos.current.lerp(targetPos.current, delta * 1.5)
     camera.position.copy(currentPos.current)
@@ -1026,11 +1029,15 @@ export function SolarSystem({ onAskDecifer, onExplore }: SolarSystemProps) {
   const [selected, setSelected] = useState<Planet | null>(null)
   const [paused, setPaused] = useState(false)
   const [muted, setMuted] = useState(false)
+  const [zoom, setZoom] = useState(1)
   const [revealCard, setRevealCard] = useState<DroppedCard | null>(null)
   const [journeyStep, setJourneyStep] = useState<number | null>(null)
   const [journeyDone, setJourneyDone] = useState(false)
   const [wonder, setWonder] = useState<{ type: WonderType; planetName: string } | null>(null)
   const visitedRef = useRef<Set<string>>(new Set())
+
+  const zoomIn  = useCallback(() => setZoom(z => Math.min(3, parseFloat((z * 1.4).toFixed(2)))), [])
+  const zoomOut = useCallback(() => setZoom(z => Math.max(0.35, parseFloat((z / 1.4).toFixed(2)))), [])
 
   const journeyActive = journeyStep !== null
 
@@ -1143,6 +1150,30 @@ export function SolarSystem({ onAskDecifer, onExplore }: SolarSystemProps) {
         </button>
       )}
 
+      {/* Zoom controls — visible when no panel is open */}
+      {!selected && !journeyActive && (
+        <div className="absolute right-4 z-30 flex flex-col gap-2" style={{ top: '72px' }}>
+          <button
+            onClick={zoomIn}
+            disabled={zoom >= 3}
+            className="rounded-full flex items-center justify-center text-lg font-bold text-white transition-all active:scale-95 disabled:opacity-30"
+            style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', minHeight: '48px', minWidth: '48px' }}
+            aria-label="Zoom in"
+          >
+            +
+          </button>
+          <button
+            onClick={zoomOut}
+            disabled={zoom <= 0.35}
+            className="rounded-full flex items-center justify-center text-lg font-bold text-white transition-all active:scale-95 disabled:opacity-30"
+            style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', minHeight: '48px', minWidth: '48px' }}
+            aria-label="Zoom out"
+          >
+            −
+          </button>
+        </div>
+      )}
+
       {/* 3D canvas */}
       <Canvas
         camera={{ position: [0, 30, 80], fov: 55, near: 0.1, far: 500 }}
@@ -1158,7 +1189,7 @@ export function SolarSystem({ onAskDecifer, onExplore }: SolarSystemProps) {
             onFirstVisit={handleFirstVisit}
             visitedRef={visitedRef}
           />
-          <CameraController selected={displaySelected} />
+          <CameraController selected={displaySelected} zoom={zoom} />
         </Suspense>
       </Canvas>
 
