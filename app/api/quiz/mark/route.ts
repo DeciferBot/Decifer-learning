@@ -42,7 +42,7 @@ export async function POST(req: Request) {
 
   // Fetch the question — findFirst because we need both id (unique) and status filter
   const question = await prisma.quizQuestion.findFirst({
-    where: { id: questionId, status: 'published' },
+    where: { id: questionId, status: 'published', question_type: 'structured_answer' },
     select: {
       question_text: true,
       correct_answer: true,
