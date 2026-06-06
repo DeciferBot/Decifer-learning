@@ -43,7 +43,7 @@ export function DeciferLogo({ size = 'md', product, className = '' }: DeciferLog
       aria-label={label}
     >
       <DeciferMark size={size} />
-      <span className="flex flex-col leading-none">
+      <span className="flex flex-col leading-none" aria-hidden="true">
         {/* Wordmark: Geist 700, -0.02em */}
         <span
           className={`font-sans font-bold text-ink ${WORDMARK_CLASS[size]}`}

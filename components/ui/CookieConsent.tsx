@@ -34,13 +34,13 @@ export function CookieConsent() {
       <p className="text-sm leading-relaxed text-ink">
         We use essential cookies to keep you logged in and remember your preferences. No tracking
         or advertising cookies.{' '}
-        <Link href="/legal/privacy" className="font-semibold text-maths underline underline-offset-2">
+        <Link href="/legal/privacy" className="font-semibold text-brand-700 underline underline-offset-2">
           Privacy policy
         </Link>
       </p>
       <button
         onClick={accept}
-        className="mt-3 flex h-10 w-full items-center justify-center rounded-lg bg-maths text-sm font-semibold text-white transition active:scale-[0.98]"
+        className="mt-3 flex h-10 w-full items-center justify-center rounded-lg bg-brand-700 text-sm font-semibold text-white transition active:scale-[0.98]"
       >
         Got it
       </button>

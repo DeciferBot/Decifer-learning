@@ -12,7 +12,7 @@ export function TopBar({
   return (
     <header className="sticky top-0 z-10 border-b border-black/5 bg-surface/90 backdrop-blur">
       <div className="mx-auto flex h-14 max-w-screen-md items-center justify-between gap-3 px-4">
-        <Link href="/dashboard" aria-label="DECIFER Learning dashboard">
+        <Link href="/dashboard">
           <DeciferLogo size="sm" product="Learning" />
         </Link>
         <div className="flex items-center gap-3">

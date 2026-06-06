@@ -225,8 +225,20 @@ export default function DailyChallengePageInner() {
           } else {
             cls += ' border-black/5 bg-black/[0.02] text-muted'
           }
+          const stateLabel = selected !== null
+            ? isSelected
+              ? isCorrect ? `${opt} — correct` : `${opt} — incorrect`
+              : !isSelected && isCorrect ? `${opt} — correct answer` : opt
+            : opt
           return (
-            <button key={opt} className={cls} onClick={() => choose(opt)}>
+            <button
+              key={opt}
+              className={cls}
+              onClick={() => choose(opt)}
+              aria-label={stateLabel}
+              aria-pressed={isSelected}
+              disabled={selected !== null}
+            >
               {opt}
             </button>
           )
