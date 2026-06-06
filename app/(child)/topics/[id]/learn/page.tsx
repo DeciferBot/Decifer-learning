@@ -182,7 +182,7 @@ export default async function LearnPage({
         )}
       </div>
 
-      <ChapterStrip units={units} subjectColor={subjectColor} />
+      <ChapterStrip units={units} subjectColor={subjectColor} topicId={params.id} />
 
       <h1 className="font-heading text-2xl font-bold text-ink">{topic.title}</h1>
 

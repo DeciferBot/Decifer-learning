@@ -28,6 +28,12 @@ export default async function PreTestPage({ params }: { params: { id: string } }
     redirect(`/topics/${params.id}/learn`)
   }
 
+  const subjectRow = await prisma.topic.findUnique({
+    where: { id: params.id },
+    select: { subject: { select: { name: true } } },
+  })
+  const subjectName = subjectRow?.subject?.name ?? null
+
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -49,6 +55,7 @@ export default async function PreTestPage({ params }: { params: { id: string } }
       <nav className="flex items-center gap-2 text-sm text-muted" aria-label="breadcrumb">
         <Link href="/dashboard/child" className="hover:text-ink">Home</Link>
         <span aria-hidden>/</span>
+        {subjectName && <><span>{subjectName}</span><span aria-hidden>/</span></>}
         <span className="font-medium text-ink">{topic.title}</span>
       </nav>
 
