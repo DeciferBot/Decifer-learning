@@ -163,8 +163,7 @@ export function SolarSystem({ onAskDecifer, onExplore }: Props) {
   const [paused, setPaused] = useState(false)
   const [scale, setScale] = useState(1)
   const containerRef = useRef<HTMLDivElement>(null)
-  const startTimeRef = useRef<number>(Date.now())
-  const sessionLoggedRef = useRef<Set<string>>(new Set())
+  const exploredRef = useRef<Set<string>>(new Set())
 
   // Scale the orrery to fit the viewport
   useEffect(() => {
@@ -185,9 +184,10 @@ export function SolarSystem({ onAskDecifer, onExplore }: Props) {
   const handleSelect = useCallback((planet: Planet) => {
     setSelected(planet)
     setPaused(true)
-    onExplore?.(planet.id)
-    if (!sessionLoggedRef.current.has(planet.id)) {
-      sessionLoggedRef.current.add(planet.id)
+    // Only fire onExplore once per unique planet per session
+    if (!exploredRef.current.has(planet.id)) {
+      exploredRef.current.add(planet.id)
+      onExplore?.(planet.id)
     }
   }, [onExplore])
 
@@ -204,7 +204,7 @@ export function SolarSystem({ onAskDecifer, onExplore }: Props) {
       {/* Pause / play */}
       <button
         onClick={() => setPaused(p => !p)}
-        className="absolute top-4 right-4 z-20 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-white/70 hover:bg-white/20 transition-colors backdrop-blur"
+        className="absolute top-4 right-4 z-30 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-white/70 hover:bg-white/20 transition-colors backdrop-blur"
       >
         {paused ? '▶ Resume' : '⏸ Pause'}
       </button>
@@ -259,7 +259,7 @@ export function SolarSystem({ onAskDecifer, onExplore }: Props) {
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-            className="absolute inset-x-0 bottom-0 z-30 rounded-t-3xl pb-8 pt-6 px-5 shadow-2xl"
+            className="absolute inset-x-0 bottom-0 z-30 rounded-t-3xl pb-24 pt-6 px-5 shadow-2xl"
             style={{ background: 'linear-gradient(160deg, #1a1a3e 0%, #0a0a20 100%)', border: '1px solid rgba(255,255,255,0.1)' }}
           >
             {/* Drag handle */}
@@ -268,7 +268,7 @@ export function SolarSystem({ onAskDecifer, onExplore }: Props) {
             <div className="flex items-start gap-4 mb-4">
               {/* Planet visual */}
               <div
-                className="flex-none rounded-full flex items-center justify-center"
+                className="relative flex-none rounded-full flex items-center justify-center"
                 style={{
                   width: 64,
                   height: 64,

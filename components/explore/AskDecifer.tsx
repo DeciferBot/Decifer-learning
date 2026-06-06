@@ -25,19 +25,18 @@ export function AskDecifer({ aid, initialContext, yearGroup, onAskCountChange }:
   const inputRef = useRef<HTMLInputElement>(null)
   const askCountRef = useRef(0)
 
-  // Allow parent to update context (e.g. user tapped a planet)
+  // When the parent triggers a new context (user tapped "Ask Decifer about X"),
+  // open the panel and inject a context-aware greeting or transition message.
   useEffect(() => {
-    if (initialContext) setContext(initialContext)
-  }, [initialContext])
-
-  // Auto-open with a greeting when context changes
-  useEffect(() => {
-    if (initialContext && !open && messages.length === 0) {
-      setMessages([{
-        role: 'assistant',
-        content: `Hi! I'm Decifer 👋 I can see you're looking at ${initialContext}. What would you like to know?`,
-      }])
-    }
+    if (!initialContext) return
+    setContext(initialContext)
+    setOpen(true)
+    setMessages(prev => {
+      const greeting = prev.length === 0
+        ? `Hi! I'm Decifer 👋 I can see you're looking at ${initialContext}. What would you like to know?`
+        : `Sure! Switching to ${initialContext} — what do you want to know?`
+      return [...prev, { role: 'assistant', content: greeting }]
+    })
   }, [initialContext]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -68,7 +67,9 @@ export function AskDecifer({ aid, initialContext, yearGroup, onAskCountChange }:
           aid,
           context,
           yearGroup,
-          history: newMessages.slice(-6),
+          // Send state BEFORE the new user message — API appends it separately.
+          // Slice from `messages` (pre-send state), not `newMessages`.
+          history: messages.slice(-6),
         }),
       })
 

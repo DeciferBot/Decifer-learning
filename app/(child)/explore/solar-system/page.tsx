@@ -7,7 +7,6 @@ import { AskDecifer } from '@/components/explore/AskDecifer'
 
 export default function SolarSystemPage() {
   const [askContext, setAskContext] = useState<string | undefined>()
-  const [askOpen, setAskOpen] = useState(false)
   const askCountRef = useRef(0)
   const openedAtRef = useRef<number>(Date.now())
 
@@ -39,7 +38,6 @@ export default function SolarSystemPage() {
 
   const handleAskDecifer = useCallback((context: string) => {
     setAskContext(context)
-    setAskOpen(true)
   }, [])
 
   return (
