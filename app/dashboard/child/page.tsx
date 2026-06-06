@@ -285,6 +285,39 @@ export default async function ChildDashboardPage() {
         </div>
       )}
 
+      {/* ── Learning Aid Box ─────────────────────────────────────────────── */}
+      <Link
+        href="/explore"
+        className="block relative overflow-hidden rounded-2xl px-5 py-4 transition-transform active:scale-[0.98]"
+        style={{ background: 'linear-gradient(135deg, #0d1b3e 0%, #1a237e 50%, #0d47a1 100%)', border: '1px solid rgba(108,158,255,0.3)' }}
+      >
+        {/* Stars */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {[
+            { top: '15%', left: '60%' }, { top: '70%', left: '75%' },
+            { top: '40%', left: '85%' }, { top: '20%', left: '90%' },
+            { top: '80%', left: '55%' }, { top: '55%', left: '92%' },
+          ].map((pos, i) => (
+            <div key={i} className="absolute w-1 h-1 rounded-full bg-white/40" style={pos} />
+          ))}
+        </div>
+        <div className="relative flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <span className="text-3xl flex-none">🔭</span>
+            <div>
+              <div className="flex items-center gap-2">
+                <p className="font-heading text-base font-extrabold text-white">Explore</p>
+                <span className="rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-wider" style={{ background: '#FFD43B', color: '#000' }}>NEW</span>
+              </div>
+              <p className="text-xs text-white/60 mt-0.5">Solar system · world atlas · human body + more</p>
+            </div>
+          </div>
+          <div className="flex-none w-9 h-9 rounded-full flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.15)' }}>
+            <span className="text-white font-bold">→</span>
+          </div>
+        </div>
+      </Link>
+
       {/* ── Quick links ─────────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 gap-2">
         <Link
