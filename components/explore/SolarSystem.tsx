@@ -257,15 +257,26 @@ function Sun() {
 // ---------------------------------------------------------------------------
 
 function OrbitRing({ radius }: { radius: number }) {
-  const points: THREE.Vector3[] = []
-  for (let i = 0; i <= 128; i++) {
-    const a = (i / 128) * Math.PI * 2
-    points.push(new THREE.Vector3(Math.cos(a) * radius, 0, Math.sin(a) * radius))
+  const lineObj = useRef<THREE.Line | null>(null)
+  if (!lineObj.current) {
+    const points: THREE.Vector3[] = []
+    for (let i = 0; i <= 128; i++) {
+      const a = (i / 128) * Math.PI * 2
+      points.push(new THREE.Vector3(Math.cos(a) * radius, 0, Math.sin(a) * radius))
+    }
+    const geo = new THREE.BufferGeometry().setFromPoints(points)
+    const mat = new THREE.LineBasicMaterial({ color: '#ffffff', transparent: true, opacity: 0.06 })
+    lineObj.current = new THREE.Line(geo, mat)
   }
-  const geo = new THREE.BufferGeometry().setFromPoints(points)
-  const mat = new THREE.LineBasicMaterial({ color: '#ffffff', transparent: true, opacity: 0.06 })
-  const lineObj = new THREE.Line(geo, mat)
-  return <primitive object={lineObj} />
+  // Dispose geometry + material when component unmounts
+  useEffect(() => {
+    const obj = lineObj.current
+    return () => {
+      obj?.geometry.dispose()
+      ;(obj?.material as THREE.Material | undefined)?.dispose()
+    }
+  }, [])
+  return <primitive object={lineObj.current} />
 }
 
 // ---------------------------------------------------------------------------
@@ -444,7 +455,7 @@ function QuizPanel({ planet }: { planet: Planet }) {
               style={{
                 background: bg,
                 border: answered && isCorrect ? '1px solid rgba(64,192,87,0.5)' : '1px solid transparent',
-                minHeight: '44px',
+                minHeight: '48px',
               }}
             >
               {opt}
@@ -522,8 +533,8 @@ function InfoPanel({ planet, onClose, onAskDecifer, muted, onToggleMute }: InfoP
           />
           <button
             onClick={onClose}
-            className="h-9 w-9 flex-none rounded-full flex items-center justify-center text-white/50"
-            style={{ background: 'rgba(255,255,255,0.1)' }}
+            className="flex-none rounded-full flex items-center justify-center text-white/50"
+            style={{ background: 'rgba(255,255,255,0.1)', minHeight: '48px', minWidth: '48px' }}
             aria-label="Close"
           >
             ✕
@@ -541,7 +552,7 @@ function InfoPanel({ planet, onClose, onAskDecifer, muted, onToggleMute }: InfoP
             style={{
               background: tab === t ? 'linear-gradient(135deg, #6C9EFF, #a78bfa)' : 'rgba(255,255,255,0.08)',
               color: 'white',
-              minHeight: '32px',
+              minHeight: '48px',
             }}
           >
             {t}
@@ -636,8 +647,8 @@ export function SolarSystem({ onAskDecifer, onExplore }: SolarSystemProps) {
       {/* Pause / resume */}
       <button
         onClick={() => setPaused(p => !p)}
-        className="absolute top-4 right-4 z-30 h-9 w-9 rounded-full flex items-center justify-center text-sm text-white"
-        style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)' }}
+        className="absolute top-4 right-4 z-30 rounded-full flex items-center justify-center text-sm text-white"
+        style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', minHeight: '48px', minWidth: '48px' }}
         aria-label={paused ? 'Resume' : 'Pause'}
       >
         {paused ? '▶' : '⏸'}
