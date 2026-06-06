@@ -6,6 +6,7 @@ import { Stars, Ring } from '@react-three/drei'
 import * as THREE from 'three'
 import { TextureLoader } from 'three'
 import { motion, AnimatePresence } from 'framer-motion'
+import { NarrationButton, stopNarration } from './NarrationButton'
 
 // ---------------------------------------------------------------------------
 // Planet data
@@ -27,6 +28,7 @@ interface Planet {
   description: string
   rings?: boolean
   texture: string         // filename in /textures/
+  narration: string       // Attenborough-style spoken text
   quizQuestion: string
   quizOptions: string[]
   quizAnswer: number
@@ -49,6 +51,7 @@ const PLANETS: Planet[] = [
     fact: 'Mercury has no atmosphere, so temperatures swing from −180°C at night to 430°C during the day.',
     description: 'The smallest planet and closest to the Sun. Despite being closest to the Sun, it\'s not the hottest planet — that\'s Venus.',
     texture: 'mercury.jpg',
+    narration: 'Mercury. The smallest world, and the closest to our star. It has no atmosphere to protect it — so by day, it bakes at four hundred degrees. By night, it plunges to minus one hundred and eighty. A world of extremes, battered and ancient.',
     quizQuestion: 'How long is a year on Mercury?',
     quizOptions: ['88 Earth days', '365 Earth days', '12 Earth years', '24 hours'],
     quizAnswer: 0,
@@ -69,6 +72,7 @@ const PLANETS: Planet[] = [
     fact: 'Venus spins backwards and so slowly that one Venus day is longer than a Venus year!',
     description: 'The hottest planet in our Solar System at 465°C, thanks to a thick atmosphere that traps heat.',
     texture: 'venus.jpg',
+    narration: 'Venus. Shrouded in thick clouds of sulphuric acid, its surface reaches four hundred and sixty-five degrees — hot enough to melt lead. Strangely, a day on Venus lasts longer than its entire year. It is, in every sense, a world turned upside down.',
     quizQuestion: 'Why is Venus the hottest planet?',
     quizOptions: ['It\'s closest to the Sun', 'Its thick atmosphere traps heat', 'It has active volcanoes', 'It spins very fast'],
     quizAnswer: 1,
@@ -89,6 +93,7 @@ const PLANETS: Planet[] = [
     fact: 'Earth is the only planet known to support life — and the only one with liquid water on its surface.',
     description: 'Our home. Earth\'s magnetic field, liquid water, and just-right distance from the Sun make life possible.',
     texture: 'earth.jpg',
+    narration: 'Earth. Our home. The only world we know of, in all the vast cosmos, where life has taken hold. Its oceans, its atmosphere, its magnetic shield — each one a miracle of circumstance. From space, it glows like a pale blue jewel in the darkness.',
     quizQuestion: 'What makes Earth unique in our Solar System?',
     quizOptions: ['It\'s the largest planet', 'It has the most moons', 'It has liquid water and supports life', 'It\'s closest to the Sun'],
     quizAnswer: 2,
@@ -109,6 +114,7 @@ const PLANETS: Planet[] = [
     fact: 'Mars has the tallest volcano in the Solar System — Olympus Mons — three times the height of Mount Everest.',
     description: 'The Red Planet. Mars has seasons, polar ice caps, and the largest dust storms in the Solar System.',
     texture: 'mars.jpg',
+    narration: 'Mars. The red planet. Named for the god of war, yet it is a world of eerie stillness — its surface scarred by the tallest volcano in the solar system, and swept by dust storms that can swallow an entire continent for months at a time.',
     quizQuestion: 'What is the tallest volcano in the Solar System?',
     quizOptions: ['Mount Everest', 'Olympus Mons', 'Mauna Kea', 'Maxwell Montes'],
     quizAnswer: 1,
@@ -129,6 +135,7 @@ const PLANETS: Planet[] = [
     fact: 'Jupiter is so massive that 1,300 Earths could fit inside it. Its Great Red Spot is a storm twice the size of Earth.',
     description: 'The king of planets. A gas giant with the famous Great Red Spot — a storm that has raged for over 350 years.',
     texture: 'jupiter.jpg',
+    narration: 'Jupiter. The king of planets. So vast that thirteen hundred Earths could fit inside it. That great red swirl you see is a storm — a single storm — that has raged without pause for over three hundred and fifty years. Longer than any nation has existed.',
     quizQuestion: 'How many Earths could fit inside Jupiter?',
     quizOptions: ['About 10', 'About 100', 'About 1,300', 'About 10,000'],
     quizAnswer: 2,
@@ -150,6 +157,7 @@ const PLANETS: Planet[] = [
     description: 'The jewel of the Solar System. Saturn\'s beautiful rings are made of billions of chunks of ice and rock.',
     texture: 'saturn.jpg',
     rings: true,
+    narration: 'Saturn. The jewel of the solar system. Those rings — stretching nearly three hundred thousand kilometres — are made not of solid material, but of billions of pieces of ice and rock, each one orbiting silently in the cold dark. Some are the size of a house. Some smaller than a grain of sand.',
     quizQuestion: 'What are Saturn\'s rings mainly made of?',
     quizOptions: ['Gas and dust', 'Ice and rock', 'Iron and nickel', 'Water and clouds'],
     quizAnswer: 1,
@@ -170,6 +178,7 @@ const PLANETS: Planet[] = [
     fact: 'Uranus rotates on its side — tilted at 98°. It\'s like a planet that\'s been knocked over and rolls around the Sun.',
     description: 'The sideways planet. Uranus rotates on its side, possibly due to a collision with an Earth-sized object long ago.',
     texture: 'uranus.jpg',
+    narration: 'Uranus. The sideways planet. Long ago, something enormous struck it — and knocked it clean onto its side. It has orbited the Sun tilted ever since, like a rolling ball, its poles experiencing decades of unbroken daylight followed by decades of total darkness.',
     quizQuestion: 'What is unusual about the way Uranus rotates?',
     quizOptions: ['It doesn\'t rotate', 'It rotates on its side (98° tilt)', 'It rotates backwards', 'It rotates extremely fast'],
     quizAnswer: 1,
@@ -190,6 +199,7 @@ const PLANETS: Planet[] = [
     fact: 'Neptune has the strongest winds in the Solar System — reaching 2,100 km/h, faster than the speed of sound on Earth.',
     description: 'The farthest planet. Neptune is so remote that it takes light from the Sun over 4 hours to reach it.',
     texture: 'neptune.jpg',
+    narration: 'Neptune. The farthest world. So distant that light from the Sun takes over four hours to reach it. Here, winds howl at two thousand kilometres an hour — the fastest in the solar system. It is a place of perpetual storm, and perpetual darkness.',
     quizQuestion: 'What is Neptune known for?',
     quizOptions: ['Being the hottest planet', 'Having the strongest winds in the Solar System', 'Being closest to Earth', 'Having no moons'],
     quizAnswer: 1,
@@ -463,9 +473,11 @@ interface InfoPanelProps {
   planet: Planet
   onClose: () => void
   onAskDecifer?: (context: string) => void
+  muted: boolean
+  onToggleMute: () => void
 }
 
-function InfoPanel({ planet, onClose, onAskDecifer }: InfoPanelProps) {
+function InfoPanel({ planet, onClose, onAskDecifer, muted, onToggleMute }: InfoPanelProps) {
   const [tab, setTab] = useState<'facts' | 'quiz'>('facts')
 
   // Reset tab when planet changes
@@ -501,14 +513,22 @@ function InfoPanel({ planet, onClose, onAskDecifer }: InfoPanelProps) {
             <p className="text-xs text-white/40">{planet.moons} moon{planet.moons !== 1 ? 's' : ''} · {planet.diameter}</p>
           </div>
         </div>
-        <button
-          onClick={onClose}
-          className="h-9 w-9 flex-none rounded-full flex items-center justify-center text-white/50"
-          style={{ background: 'rgba(255,255,255,0.1)' }}
-          aria-label="Close"
-        >
-          ✕
-        </button>
+        <div className="flex items-center gap-2">
+          <NarrationButton
+            text={planet.narration}
+            muted={muted}
+            onToggleMute={onToggleMute}
+            autoPlay
+          />
+          <button
+            onClick={onClose}
+            className="h-9 w-9 flex-none rounded-full flex items-center justify-center text-white/50"
+            style={{ background: 'rgba(255,255,255,0.1)' }}
+            aria-label="Close"
+          >
+            ✕
+          </button>
+        </div>
       </div>
 
       {/* Tabs */}
@@ -580,6 +600,7 @@ function InfoPanel({ planet, onClose, onAskDecifer }: InfoPanelProps) {
 export function SolarSystem({ onAskDecifer, onExplore }: SolarSystemProps) {
   const [selected, setSelected] = useState<Planet | null>(null)
   const [paused, setPaused] = useState(false)
+  const [muted, setMuted] = useState(false)
   const visitedRef = useRef<Set<string>>(new Set())
 
   const handleSelect = useCallback((planet: Planet | null) => {
@@ -590,6 +611,7 @@ export function SolarSystem({ onAskDecifer, onExplore }: SolarSystemProps) {
   const handleClose = useCallback(() => {
     setSelected(null)
     setPaused(false)
+    stopNarration()
   }, [])
 
   const handleFirstVisit = useCallback((id: string) => {
@@ -599,10 +621,15 @@ export function SolarSystem({ onAskDecifer, onExplore }: SolarSystemProps) {
   const handleAskDecifer = useCallback((context: string) => {
     setSelected(null)
     setPaused(false)
+    stopNarration()
     onAskDecifer?.(context)
   }, [onAskDecifer])
 
-  useEffect(() => () => { document.body.style.cursor = 'auto' }, [])
+  // Stop narration on unmount
+  useEffect(() => () => {
+    document.body.style.cursor = 'auto'
+    stopNarration()
+  }, [])
 
   return (
     <div className="fixed inset-0" style={{ background: '#000008' }}>
@@ -656,6 +683,8 @@ export function SolarSystem({ onAskDecifer, onExplore }: SolarSystemProps) {
               planet={selected}
               onClose={handleClose}
               onAskDecifer={handleAskDecifer}
+              muted={muted}
+              onToggleMute={() => setMuted(m => !m)}
             />
           </>
         )}
