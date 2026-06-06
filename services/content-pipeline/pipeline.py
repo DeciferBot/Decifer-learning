@@ -840,40 +840,43 @@ def _verify_multipart(question_data: dict) -> tuple[bool, str]:
         return True, f"ok — {len(parts)} items to order"
 
     if qtype == "source_analysis":
+        # Validate source fields before checking answer_parts structure
         if not question_data.get("source_text", "").strip():
             return False, "source_analysis requires non-empty source_text"
         if not question_data.get("source_label", "").strip():
             return False, "source_analysis requires non-empty source_label"
+        if len(parts) != 2:
+            return False, f"source_analysis must have exactly 2 sub-questions, got {len(parts)}"
         for i, sub in enumerate(parts):
             if not isinstance(sub, dict):
                 return False, f"answer_parts[{i}] must be a dict"
             for key in ("prompt", "options", "correct"):
                 if key not in sub:
                     return False, f"answer_parts[{i}] missing '{key}'"
-            if not isinstance(sub["options"], list) or len(sub["options"]) < 2:
-                return False, f"answer_parts[{i}].options must have at least 2 items"
+            if not isinstance(sub["options"], list) or len(sub["options"]) != 4:
+                return False, f"answer_parts[{i}].options must have exactly 4 items (got {len(sub.get('options', []))})"
             if not isinstance(sub["correct"], int) or sub["correct"] not in range(len(sub["options"])):
-                return False, f"answer_parts[{i}].correct must be a valid index"
-        if len(parts) != 2:
-            return False, f"source_analysis must have exactly 2 sub-questions, got {len(parts)}"
-        return True, f"ok — source_analysis with {len(parts)} sub-questions"
+                return False, f"answer_parts[{i}].correct must be a valid index (0–3)"
+        return True, "ok — source_analysis: source fields present, 2 sub-questions each with 4 options"
 
     if qtype == "explain_example":
         if len(parts) != 2:
             return False, f"explain_example must have exactly 2 parts, got {len(parts)}"
+        # Enforce exact ordering: parts[0] must be 'example', parts[1] must be 'explain'
+        expected_order = ("example", "explain")
         for i, part in enumerate(parts):
             if not isinstance(part, dict):
                 return False, f"answer_parts[{i}] must be a dict"
             for key in ("part", "prompt", "options", "correct"):
                 if key not in part:
                     return False, f"answer_parts[{i}] missing '{key}'"
-            if part["part"] not in ("example", "explain"):
-                return False, f"answer_parts[{i}].part must be 'example' or 'explain'"
-            if not isinstance(part["options"], list) or len(part["options"]) < 2:
-                return False, f"answer_parts[{i}].options must have at least 2 items"
+            if part["part"] != expected_order[i]:
+                return False, f"answer_parts[{i}].part must be '{expected_order[i]}', got '{part['part']}'"
+            if not isinstance(part["options"], list) or len(part["options"]) != 4:
+                return False, f"answer_parts[{i}].options must have exactly 4 items (got {len(part.get('options', []))})"
             if not isinstance(part["correct"], int) or part["correct"] not in range(len(part["options"])):
-                return False, f"answer_parts[{i}].correct must be a valid index"
-        return True, "ok — explain_example with example + explain parts"
+                return False, f"answer_parts[{i}].correct must be a valid index (0–3)"
+        return True, "ok — explain_example: example part + explain part, each with 4 options"
 
     return False, f"Unknown multipart type: {qtype!r}"
 
