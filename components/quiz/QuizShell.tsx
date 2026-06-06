@@ -23,6 +23,8 @@ import { HeartCrack, Swords, Sparkles, Trophy, Star, RefreshCw, Gift, Flame, Shi
 
 // Points awarded per attempt number (1-indexed). Exhausting all attempts = 0.
 const POINTS_BY_ATTEMPT = [3, 2, 1] as const
+// These types render their own per-item feedback — QuizShell skips the raw correct_answer header.
+const MULTIPART_QTYPES = new Set(['true_false_grid', 'ordered_list', 'source_analysis', 'explain_example'])
 const MAX_ATTEMPTS = 3
 const MAX_HEARTS = 3
 // Hearts are lost when a question is fully exhausted (all attempts wrong),
@@ -293,9 +295,11 @@ export function QuizShell({
     totalCount?: number
   }) {
     const timeSeconds = Math.max(1, Math.round((Date.now() - questionStartRef.current) / 1000))
-    // Points: full (3) for all correct, partial based on fraction
+    // Points: full (3) for all correct, partial based on fraction; 2× for bonus challenge
     const fraction = totalCount ? (correctCount ?? 0) / totalCount : (allCorrect ? 1 : 0)
-    const pts = allCorrect ? POINTS_BY_ATTEMPT[0] : Math.round(fraction * POINTS_BY_ATTEMPT[2])
+    const isBonus = qIndex === bonusIndex
+    const basePts = allCorrect ? POINTS_BY_ATTEMPT[0] : Math.round(fraction * POINTS_BY_ATTEMPT[2])
+    const pts = isBonus ? basePts * 2 : basePts
     if (pts > 0) {
       setTotalPoints((p) => p + pts)
       setPointsFlash(pts)
@@ -960,18 +964,21 @@ export function QuizShell({
                   answeredCorrectly ? 'bg-correct/10' : 'bg-incorrect/10'
                 }`}
               >
-                <p
-                  className="font-bold"
-                  style={{ color: answeredCorrectly ? '#40C057' : '#FF6B6B' }}
-                >
-                  {answeredCorrectly
-                    ? attempts === 0
-                      ? isBonusQuestion
-                        ? <span className="flex items-center gap-1"><Check className="w-4 h-4" aria-hidden /> Correct! Double points! <Star className="w-4 h-4" aria-hidden /></span>
-                        : <span className="flex items-center gap-1"><Check className="w-4 h-4" aria-hidden /> Correct! Full marks!</span>
-                      : <span className="flex items-center gap-1"><Check className="w-4 h-4" aria-hidden /> Got it on attempt {attempts + 1}!</span>
-                    : `✗ The answer is ${q.correct_answer}`}
-                </p>
+                {/* Multipart types render their own feedback — only show explanation/technique here */}
+                {!MULTIPART_QTYPES.has(q.question_type) && (
+                  <p
+                    className="font-bold"
+                    style={{ color: answeredCorrectly ? '#40C057' : '#FF6B6B' }}
+                  >
+                    {answeredCorrectly
+                      ? attempts === 0
+                        ? isBonusQuestion
+                          ? <span className="flex items-center gap-1"><Check className="w-4 h-4" aria-hidden /> Correct! Double points! <Star className="w-4 h-4" aria-hidden /></span>
+                          : <span className="flex items-center gap-1"><Check className="w-4 h-4" aria-hidden /> Correct! Full marks!</span>
+                        : <span className="flex items-center gap-1"><Check className="w-4 h-4" aria-hidden /> Got it on attempt {attempts + 1}!</span>
+                      : `✗ The answer is ${q.correct_answer}`}
+                  </p>
+                )}
                 {isExhausted && (
                   <p className="mt-0.5 text-xs text-muted">No points this time — you&apos;ll get it next time!</p>
                 )}

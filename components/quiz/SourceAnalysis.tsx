@@ -191,9 +191,11 @@ export default function SourceAnalysis({
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-xl bg-surface border border-ink/10 p-3 text-sm text-muted"
+          className="rounded-xl bg-surface border border-ink/10 p-3 text-xs text-muted"
         >
-          You got {states.filter((s) => s === 'correct').length} out of {subQuestions.length} source questions correct.
+          {states.every((s) => s === 'correct')
+            ? '✓ Strong source work — you used the evidence correctly.'
+            : 'Tip: always look for specific words in the source that directly answer the question.'}
         </motion.div>
       )}
     </div>
