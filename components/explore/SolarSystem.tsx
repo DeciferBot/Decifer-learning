@@ -171,8 +171,9 @@ export function SolarSystem({ onAskDecifer, onExplore }: Props) {
       if (!containerRef.current) return
       const w = containerRef.current.offsetWidth
       const h = containerRef.current.offsetHeight
-      const available = Math.min(w, h)
-      // orrery needs ~740px (Neptune orbit 346 * 2 + padding)
+      // Leave 48px breathing room on each side (96px total) so orbits don't clip
+      const available = Math.min(w, h) - 96
+      // orrery needs ~692px (Neptune orbit 346 * 2); 740 = natural size with planet bodies
       const s = Math.min(1, available / 740)
       setScale(s)
     }
@@ -197,7 +198,7 @@ export function SolarSystem({ onAskDecifer, onExplore }: Props) {
   }
 
   return (
-    <div ref={containerRef} className="relative w-full h-full overflow-hidden select-none" style={{ background: 'radial-gradient(ellipse at 40% 40%, #0d1b3e 0%, #050510 60%, #000008 100%)' }}>
+    <div ref={containerRef} className="relative w-full h-full overflow-hidden select-none" style={{ background: 'radial-gradient(ellipse at 50% 50%, #0d1b3e 0%, #050510 60%, #000008 100%)' }}>
       {/* Stars */}
       <Stars />
 

@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { BookOpen } from '@/components/ui/icons'
 
 export type CurriculumUnit = {
@@ -13,9 +14,10 @@ export type CurriculumUnit = {
 type Props = {
   units: CurriculumUnit[]
   subjectColor?: string
+  topicId?: string
 }
 
-export function ChapterStrip({ units, subjectColor = '#6C9EFF' }: Props) {
+export function ChapterStrip({ units, subjectColor = '#6C9EFF', topicId }: Props) {
   if (units.length === 0) return null
 
   return (
@@ -40,7 +42,16 @@ export function ChapterStrip({ units, subjectColor = '#6C9EFF' }: Props) {
             >
               {i + 1}
             </span>
-            <span className="text-sm leading-snug text-ink">{unit.title}</span>
+            {topicId ? (
+              <Link
+                href={`/topics/${topicId}/units/${unit.id}`}
+                className="text-sm leading-snug text-ink hover:underline"
+              >
+                {unit.title}
+              </Link>
+            ) : (
+              <span className="text-sm leading-snug text-ink">{unit.title}</span>
+            )}
           </li>
         ))}
       </ol>
