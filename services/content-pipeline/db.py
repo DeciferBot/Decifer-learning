@@ -319,6 +319,7 @@ def write_question(
                     correct_answer, distractors,
                     hint_1, hint_2, hint_3, explanation,
                     technique_type, technique_hint, technique_note,
+                    answer_parts,
                     source_chunk_ids, confidence_score, status,
                     question_metadata, generator_version, verifier_version, published_at
                 ) VALUES (
@@ -326,6 +327,7 @@ def write_question(
                     %s, %s,
                     %s, %s, %s, %s,
                     %s, %s, %s,
+                    %s,
                     %s, %s, %s::\"ContentStatus\",
                     %s, %s, %s, %s
                 )
@@ -345,6 +347,7 @@ def write_question(
                     question_data.get("technique_type") or "recall",
                     question_data.get("technique_hint"),
                     question_data.get("technique_note"),
+                    json.dumps(question_data.get("answer_parts")) if question_data.get("answer_parts") is not None else None,
                     json.dumps(question_data.get("source_chunk_ids", [])),
                     confidence_score,
                     status,

@@ -5,6 +5,8 @@ import { submitAnswer } from '@/lib/offline'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { HintButton } from './HintButton'
+import { TrueFalseGrid, type TrueFalseStatement } from './TrueFalseGrid'
+import { OrderedList, type OrderedListItem } from './OrderedList'
 import { HeartsDisplay } from './HeartsDisplay'
 import { CardReveal } from '@/components/cards/CardReveal'
 import { BadgePopup } from '@/components/quiz/BadgePopup'
@@ -40,6 +42,7 @@ export type QuizQuestion = {
   technique_type: string | null
   technique_hint: string | null
   technique_note: string | null
+  answer_parts: unknown   // TrueFalseStatement[] | OrderedListItem[] | null
 }
 
 type AnswerLog = {
@@ -270,6 +273,46 @@ export function QuizShell({
         }
       }
     }
+  }
+
+  // Called by TrueFalseGrid and OrderedList when child submits multi-part answer.
+  // No retry for these types — one submission, immediate result.
+  function handleMultiPartAnswer({
+    allCorrect,
+    correctCount,
+    totalCount,
+  }: {
+    allCorrect: boolean
+    correctCount?: number
+    totalCount?: number
+  }) {
+    const timeSeconds = Math.max(1, Math.round((Date.now() - questionStartRef.current) / 1000))
+    // Points: full (3) for all correct, partial based on fraction
+    const fraction = totalCount ? (correctCount ?? 0) / totalCount : (allCorrect ? 1 : 0)
+    const pts = allCorrect ? POINTS_BY_ATTEMPT[0] : Math.round(fraction * POINTS_BY_ATTEMPT[2])
+    if (pts > 0) {
+      setTotalPoints((p) => p + pts)
+      setPointsFlash(pts)
+      setTimeout(() => setPointsFlash(null), 1200)
+    }
+    if (allCorrect) setQuestionsCorrect((n) => n + 1)
+    setAnsweredCorrectly(allCorrect)
+    setQuestionDone(true)
+
+    // Technique tracking
+    const tType = q.technique_type
+    if (tType && tType !== 'recall') {
+      setTechniqueTotal((n) => n + 1)
+      if (allCorrect) setTechniqueCorrect((n) => n + 1)
+    }
+
+    answerLogRef.current.push({
+      questionId: q.id,
+      childAnswer: allCorrect ? 'correct' : 'incorrect',
+      wasCorrect: allCorrect,
+      hintNumber: manualHintsRevealed,
+      timeSeconds,
+    })
   }
 
   function next() {
@@ -830,38 +873,56 @@ export function QuizShell({
             )}
           </AnimatePresence>
 
-          {/* Answer choices */}
-          <div className="mt-4 grid grid-cols-2 gap-3">
-            {choices.map((choice) => {
-              let cls =
-                'min-h-[56px] rounded-xl border-2 px-4 py-3 text-center font-heading font-bold text-ink transition-colors'
-              if (!questionDone) {
-                // Shade the last wrong pick while still active
-                if (choice === lastPicked && attempts > 0) {
+          {/* Answer area — dispatched by question_type */}
+          {q.question_type === 'true_false_grid' && q.answer_parts ? (
+            <div className="mt-4">
+              <TrueFalseGrid
+                statements={q.answer_parts as TrueFalseStatement[]}
+                onAnswer={handleMultiPartAnswer}
+                disabled={questionDone}
+              />
+            </div>
+          ) : q.question_type === 'ordered_list' && q.answer_parts ? (
+            <div className="mt-4">
+              <OrderedList
+                items={q.answer_parts as OrderedListItem[]}
+                onAnswer={handleMultiPartAnswer}
+                disabled={questionDone}
+              />
+            </div>
+          ) : (
+            /* Default: MCQ choice buttons */
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              {choices.map((choice) => {
+                let cls =
+                  'min-h-[56px] rounded-xl border-2 px-4 py-3 text-center font-heading font-bold text-ink transition-colors'
+                if (!questionDone) {
+                  if (choice === lastPicked && attempts > 0) {
+                    cls += ' border-incorrect bg-incorrect/20 text-incorrect'
+                  } else {
+                    cls += ' border-black/10 bg-background hover:border-maths hover:bg-maths/10'
+                  }
+                } else if (choice === q.correct_answer) {
+                  cls += ' border-correct bg-correct/20 text-correct'
+                } else if (choice === lastPicked && !answeredCorrectly) {
                   cls += ' border-incorrect bg-incorrect/20 text-incorrect'
                 } else {
-                  cls += ' border-black/10 bg-background hover:border-maths hover:bg-maths/10'
+                  cls += ' border-black/10 bg-background opacity-50'
                 }
-              } else if (choice === q.correct_answer) {
-                cls += ' border-correct bg-correct/20 text-correct'
-              } else if (choice === lastPicked && !answeredCorrectly) {
-                cls += ' border-incorrect bg-incorrect/20 text-incorrect'
-              } else {
-                cls += ' border-black/10 bg-background opacity-50'
-              }
-              return (
-                <motion.button
-                  key={choice}
-                  onClick={() => pick(choice)}
-                  disabled={questionDone}
-                  whileTap={questionDone ? {} : { scale: 0.97 }}
-                  className={cls}
-                >
-                  <MathText text={choice} />
-                </motion.button>
-              )
-            })}
-          </div>
+                return (
+                  <motion.button
+                    key={choice}
+                    onClick={() => pick(choice)}
+                    disabled={questionDone}
+                    whileTap={questionDone ? {} : { scale: 0.97 }}
+                    className={cls}
+                  >
+                    <MathText text={choice} />
+                  </motion.button>
+                )
+              })}
+            </div>
+          )}
 
           {/* Post-question feedback */}
           <AnimatePresence>

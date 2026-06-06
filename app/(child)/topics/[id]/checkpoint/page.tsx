@@ -38,7 +38,7 @@ export default async function CheckpointPage({ params }: { params: { id: string 
   // Pull 3 published questions from the topic — sprout/explorer tiers preferred
   const { data: pool } = await supabase
     .from('quiz_questions')
-    .select('id, tier, question_type, question_text, correct_answer, distractors, hint_1, hint_2, hint_3, explanation, technique_type, technique_hint, technique_note')
+    .select('id, tier, question_type, question_text, correct_answer, distractors, hint_1, hint_2, hint_3, explanation, technique_type, technique_hint, technique_note, answer_parts')
     .eq('topic_id', params.id)
     .eq('status', 'published')
     .in('tier', ['sprout', 'explorer'])

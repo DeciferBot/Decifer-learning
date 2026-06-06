@@ -302,6 +302,10 @@ model QuizQuestion {
   technique_type    String?   // 'recall' | 'perspective' | 'evidence_cite' | 'show_working' | 'two_part' | 'causation'
   technique_hint    String?   // fires before hint_1 on first wrong answer; teaches HOW to answer, not content
   technique_note    String?   // shown in post-answer explanation; reinforces technique used
+  // Multi-part question types (Sprint 3)
+  // true_false_grid: [{statement: string, correct: boolean}]
+  // ordered_list:    [{item: string}]  (stored in correct order; component shuffles for display)
+  answer_parts      Json?
   // Phase 11A provenance fields
   question_metadata Json?
   generator_version String?

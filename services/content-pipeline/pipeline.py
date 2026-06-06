@@ -617,13 +617,19 @@ def _build_generation_prompt(
     tier: str,
     chunks: list[dict],
     existing_questions: list[dict] | None = None,
+    force_qtype: str | None = None,
 ) -> str:
     """Dispatch to subject-specific prompt builder.
 
     existing_questions: list of {question_text, correct_answer, question_metadata}
     for published questions in this topic. Passed to prompt builders as a diversity
     hint so the LLM avoids regenerating near-duplicate questions.
+
+    force_qtype: when set to a multipart type ('true_false_grid' | 'ordered_list'),
+    bypasses subject dispatch and uses the multipart prompt builder instead.
     """
+    if force_qtype in _MULTIPART_TYPES:
+        return _build_multipart_prompt(topic, tier, force_qtype, chunks)
     subject = topic.get("subject_name", "").lower()
     if "english" in subject:
         return _build_english_prompt(topic, tier, chunks, existing_questions=existing_questions)
@@ -795,6 +801,136 @@ _ENGLISH_TYPES = {
 }
 _PHYSICS_TYPES = {"science_physics_calculation"}
 _CHEMISTRY_TYPES = {"science_chemistry_equation", "chemistry_element_fact", "biology_factual", "science_factual"}
+# Multi-part types: structural verification only (no code or LanguageTool check)
+_MULTIPART_TYPES = {"true_false_grid", "ordered_list"}
+
+
+def _verify_multipart(question_data: dict) -> tuple[bool, str]:
+    """Structural verifier for true_false_grid and ordered_list question types."""
+    qtype = question_data.get("question_type", "")
+    parts = question_data.get("answer_parts")
+
+    if not isinstance(parts, list) or len(parts) < 2:
+        return False, "answer_parts must be a list with at least 2 items"
+
+    if qtype == "true_false_grid":
+        for i, part in enumerate(parts):
+            if not isinstance(part, dict):
+                return False, f"answer_parts[{i}] must be a dict"
+            if "statement" not in part or "correct" not in part:
+                return False, f"answer_parts[{i}] missing 'statement' or 'correct'"
+            if not isinstance(part["correct"], bool):
+                return False, f"answer_parts[{i}].correct must be a boolean"
+        # Check balanced T/F — not all same value
+        trues = sum(1 for p in parts if p["correct"])
+        if trues == 0 or trues == len(parts):
+            return False, "true_false_grid must have a mix of true and false statements"
+        return True, f"ok — {len(parts)} statements, {trues} true, {len(parts)-trues} false"
+
+    if qtype == "ordered_list":
+        for i, part in enumerate(parts):
+            if not isinstance(part, dict):
+                return False, f"answer_parts[{i}] must be a dict"
+            if "item" not in part:
+                return False, f"answer_parts[{i}] missing 'item'"
+            if not isinstance(part["item"], str) or not part["item"].strip():
+                return False, f"answer_parts[{i}].item must be a non-empty string"
+        if len(parts) < 3 or len(parts) > 8:
+            return False, f"ordered_list must have 3–8 items, got {len(parts)}"
+        return True, f"ok — {len(parts)} items to order"
+
+    return False, f"Unknown multipart type: {qtype!r}"
+
+
+def _build_multipart_prompt(topic: dict, tier: str, qtype: str, chunks: list[dict]) -> str:
+    """Generation prompt for true_false_grid and ordered_list question types."""
+    year_label, key_stage = _YEAR_GROUP_DISPLAY.get(
+        topic["year_group_label"], (topic["year_group_label"], "")
+    )
+    tier_desc = _TIER_DESCRIPTIONS.get(tier, tier)
+    subject = topic.get("subject_name", "")
+
+    if chunks:
+        chunks_text = "\n\n".join(
+            f"[Source {i+1} — {c['source_name']}]\n{c['chunk_text']}"
+            for i, c in enumerate(chunks)
+        )
+        source_section = f"Use ONLY the following curriculum sources:\n\n{chunks_text}"
+        chunk_ids = json.dumps([str(c["id"]) for c in chunks])
+    else:
+        source_section = "Use your curriculum knowledge for this year group and subject."
+        chunk_ids = "[]"
+
+    if qtype == "true_false_grid":
+        return f"""You are an expert UK {subject} curriculum writer generating a true/false grid question for {year_label} pupils ({key_stage}).
+
+Topic: {topic['title']}
+Difficulty tier: {tier} — {tier_desc}
+
+{source_section}
+
+Generate a TRUE/FALSE GRID question with 4 statements about this topic.
+Rules:
+- Exactly 4 statements — mix of true AND false (2 true + 2 false is ideal, or 3+1)
+- Each statement must be clearly true or clearly false — no ambiguous ones
+- Statements should test different aspects of the topic
+- Language appropriate for {year_label}
+- correct_answer: compact string e.g. "TFFT" (T=true, F=false, one char per statement in order)
+- answer_parts: the structured data
+
+Return ONLY valid JSON:
+{{
+  "question_text": "Mark each statement about {topic['title']} as True or False.",
+  "question_type": "true_false_grid",
+  "correct_answer": "<TTFF or similar compact string>",
+  "distractors": [],
+  "hint_1": "<general hint about the topic>",
+  "hint_2": "<more specific hint>",
+  "hint_3": "<closest hint without revealing answers>",
+  "explanation": "<brief explanation of each statement>",
+  "source_chunk_ids": {chunk_ids},
+  "answer_parts": [
+    {{"statement": "<statement 1>", "correct": true}},
+    {{"statement": "<statement 2>", "correct": false}},
+    {{"statement": "<statement 3>", "correct": true}},
+    {{"statement": "<statement 4>", "correct": false}}
+  ]
+}}"""
+
+    # ordered_list
+    return f"""You are an expert UK {subject} curriculum writer generating an ordering question for {year_label} pupils ({key_stage}).
+
+Topic: {topic['title']}
+Difficulty tier: {tier} — {tier_desc}
+
+{source_section}
+
+Generate an ORDERING question with 4–5 items to put in the correct sequence (chronological, logical, or procedural).
+Rules:
+- 4–5 items — each clearly belonging in one position
+- Items stored in CORRECT order in answer_parts (the component will shuffle for display)
+- Each item is a short phrase (under 12 words)
+- Language appropriate for {year_label}
+- correct_answer: items joined by " → " in correct order
+
+Return ONLY valid JSON:
+{{
+  "question_text": "Put these in the correct order.",
+  "question_type": "ordered_list",
+  "correct_answer": "<item1> → <item2> → <item3> → <item4>",
+  "distractors": [],
+  "hint_1": "<general hint about the sequence>",
+  "hint_2": "<more specific hint>",
+  "hint_3": "<closest hint without revealing the order>",
+  "explanation": "<explanation of why this order is correct>",
+  "source_chunk_ids": {chunk_ids},
+  "answer_parts": [
+    {{"item": "<first in correct order>"}},
+    {{"item": "<second in correct order>"}},
+    {{"item": "<third in correct order>"}},
+    {{"item": "<fourth in correct order>"}}
+  ]
+}}"""
 
 
 def stage2_verify(question_data: dict, result: PipelineResult) -> bool:
@@ -814,6 +950,9 @@ def stage2_verify(question_data: dict, result: PipelineResult) -> bool:
     elif qtype in _CHEMISTRY_TYPES:
         verified, detail = chemistry_verifier.verify(question_data)
         result.verifier_version = getattr(chemistry_verifier, "VERIFIER_VERSION", "unknown")
+    elif qtype in _MULTIPART_TYPES:
+        verified, detail = _verify_multipart(question_data)
+        result.verifier_version = "multipart-v1"
     else:
         verified = False
         detail = f"Unknown question_type: {qtype!r} — failing closed"

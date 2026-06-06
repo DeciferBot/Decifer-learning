@@ -41,7 +41,7 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
   const { data, error } = await supabase
     .from('quiz_questions')
     .select(
-      'id, tier, question_type, question_text, correct_answer, distractors, hint_1, hint_2, hint_3, explanation, technique_type, technique_hint, technique_note'
+      'id, tier, question_type, question_text, correct_answer, distractors, hint_1, hint_2, hint_3, explanation, technique_type, technique_hint, technique_note, answer_parts'
     )
     .eq('topic_id', params.id)
     .eq('status', 'published')

@@ -62,7 +62,7 @@ export async function POST(req: Request) {
     prisma.profile.findUnique({ where: { user_id: user.id } }),
     prisma.quizQuestion.findMany({
       where:  { id: { in: questionIds }, topic_id: topicId, status: 'published' },
-      select: { id: true, correct_answer: true },
+      select: { id: true, correct_answer: true, question_type: true },
     }),
   ])
 
@@ -103,10 +103,17 @@ export async function POST(req: Request) {
   }
   // ── End screen-time enforcement ───────────────────────────────────────────
   const correctMap = new Map(correctAnswers.map((q) => [q.id, q.correct_answer]))
+  const typeMap    = new Map(correctAnswers.map((q) => [q.id, q.question_type]))
+
+  // Multi-part types (true_false_grid, ordered_list) are scored client-side;
+  // trust the client's wasCorrect rather than attempting a string compare.
+  const MULTIPART_TYPES = new Set(['true_false_grid', 'ordered_list'])
 
   const scoredAnswers = answers.map((a) => ({
     ...a,
-    wasCorrect: correctMap.get(a.questionId)?.trim().toLowerCase() === a.childAnswer?.trim().toLowerCase(),
+    wasCorrect: MULTIPART_TYPES.has(typeMap.get(a.questionId) ?? '')
+      ? Boolean(a.wasCorrect)
+      : correctMap.get(a.questionId)?.trim().toLowerCase() === a.childAnswer?.trim().toLowerCase(),
   }))
   // ── End server-side scoring ───────────────────────────────────────────────
 
