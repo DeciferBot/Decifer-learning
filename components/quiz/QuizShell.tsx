@@ -125,6 +125,7 @@ export function QuizShell({
   const [questionDone, setQuestionDone] = useState(false)   // answered correctly OR exhausted
   const [answeredCorrectly, setAnsweredCorrectly] = useState(false)
   const [hintsRevealed, setHintsRevealed] = useState(0)
+  const [manualHintsRevealed, setManualHintsRevealed] = useState(0)
 
   // Running score (points, not questions correct)
   const [totalPoints, setTotalPoints] = useState(0)
@@ -189,7 +190,7 @@ export function QuizShell({
       questionId: q.id,
       childAnswer: choice,
       wasCorrect: isCorrect,
-      hintNumber: hintsRevealed,
+      hintNumber: manualHintsRevealed,
       timeSeconds,
     })
 
@@ -206,7 +207,7 @@ export function QuizShell({
       setQuestionDone(true)
 
       // Hintless streak tracking
-      if (hintsRevealed === 0) {
+      if (manualHintsRevealed === 0) {
         const newStreak = hintlessStreak + 1
         setHintlessStreak(newStreak)
         if (newStreak === 3) {
@@ -274,6 +275,7 @@ export function QuizShell({
     setQuestionDone(false)
     setAnsweredCorrectly(false)
     setHintsRevealed(0)
+    setManualHintsRevealed(0)
     questionStartRef.current = Date.now()
   }
 
@@ -291,6 +293,7 @@ export function QuizShell({
     setQuestionDone(false)
     setAnsweredCorrectly(false)
     setHintsRevealed(0)
+    setManualHintsRevealed(0)
     setTotalPoints(0)
     setQuestionsCorrect(0)
     setPointsFlash(null)
@@ -763,7 +766,7 @@ export function QuizShell({
             <HintButton
               hints={hints}
               revealed={revealedHints}
-              onReveal={() => setHintsRevealed((n) => Math.min(n + 1, hints.length))}
+              onReveal={() => { setHintsRevealed((n) => Math.min(n + 1, hints.length)); setManualHintsRevealed((n) => n + 1) }}
               disabled={false}
               countdown={null}
             />
