@@ -42,7 +42,7 @@ export default async function ProfilePage() {
       where: { profile_id: profile.id },
       orderBy: { created_at: 'desc' },
       take: 5,
-      include: { topic: { select: { title: true, subject: { select: { name: true, colour_token: true } } } } },
+      include: { topic: { select: { id: true, title: true, subject: { select: { name: true, colour_token: true } } } } },
     }),
     prisma.childCollection.count({ where: { profile_id: profile.id } }),
     prisma.topicProgress.count({ where: { profile_id: profile.id, status: 'completed' } }),
@@ -264,9 +264,10 @@ export default async function ProfilePage() {
               const pct = Math.round(attempt.score * 100)
               const passed = pct >= 70
               return (
-                <div
+                <Link
                   key={attempt.id}
-                  className="flex items-center gap-3 rounded-2xl px-4 py-3"
+                  href={`/topics/${attempt.topic.id}/learn`}
+                  className="flex items-center gap-3 rounded-2xl px-4 py-3 transition-colors hover:opacity-80 active:opacity-70"
                   style={{
                     background: 'var(--surface)',
                     border: '1px solid var(--border-default)',
@@ -296,7 +297,7 @@ export default async function ProfilePage() {
                   >
                     {pct}%
                   </span>
-                </div>
+                </Link>
               )
             })}
           </div>
