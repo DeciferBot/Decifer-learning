@@ -525,6 +525,59 @@
 
 
 /* ═══════════════════════════════════════════════════════════════════
+   THEME OVERRIDES — applied via data-theme attribute on the layout div
+   Each theme overrides only the surface/background/text tokens.
+   Brand, subject, and gamification colours are intentionally unchanged.
+   ═══════════════════════════════════════════════════════════════════ */
+
+[data-theme="maths"] {
+  --background:   #EFF4FF;
+  --surface:      #FFFFFF;
+  --surface2:     #E4EDFF;
+  --surface3:     #D5E3FF;
+}
+
+[data-theme="english"] {
+  --background:   #FFF0F5;
+  --surface:      #FFFFFF;
+  --surface2:     #FFE4ED;
+  --surface3:     #FFD4E3;
+}
+
+[data-theme="science"] {
+  --background:   #EDFFF7;
+  --surface:      #FFFFFF;
+  --surface2:     #DAFFF0;
+  --surface3:     #C4FFE5;
+}
+
+[data-theme="night"] {
+  --background:   #0F111A;
+  --surface:      #1A1D2E;
+  --surface2:     #222640;
+  --surface3:     #2A2F52;
+  --surface-raised:  #222640;
+  --surface-sunken:  #0C0E16;
+  --text-primary:    #E8E6F0;
+  --text-heading:    #E8E6F0;
+  --text-body:       #E8E6F0;
+  --text-secondary:  #A8A4BC;
+  --text-muted:      #6B6680;
+  --text-placeholder:#4A4560;
+  --text-disabled:   #3A3550;
+  --border-default:  rgba(232,230,240,.08);
+  --border-strong:   rgba(232,230,240,.15);
+  --ink:             #E8E6F0;
+  --ink-2:           #A8A4BC;
+  --ink-3:           #6B6680;
+  --ink-4:           #4A4560;
+  --divider:         rgba(232,230,240,.08);
+  --shadow-card:     0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-hover:    0 4px 12px rgba(0,0,0,0.5), 0 2px 4px rgba(0,0,0,0.4);
+  color-scheme: dark;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
    GLOBAL BASE STYLES
    (Opt-in by importing this file — not scoped, applies globally)
    ═══════════════════════════════════════════════════════════════════ */

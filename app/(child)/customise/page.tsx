@@ -126,17 +126,22 @@ export default function CustomisePage() {
       </div>
 
       {/* Preview */}
-      <div className="rounded-2xl border border-black/5 bg-surface p-5 shadow-sm flex items-center gap-4">
+      <div className="rounded-2xl border border-black/5 bg-surface p-5 shadow-sm flex items-center gap-5">
         <div
-          className="h-16 w-16 rounded-full flex items-center justify-center flex-none"
-          style={{ backgroundColor: colourHex + '33', border: `3px solid ${colourHex}`, color: colourHex }}
+          className="h-20 w-20 rounded-full flex items-center justify-center flex-none"
+          style={{ backgroundColor: colourHex + '22', border: `3px solid ${colourHex}`, color: colourHex }}
         >
-          <AvatarIcon size={32} aria-hidden />
+          <AvatarIcon size={40} aria-hidden />
         </div>
         <div>
-          <p className="font-heading font-bold text-ink text-base">Your avatar</p>
+          <p className="font-heading font-bold text-ink text-lg">
+            {AVATARS.find((a) => a.id === avatarBase)?.name ?? 'Explorer'}
+          </p>
+          <p className="text-sm font-medium mt-0.5" style={{ color: colourHex }}>
+            {COLOURS.find((c) => c.id === avatarColour)?.label} theme
+          </p>
           <p className="text-xs text-muted mt-0.5">
-            {buddy ? `Study buddy: ${BUDDIES.find((b) => b.id === buddy)?.name}` : 'No study buddy selected'}
+            {buddy ? `Buddy: ${BUDDIES.find((b) => b.id === buddy)?.name}` : 'No study buddy'}
           </p>
         </div>
       </div>
@@ -146,18 +151,28 @@ export default function CustomisePage() {
         <div className="grid grid-cols-4 gap-2">
           {AVATARS.map((a) => {
             const Icon = AVATAR_ICONS[a.id]
+            const isSelected = avatarBase === a.id
             return (
               <button
                 key={a.id}
                 onClick={() => setAvatarBase(a.id)}
-                className={`flex h-14 items-center justify-center rounded-2xl border transition-all ${
-                  avatarBase === a.id
+                className={`flex flex-col items-center justify-center gap-1.5 rounded-2xl border py-3 px-1 transition-all ${
+                  isSelected
                     ? 'border-brand bg-brand/10 shadow-sm scale-105 text-brand'
                     : 'border-black/10 bg-black/[0.02] hover:border-brand/40 text-muted'
                 }`}
                 aria-label={a.name}
+                aria-pressed={isSelected}
               >
-                <Icon size={24} aria-hidden />
+                <div
+                  className="h-11 w-11 rounded-full flex items-center justify-center"
+                  style={isSelected ? { backgroundColor: colourHex + '22', color: colourHex } : {}}
+                >
+                  <Icon size={28} aria-hidden />
+                </div>
+                <span className="text-[10px] font-semibold leading-tight truncate w-full text-center">
+                  {a.name}
+                </span>
               </button>
             )
           })}
@@ -184,23 +199,36 @@ export default function CustomisePage() {
       {/* Theme */}
       <Section title="Theme">
         <div className="grid grid-cols-5 gap-2">
-          {THEMES.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => setTheme(t.id)}
-              className={`flex flex-col items-center gap-1 rounded-2xl border p-2 transition-all ${
-                theme === t.id
-                  ? 'border-brand bg-brand/10 shadow-sm'
-                  : 'border-black/10 bg-black/[0.02] hover:border-brand/40'
-              }`}
-            >
-              <div
-                className="h-7 w-7 rounded-lg border border-black/10"
-                style={{ backgroundColor: t.bg }}
-              />
-              <span className="text-[10px] font-medium text-muted leading-tight">{t.label}</span>
-            </button>
-          ))}
+          {THEMES.map((t) => {
+            const isSelected = theme === t.id
+            const isNight = t.id === 'night'
+            return (
+              <button
+                key={t.id}
+                onClick={() => setTheme(t.id)}
+                aria-pressed={isSelected}
+                className={`flex flex-col items-center gap-1.5 rounded-2xl border p-2 transition-all ${
+                  isSelected
+                    ? 'border-brand shadow-sm'
+                    : 'border-black/10 hover:border-brand/40'
+                }`}
+                style={isNight ? { backgroundColor: '#1A1D2E' } : { backgroundColor: isSelected ? 'rgba(251,90,36,0.08)' : 'rgba(0,0,0,0.02)' }}
+              >
+                <div
+                  className="h-8 w-8 rounded-xl flex items-center justify-center"
+                  style={{ backgroundColor: t.accent + '33', border: `2px solid ${t.accent}` }}
+                >
+                  <div className="h-3 w-3 rounded-full" style={{ backgroundColor: t.accent }} />
+                </div>
+                <span
+                  className="text-[10px] font-semibold leading-tight"
+                  style={{ color: isNight ? '#A8A4BC' : undefined }}
+                >
+                  {t.label}
+                </span>
+              </button>
+            )
+          })}
         </div>
       </Section>
 
