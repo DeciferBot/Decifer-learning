@@ -9,6 +9,7 @@ import { LearnWidget } from '@/lib/learn-widgets'
 import { UpgradeWall } from '@/components/ui/UpgradeWall'
 import { isTopicAccessible } from '@/lib/stripe'
 import { BookOpen } from '@/components/ui/icons'
+import { ChapterStrip } from '@/components/curriculum/ChapterStrip'
 
 // RLS policy "topics_select_published" (is_published=true) is enforced at DB level.
 // RLS policy "learn_content_select_published" + FORCE RLS (status='published') is enforced at DB level.
@@ -135,6 +136,19 @@ export default async function LearnPage({
   const sections = splitHtml(content.body_html)
   const widgets = parseWidgets(content.learn_widgets)
 
+  const [units, subjectRow] = await Promise.all([
+    prisma.curriculumUnit.findMany({
+      where: { topic_id: params.id },
+      select: { id: true, title: true, description: true, order_index: true, oak_confidence: true },
+      orderBy: { order_index: 'asc' },
+    }),
+    prisma.topic.findUnique({
+      where: { id: params.id },
+      select: { subject: { select: { colour_token: true } } },
+    }),
+  ])
+  const subjectColor = subjectRow?.subject?.colour_token ?? '#6C9EFF'
+
   return (
     <div className="space-y-5">
       {/* PLI v1: fire lesson_opened on mount, record active time on unmount */}
@@ -161,6 +175,8 @@ export default async function LearnPage({
           </span>
         )}
       </div>
+
+      <ChapterStrip units={units} subjectColor={subjectColor} />
 
       <h1 className="font-heading text-2xl font-bold text-ink">{topic.title}</h1>
 

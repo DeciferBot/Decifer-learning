@@ -66,10 +66,22 @@ export default async function WorldMapPage() {
 
   // Nodes depend on zone IDs but not on progress
   const zoneIds = zones.map((z) => z.id)
-  const nodes = await prisma.worldMapNode.findMany({
-    where: { zone_id: { in: zoneIds } },
-    include: { topic: { select: { id: true, title: true, quiz_optional: true } } },
-  })
+  const [nodes, unitCounts] = await Promise.all([
+    prisma.worldMapNode.findMany({
+      where: { zone_id: { in: zoneIds } },
+      include: { topic: { select: { id: true, title: true, quiz_optional: true } } },
+    }),
+    prisma.curriculumUnit.groupBy({
+      by: ['topic_id'],
+      where: { topic_id: { not: null } },
+      _count: { id: true },
+    }),
+  ])
+  const chapterCountByTopic = new Map(
+    unitCounts
+      .filter((r) => r.topic_id !== null)
+      .map((r) => [r.topic_id as string, r._count.id])
+  )
 
   // Group nodes by zone for efficient lookup
   const nodesByZone = new Map<string, typeof nodes>()
@@ -116,6 +128,7 @@ export default async function WorldMapPage() {
             xPct: node.x_pos * 100,
             yPct: node.y_pos * 100,
             quizOptional: node.topic.quiz_optional,
+            chapterCount: chapterCountByTopic.get(node.topic_id) ?? 0,
           }))
 
           const allCompleted =

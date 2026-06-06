@@ -16,6 +16,7 @@ export type ZoneNode = {
   xPct: number
   yPct: number
   quizOptional?: boolean
+  chapterCount?: number
 }
 
 type Props = {
@@ -75,6 +76,7 @@ export function ZoneMap({ zoneId, zoneName, theme, subjectColor, nodes, allCompl
                 xPct={node.xPct}
                 yPct={node.yPct}
                 quizOptional={node.quizOptional}
+                chapterCount={node.chapterCount}
               />
             ))}
           </div>

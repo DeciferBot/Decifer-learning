@@ -95,6 +95,7 @@ model Profile {
   vault_parent_settings_as_parent VaultParentSettings[]  @relation("ParentVaultSettings")
   vault_parent_settings_as_child  VaultParentSettings[]  @relation("ChildVaultSettings")
   question_reports                QuestionReport[]
+  exploration_sessions            ExplorationSession[]
 
   @@map("profiles")
 }
@@ -138,6 +139,7 @@ model YearGroup {
   topics           Topic[]
   zones            Zone[]
   daily_challenges DailyChallenge[]
+  curriculum_units CurriculumUnit[]
 
   @@map("year_groups")
 }
@@ -153,6 +155,7 @@ model Subject {
   cards                CardCatalog[]
   curriculum_outcomes  CurriculumOutcome[]
   lessons              Lesson[]
+  curriculum_units     CurriculumUnit[]
 
   @@map("subjects")
 }
@@ -174,6 +177,7 @@ model Topic {
   subject               Subject             @relation(fields: [subject_id], references: [id])
   year_group            YearGroup           @relation(fields: [year_group_id], references: [id])
   zone                  Zone?               @relation(fields: [zone_id], references: [id])
+  curriculum_units      CurriculumUnit[]
   learn_content         LearnContent[]
   practice_games        PracticeGame[]
   quiz_questions        QuizQuestion[]
@@ -205,6 +209,27 @@ model Zone {
   world_map_nodes WorldMapNode[]
 
   @@map("zones")
+}
+
+model CurriculumUnit {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  subject_id     String   @db.Uuid
+  year_group_id  String   @db.Uuid
+  topic_id       String?  @db.Uuid                   // the broad topic this unit belongs to
+  title          String                               // Oak unit title, verbatim
+  description    String?                              // enquiry question / subtitle
+  order_index    Int      @default(0)                 // Oak teaching sequence
+  oak_unit_slug  String?  @unique                     // traceability back to Oak API
+  oak_confidence String?                              // 'high' | 'medium' | 'low'
+  created_at     DateTime @default(now())
+
+  subject     Subject    @relation(fields: [subject_id], references: [id])
+  year_group  YearGroup  @relation(fields: [year_group_id], references: [id])
+  topic       Topic?     @relation(fields: [topic_id], references: [id])
+
+  @@index([subject_id, year_group_id, order_index])
+  @@index([topic_id])
+  @@map("curriculum_units")
 }
 
 model WorldMapNode {
@@ -812,4 +837,22 @@ model Subscription {
 
   @@index([stripe_customer_id])
   @@map("subscriptions")
+}
+
+// ---------- Learning Aid Box — exploration tracking ----------
+
+model ExplorationSession {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  profile_id       String   @db.Uuid
+  aid_type         String   // 'solar-system' | 'world-atlas' | 'human-body' | 'timeline' | 'periodic-table' | 'animal-kingdom'
+  topic_key        String?  // specific item explored e.g. 'mars', 'france', 'heart'
+  duration_seconds Int      @default(0)
+  ask_count        Int      @default(0) // number of Ask Decifer questions asked
+  created_at       DateTime @default(now())
+
+  profile Profile @relation(fields: [profile_id], references: [id], onDelete: Cascade)
+
+  @@index([profile_id])
+  @@index([aid_type])
+  @@map("exploration_sessions")
 }

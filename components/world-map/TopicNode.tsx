@@ -14,11 +14,12 @@ type Props = {
   xPct: number // 0–100, percentage of container width
   yPct: number // 0–100, percentage of container height
   quizOptional?: boolean // Learn-only topic — show book icon instead of star
+  chapterCount?: number  // number of Oak curriculum chapters in this topic
 }
 
 const SIZE = 64 // px — satisfies the ≥48 tap-target requirement
 
-export function TopicNode({ title, state, href, subjectColor, xPct, yPct, quizOptional = false }: Props) {
+export function TopicNode({ title, state, href, subjectColor, xPct, yPct, quizOptional = false, chapterCount }: Props) {
   const positionStyle: React.CSSProperties = {
     position: 'absolute',
     left: `${xPct}%`,
@@ -62,22 +63,40 @@ export function TopicNode({ title, state, href, subjectColor, xPct, yPct, quizOp
   )
 
   const label = (
-    <p
-      style={{
-        marginTop: 6,
-        fontSize: 11,
-        fontWeight: 700,
-        color: state === 'locked' ? '#718096' : '#2D3748',
-        maxWidth: 88,
-        textAlign: 'center',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-        lineHeight: 1.2,
-      }}
-    >
-      {title}
-    </p>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+      <p
+        style={{
+          marginTop: 6,
+          fontSize: 11,
+          fontWeight: 700,
+          color: state === 'locked' ? '#718096' : '#2D3748',
+          maxWidth: 88,
+          textAlign: 'center',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+          lineHeight: 1.2,
+        }}
+      >
+        {title}
+      </p>
+      {chapterCount && chapterCount > 1 && (
+        <span
+          style={{
+            fontSize: 9,
+            fontWeight: 700,
+            color: state === 'locked' ? '#718096' : '#fff',
+            backgroundColor: state === 'locked' ? '#CBD5E0' : subjectColor,
+            borderRadius: 99,
+            padding: '1px 6px',
+            lineHeight: 1.4,
+            opacity: state === 'locked' ? 0.6 : 0.85,
+          }}
+        >
+          {chapterCount} chapters
+        </span>
+      )}
+    </div>
   )
 
   if (state === 'locked') {
