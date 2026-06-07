@@ -7,7 +7,7 @@ import { CataloguePanel } from './CataloguePanel'
 export const metadata = { title: 'Prize Catalogue — Vault Admin — Decifer Learning' }
 
 export default async function AdminVaultCataloguePage() {
-  await requireAdmin('/dashboard/admin/vault/catalogue')
+  await requireAdmin()
 
   const items = await getAllCatalogueItems()
 

@@ -13,7 +13,7 @@ export const metadata = { title: 'Monitoring — Admin' }
 export const revalidate = 30
 
 export default async function MonitoringPage() {
-  await requireAdmin('/dashboard/admin/monitoring')
+  await requireAdmin()
 
   const [questionCounts, flaggedQuestions, recentActivity] = await Promise.all([
     prisma.quizQuestion.groupBy({ by: ['status'], _count: { _all: true } }),

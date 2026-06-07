@@ -8,7 +8,7 @@ import { Gift, Package, Truck } from '@/components/ui/icons'
 export const metadata = { title: 'Vault Admin — Decifer Learning' }
 
 export default async function AdminVaultPage() {
-  await requireAdmin('/dashboard/admin/vault')
+  await requireAdmin()
 
   const [stats, requests] = await Promise.all([
     getVaultStats(),

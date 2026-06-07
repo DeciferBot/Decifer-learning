@@ -16,7 +16,7 @@ const TOO_HARD_THRESHOLD = 0.80
 const TOO_EASY_THRESHOLD = 0.10
 
 export default async function CalibrationPage() {
-  await requireAdmin('/dashboard/admin/calibration')
+  await requireAdmin()
 
   // Aggregate session_answers per question
   const rows = await prisma.sessionAnswer.groupBy({
