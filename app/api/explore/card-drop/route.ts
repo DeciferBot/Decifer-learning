@@ -31,10 +31,8 @@ async function dropCard(profileId: string, yearGroupId: string | null): Promise<
     where: {
       rarity,
       status: 'published',
-      OR: [
-        { year_group_id: yearGroupId ?? undefined },
-        { year_group_id: null },
-      ],
+      subject_id: null,   // explorer cards are cross-subject (space cards); curriculum cards always have a subject
+      year_group_id: null,
     },
   })
   if (candidates.length === 0) return null
