@@ -4,7 +4,7 @@
 import { NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
-import { hasAdminGate } from '@/lib/auth/admin-guard'
+import { requireAdminApi } from '@/lib/auth/admin-guard'
 
 type Params = { params: { questionId: string } }
 
@@ -69,11 +69,9 @@ export async function POST(req: Request, { params }: Params) {
 }
 
 export async function PATCH(req: Request, { params }: Params) {
-  // Admin reviews are authorised by the admin password gate. (This route is not
-  // gated in middleware because its POST is child-facing.)
-  if (!(await hasAdminGate())) {
-    return NextResponse.json({ error: 'Admin dashboard locked', code: 'ADMIN_LOCKED' }, { status: 401 })
-  }
+  // Admin role required. (This route is not gated in middleware because its POST is child-facing.)
+  const deny = await requireAdminApi()
+  if (deny) return deny
 
   const body = await req.json() as { reportId: string; action: 'reviewed' | 'dismissed' | 'flag_question' }
   if (!body.reportId || !['reviewed', 'dismissed', 'flag_question'].includes(body.action)) {

@@ -1,25 +1,19 @@
 // Root middleware. Enforces:
 //   1. Auth: protected routes require a Supabase session; otherwise redirect to /login
-//   2. Role boundary: /dashboard/{child,parent,admin} require matching role
+//   2. Role boundary: /dashboard/admin requires role==='admin', /dashboard/parent requires parent, etc.
 //
-// Phase 1 scope only — no profile/family DB reads here. Role is read from
-// auth.users.user_metadata (set at registration). Profile sync into the
-// `profiles` table happens in Phase 2 after migrations land.
-//
-// Public allow-list: /, /login, /register, /_next/*, static assets.
+// Admin access is enforced by Supabase role (user_metadata.role === 'admin').
+// There is NO password-cookie gate — admin is a user identity, not a device state.
 
 import { NextResponse, type NextRequest } from 'next/server'
 import { updateSession } from '@/lib/supabase/middleware'
 import { getUserRole, ROLE_HOME, type Role } from '@/lib/auth/roles'
-import { ADMIN_GATE_COOKIE, isGateTokenValid } from '@/lib/auth/admin-gate'
 
 const PUBLIC_EXACT = new Set<string>([
   '/', '/login', '/register', '/reset-password',
   // Marketing + legal pages — must be reachable without a session.
   '/pricing', '/subjects', '/how-it-works',
   '/legal/terms', '/legal/privacy', '/legal/privacy-for-kids',
-  // Admin password-gate entry points — must be reachable with no Supabase session.
-  '/admin', '/api/admin/unlock',
 ])
 // Auth callback must be public so the middleware never redirects the token exchange request.
 // Help pages are public so unauthenticated visitors can read guides linked from the homepage.
@@ -40,18 +34,12 @@ function requiredRoleForPath(pathname: string): Role | null {
   if (pathname === '/dashboard/child' || pathname.startsWith('/dashboard/child/')) return 'child'
   if (pathname === '/dashboard/parent' || pathname.startsWith('/dashboard/parent/')) return 'parent'
   if (pathname === '/dashboard/admin' || pathname.startsWith('/dashboard/admin/')) return 'admin'
+  if (pathname.startsWith('/api/admin/')) return 'admin'
   return null
 }
 
-// The admin area is gated SOLELY by the password (lib/auth/admin-gate.ts), not by
-// a Supabase session/role. The unlock screen + its API are in the public allow-list
-// above. The question-report endpoint is exempt from the password gate because its
-// POST is child-facing (children report problems); it enforces its own roles and
-// still runs through the normal Supabase auth checks below.
-function isAdminArea(pathname: string): boolean {
-  return pathname.startsWith('/dashboard/admin') || pathname.startsWith('/api/admin')
-}
-function isAdminGateExempt(pathname: string): boolean {
+// The question-report endpoint is child-facing — exempt from the admin role check.
+function isAdminRoleExempt(pathname: string): boolean {
   return pathname.startsWith('/api/admin/questions')
 }
 
@@ -64,19 +52,6 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
 
   const { response, user } = await updateSession(request)
 
-  // ── Admin password gate ── (runs before the Supabase auth/role checks)
-  if (isAdminArea(pathname) && !isAdminGateExempt(pathname)) {
-    const gated = await isGateTokenValid(request.cookies.get(ADMIN_GATE_COOKIE)?.value)
-    if (gated) return response
-    if (pathname.startsWith('/api/')) {
-      return NextResponse.json({ error: 'Admin dashboard locked', code: 'ADMIN_LOCKED' }, { status: 401 })
-    }
-    const url = request.nextUrl.clone()
-    url.pathname = '/admin'
-    url.searchParams.set('redirectTo', pathname)
-    return NextResponse.redirect(url)
-  }
-
   if (!user) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
@@ -88,11 +63,14 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
 
   const role = getUserRole(user)
 
-  // /dashboard is the role gateway. The page itself redirects to /dashboard/<role>.
+  // /dashboard is the role gateway — the page itself redirects to /dashboard/<role>.
   if (pathname === '/dashboard') return response
 
-  const needed = requiredRoleForPath(pathname)
+  const needed = isAdminRoleExempt(pathname) ? null : requiredRoleForPath(pathname)
   if (needed && role !== needed) {
+    if (pathname.startsWith('/api/')) {
+      return NextResponse.json({ error: 'Forbidden', code: 'FORBIDDEN' }, { status: 403 })
+    }
     // Wrong role for this area — bounce to the user's own home.
     const home = role ? ROLE_HOME[role] : '/dashboard'
     return NextResponse.redirect(new URL(home, request.url))

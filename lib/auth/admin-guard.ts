@@ -1,28 +1,29 @@
 import 'server-only'
 import { redirect } from 'next/navigation'
-import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
-import { ADMIN_GATE_COOKIE, isGateTokenValid } from '@/lib/auth/admin-gate'
+import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { getUserRole } from '@/lib/auth/roles'
 
-// Access to the admin dashboard is controlled solely by the password gate
-// (see lib/auth/admin-gate.ts). Middleware is the real enforcement boundary;
-// these helpers are defense-in-depth for server components and route handlers.
+// Admin access is enforced by Supabase role ('admin' in user_metadata).
+// No shared password cookie — identity is always tied to the logged-in user.
 
-// True if the current request carries a valid admin-gate cookie.
-export async function hasAdminGate(): Promise<boolean> {
-  const value = cookies().get(ADMIN_GATE_COOKIE)?.value
-  return isGateTokenValid(value)
+// True if the current request's Supabase session has role === 'admin'.
+export async function hasAdminRole(): Promise<boolean> {
+  const supabase = createSupabaseServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return false
+  return getUserRole(user) === 'admin'
 }
 
-// For server components / pages. Redirects to the unlock screen if not gated.
-export async function requireAdmin(redirectTo = '/dashboard/admin'): Promise<void> {
-  if (!(await hasAdminGate())) {
-    redirect(`/admin?redirectTo=${encodeURIComponent(redirectTo)}`)
+// For server components / pages. Redirects to /login if not an admin.
+export async function requireAdmin(): Promise<void> {
+  if (!(await hasAdminRole())) {
+    redirect('/login?reason=not-admin')
   }
 }
 
-// For route handlers. Returns a 401 JSON response if not gated, else null.
+// For route handlers. Returns a 401 JSON response if not an admin, else null.
 export async function requireAdminApi(): Promise<NextResponse | null> {
-  if (await hasAdminGate()) return null
-  return NextResponse.json({ error: 'Admin dashboard locked', code: 'ADMIN_LOCKED' }, { status: 401 })
+  if (await hasAdminRole()) return null
+  return NextResponse.json({ error: 'Admin access required', code: 'FORBIDDEN' }, { status: 403 })
 }

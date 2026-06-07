@@ -1,17 +1,12 @@
-// Role gateway. Reads role from auth metadata, redirects to the role-scoped
-// placeholder. If role is missing (shouldn't happen post-Phase-1 registration),
-// fall back to /login so the user can re-authenticate.
+// Role gateway. Reads role from Supabase auth metadata, redirects to the
+// role-scoped home. If role is missing, fall back to /login.
 export const dynamic = 'force-dynamic'
 
 import { redirect } from 'next/navigation'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { getUserRole, ROLE_HOME } from '@/lib/auth/roles'
-import { hasAdminGate } from '@/lib/auth/admin-guard'
 
 export default async function DashboardGatewayPage() {
-  // Admin gate takes priority — if the password cookie is set, go straight to admin.
-  if (await hasAdminGate()) redirect('/dashboard/admin')
-
   const supabase = createSupabaseServerClient()
   const {
     data: { user },
