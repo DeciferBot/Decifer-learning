@@ -55,27 +55,57 @@ export default async function LearnPage({
 }) {
   const supabase = createSupabaseServerClient()
 
-  const { data: topic } = await supabase
-    .from('topics')
-    .select('id, title, subject_id, pedagogy_mode, quiz_optional')
-    .eq('id', params.id)
-    .eq('is_published', true)
-    .maybeSingle<TopicRow & { subject_id: string; pedagogy_mode: string; quiz_optional: boolean }>()
+  // Fire all independent fetches in parallel — none depend on each other, all only need params.id
+  const [
+    { data: topic },
+    { data: content },
+    { data: practice },
+    { data: { user } },
+    [units, subjectRow],
+  ] = await Promise.all([
+    supabase
+      .from('topics')
+      .select('id, title, subject_id, pedagogy_mode, quiz_optional')
+      .eq('id', params.id)
+      .eq('is_published', true)
+      .maybeSingle<TopicRow & { subject_id: string; pedagogy_mode: string; quiz_optional: boolean }>(),
+    supabase
+      .from('learn_content')
+      .select('id, body_html, learn_widgets')
+      .eq('topic_id', params.id)
+      .eq('status', 'published')
+      .maybeSingle<ContentRow>(),
+    supabase
+      .from('practice_games')
+      .select('id')
+      .eq('topic_id', params.id)
+      .eq('status', 'published')
+      .maybeSingle<PracticeRow>(),
+    supabase.auth.getUser(),
+    Promise.all([
+      prisma.curriculumUnit.findMany({
+        where: { topic_id: params.id },
+        select: { id: true, title: true, description: true, order_index: true, oak_confidence: true },
+        orderBy: { order_index: 'asc' },
+      }),
+      prisma.topic.findUnique({
+        where: { id: params.id },
+        select: { order_index: true, subject: { select: { slug: true, name: true, colour_token: true } } },
+      }),
+    ]),
+  ])
 
   if (!topic) notFound()
 
-  // Subscription gate
-  {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (user) {
-      const [profileRow, topicRow] = await Promise.all([
-        prisma.profile.findUnique({ where: { user_id: user.id }, select: { subscription_tier: true } }),
-        prisma.topic.findUnique({ where: { id: params.id }, select: { order_index: true, subject: { select: { slug: true, name: true } } } }),
-      ])
-      if (profileRow && topicRow && profileRow.subscription_tier !== 'family') {
-        if (!isTopicAccessible({ tier: profileRow.subscription_tier, subjectSlug: topicRow.subject.slug, topicOrderIndex: topicRow.order_index })) {
-          return <UpgradeWall topicTitle={topic.title} subjectName={topicRow.subject.name} />
-        }
+  // Subscription gate — profile fetch is the one thing that needs user.id
+  if (user) {
+    const profileRow = await prisma.profile.findUnique({
+      where: { user_id: user.id },
+      select: { subscription_tier: true },
+    })
+    if (profileRow && subjectRow && profileRow.subscription_tier !== 'family') {
+      if (!isTopicAccessible({ tier: profileRow.subscription_tier, subjectSlug: subjectRow.subject.slug, topicOrderIndex: subjectRow.order_index })) {
+        return <UpgradeWall topicTitle={topic.title} subjectName={subjectRow.subject.name} />
       }
     }
   }
@@ -85,13 +115,6 @@ export default async function LearnPage({
   if (topic.pedagogy_mode === 'pretest_first' && searchParams.from !== 'pretest') {
     redirect(`/topics/${params.id}/pretest`)
   }
-
-  const { data: content } = await supabase
-    .from('learn_content')
-    .select('id, body_html, learn_widgets')
-    .eq('topic_id', params.id)
-    .eq('status', 'published')
-    .maybeSingle<ContentRow>()
 
   if (!content) {
     return (
@@ -116,13 +139,6 @@ export default async function LearnPage({
     )
   }
 
-  // Skip the Practise step when no published practice_game exists for this topic.
-  const { data: practice } = await supabase
-    .from('practice_games')
-    .select('id')
-    .eq('topic_id', params.id)
-    .eq('status', 'published')
-    .maybeSingle<PracticeRow>()
   const hasPractice = practice !== null
   const hasQuiz = !topic.quiz_optional
 
@@ -135,18 +151,6 @@ export default async function LearnPage({
 
   const sections = splitHtml(content.body_html)
   const widgets = parseWidgets(content.learn_widgets)
-
-  const [units, subjectRow] = await Promise.all([
-    prisma.curriculumUnit.findMany({
-      where: { topic_id: params.id },
-      select: { id: true, title: true, description: true, order_index: true, oak_confidence: true },
-      orderBy: { order_index: 'asc' },
-    }),
-    prisma.topic.findUnique({
-      where: { id: params.id },
-      select: { subject: { select: { colour_token: true, name: true } } },
-    }),
-  ])
   const subjectColor = subjectRow?.subject?.colour_token ?? '#6C9EFF'
 
   const hasChapters = units.length > 0

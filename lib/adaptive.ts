@@ -72,58 +72,53 @@ function logSelection(audit: SelectionAuditLog): void {
 }
 
 // ── History queries ───────────────────────────────────────────────────────
+//
+// Single function replaces the old getRecentlySeenIds + getMistakeIds pair.
+// Previously: 4 sequential Supabase round-trips (attempts×2, answers×2).
+// Now: 2 round-trips — one attempt lookup shared by both, one answer fetch.
 
-async function getRecentlySeenIds(
-  supabase: SupabaseClient,
-  profileId: string,
-  topicId: string,
-  lookbackAttempts: number,
-): Promise<Set<string>> {
-  const { data: attempts } = await supabase
-    .from('quiz_attempts')
-    .select('id')
-    .eq('profile_id', profileId)
-    .eq('topic_id', topicId)
-    .order('created_at', { ascending: false })
-    .limit(lookbackAttempts)
-
-  if (!attempts?.length) return new Set()
-
-  const attemptIds = attempts.map((a: { id: string }) => a.id)
-
-  const { data: answers } = await supabase
-    .from('quiz_answers')
-    .select('question_id')
-    .in('attempt_id', attemptIds)
-
-  return new Set(answers?.map((a: { question_id: string }) => a.question_id) ?? [])
+interface HistoryIds {
+  recentlySeenIds: Set<string>
+  mistakeIds: Set<string>
 }
 
-async function getMistakeIds(
+async function getHistoryIds(
   supabase: SupabaseClient,
   profileId: string,
   topicId: string,
-  lookbackAttempts: number,
-): Promise<Set<string>> {
+  lookbackAttempts: number,   // window for "recently seen"
+  mistakeLookback: number,    // window for "mistakes" (may be larger)
+): Promise<HistoryIds> {
+  const maxLookback = Math.max(lookbackAttempts, mistakeLookback)
+
   const { data: attempts } = await supabase
     .from('quiz_attempts')
     .select('id')
     .eq('profile_id', profileId)
     .eq('topic_id', topicId)
     .order('created_at', { ascending: false })
-    .limit(lookbackAttempts)
+    .limit(maxLookback)
 
-  if (!attempts?.length) return new Set()
+  if (!attempts?.length) return { recentlySeenIds: new Set(), mistakeIds: new Set() }
 
-  const attemptIds = attempts.map((a: { id: string }) => a.id)
+  const allAttemptIds = attempts.map((a: { id: string }) => a.id)
+  const recentAttemptIds = new Set(allAttemptIds.slice(0, lookbackAttempts))
 
   const { data: answers } = await supabase
     .from('quiz_answers')
-    .select('question_id')
-    .in('attempt_id', attemptIds)
-    .eq('was_correct', false)
+    .select('question_id, was_correct, attempt_id')
+    .in('attempt_id', allAttemptIds)
 
-  return new Set(answers?.map((a: { question_id: string }) => a.question_id) ?? [])
+  const recentlySeenIds = new Set<string>()
+  const mistakeIds = new Set<string>()
+
+  for (const a of answers ?? []) {
+    const ans = a as { question_id: string; was_correct: boolean; attempt_id: string }
+    if (recentAttemptIds.has(ans.attempt_id)) recentlySeenIds.add(ans.question_id)
+    if (!ans.was_correct) mistakeIds.add(ans.question_id)
+  }
+
+  return { recentlySeenIds, mistakeIds }
 }
 
 // ── Tier-balanced selection ───────────────────────────────────────────────
@@ -199,8 +194,7 @@ export async function selectQuizQuestions(
   const allQuestions = (pool ?? []) as AdaptiveQuestion[]
   const contentPoolSize = allQuestions.length
 
-  const recentIds = await getRecentlySeenIds(supabase, profileId, topicId, lookbackAttempts)
-  const mistakeIds = await getMistakeIds(supabase, profileId, topicId, 3)
+  const { recentlySeenIds: recentIds, mistakeIds } = await getHistoryIds(supabase, profileId, topicId, lookbackAttempts, 3)
 
   const fresh = allQuestions.filter((q) => !recentIds.has(q.id))
   const seen = allQuestions.filter((q) => recentIds.has(q.id))
@@ -290,7 +284,10 @@ export async function selectInterleavedQuestions(
 
   // Get recently seen IDs per topic (avoid repetition)
   const recentSets = await Promise.all(
-    topicIds.map((topicId) => getRecentlySeenIds(supabase, profileId, topicId, 1)),
+    topicIds.map(async (topicId) => {
+      const { recentlySeenIds } = await getHistoryIds(supabase, profileId, topicId, 1, 1)
+      return recentlySeenIds
+    }),
   )
 
   const selected: AdaptiveQuestion[] = []
@@ -349,8 +346,7 @@ export async function selectPracticeItems(
   const allQuestions = (pool ?? []) as AdaptiveQuestion[]
   const contentPoolSize = allQuestions.length
 
-  const recentIds = await getRecentlySeenIds(supabase, profileId, topicId, lookbackAttempts)
-  const mistakeIds = await getMistakeIds(supabase, profileId, topicId, 3)
+  const { recentlySeenIds: recentIds, mistakeIds } = await getHistoryIds(supabase, profileId, topicId, lookbackAttempts, 3)
 
   const fresh = allQuestions.filter((q) => !recentIds.has(q.id))
   const mistakes = allQuestions.filter((q) => mistakeIds.has(q.id))
