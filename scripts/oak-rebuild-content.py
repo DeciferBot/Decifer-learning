@@ -434,7 +434,7 @@ def phase_b(cur, topics_by_id, args, stats):
                 body = build_body_html(unit_data)
                 if body and not args.dry_run:
                     cur.execute("""
-                        UPDATE learn_content SET body_html=%s, updated_at=NOW()
+                        UPDATE learn_content SET body_html=%s
                         WHERE topic_id=%s AND status='published'
                     """, (body, topic["id"]))
                     if cur.rowcount == 0:
