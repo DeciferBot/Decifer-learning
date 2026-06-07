@@ -1058,11 +1058,8 @@ export function SolarSystem({ onAskDecifer, onExplore }: SolarSystemProps) {
     setPaused(planet !== null)
   }, [journeyActive])
 
-  const handleClose = useCallback(() => {
-    setSelected(null)
-    setPaused(false)
-    stopNarration()
-  }, [])
+  // Cards are queued and shown after the panel closes, not mid-exploration
+  const pendingCardRef = useRef<DroppedCard | null>(null)
 
   const handleFirstVisit = useCallback(async (id: string) => {
     onExplore?.(id)
@@ -1074,12 +1071,24 @@ export function SolarSystem({ onAskDecifer, onExplore }: SolarSystemProps) {
       })
       if (res.ok) {
         const data = await res.json()
-        if (data.card) setTimeout(() => setRevealCard(data.card), 800)
+        if (data.card) pendingCardRef.current = data.card
       }
     } catch {
       // card drop failure is non-fatal
     }
   }, [onExplore])
+
+  const handleClose = useCallback(() => {
+    setSelected(null)
+    setPaused(false)
+    stopNarration()
+    // Show any queued card now that the panel is gone
+    if (pendingCardRef.current) {
+      const card = pendingCardRef.current
+      pendingCardRef.current = null
+      setTimeout(() => setRevealCard(card), 350)
+    }
+  }, [])
 
   const handleAskDecifer = useCallback((context: string) => {
     setSelected(null)
