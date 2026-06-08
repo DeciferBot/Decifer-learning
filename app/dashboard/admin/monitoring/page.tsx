@@ -184,7 +184,7 @@ export default async function MonitoringPage() {
             {flaggedQuestions.map((q) => {
               const distractors = Array.isArray(q.distractors) ? q.distractors as string[] : []
               const tier = q.tier ?? '—'
-              const confidence = q.confidence_score != null ? `${Math.round(q.confidence_score * 100)}%` : '—'
+              const confidence = q.confidence_score != null ? `${Math.round(q.confidence_score)}%` : '—'
               const stats = statsMap[q.id]
               const flagReasons: string[] = []
               if (stats) {
