@@ -51,6 +51,32 @@ export default async function MonitoringPage() {
     take: 30,
   }).catch(() => [])
 
+  // Compute per-question answer stats for flagged questions
+  const flaggedIds = flaggedQuestions.map((q) => q.id)
+  type AnswerStats = { question_id: string; total: bigint; wrong: bigint; hint3: bigint }
+  const answerStats: AnswerStats[] = flaggedIds.length > 0
+    ? await prisma.$queryRaw`
+        SELECT
+          question_id,
+          COUNT(*) AS total,
+          COUNT(*) FILTER (WHERE was_correct = false) AS wrong,
+          COUNT(*) FILTER (WHERE hint_number = 3) AS hint3
+        FROM quiz_answers
+        WHERE question_id = ANY(${flaggedIds}::uuid[])
+        GROUP BY question_id
+      `
+    : []
+  const statsMap = Object.fromEntries(
+    answerStats.map((r) => [
+      r.question_id,
+      {
+        total: Number(r.total),
+        errorRate: Number(r.total) > 0 ? Number(r.wrong) / Number(r.total) : null,
+        hint3Rate: Number(r.total) > 0 ? Number(r.hint3) / Number(r.total) : null,
+      },
+    ])
+  )
+
   const countMap = Object.fromEntries(questionCounts.map((r) => [r.status, r._count._all]))
   const questionStats = {
     published:   countMap.published   ?? 0,
@@ -157,9 +183,17 @@ export default async function MonitoringPage() {
               const distractors = Array.isArray(q.distractors) ? q.distractors as string[] : []
               const tier = q.tier ?? '—'
               const confidence = q.confidence_score != null ? `${Math.round(q.confidence_score * 100)}%` : '—'
-              const flagReason = (q.confidence_score != null && q.confidence_score < 0.85)
-                ? `Low confidence (${confidence})`
-                : 'Anomaly detection: high error rate or hint-3 usage'
+              const stats = statsMap[q.id]
+              const flagReasons: string[] = []
+              if (stats) {
+                if (stats.errorRate != null && stats.errorRate > 0.6)
+                  flagReasons.push(`Error rate ${Math.round(stats.errorRate * 100)}% (${stats.total} attempts)`)
+                if (stats.hint3Rate != null && stats.hint3Rate > 0.5)
+                  flagReasons.push(`Hint 3 used ${Math.round(stats.hint3Rate * 100)}% of the time`)
+                if (flagReasons.length === 0 && stats.total > 0)
+                  flagReasons.push(`${Math.round((stats.errorRate ?? 0) * 100)}% error rate · ${Math.round((stats.hint3Rate ?? 0) * 100)}% hint-3 rate (${stats.total} attempts)`)
+              }
+              if (flagReasons.length === 0) flagReasons.push('No attempt data yet — flagged manually or via pipeline')
               return (
                 <details key={q.id} className="rounded-2xl border border-incorrect/20 bg-incorrect/5 shadow-sm group">
                   <summary className="flex items-start gap-3 p-4 cursor-pointer list-none select-none">
@@ -167,7 +201,9 @@ export default async function MonitoringPage() {
                     <div className="min-w-0 flex-1">
                       <p className="text-xs text-muted mb-0.5">{q.topic.subject.name} · {q.topic.title} · <span className="capitalize">{tier}</span></p>
                       <p className="text-sm text-ink leading-snug">{q.question_text}</p>
-                      <p className="text-xs text-incorrect mt-1">⚑ {flagReason}</p>
+                      {flagReasons.map((r, i) => (
+                        <p key={i} className="text-xs text-incorrect mt-1">⚑ {r}</p>
+                      ))}
                     </div>
                     <span className="flex-none text-xs text-muted mt-0.5 group-open:hidden">▶ expand</span>
                     <span className="flex-none text-xs text-muted mt-0.5 hidden group-open:inline">▼ collapse</span>
