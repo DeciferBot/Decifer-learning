@@ -26,6 +26,8 @@ export default async function MonitoringPage() {
         correct_answer: true, distractors: true,
         hint_1: true, hint_2: true, hint_3: true,
         confidence_score: true, created_at: true,
+        foundation_images: true, source_text: true, source_label: true,
+        explanation: true,
         topic: { select: { title: true, subject: { select: { name: true } } } },
       },
       orderBy: { created_at: 'desc' },
@@ -210,23 +212,52 @@ export default async function MonitoringPage() {
                   </summary>
                   <div className="px-4 pb-4 space-y-3 border-t border-incorrect/10 pt-3">
                     <div className="grid grid-cols-1 gap-2 text-sm">
+                      {/* Images / diagrams */}
+                      {Array.isArray(q.foundation_images) && (q.foundation_images as {url:string;alt?:string}[]).length > 0 && (
+                        <div className="rounded-xl bg-black/5 border border-black/10 px-3 py-2">
+                          <span className="text-xs font-medium text-muted uppercase tracking-wide">Question image(s)</span>
+                          <div className="mt-2 flex flex-wrap gap-3">
+                            {(q.foundation_images as {url:string;alt?:string}[]).map((img, i) => (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img key={i} src={img.url} alt={img.alt ?? `Image ${i+1}`} className="max-h-48 rounded-lg border border-black/10 object-contain bg-white" />
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {/* Source text (source_analysis questions) */}
+                      {q.source_text && (
+                        <div className="rounded-xl bg-black/5 border border-black/10 px-3 py-2">
+                          <span className="text-xs font-medium text-muted uppercase tracking-wide">{q.source_label ?? 'Source'}</span>
+                          <p className="text-ink text-sm mt-1 whitespace-pre-wrap leading-relaxed">{q.source_text}</p>
+                        </div>
+                      )}
+                      {/* Correct answer */}
                       <div className="rounded-xl bg-correct/10 border border-correct/20 px-3 py-2">
                         <span className="text-xs font-medium text-correct uppercase tracking-wide">Correct answer</span>
-                        <p className="text-ink mt-0.5">{q.correct_answer}</p>
+                        <p className="text-ink mt-0.5 font-medium">{q.correct_answer}</p>
                       </div>
+                      {/* Distractors */}
                       {distractors.length > 0 && (
-                        <div className="rounded-xl bg-black/5 border border-black/10 px-3 py-2">
-                          <span className="text-xs font-medium text-muted uppercase tracking-wide">Distractors</span>
+                        <div className="rounded-xl bg-incorrect/5 border border-incorrect/15 px-3 py-2">
+                          <span className="text-xs font-medium text-muted uppercase tracking-wide">Wrong options (distractors)</span>
                           <ul className="mt-1 space-y-0.5">
                             {distractors.map((d, i) => (
-                              <li key={i} className="text-ink text-sm">• {d}</li>
+                              <li key={i} className="text-ink text-sm">✗ {d}</li>
                             ))}
                           </ul>
                         </div>
                       )}
+                      {/* Explanation */}
+                      {q.explanation && (
+                        <div className="rounded-xl bg-explorer/10 border border-explorer/20 px-3 py-2">
+                          <span className="text-xs font-medium text-muted uppercase tracking-wide">Explanation</span>
+                          <p className="text-ink text-sm mt-1 leading-relaxed">{q.explanation}</p>
+                        </div>
+                      )}
+                      {/* Hints */}
                       {(q.hint_1 || q.hint_2 || q.hint_3) && (
                         <div className="rounded-xl bg-black/5 border border-black/10 px-3 py-2">
-                          <span className="text-xs font-medium text-muted uppercase tracking-wide">Hints</span>
+                          <span className="text-xs font-medium text-muted uppercase tracking-wide">Hints (1 → 3)</span>
                           <ol className="mt-1 space-y-0.5 list-decimal list-inside">
                             {q.hint_1 && <li className="text-ink text-sm">{q.hint_1}</li>}
                             {q.hint_2 && <li className="text-ink text-sm">{q.hint_2}</li>}
