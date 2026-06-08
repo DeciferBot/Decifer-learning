@@ -22,7 +22,10 @@ export default async function MonitoringPage() {
     prisma.quizQuestion.findMany({
       where: { status: 'flagged' },
       select: {
-        id: true, question_text: true,
+        id: true, question_text: true, tier: true,
+        correct_answer: true, distractors: true,
+        hint_1: true, hint_2: true, hint_3: true,
+        confidence_score: true, created_at: true,
         topic: { select: { title: true, subject: { select: { name: true } } } },
       },
       orderBy: { created_at: 'desc' },
@@ -150,20 +153,64 @@ export default async function MonitoringPage() {
           <p className="text-sm text-muted">No flagged questions. ✓</p>
         ) : (
           <div className="space-y-2">
-            {flaggedQuestions.map((q) => (
-              <div key={q.id} className="rounded-2xl border border-incorrect/20 bg-incorrect/5 p-4 shadow-sm space-y-2">
-                <div className="flex items-start gap-3">
-                  <Flag className="flex-none w-4 h-4 text-incorrect mt-0.5" aria-hidden />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs text-muted mb-0.5">{q.topic.subject.name} · {q.topic.title}</p>
-                    <p className="text-sm text-ink leading-snug">{q.question_text.slice(0, 200)}{q.question_text.length > 200 ? '…' : ''}</p>
+            {flaggedQuestions.map((q) => {
+              const distractors = Array.isArray(q.distractors) ? q.distractors as string[] : []
+              const tier = q.tier ?? '—'
+              const confidence = q.confidence_score != null ? `${Math.round(q.confidence_score * 100)}%` : '—'
+              const flagReason = (q.confidence_score != null && q.confidence_score < 0.85)
+                ? `Low confidence (${confidence})`
+                : 'Anomaly detection: high error rate or hint-3 usage'
+              return (
+                <details key={q.id} className="rounded-2xl border border-incorrect/20 bg-incorrect/5 shadow-sm group">
+                  <summary className="flex items-start gap-3 p-4 cursor-pointer list-none select-none">
+                    <Flag className="flex-none w-4 h-4 text-incorrect mt-0.5" aria-hidden />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs text-muted mb-0.5">{q.topic.subject.name} · {q.topic.title} · <span className="capitalize">{tier}</span></p>
+                      <p className="text-sm text-ink leading-snug">{q.question_text}</p>
+                      <p className="text-xs text-incorrect mt-1">⚑ {flagReason}</p>
+                    </div>
+                    <span className="flex-none text-xs text-muted mt-0.5 group-open:hidden">▶ expand</span>
+                    <span className="flex-none text-xs text-muted mt-0.5 hidden group-open:inline">▼ collapse</span>
+                  </summary>
+                  <div className="px-4 pb-4 space-y-3 border-t border-incorrect/10 pt-3">
+                    <div className="grid grid-cols-1 gap-2 text-sm">
+                      <div className="rounded-xl bg-correct/10 border border-correct/20 px-3 py-2">
+                        <span className="text-xs font-medium text-correct uppercase tracking-wide">Correct answer</span>
+                        <p className="text-ink mt-0.5">{q.correct_answer}</p>
+                      </div>
+                      {distractors.length > 0 && (
+                        <div className="rounded-xl bg-black/5 border border-black/10 px-3 py-2">
+                          <span className="text-xs font-medium text-muted uppercase tracking-wide">Distractors</span>
+                          <ul className="mt-1 space-y-0.5">
+                            {distractors.map((d, i) => (
+                              <li key={i} className="text-ink text-sm">• {d}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      {(q.hint_1 || q.hint_2 || q.hint_3) && (
+                        <div className="rounded-xl bg-black/5 border border-black/10 px-3 py-2">
+                          <span className="text-xs font-medium text-muted uppercase tracking-wide">Hints</span>
+                          <ol className="mt-1 space-y-0.5 list-decimal list-inside">
+                            {q.hint_1 && <li className="text-ink text-sm">{q.hint_1}</li>}
+                            {q.hint_2 && <li className="text-ink text-sm">{q.hint_2}</li>}
+                            {q.hint_3 && <li className="text-ink text-sm">{q.hint_3}</li>}
+                          </ol>
+                        </div>
+                      )}
+                      <div className="flex flex-wrap gap-3 text-xs text-muted">
+                        <span>Confidence: <strong className="text-ink">{confidence}</strong></span>
+                        <span>ID: <code className="text-ink">{q.id.slice(0, 8)}</code></span>
+                        <span>Created: <strong className="text-ink">{new Date(q.created_at).toLocaleDateString('en-GB')}</strong></span>
+                      </div>
+                    </div>
+                    <div className="flex justify-end">
+                      <FlaggedQuestionActions questionId={q.id} />
+                    </div>
                   </div>
-                </div>
-                <div className="flex justify-end">
-                  <FlaggedQuestionActions questionId={q.id} />
-                </div>
-              </div>
-            ))}
+                </details>
+              )
+            })}
           </div>
         )}
       </div>
