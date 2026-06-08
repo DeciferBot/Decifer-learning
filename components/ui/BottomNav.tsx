@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, MapFold, LayoutGrid, UserCircle, Telescope } from '@/components/ui/icons'
+import { Home, MapFold, LayoutGrid, UserCircle, Telescope, ClipboardList } from '@/components/ui/icons'
 import type { SVGProps } from 'react'
 
 type TabIcon = (props: SVGProps<SVGSVGElement> & { size?: number }) => JSX.Element
@@ -11,8 +11,9 @@ const TABS: { href: string; label: string; Icon: TabIcon }[] = [
   { href: '/world-map',       label: 'Home',       Icon: Home },
   { href: '/dashboard/child', label: 'Progress',   Icon: MapFold },
   { href: '/explore',         label: 'Explore',    Icon: Telescope },
+  { href: '/exam',            label: 'Exams',      Icon: ClipboardList },
   { href: '/collection',      label: 'Cards',      Icon: LayoutGrid },
-  { href: '/profile',          label: 'Profile',    Icon: UserCircle },
+  { href: '/profile',         label: 'Profile',    Icon: UserCircle },
 ]
 
 export function BottomNav() {

@@ -26,6 +26,7 @@ import { getSignalsForChild } from '@/lib/learning-signals-runner'
 import type { LearningSignal } from '@/lib/learning-signals'
 import { ScreenTimeControls } from './ScreenTimeControls'
 import { SyllabusHeatmap } from './SyllabusHeatmap'
+import { ExamSection } from './ExamSection'
 import { Star, Flame, Medal, Layers, Check, ChevronRight } from '@/components/ui/icons'
 
 export const metadata = { title: 'Child report — Decifer Learning' }
@@ -120,11 +121,27 @@ export default async function ChildDetailPage({
       : Promise.resolve([]),
   ])
 
-  // Screen-time controls (parallel with the rest)
-  const parentControls = await prisma.parentControl.findUnique({
-    where:  { child_profile_id: childProfile.id },
-    select: { daily_time_limit_minutes: true, leaderboard_visible: true },
-  })
+  // Screen-time controls + exam assignments (parallel)
+  const [parentControls, examAssignments, subjects] = await Promise.all([
+    prisma.parentControl.findUnique({
+      where:  { child_profile_id: childProfile.id },
+      select: { daily_time_limit_minutes: true, leaderboard_visible: true },
+    }),
+    prisma.examAssignment.findMany({
+      where: { parent_profile_id: parentProfile.id, child_profile_id: childProfile.id },
+      orderBy: { created_at: 'desc' },
+      include: {
+        subject: { select: { id: true, name: true, colour_token: true } },
+        attempts: {
+          where: { profile_id: childProfile.id },
+          select: { id: true, score: true, status: true, completed_at: true },
+          orderBy: { started_at: 'desc' },
+          take: 1,
+        },
+      },
+    }),
+    prisma.subject.findMany({ select: { id: true, name: true, colour_token: true } }),
+  ])
 
   // Curriculum coverage for most recent topic (sequential — depends on recentTopicId)
   const curriculumCoverage = recentTopicId
@@ -594,6 +611,33 @@ export default async function ChildDetailPage({
           leaderboardVisible={parentControls?.leaderboard_visible ?? true}
         />
       </Card>
+
+      {/* ── Exam Revision ───────────────────────────────────────────────────── */}
+      <ExamSection
+        childProfileId={childProfile.id}
+        childName={childProfile.display_name}
+        yearGroupId={childProfile.year_group_id ?? null}
+        yearGroupLabel={yearGroupLabel}
+        subjects={subjects}
+        initialAssignments={examAssignments.map((a) => {
+          const attempt = a.attempts[0]
+          return {
+            id: a.id,
+            title: a.title,
+            questionCount: a.question_count,
+            timeLimitMinutes: a.time_limit_minutes,
+            subject: a.subject,
+            attempt: attempt
+              ? {
+                  id: attempt.id,
+                  score: attempt.score,
+                  status: attempt.status,
+                  completed_at: attempt.completed_at?.toISOString() ?? null,
+                }
+              : null,
+          }
+        })}
+      />
     </section>
   )
 }

@@ -96,6 +96,9 @@ model Profile {
   vault_parent_settings_as_child  VaultParentSettings[]  @relation("ChildVaultSettings")
   question_reports                QuestionReport[]
   exploration_sessions            ExplorationSession[]
+  exam_assignments_as_parent      ExamAssignment[]       @relation("ParentExamAssignments")
+  exam_assignments_as_child       ExamAssignment[]       @relation("ChildExamAssignments")
+  exam_attempts                   ExamAttempt[]
 
   @@map("profiles")
 }
@@ -140,6 +143,7 @@ model YearGroup {
   zones            Zone[]
   daily_challenges DailyChallenge[]
   curriculum_units CurriculumUnit[]
+  exam_assignments ExamAssignment[]
 
   @@map("year_groups")
 }
@@ -156,6 +160,7 @@ model Subject {
   curriculum_outcomes  CurriculumOutcome[]
   lessons              Lesson[]
   curriculum_units     CurriculumUnit[]
+  exam_assignments     ExamAssignment[]
 
   @@map("subjects")
 }
@@ -870,4 +875,54 @@ model ExplorationSession {
   @@index([profile_id])
   @@index([aid_type])
   @@map("exploration_sessions")
+}
+
+// ---------- Exam Revision Mode ----------
+
+model ExamAssignment {
+  id                 String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  parent_profile_id  String    @db.Uuid
+  child_profile_id   String    @db.Uuid
+  subject_id         String    @db.Uuid
+  year_group_id      String    @db.Uuid
+  title              String
+  topic_scope        String    @default("all") // 'all' | 'weak_areas' | 'selected'
+  topic_ids          Json?     // non-null when topic_scope='selected'
+  question_count     Int       @default(20)
+  time_limit_minutes Int       @default(30)
+  hints_allowed      Boolean   @default(false)
+  available_from     DateTime?
+  available_until    DateTime?
+  status             String    @default("active") // 'active' | 'completed' | 'archived'
+  created_at         DateTime  @default(now())
+
+  parent      Profile       @relation("ParentExamAssignments", fields: [parent_profile_id], references: [id], onDelete: Cascade)
+  child       Profile       @relation("ChildExamAssignments", fields: [child_profile_id], references: [id], onDelete: Cascade)
+  subject     Subject       @relation(fields: [subject_id], references: [id])
+  year_group  YearGroup     @relation(fields: [year_group_id], references: [id])
+  attempts    ExamAttempt[]
+
+  @@index([child_profile_id, status])
+  @@index([parent_profile_id, created_at(sort: Desc)])
+  @@map("exam_assignments")
+}
+
+model ExamAttempt {
+  id                  String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  exam_assignment_id  String    @db.Uuid
+  profile_id          String    @db.Uuid
+  question_ids        Json      // ordered array of question IDs served
+  started_at          DateTime  @default(now())
+  completed_at        DateTime?
+  time_taken_seconds  Int?
+  score               Float?    // 0.0–1.0
+  status              String    @default("in_progress") // 'in_progress' | 'completed' | 'timed_out' | 'abandoned'
+  answers             Json?     // [{questionId, childAnswer, wasCorrect, timeSeconds, topicId}]
+
+  assignment  ExamAssignment @relation(fields: [exam_assignment_id], references: [id], onDelete: Cascade)
+  profile     Profile        @relation(fields: [profile_id], references: [id], onDelete: Cascade)
+
+  @@index([exam_assignment_id])
+  @@index([profile_id, started_at(sort: Desc)])
+  @@map("exam_attempts")
 }
