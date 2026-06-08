@@ -52,6 +52,7 @@ export type QuizQuestion = {
   source_text: string | null
   source_label: string | null
   source_type: string | null
+  foundation_images: { url: string; alt?: string }[] | null
 }
 
 type AnswerLog = {
@@ -824,6 +825,21 @@ export function QuizShell({
           <p className="mb-5 font-heading text-xl font-bold leading-snug text-ink">
             <MathText text={q.question_text} />
           </p>
+
+          {/* Foundation images — diagrams, graphs, charts referenced in question */}
+          {q.foundation_images && q.foundation_images.length > 0 && (
+            <div className="mb-5 flex flex-col gap-3">
+              {q.foundation_images.map((img, i) => (
+                <img
+                  key={i}
+                  src={img.url}
+                  alt={img.alt ?? 'Question diagram'}
+                  className="w-full rounded-xl border border-black/8 object-contain"
+                  style={{ maxHeight: 280 }}
+                />
+              ))}
+            </div>
+          )}
 
           {/* Hints — shown automatically after wrong attempts */}
           {revealedHints.length > 0 && (

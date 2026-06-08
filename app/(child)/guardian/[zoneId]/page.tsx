@@ -75,6 +75,7 @@ export default async function GuardianPage({ params }: { params: { zoneId: strin
       source_text: true,
       source_label: true,
       source_type: true,
+      foundation_images: true,
     },
   })
 
@@ -102,6 +103,7 @@ export default async function GuardianPage({ params }: { params: { zoneId: strin
       source_text: q.source_text ?? null,
       source_label: q.source_label ?? null,
       source_type: q.source_type ?? null,
+      foundation_images: (q.foundation_images as { url: string; alt?: string }[] | null) ?? null,
     }))
 
   return (

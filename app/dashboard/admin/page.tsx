@@ -106,29 +106,30 @@ export default async function AdminDashboardPage() {
         <LockButton />
       </div>
 
-      {/* Alerts */}
+      {/* Alerts — entire row is clickable when there's a destination */}
       {alerts.length > 0 && (
         <div className="space-y-2">
-          {alerts.map((a, i) => (
-            <div
-              key={i}
-              className={`rounded-xl border px-4 py-3 text-sm text-ink flex items-start gap-2 ${
-                a.colour === 'red'
-                  ? 'border-incorrect/30 bg-incorrect/10'
-                  : 'border-lightning/30 bg-lightning/10'
-              }`}
-            >
-              <span className="flex-none">{a.icon}</span>
-              <span className="flex-1">
-                <strong>{a.message}</strong>
-              </span>
-              {a.href && (
-                <Link href={a.href} className="flex-none text-xs font-medium text-brand hover:underline">
-                  Review →
-                </Link>
-              )}
-            </div>
-          ))}
+          {alerts.map((a, i) => {
+            const inner = (
+              <>
+                <span className="flex-none">{a.icon}</span>
+                <span className="flex-1"><strong>{a.message}</strong></span>
+                {a.href && <span className="flex-none text-xs font-medium text-brand">Review →</span>}
+              </>
+            )
+            const cls = `rounded-xl border px-4 py-3 text-sm text-ink flex items-center gap-2 ${
+              a.colour === 'red'
+                ? 'border-incorrect/30 bg-incorrect/10'
+                : 'border-lightning/30 bg-lightning/10'
+            }`
+            return a.href ? (
+              <Link key={i} href={a.href} className={`${cls} hover:opacity-80 transition-opacity`}>
+                {inner}
+              </Link>
+            ) : (
+              <div key={i} className={cls}>{inner}</div>
+            )
+          })}
         </div>
       )}
 
