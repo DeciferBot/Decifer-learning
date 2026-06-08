@@ -270,9 +270,14 @@ Difficulty tier: {tier} — {tier_desc}
 
 Generate ONE multiple-choice mathematics question. Follow these rules exactly:
 
+OAK SOURCE USAGE — read the sources above carefully before writing anything:
+• If any source line starts with "Common misconception:", use that misconception as the basis for at least one distractor. This is the most pedagogically valuable distractor type.
+• If any source line starts with "Lesson outcome:", your question MUST test that outcome directly — do not test a tangential concept.
+• If any source line starts with "Learning point:", prioritise those points over general topic knowledge.
+
 QUESTION: Clear, unambiguous, appropriate for {year_label}. One correct answer.
 
-DISTRACTORS: Exactly 3 wrong answers. Each must be plausible (a common mistake), but clearly wrong on careful inspection.
+DISTRACTORS: Exactly 3 wrong answers. Prioritise real misconceptions from the source material above (lines starting "Common misconception:") — these are far more valuable than invented wrong answers.
 
 HINTS — strictly follow this progression (constitutional requirement — violations cause rejection):
   hint_1: Conceptual nudge only. Name the operation or concept needed. Do NOT use the question's specific numbers.
@@ -422,9 +427,15 @@ Difficulty tier: {tier} — {tier_desc}
 
 Generate ONE multiple-choice English question. Follow these rules exactly:
 
+OAK SOURCE USAGE — read the sources above carefully before writing anything:
+• If any source line starts with "Common misconception:", use that misconception as the basis for at least one distractor.
+• If any source line starts with "Lesson outcome:", your question MUST test that specific outcome — not a tangential skill.
+• If any source line starts with "Learning point:", prioritise those points.
+• If any source line starts with "Q: " followed by "Correct answer:", those are Oak-verified quiz pairs — you may base your question on a similar concept but must NOT copy them verbatim (deduplication will reject copies).
+
 QUESTION: Clear, unambiguous, appropriate for {year_label}. One correct answer.
 
-DISTRACTORS: Exactly 3 wrong answers. Each plausible but wrong.
+DISTRACTORS: Exactly 3 wrong answers. Where source lines contain "Common misconception:", use those as distractors rather than inventing generic wrong answers.
 
 HINTS: hint_1 general, hint_2 more specific, hint_3 closest without giving the answer.
 
@@ -568,9 +579,15 @@ Difficulty tier: {tier} — {tier_desc}
 
 Generate ONE multiple-choice Science question. Follow these rules exactly:
 
+OAK SOURCE USAGE — read the sources above carefully before writing anything:
+• If any source line starts with "Common misconception:", use that misconception as the basis for at least one distractor. This makes distractors far more pedagogically effective than invented wrong answers.
+• If any source line starts with "Lesson outcome:", your question MUST test that outcome — do not test tangential concepts.
+• If any source line starts with "Learning point:", prioritise those points as the question focus.
+• If any source line starts with "Q: " followed by "Correct answer:", those are Oak-verified Q&A pairs — you may base a question on the same concept but must NOT copy them verbatim.
+
 QUESTION: Clear, unambiguous, appropriate for {year_label}. One correct answer.
 
-DISTRACTORS: Exactly 3 wrong answers. Each plausible but wrong.
+DISTRACTORS: Exactly 3 wrong answers. Prioritise real misconceptions from source lines starting "Common misconception:" — these encode what children actually get wrong.
 
 HINTS: hint_1 general, hint_2 more specific, hint_3 closest without giving the answer.
 
