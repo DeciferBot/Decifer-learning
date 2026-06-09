@@ -23,7 +23,7 @@ import {
 import { LinkChildForm } from '@/components/parent/LinkChildForm'
 import { CurriculumMap } from '@/components/parent/CurriculumMap'
 import { SubscriptionStatus } from '@/components/parent/SubscriptionStatus'
-import { Star, Flame, Gift, BarChart, Target, MapPin, CalendarDays, Check, CircleCheck } from '@/components/ui/icons'
+import { Star, Flame, Gift, BarChart, Target, MapPin, CalendarDays, Check, CircleCheck, ClipboardList, Clock } from '@/components/ui/icons'
 import type { ComponentType, SVGProps } from 'react'
 
 type IconComponent = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
@@ -145,46 +145,44 @@ export default async function ParentDashboardPage() {
         </div>
       )}
 
-      {/* Child cards */}
-      {childData.map(({ child, progress, weakAreas, recommended, vault, digest, curriculum, actions }) => (
-        <div
-          key={child.profileId}
-          className="rounded-2xl border border-black/5 bg-surface shadow-sm overflow-hidden"
-        >
-          {/* Child header */}
-          <div className="flex items-center justify-between border-b border-black/5 px-5 py-4">
-            <div>
-              <h2 className="font-heading text-lg font-bold text-ink">{child.displayName}</h2>
-              {child.yearGroupLabel && (
-                <p className="mt-0.5 text-xs text-muted">
-                  {child.yearGroupLabel}{child.keyStage ? ` · ${child.keyStage}` : ''}
-                </p>
-              )}
+      {/* Child cards — compact glance cards with a single primary CTA */}
+      {childData.map(({ child, progress, weakAreas, vault, digest, curriculum }) => {
+        // Curriculum % for the mini bar
+        const totalTopics = curriculum.reduce((s, sub) => s + sub.totalCount, 0)
+        const completedTopics = curriculum.reduce((s, sub) => s + sub.completedCount, 0)
+        const curriculumPct = totalTopics > 0 ? Math.round((completedTopics / totalTopics) * 100) : null
+
+        return (
+          <div
+            key={child.profileId}
+            className="rounded-2xl border border-black/5 bg-surface shadow-sm overflow-hidden"
+          >
+            {/* Child header */}
+            <div className="flex items-center justify-between border-b border-black/5 px-5 py-4">
+              <div>
+                <h2 className="font-heading text-lg font-bold text-ink">{child.displayName}</h2>
+                {child.yearGroupLabel && (
+                  <p className="mt-0.5 text-xs text-muted">
+                    {child.yearGroupLabel}{child.keyStage ? ` · ${child.keyStage}` : ''}
+                  </p>
+                )}
+              </div>
+              <div className="flex items-center gap-3">
+                {child.streakDays > 0 && (
+                  <span className="inline-flex items-center gap-1 text-xs text-muted">
+                    <Flame className="w-3.5 h-3.5" aria-hidden /> {child.streakDays}d
+                  </span>
+                )}
+                {child.totalPoints > 0 && (
+                  <span className="inline-flex items-center gap-1 font-heading text-sm font-bold text-points-gold">
+                    <Star className="w-3.5 h-3.5" aria-hidden /> {child.totalPoints.toLocaleString()}
+                  </span>
+                )}
+              </div>
             </div>
-            <div className="flex items-center gap-3">
-              {child.streakDays > 0 && (
-                <span className="inline-flex items-center gap-1 text-xs text-muted">
-                  <Flame className="w-3.5 h-3.5" aria-hidden /> {child.streakDays}d streak
-                </span>
-              )}
-              {child.totalPoints > 0 && (
-                <span className="inline-flex items-center gap-1 font-heading text-sm font-bold text-points-gold">
-                  <Star className="w-3.5 h-3.5" aria-hidden /> {child.totalPoints.toLocaleString()} pts
-                </span>
-              )}
-              <Link href={`/dashboard/parent/children/${child.profileId}`} className="text-xs text-brand font-semibold hover:underline hidden sm:block">
-                Full report →
-              </Link>
-            </div>
-          </div>
 
-          {/* ── Two-column layout on desktop ─────────────────────────── */}
-          <div className="flex flex-col lg:flex-row lg:divide-x lg:divide-black/5">
-
-            {/* LEFT: summary sidebar */}
-            <div className="flex flex-col gap-4 px-5 py-4 lg:w-72 lg:flex-shrink-0">
-
-              {/* Stats */}
+            {/* Glance row — 3 stats + accuracy */}
+            <div className="px-5 py-4 space-y-3">
               <div className="grid grid-cols-3 gap-2 text-center">
                 <Stat label="Started"  value={progress.topicsStarted} />
                 <Stat label="Mastered" value={progress.topicsCompleted} />
@@ -195,116 +193,73 @@ export default async function ParentDashboardPage() {
               {progress.averageScore !== null && (
                 <div className="rounded-xl bg-science/10 px-3 py-2 text-sm">
                   <span className="font-semibold text-ink">{Math.round(progress.averageScore * 100)}% accuracy</span>
-                  {progress.badgeCount > 0 && <p className="text-xs text-muted mt-0.5">{progress.badgeCount} badge{progress.badgeCount === 1 ? '' : 's'} · {progress.cardCount} cards</p>}
-                </div>
-              )}
-
-              {/* Recommended next */}
-              {recommended && (
-                <div className="rounded-xl border border-maths/20 bg-maths/5 px-3 py-2.5">
-                  <p className="mb-0.5 text-[10px] font-bold uppercase tracking-widest text-maths">
-                    {recommended.isFirstLesson ? 'Start here' : 'Next lesson'}
-                  </p>
-                  <p className="font-heading text-sm font-semibold text-ink leading-snug">{recommended.lessonTitle}</p>
-                  <p className="text-xs text-muted mt-0.5">{recommended.subjectName}{recommended.estimatedMinutes ? ` · ${recommended.estimatedMinutes} min` : ''}</p>
-                </div>
-              )}
-
-              {/* Weak areas */}
-              {weakAreas.length > 0 ? (
-                <div className="rounded-xl border border-incorrect/20 bg-incorrect/5 px-3 py-2.5">
-                  <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-incorrect">Areas to strengthen</p>
-                  <ul className="space-y-1.5">
-                    {weakAreas.map((area) => (
-                      <li key={area.topicId} className="flex items-center justify-between text-xs">
-                        <span className="text-ink truncate mr-2">{area.topicTitle}</span>
-                        <span className="flex-none font-semibold text-incorrect">{Math.round((1 - area.errorRate) * 100)}%</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ) : progress.quizAttempts > 0 ? (
-                <p className="text-xs text-science font-medium flex items-center gap-1"><Check className="w-3 h-3" aria-hidden /> No struggle areas yet</p>
-              ) : null}
-
-              {/* NL recommendations — "Here's what to do" */}
-              {actions.length > 0 && (
-                <div className="rounded-xl border border-maths/30 bg-maths/5 px-3 py-2.5 space-y-2">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-maths">What to do</p>
-                  <ul className="space-y-2">
-                    {actions.map((action, i) => (
-                      <li key={i} className="flex items-start gap-2">
-                        <span className={[
-                          'mt-0.5 h-2 w-2 flex-none rounded-full',
-                          action.urgency === 'high' ? 'bg-incorrect' : action.urgency === 'medium' ? 'bg-lightning' : 'bg-correct',
-                        ].join(' ')} />
-                        <p className="text-xs text-ink leading-relaxed">{action.text}</p>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {/* Weekly digest */}
-              {digest && (
-                <div className="rounded-xl border border-black/5 bg-black/[0.02] px-3 py-2.5 space-y-2">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted">This week</p>
-                  <div className="grid grid-cols-2 gap-2 text-center">
-                    <div><p className="font-heading text-base font-bold text-ink">{digest.quizAttempts}</p><p className="text-[10px] text-muted">quizzes</p></div>
-                    <div><p className="font-heading text-base font-bold text-ink">{digest.activeDays}</p><p className="text-[10px] text-muted">active days</p></div>
-                    <div>
-                      <p className={`font-heading text-base font-bold ${digest.passRate !== null && digest.passRate >= 70 ? 'text-correct' : digest.passRate !== null ? 'text-incorrect' : 'text-ink'}`}>
-                        {digest.passRate !== null ? `${digest.passRate}%` : '—'}
-                      </p>
-                      <p className="text-[10px] text-muted">pass rate</p>
-                    </div>
-                    <div>
-                      <p className="font-heading text-base font-bold text-points-gold">{digest.pointsThisWeek > 0 ? `+${digest.pointsThisWeek.toLocaleString()}` : '—'}</p>
-                      <p className="text-[10px] text-muted">points</p>
-                    </div>
-                  </div>
-                  {digest.topicsCompleted > 0 && (
-                    <p className="flex items-center gap-1 text-[11px] text-science font-medium">
-                      <Check className="w-3 h-3" aria-hidden /> {digest.topicsCompleted} topic{digest.topicsCompleted > 1 ? 's' : ''} done
-                    </p>
+                  {digest && digest.passRate !== null && (
+                    <span className="ml-2 text-xs text-muted">{digest.passRate}% pass rate this week</span>
                   )}
                 </div>
               )}
 
-              {/* Reward Vault */}
+              {/* Curriculum progress mini-bar */}
+              {curriculumPct !== null && (
+                <div>
+                  <div className="mb-1 flex items-center justify-between text-xs">
+                    <span className="text-muted">Curriculum</span>
+                    <span className="font-bold text-maths">{curriculumPct}%</span>
+                  </div>
+                  <div className="h-1.5 overflow-hidden rounded-full bg-black/[0.06]">
+                    <div className="h-full rounded-full bg-maths" style={{ width: `${curriculumPct}%` }} />
+                  </div>
+                </div>
+              )}
+
+              {/* Weak areas — count only, detail is in full report */}
+              {weakAreas.length > 0 ? (
+                <p className="text-xs text-incorrect font-medium">
+                  ⚠ {weakAreas.length} area{weakAreas.length === 1 ? '' : 's'} to strengthen — see full report
+                </p>
+              ) : progress.quizAttempts > 0 ? (
+                <p className="text-xs text-science font-medium flex items-center gap-1">
+                  <Check className="w-3 h-3" aria-hidden /> No struggle areas yet
+                </p>
+              ) : null}
+
+              {/* Quick-action chips */}
+              <div className="flex flex-wrap gap-2 pt-1">
+                <Link
+                  href={`/dashboard/parent/children/${child.profileId}?tab=settings`}
+                  className="inline-flex min-h-[40px] items-center gap-1.5 rounded-xl bg-black/[0.04] px-3 py-2 text-xs font-semibold text-ink hover:bg-black/[0.08] transition-colors"
+                >
+                  <ClipboardList className="w-3.5 h-3.5" aria-hidden /> Set exam
+                </Link>
+                <Link
+                  href={`/dashboard/parent/children/${child.profileId}?tab=settings`}
+                  className="inline-flex min-h-[40px] items-center gap-1.5 rounded-xl bg-black/[0.04] px-3 py-2 text-xs font-semibold text-ink hover:bg-black/[0.08] transition-colors"
+                >
+                  <Clock className="w-3.5 h-3.5" aria-hidden /> Screen time
+                </Link>
+                {vault.pendingRequestCount > 0 && (
+                  <Link
+                    href={`/dashboard/parent/vault/${child.profileId}`}
+                    className="inline-flex min-h-[40px] items-center gap-1.5 rounded-xl bg-brand/10 px-3 py-2 text-xs font-semibold text-brand hover:bg-brand/20 transition-colors"
+                  >
+                    <Gift className="w-3.5 h-3.5" aria-hidden /> Vault ({vault.pendingRequestCount})
+                  </Link>
+                )}
+              </div>
+            </div>
+
+            {/* Primary CTA — full width, always visible */}
+            <div className="border-t border-black/5 px-5 py-3">
               <Link
-                href={`/dashboard/parent/vault/${child.profileId}`}
-                className="flex items-center justify-between gap-2 rounded-xl border border-black/5 bg-black/[0.02] px-3 py-2.5 hover:bg-black/[0.04]"
+                href={`/dashboard/parent/children/${child.profileId}`}
+                className="flex w-full items-center justify-center rounded-xl bg-maths py-3 font-heading text-sm font-bold text-white transition-colors hover:bg-maths/90 min-h-[48px]"
               >
-                <span className="font-heading text-sm font-semibold text-ink flex items-center gap-1.5"><Gift className="w-4 h-4" aria-hidden /> Reward Vault</span>
-                {vault.pendingRequestCount > 0
-                  ? <span className="rounded-full bg-brand px-2 py-0.5 text-xs font-bold text-white">{vault.pendingRequestCount}</span>
-                  : <span className="text-xs text-muted">→</span>}
+                Open {child.displayName}&apos;s full report →
               </Link>
-
             </div>
-
-            {/* RIGHT: curriculum map */}
-            <div className="flex-1 min-w-0 px-5 py-4 border-t border-black/5 lg:border-t-0">
-              {curriculum.length > 0
-                ? <CurriculumMap subjects={curriculum} childProfileId={child.profileId} />
-                : <p className="text-sm text-muted">Curriculum map will appear once your child starts topics.</p>
-              }
-            </div>
-
           </div>
-
-          {/* Footer links */}
-          <div className="border-t border-black/5 px-5 py-3">
-            <Link
-              href={`/dashboard/parent/children/${child.profileId}`}
-              className="text-sm font-semibold text-maths hover:underline"
-            >
-              View full report →
-            </Link>
-          </div>
-        </div>
-      ))}
+        )
+      })}
 
       {/* ── Reward Vault ─────────────────────────────────────────────���── */}
       {pendingVaultRequests.length > 0 && (
@@ -341,28 +296,6 @@ export default async function ParentDashboardPage() {
                 Respond →
               </Link>
             </div>
-          ))}
-        </div>
-      )}
-
-      {/* Screen-time controls — per-child links */}
-      {children.length > 0 && (
-        <div className="rounded-2xl border border-black/5 bg-surface px-5 py-4 shadow-sm space-y-3">
-          <h2 className="font-heading text-sm font-semibold uppercase tracking-wide text-muted">
-            Screen-time &amp; settings
-          </h2>
-          {children.map((child) => (
-            <Link
-              key={child.profileId}
-              href={`/dashboard/parent/children/${child.profileId}`}
-              className="flex items-center justify-between rounded-xl border border-black/5 bg-black/[0.02] px-4 py-3 hover:bg-black/[0.04]"
-            >
-              <div>
-                <p className="font-heading text-sm font-semibold text-ink">{child.displayName}</p>
-                <p className="text-xs text-muted">Set daily limit, leaderboard visibility</p>
-              </div>
-              <span className="text-xs text-muted">→</span>
-            </Link>
           ))}
         </div>
       )}
