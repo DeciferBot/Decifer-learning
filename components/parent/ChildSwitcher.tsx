@@ -25,7 +25,7 @@ export function ChildSwitcher({ currentChildId, children }: Props) {
             href={`/dashboard/parent/children/${child.profileId}`}
             aria-current={isCurrent ? 'page' : undefined}
             className={[
-              'min-h-[40px] rounded-xl px-3 py-1.5 text-sm font-semibold transition-colors',
+              'min-h-[48px] rounded-xl px-4 py-2 text-sm font-semibold transition-colors',
               isCurrent
                 ? 'bg-maths/10 text-maths'
                 : 'bg-black/[0.04] text-muted hover:bg-black/[0.08] hover:text-ink',
