@@ -13,9 +13,11 @@ import { NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 
-export async function POST(req: Request) {
+// Vercel Cron invokes the path with a GET request (and an Authorization: Bearer <CRON_SECRET>
+// header when CRON_SECRET is configured). POST stays exported for manual/local invocation.
+async function handler(req: Request) {
   const secret = req.headers.get('x-cron-secret') ?? req.headers.get('authorization')?.replace('Bearer ', '')
-  if (secret !== process.env.CRON_SECRET) {
+  if (!process.env.CRON_SECRET || secret !== process.env.CRON_SECRET) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -46,3 +48,6 @@ export async function POST(req: Request) {
   console.log('[anomaly-detect] run complete', summary)
   return NextResponse.json(summary)
 }
+
+export const GET = handler
+export const POST = handler

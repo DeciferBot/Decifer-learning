@@ -17,7 +17,9 @@ const PUBLIC_EXACT = new Set<string>([
 ])
 // Auth callback must be public so the middleware never redirects the token exchange request.
 // Help pages are public so unauthenticated visitors can read guides linked from the homepage.
-const PUBLIC_PREFIX = ['/auth/callback', '/_next/', '/help', '/opengraph-image', '/twitter-image', '/sitemap', '/robots', '/legal/']
+// Vercel Cron routes carry no session cookie — they self-authenticate via the CRON_SECRET
+// bearer header inside each handler, so the middleware must NOT redirect them to /login.
+const PUBLIC_PREFIX = ['/auth/callback', '/_next/', '/help', '/opengraph-image', '/twitter-image', '/sitemap', '/robots', '/legal/', '/api/cron/']
 const STATIC_EXT =
   /\.(svg|png|jpg|jpeg|gif|webp|ico|css|js|map|woff2?|ttf|otf|txt|xml|json)$/i
 

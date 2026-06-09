@@ -8,9 +8,11 @@ import { NextResponse } from 'next/server'
 import webpush from 'web-push'
 import { createClient } from '@supabase/supabase-js'
 
-export async function POST(req: Request) {
+// Vercel Cron invokes the path with a GET request (and an Authorization: Bearer <CRON_SECRET>
+// header when CRON_SECRET is configured). POST stays exported for manual/local invocation.
+async function handler(req: Request) {
   const secret = req.headers.get('x-cron-secret') ?? req.headers.get('authorization')?.replace('Bearer ', '')
-  if (secret !== process.env.CRON_SECRET) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!process.env.CRON_SECRET || secret !== process.env.CRON_SECRET) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   if (!process.env.VAPID_PRIVATE_KEY) return NextResponse.json({ error: 'VAPID not configured' }, { status: 503 })
 
@@ -79,3 +81,6 @@ export async function POST(req: Request) {
 
   return NextResponse.json({ sent, errors: errors.slice(0, 5) })
 }
+
+export const GET = handler
+export const POST = handler

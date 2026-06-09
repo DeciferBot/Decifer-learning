@@ -14,10 +14,12 @@ import { buildParentActions } from '@/lib/parent-recommendations'
 
 const FROM = 'Decifer Learning <hello@deciferlearning.com>'
 
-export async function POST(req: Request) {
+// Vercel Cron invokes the path with a GET request (and an Authorization: Bearer <CRON_SECRET>
+// header when CRON_SECRET is configured). POST stays exported for manual/local invocation.
+async function handler(req: Request) {
   // Verify Vercel cron secret
   const secret = req.headers.get('x-cron-secret') ?? req.headers.get('authorization')?.replace('Bearer ', '')
-  if (secret !== process.env.CRON_SECRET) {
+  if (!process.env.CRON_SECRET || secret !== process.env.CRON_SECRET) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -98,6 +100,9 @@ export async function POST(req: Request) {
 
   return NextResponse.json({ sent, skipped, errors: errors.slice(0, 5) })
 }
+
+export const GET = handler
+export const POST = handler
 
 // ── Email builders ────────────────────────────────────────────────────────────
 
