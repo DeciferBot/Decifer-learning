@@ -196,7 +196,7 @@ export default async function ChildDetailPage({
         >
           ← Overview
         </Link>
-        <ChildSwitcher currentChildId={childProfile.id} children={siblingLinks} />
+        <ChildSwitcher currentChildId={childProfile.id} links={siblingLinks} />
       </div>
 
       {/* ── Child identity header ─────────────────────────────────────────────── */}

@@ -9,15 +9,15 @@ interface ChildLink {
 
 interface Props {
   currentChildId: string
-  children: ChildLink[]
+  links: ChildLink[]
 }
 
-export function ChildSwitcher({ currentChildId, children }: Props) {
-  if (children.length <= 1) return null
+export function ChildSwitcher({ currentChildId, links }: Props) {
+  if (links.length <= 1) return null
 
   return (
     <div className="flex items-center gap-2" aria-label="Switch child">
-      {children.map((child) => {
+      {links.map((child) => {
         const isCurrent = child.profileId === currentChildId
         return (
           <Link
