@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
-import { getUserRole } from '@/lib/auth/roles'
+import { getUserRole, canActAsParent } from '@/lib/auth/roles'
 import { prisma } from '@/lib/prisma'
 import { markFulfilled, VaultError } from '@/lib/vault/requests'
 
@@ -14,7 +14,7 @@ export async function POST(req: Request) {
   } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  if (getUserRole(user) !== 'parent') {
+  if (!canActAsParent(getUserRole(user))) {
     return NextResponse.json(
       { error: 'Only parent accounts can mark rewards as done' },
       { status: 403 },

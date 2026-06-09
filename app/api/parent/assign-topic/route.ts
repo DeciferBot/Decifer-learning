@@ -4,6 +4,7 @@
 import { NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { getCurrentProfile } from '@/lib/profile'
+import { canActAsParent } from '@/lib/auth/roles'
 import { prisma } from '@/lib/prisma'
 
 async function verifyParentChildLink(parentUserId: string, childProfileId: string) {
@@ -25,7 +26,7 @@ export async function POST(req: Request) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const parentProfile = await getCurrentProfile(supabase, user.id)
-  if (!parentProfile || parentProfile.role !== 'parent') {
+  if (!parentProfile || !canActAsParent(parentProfile.role)) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
@@ -80,7 +81,7 @@ export async function DELETE(req: Request) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const parentProfile = await getCurrentProfile(supabase, user.id)
-  if (!parentProfile || parentProfile.role !== 'parent') {
+  if (!parentProfile || !canActAsParent(parentProfile.role)) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 

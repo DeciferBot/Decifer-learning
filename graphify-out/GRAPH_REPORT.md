@@ -1,12 +1,12 @@
-# Graph Report - .  (2026-06-01)
+# Graph Report - .  (2026-06-09)
 
 ## Corpus Check
-- 264 files · ~249,577 words
+- 375 files · ~540,067 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1227 nodes · 2026 edges · 129 communities detected
-- Extraction: 73% EXTRACTED · 27% INFERRED · 0% AMBIGUOUS · INFERRED: 548 edges (avg confidence: 0.75)
+- 1515 nodes · 2348 edges · 214 communities detected
+- Extraction: 71% EXTRACTED · 29% INFERRED · 0% AMBIGUOUS · INFERRED: 684 edges (avg confidence: 0.76)
 - Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
@@ -139,64 +139,149 @@
 - [[_COMMUNITY_Community 126|Community 126]]
 - [[_COMMUNITY_Community 127|Community 127]]
 - [[_COMMUNITY_Community 128|Community 128]]
+- [[_COMMUNITY_Community 129|Community 129]]
+- [[_COMMUNITY_Community 130|Community 130]]
+- [[_COMMUNITY_Community 131|Community 131]]
+- [[_COMMUNITY_Community 132|Community 132]]
+- [[_COMMUNITY_Community 133|Community 133]]
+- [[_COMMUNITY_Community 134|Community 134]]
+- [[_COMMUNITY_Community 135|Community 135]]
+- [[_COMMUNITY_Community 136|Community 136]]
+- [[_COMMUNITY_Community 137|Community 137]]
+- [[_COMMUNITY_Community 138|Community 138]]
+- [[_COMMUNITY_Community 139|Community 139]]
+- [[_COMMUNITY_Community 140|Community 140]]
+- [[_COMMUNITY_Community 141|Community 141]]
+- [[_COMMUNITY_Community 142|Community 142]]
+- [[_COMMUNITY_Community 143|Community 143]]
+- [[_COMMUNITY_Community 144|Community 144]]
+- [[_COMMUNITY_Community 145|Community 145]]
+- [[_COMMUNITY_Community 146|Community 146]]
+- [[_COMMUNITY_Community 147|Community 147]]
+- [[_COMMUNITY_Community 148|Community 148]]
+- [[_COMMUNITY_Community 149|Community 149]]
+- [[_COMMUNITY_Community 150|Community 150]]
+- [[_COMMUNITY_Community 151|Community 151]]
+- [[_COMMUNITY_Community 152|Community 152]]
+- [[_COMMUNITY_Community 153|Community 153]]
+- [[_COMMUNITY_Community 154|Community 154]]
+- [[_COMMUNITY_Community 155|Community 155]]
+- [[_COMMUNITY_Community 156|Community 156]]
+- [[_COMMUNITY_Community 157|Community 157]]
+- [[_COMMUNITY_Community 158|Community 158]]
+- [[_COMMUNITY_Community 159|Community 159]]
+- [[_COMMUNITY_Community 160|Community 160]]
+- [[_COMMUNITY_Community 161|Community 161]]
+- [[_COMMUNITY_Community 162|Community 162]]
+- [[_COMMUNITY_Community 163|Community 163]]
+- [[_COMMUNITY_Community 164|Community 164]]
+- [[_COMMUNITY_Community 165|Community 165]]
+- [[_COMMUNITY_Community 166|Community 166]]
+- [[_COMMUNITY_Community 167|Community 167]]
+- [[_COMMUNITY_Community 168|Community 168]]
+- [[_COMMUNITY_Community 169|Community 169]]
+- [[_COMMUNITY_Community 170|Community 170]]
+- [[_COMMUNITY_Community 171|Community 171]]
+- [[_COMMUNITY_Community 172|Community 172]]
+- [[_COMMUNITY_Community 173|Community 173]]
+- [[_COMMUNITY_Community 174|Community 174]]
+- [[_COMMUNITY_Community 175|Community 175]]
+- [[_COMMUNITY_Community 176|Community 176]]
+- [[_COMMUNITY_Community 177|Community 177]]
+- [[_COMMUNITY_Community 178|Community 178]]
+- [[_COMMUNITY_Community 179|Community 179]]
+- [[_COMMUNITY_Community 180|Community 180]]
+- [[_COMMUNITY_Community 181|Community 181]]
+- [[_COMMUNITY_Community 182|Community 182]]
+- [[_COMMUNITY_Community 183|Community 183]]
+- [[_COMMUNITY_Community 184|Community 184]]
+- [[_COMMUNITY_Community 185|Community 185]]
+- [[_COMMUNITY_Community 186|Community 186]]
+- [[_COMMUNITY_Community 187|Community 187]]
+- [[_COMMUNITY_Community 188|Community 188]]
+- [[_COMMUNITY_Community 189|Community 189]]
+- [[_COMMUNITY_Community 190|Community 190]]
+- [[_COMMUNITY_Community 191|Community 191]]
+- [[_COMMUNITY_Community 192|Community 192]]
+- [[_COMMUNITY_Community 193|Community 193]]
+- [[_COMMUNITY_Community 194|Community 194]]
+- [[_COMMUNITY_Community 195|Community 195]]
+- [[_COMMUNITY_Community 196|Community 196]]
+- [[_COMMUNITY_Community 197|Community 197]]
+- [[_COMMUNITY_Community 198|Community 198]]
+- [[_COMMUNITY_Community 199|Community 199]]
+- [[_COMMUNITY_Community 200|Community 200]]
+- [[_COMMUNITY_Community 201|Community 201]]
+- [[_COMMUNITY_Community 202|Community 202]]
+- [[_COMMUNITY_Community 203|Community 203]]
+- [[_COMMUNITY_Community 204|Community 204]]
+- [[_COMMUNITY_Community 205|Community 205]]
+- [[_COMMUNITY_Community 206|Community 206]]
+- [[_COMMUNITY_Community 207|Community 207]]
+- [[_COMMUNITY_Community 208|Community 208]]
+- [[_COMMUNITY_Community 209|Community 209]]
+- [[_COMMUNITY_Community 210|Community 210]]
+- [[_COMMUNITY_Community 211|Community 211]]
+- [[_COMMUNITY_Community 212|Community 212]]
+- [[_COMMUNITY_Community 213|Community 213]]
 
 ## God Nodes (most connected - your core abstractions)
-1. `GET()` - 135 edges
-2. `POST()` - 42 edges
-3. `error()` - 36 edges
-4. `classify()` - 36 edges
-5. `create()` - 34 edges
-6. `FailureAction` - 27 edges
-7. `route()` - 27 edges
-8. `PipelineLockError` - 26 edges
-9. `fetch()` - 25 edges
-10. `get_connection()` - 21 edges
+1. `GET()` - 169 edges
+2. `POST()` - 72 edges
+3. `create()` - 46 edges
+4. `error()` - 41 edges
+5. `fetch()` - 37 edges
+6. `classify()` - 36 edges
+7. `PipelineLockError` - 28 edges
+8. `FailureAction` - 27 edges
+9. `route()` - 27 edges
+10. `createSupabaseServerClient()` - 21 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `GET()` --calls--> `getActiveCatalogueItems()`  [INFERRED]
   app/api/topics/[id]/questions/route.ts → lib/vault/catalogue.ts
 - `GET()` --calls--> `getOrCreateParentSettings()`  [INFERRED]
   app/api/topics/[id]/questions/route.ts → lib/vault/settings.ts
-- `getCurriculumProgress()` --calls--> `GET()`  [INFERRED]
-  lib/parent-dashboard.ts → app/api/topics/[id]/questions/route.ts
-- `state_symbol()` --calls--> `GET()`  [INFERRED]
-  services/content-pipeline/autopilot/coverage_scanner.py → app/api/topics/[id]/questions/route.ts
+- `GET()` --calls--> `state_symbol()`  [INFERRED]
+  app/api/topics/[id]/questions/route.ts → services/content-pipeline/autopilot/coverage_scanner.py
 - `checkBadges()` --calls--> `create()`  [INFERRED]
   app/api/quiz/submit/route.ts → services/content-pipeline/autopilot/work_queue.py
+- `pick()` --calls--> `fetch()`  [INFERRED]
+  components/quiz/QuizShell.tsx → scripts/test-public-sources.py
 
 ## Communities
 
 ### Community 0 - "Community 0"
-Cohesion: 0.03
-Nodes (139): getAllRequests(), getVaultStats(), _chempy_available(), _lookup_element(), Chemistry verifier for Decifer Learning content pipeline.  Stage 2: code verific, Use ChemPy to check mass balance of a chemical equation., Basic format check when ChemPy is not available., Check element property answers against the local periodic table. (+131 more)
+Cohesion: 0.02
+Nodes (71): createSupabaseAdminClient(), hasAdminRole(), requireAdmin(), requireAdminApi(), pickRarity(), createCatalogueItem(), getActiveCatalogueItems(), getAllCatalogueItems() (+63 more)
 
 ### Community 1 - "Community 1"
-Cohesion: 0.04
-Nodes (28): $(), a, b(), c(), d(), deleteCacheAndMetadata(), e(), et (+20 more)
+Cohesion: 0.03
+Nodes (127): main(), parseWidgets(), bulk_upsert_chunks(), cancel_pipeline_run(), complete_pipeline_run(), count_published_questions(), create_pipeline_run(), get_connection() (+119 more)
 
 ### Community 2 - "Community 2"
-Cohesion: 0.04
-Nodes (51): _classify(), coverage_summary(), CoverageState, _fetch_raw(), print_coverage(), coverage_scanner.py — Topic coverage state scanner for the Decifer Learning auto, Return classified TopicCoverage objects for every topic., Return a dict of state → count for a coverage list. (+43 more)
+Cohesion: 0.03
+Nodes (71): generate_body_html(), generate_widgets(), get_curriculum_chunks(), get_topics_needing_learn_content(), insert_learn_content(), _label_to_display(), _label_to_year_group_key(), main() (+63 more)
 
 ### Community 3 - "Community 3"
-Cohesion: 0.04
-Nodes (56): main(), learning-autopilot-run.py — Execute the next batch of queued content jobs.  Dequ, _build_command(), JobResult, _log_result(), _pipeline_gate_open(), print_run_summary(), runner.py — Content job executor for the Decifer Learning autopilot.  Dequeues j (+48 more)
+Cohesion: 0.02
+Nodes (42): createItem(), toggleActive(), toggleAssign(), async(), handleSuccess(), advance(), postEvent(), drainQueue() (+34 more)
 
 ### Community 4 - "Community 4"
 Cohesion: 0.04
-Nodes (40): deduplicateById(), getMistakeIds(), getRecentlySeenIds(), logSelection(), pickWithTierBalance(), rotateFillBlankItems(), selectInterleavedQuestions(), selectPracticeItems() (+32 more)
+Nodes (46): getAllRequests(), getVaultStats(), main(), Publish any topic that has >= 5 published questions and is not yet published. Sa, get_confidence_threshold(), Runtime configuration for the Decifer Learning content pipeline., Return the publish threshold for a given question_type., chunks_from_quiz() (+38 more)
 
 ### Community 5 - "Community 5"
+Cohesion: 0.04
+Nodes (51): _classify(), coverage_summary(), CoverageState, _fetch_raw(), print_coverage(), coverage_scanner.py — Topic coverage state scanner for the Decifer Learning auto, Return classified TopicCoverage objects for every topic., Return a dict of state → count for a coverage list. (+43 more)
+
+### Community 6 - "Community 6"
 Cohesion: 0.03
 Nodes (0): 
 
-### Community 6 - "Community 6"
-Cohesion: 0.04
-Nodes (30): createItem(), toggleActive(), async(), cosine(), embedBatch(), main(), Flag near-duplicate published quiz questions within the same topic.  Uses the sa, postEvent() (+22 more)
-
 ### Community 7 - "Community 7"
-Cohesion: 0.04
-Nodes (24): createSupabaseAdminClient(), pickRarity(), NullCommerceAdapter, getLearningEventsForChild(), getLessonBehaviourSummary(), isValidEventType(), recordLearningEvent(), getOutcomeStats() (+16 more)
+Cohesion: 0.07
+Nodes (51): main(), learning-autopilot-run.py — Execute the next batch of queued content jobs.  Dequ, _build_command(), JobResult, _log_result(), _pipeline_gate_open(), print_run_summary(), runner.py — Content job executor for the Decifer Learning autopilot.  Dequeues j (+43 more)
 
 ### Community 8 - "Community 8"
 Cohesion: 0.08
@@ -208,159 +293,159 @@ Nodes (20): Tests for verifier_router.py — proving each question type routes c
 
 ### Community 10 - "Community 10"
 Cohesion: 0.08
-Nodes (42): _classify_error_messages(), _conn(), diagnose_topic(), _expected_type_for_slug(), fetch_generation_errors(), fetch_last_pipeline_run(), fetch_published_question_types(), fetch_recent_question_types_staged() (+34 more)
+Nodes (20): deduplicateById(), getHistoryIds(), logSelection(), pickWithTierBalance(), rotateFillBlankItems(), selectInterleavedQuestions(), selectPracticeItems(), selectQuizQuestions() (+12 more)
 
 ### Community 11 - "Community 11"
 Cohesion: 0.09
-Nodes (34): _run_tests(), _check_prose_fields(), _get_lt(), _lt_errors(), _normalize_quotes(), _overlaps(), English verifier for Decifer Learning content pipeline.  Stage 2: code verificat, Replace Unicode smart quotes with ASCII equivalents before LanguageTool checks. (+26 more)
+Nodes (36): main(), map_unit(), oak(), Build an LLM-assisted mapping from Oak National Academy unit slugs → our NC-deri, Ask Claude to map one Oak unit title to one of our NC-derived topic slugs., _anthropic(), _conn(), _do_llama() (+28 more)
 
 ### Community 12 - "Community 12"
-Cohesion: 0.09
-Nodes (34): check_publish_gate(), get_topic_by_slug(), main(), Full batch generation for Year 2 (KS1) Maths, English, and Science.  Targets 6 M, generate_body_html(), generate_widgets(), get_curriculum_chunks(), get_topics_needing_learn_content() (+26 more)
+Cohesion: 0.1
+Nodes (33): _run_tests(), _check_prose_fields(), _get_lt(), _lt_errors(), _normalize_quotes(), _overlaps(), English verifier for Decifer Learning content pipeline.  Stage 2: code verificat, Replace Unicode smart quotes with ASCII equivalents before LanguageTool checks. (+25 more)
 
 ### Community 13 - "Community 13"
-Cohesion: 0.12
-Nodes (18): _clean(), is_self_contained(), is_usable_mc(), main(), oak(), Ingest Oak National Academy quiz questions directly into quiz_questions.  Oak qu, _tokens(), transform() (+10 more)
+Cohesion: 0.11
+Nodes (23): _clean(), is_self_contained(), is_usable_mc(), main(), oak(), Ingest Oak National Academy quiz questions directly into quiz_questions.  Oak qu, _tokens(), transform() (+15 more)
 
 ### Community 14 - "Community 14"
-Cohesion: 0.26
-Nodes (17): buildTopicAnswerStats(), computeSignals(), generateAvoidanceSignals(), generateConfidenceGapSignals(), generateHighEffortLowProgressSignals(), generateInterestSignals(), generateLowerAccuracySignals(), generateMasterySignals() (+9 more)
+Cohesion: 0.14
+Nodes (24): _classify_error_messages(), _conn(), diagnose_topic(), _expected_type_for_slug(), fetch_generation_errors(), fetch_last_pipeline_run(), fetch_published_question_types(), fetch_recent_question_types_staged() (+16 more)
 
 ### Community 15 - "Community 15"
 Cohesion: 0.13
-Nodes (8): getChildWeakAreas(), getCurriculumProgress(), getProgressBySubject(), getRecommendedNextLesson(), getStrongestTopics(), signalLevel(), toRecommendedLesson(), main()
+Nodes (20): _conn(), fix_one(), get_questions(), main(), _opus(), _conn(), get_questions_needing_improvement(), _haiku() (+12 more)
 
 ### Community 16 - "Community 16"
+Cohesion: 0.2
+Nodes (18): cosine(), embedBatch(), main(), Flag near-duplicate published quiz questions within the same topic.  Uses the sa, build_body_html(), check_rate(), get_lessons_for_unit(), import_questions() (+10 more)
+
+### Community 17 - "Community 17"
+Cohesion: 0.18
+Nodes (16): assign_tier(), fetch_oak_content(), import_chunk(), import_questions(), infer_qtype(), main(), make_hints(), match_lessons_to_topics() (+8 more)
+
+### Community 18 - "Community 18"
+Cohesion: 0.24
+Nodes (16): _cache_get(), _cache_set(), check_rate(), claude_match(), _ensure_cache_table(), insert_questions(), job_match(), job_quiz() (+8 more)
+
+### Community 19 - "Community 19"
 Cohesion: 0.26
 Nodes (12): _bar(), _classify(), fetch_coverage(), main(), _parse_curriculum_map(), print_csv(), print_gaps(), print_report() (+4 more)
 
-### Community 17 - "Community 17"
-Cohesion: 0.33
-Nodes (10): bandOrder(), calcHintPenaltyXP(), childQualifiesForBand(), computeMilestone(), effectiveXP(), getBandDisplayName(), checkAndUpdateMilestone(), getVaultStatus() (+2 more)
-
-### Community 18 - "Community 18"
-Cohesion: 0.29
-Nodes (10): generate_widgets(), get_curriculum_chunks(), get_rows_needing_widgets(), _label_to_display(), _label_to_year_group_key(), main(), Retroactively generate learn_widgets for existing learn_content rows that have n, Call Claude Haiku to produce widget specs. Returns [] on error. (+2 more)
-
-### Community 19 - "Community 19"
-Cohesion: 0.39
-Nodes (7): getMissingContentTypes(), getTopicCurriculumCoverage(), getTopicCurriculumGaps(), hasPracticeGames(), hasPublishedLearnContent(), hasPublishedQuizTier(), isTopicCurriculumComplete()
-
 ### Community 20 - "Community 20"
-Cohesion: 0.43
-Nodes (4): handleDrag(), handleTrackClick(), snapToStep(), xToValue()
+Cohesion: 0.22
+Nodes (12): _chempy_available(), _lookup_element(), Chemistry verifier for Decifer Learning content pipeline.  Stage 2: code verific, Use ChemPy to check mass balance of a chemical equation., Basic format check when ChemPy is not available., Check element property answers against the local periodic table., Stage 2 Chemistry/Science verification.      Dispatches by question_type. Unknow, Look up an element by symbol (case-sensitive) or name (case-insensitive). (+4 more)
 
 ### Community 21 - "Community 21"
 Cohesion: 0.33
-Nodes (6): check_publish_gate(), get_topic_by_slug(), Phase 11B — Controlled generation run for the DO droplet.  Identical scope to ge, Report gate status for a topic without publishing., # NOTE: EMBEDDINGS_ENABLED is intentionally NOT overridden here., Return topic dict by slug.
+Nodes (10): bandOrder(), calcHintPenaltyXP(), childQualifiesForBand(), computeMilestone(), effectiveXP(), getBandDisplayName(), checkAndUpdateMilestone(), getVaultStatus() (+2 more)
 
 ### Community 22 - "Community 22"
-Cohesion: 0.33
-Nodes (0): 
+Cohesion: 0.29
+Nodes (10): generate_widgets(), get_curriculum_chunks(), get_rows_needing_widgets(), _label_to_display(), _label_to_year_group_key(), main(), Retroactively generate learn_widgets for existing learn_content rows that have n, Call Claude Haiku to produce widget specs. Returns [] on error. (+2 more)
 
 ### Community 23 - "Community 23"
-Cohesion: 0.33
-Nodes (0): 
+Cohesion: 0.39
+Nodes (7): getMissingContentTypes(), getTopicCurriculumCoverage(), getTopicCurriculumGaps(), hasPracticeGames(), hasPublishedLearnContent(), hasPublishedQuizTier(), isTopicCurriculumComplete()
 
 ### Community 24 - "Community 24"
-Cohesion: 0.4
-Nodes (5): check_publish_gate(), get_topic_by_slug(), Phase 11B — Controlled generation dry run.  Generates 3 questions for 1 English, Report gate status for a topic without publishing., Return topic dict (same format as db.get_topic) by slug.
+Cohesion: 0.36
+Nodes (7): assign_tier(), main(), make_hints(), oak(), Directly import Oak NA quiz Q&As as published quiz_questions.  Used for topics w, Distribute questions across tiers: first third sprout, mid explorer, last lightn, Generate 3-level hints from the question and answer.
 
 ### Community 25 - "Community 25"
-Cohesion: 0.4
-Nodes (1): Seed History and Geography topics + curriculum chunks for KS1, KS2, KS3.  Uses g
+Cohesion: 0.53
+Nodes (4): handleFillSubmit(), handleMultiPartAnswer(), handleMultipleChoiceSubmit(), recordAnswer()
 
 ### Community 26 - "Community 26"
-Cohesion: 0.5
+Cohesion: 0.33
 Nodes (0): 
 
 ### Community 27 - "Community 27"
-Cohesion: 0.67
-Nodes (2): buildParticles(), gridPositions()
+Cohesion: 0.33
+Nodes (0): 
 
 ### Community 28 - "Community 28"
-Cohesion: 0.67
+Cohesion: 0.4
 Nodes (0): 
 
 ### Community 29 - "Community 29"
-Cohesion: 0.67
-Nodes (0): 
+Cohesion: 0.4
+Nodes (1): Seed History and Geography topics + curriculum chunks for KS1, KS2, KS3.  Uses g
 
 ### Community 30 - "Community 30"
-Cohesion: 0.67
+Cohesion: 0.5
 Nodes (0): 
 
 ### Community 31 - "Community 31"
-Cohesion: 0.67
+Cohesion: 0.5
 Nodes (0): 
 
 ### Community 32 - "Community 32"
-Cohesion: 1.0
-Nodes (2): r(), s()
+Cohesion: 0.67
+Nodes (2): buildParticles(), gridPositions()
 
 ### Community 33 - "Community 33"
-Cohesion: 0.67
-Nodes (1): Seed topics and extend curriculum chunks for Y1, Y4, Y5, Y8, Y9.  Strategy: - To
+Cohesion: 0.5
+Nodes (0): 
 
 ### Community 34 - "Community 34"
-Cohesion: 1.0
-Nodes (2): getConfidenceThreshold(), getRiskTier()
+Cohesion: 0.5
+Nodes (0): 
 
 ### Community 35 - "Community 35"
-Cohesion: 1.0
+Cohesion: 0.5
 Nodes (0): 
 
 ### Community 36 - "Community 36"
-Cohesion: 1.0
+Cohesion: 0.67
 Nodes (0): 
 
 ### Community 37 - "Community 37"
-Cohesion: 1.0
+Cohesion: 0.67
 Nodes (0): 
 
 ### Community 38 - "Community 38"
-Cohesion: 1.0
+Cohesion: 0.67
 Nodes (0): 
 
 ### Community 39 - "Community 39"
-Cohesion: 1.0
+Cohesion: 0.67
 Nodes (0): 
 
 ### Community 40 - "Community 40"
-Cohesion: 1.0
+Cohesion: 0.67
 Nodes (0): 
 
 ### Community 41 - "Community 41"
-Cohesion: 1.0
+Cohesion: 0.67
 Nodes (0): 
 
 ### Community 42 - "Community 42"
-Cohesion: 1.0
+Cohesion: 0.67
 Nodes (0): 
 
 ### Community 43 - "Community 43"
-Cohesion: 1.0
+Cohesion: 0.67
 Nodes (0): 
 
 ### Community 44 - "Community 44"
-Cohesion: 1.0
+Cohesion: 0.67
 Nodes (0): 
 
 ### Community 45 - "Community 45"
-Cohesion: 1.0
+Cohesion: 0.67
 Nodes (0): 
 
 ### Community 46 - "Community 46"
-Cohesion: 1.0
+Cohesion: 0.67
 Nodes (0): 
 
 ### Community 47 - "Community 47"
-Cohesion: 1.0
-Nodes (0): 
+Cohesion: 0.67
+Nodes (1): Seed topics and extend curriculum chunks for Y1, Y4, Y5, Y8, Y9.  Strategy: - To
 
 ### Community 48 - "Community 48"
 Cohesion: 1.0
-Nodes (0): 
+Nodes (2): getConfidenceThreshold(), getRiskTier()
 
 ### Community 49 - "Community 49"
 Cohesion: 1.0
@@ -464,7 +549,7 @@ Nodes (0):
 
 ### Community 74 - "Community 74"
 Cohesion: 1.0
-Nodes (1): Apply learn_widgets column migration to Supabase. Run: /root/pipeline-venv/bin/p
+Nodes (0): 
 
 ### Community 75 - "Community 75"
 Cohesion: 1.0
@@ -472,7 +557,7 @@ Nodes (0):
 
 ### Community 76 - "Community 76"
 Cohesion: 1.0
-Nodes (1): Regenerate all flagged quiz questions by calling the pipeline's /pipeline/regene
+Nodes (0): 
 
 ### Community 77 - "Community 77"
 Cohesion: 1.0
@@ -496,11 +581,11 @@ Nodes (0):
 
 ### Community 82 - "Community 82"
 Cohesion: 1.0
-Nodes (1): embed_chunks.py — Compute sentence-transformer embeddings for curriculum_chunks.
+Nodes (0): 
 
 ### Community 83 - "Community 83"
 Cohesion: 1.0
-Nodes (1): Decifer Learning — Content Autopilot Foundation (Sprint 2B.1)  Modules:     cove
+Nodes (0): 
 
 ### Community 84 - "Community 84"
 Cohesion: 1.0
@@ -552,7 +637,7 @@ Nodes (0):
 
 ### Community 96 - "Community 96"
 Cohesion: 1.0
-Nodes (0): 
+Nodes (1): Apply learn_widgets column migration to Supabase. Run: /root/pipeline-venv/bin/p
 
 ### Community 97 - "Community 97"
 Cohesion: 1.0
@@ -560,7 +645,7 @@ Nodes (0):
 
 ### Community 98 - "Community 98"
 Cohesion: 1.0
-Nodes (0): 
+Nodes (1): Regenerate all flagged quiz questions by calling the pipeline's /pipeline/regene
 
 ### Community 99 - "Community 99"
 Cohesion: 1.0
@@ -596,11 +681,11 @@ Nodes (0):
 
 ### Community 107 - "Community 107"
 Cohesion: 1.0
-Nodes (0): 
+Nodes (1): embed_chunks.py — Compute sentence-transformer embeddings for curriculum_chunks.
 
 ### Community 108 - "Community 108"
 Cohesion: 1.0
-Nodes (0): 
+Nodes (1): Decifer Learning — Content Autopilot Foundation (Sprint 2B.1)  Modules:     cove
 
 ### Community 109 - "Community 109"
 Cohesion: 1.0
@@ -682,212 +767,694 @@ Nodes (0):
 Cohesion: 1.0
 Nodes (0): 
 
+### Community 129 - "Community 129"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 130 - "Community 130"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 131 - "Community 131"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 132 - "Community 132"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 133 - "Community 133"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 134 - "Community 134"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 135 - "Community 135"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 136 - "Community 136"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 137 - "Community 137"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 138 - "Community 138"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 139 - "Community 139"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 140 - "Community 140"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 141 - "Community 141"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 142 - "Community 142"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 143 - "Community 143"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 144 - "Community 144"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 145 - "Community 145"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 146 - "Community 146"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 147 - "Community 147"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 148 - "Community 148"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 149 - "Community 149"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 150 - "Community 150"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 151 - "Community 151"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 152 - "Community 152"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 153 - "Community 153"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 154 - "Community 154"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 155 - "Community 155"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 156 - "Community 156"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 157 - "Community 157"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 158 - "Community 158"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 159 - "Community 159"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 160 - "Community 160"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 161 - "Community 161"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 162 - "Community 162"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 163 - "Community 163"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 164 - "Community 164"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 165 - "Community 165"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 166 - "Community 166"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 167 - "Community 167"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 168 - "Community 168"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 169 - "Community 169"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 170 - "Community 170"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 171 - "Community 171"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 172 - "Community 172"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 173 - "Community 173"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 174 - "Community 174"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 175 - "Community 175"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 176 - "Community 176"
+Cohesion: 1.0
+Nodes (1): Call Claude Haiku to produce widget specs. Returns [] on error.
+
+### Community 177 - "Community 177"
+Cohesion: 1.0
+Nodes (1): Bulk-insert curriculum chunks in a single connection. Returns (inserted, skipped
+
+### Community 178 - "Community 178"
+Cohesion: 1.0
+Nodes (1): Return id + question_text for all published questions in a topic.
+
+### Community 179 - "Community 179"
+Cohesion: 1.0
+Nodes (1): Return question_text, correct_answer, and question_metadata for all published qu
+
+### Community 180 - "Community 180"
+Cohesion: 1.0
+Nodes (1): Insert a quiz_question row with provenance fields. Returns the new question id.
+
+### Community 181 - "Community 181"
+Cohesion: 1.0
+Nodes (1): Create a pipeline_runs row and return its id.
+
+### Community 182 - "Community 182"
+Cohesion: 1.0
+Nodes (1): Mark a pipeline_runs row as completed or failed.
+
+### Community 183 - "Community 183"
+Cohesion: 1.0
+Nodes (1): Mark a running pipeline run as cancelled. Returns True if updated.
+
+### Community 184 - "Community 184"
+Cohesion: 1.0
+Nodes (1): Write a generation_errors row. Returns the new error id.
+
+### Community 185 - "Community 185"
+Cohesion: 1.0
+Nodes (1): Return topic coverage stats for the admin coverage dashboard.
+
+### Community 186 - "Community 186"
+Cohesion: 1.0
+Nodes (1): Return the publish threshold for a given question_type.
+
+### Community 187 - "Community 187"
+Cohesion: 1.0
+Nodes (1): Dispatch to subject-specific prompt builder.      existing_questions: list of {q
+
+### Community 188 - "Community 188"
+Cohesion: 1.0
+Nodes (1): Extract the first {...} block from text, tolerating leading/trailing prose.
+
+### Community 189 - "Community 189"
+Cohesion: 1.0
+Nodes (1): Stage 1: RAG retrieval + Claude generation (subject-aware prompt).
+
+### Community 190 - "Community 190"
+Cohesion: 1.0
+Nodes (1): Stage 2: code verification dispatched by question_type. Unknown types fail close
+
+### Community 191 - "Community 191"
+Cohesion: 1.0
+Nodes (1): Stage 3: consensus check at temperature=0.
+
+### Community 192 - "Community 192"
+Cohesion: 1.0
+Nodes (1): Stage 4: constitutional critique. Returns list of violations.
+
+### Community 193 - "Community 193"
+Cohesion: 1.0
+Nodes (1): Stage 5: semantic dedup. Returns True if NOT a duplicate.
+
+### Community 194 - "Community 194"
+Cohesion: 1.0
+Nodes (1): Stage 6: confidence scoring + RAG grounding check + per-type threshold.      Wei
+
+### Community 195 - "Community 195"
+Cohesion: 1.0
+Nodes (1): Run the full 6-stage pipeline for a single question slot.      Retries up to MAX
+
+### Community 196 - "Community 196"
+Cohesion: 1.0
+Nodes (1): Re-run the pipeline to replace a single flagged question.      The original flag
+
+### Community 197 - "Community 197"
+Cohesion: 1.0
+Nodes (1): Generate `count` questions for a topic at the given tier.      Emits a structure
+
+### Community 198 - "Community 198"
+Cohesion: 1.0
+Nodes (1): Return True if this LT error is a false positive in educational prose fields.
+
+### Community 199 - "Community 199"
+Cohesion: 1.0
+Nodes (1): All prose fields (except intentional-error stimulus) should be grammatically cle
+
+### Community 200 - "Community 200"
+Cohesion: 1.0
+Nodes (1): For english_grammar and english_spelling questions.      question_metadata must
+
+### Community 201 - "Community 201"
+Cohesion: 1.0
+Nodes (1): For english_phonics questions.      Phonics content (phoneme notation, digraph/t
+
+### Community 202 - "Community 202"
+Cohesion: 1.0
+Nodes (1): For english_punctuation questions.      Punctuation demonstration questions ask
+
+### Community 203 - "Community 203"
+Cohesion: 1.0
+Nodes (1): For english_etymology questions.      Etymology questions ask about word origins
+
+### Community 204 - "Community 204"
+Cohesion: 1.0
+Nodes (1): For english_comprehension, english_vocabulary, english_literary_analysis.      F
+
+### Community 205 - "Community 205"
+Cohesion: 1.0
+Nodes (1): Stage 2 English verification.      Returns (verified: bool, detail: str).     Di
+
+### Community 206 - "Community 206"
+Cohesion: 1.0
+Nodes (1): Inline self-tests for CI / pre-batch gate. Prints pass/fail summary.
+
+### Community 207 - "Community 207"
+Cohesion: 1.0
+Nodes (1): Pass if .PIPELINE_STOP exists (generation is properly controlled).
+
+### Community 208 - "Community 208"
+Cohesion: 1.0
+Nodes (1): Pass if no Learning pipeline lock is currently held.
+
+### Community 209 - "Community 209"
+Cohesion: 1.0
+Nodes (1): Pass if the planned job count does not exceed MAX_TOPICS_PER_RUN.
+
+### Community 210 - "Community 210"
+Cohesion: 1.0
+Nodes (1): Pass if the text contains no Decifer Trading references.
+
+### Community 211 - "Community 211"
+Cohesion: 1.0
+Nodes (1): Pass if the job exists in the queue (or if job_id is None for dry-run).
+
+### Community 212 - "Community 212"
+Cohesion: 1.0
+Nodes (1): Run all safety checks. Returns (all_passed, [results]).      Args:         job_t
+
+### Community 213 - "Community 213"
+Cohesion: 1.0
+Nodes (1): Run all checks and raise RuntimeError on the first failure.
+
 ## Knowledge Gaps
-- **132 isolated node(s):** `Apply learn_widgets column migration to Supabase. Run: /root/pipeline-venv/bin/p`, `diagnose-content-blockers.py — Closed-loop recovery diagnostic for Decifer Learn`, `Fetch the most recent generation errors for a topic.`, `Fetch confidence scores for recent non-published questions (staged/regenerating)`, `Return question_type values for all published questions in a topic.` (+127 more)
+- **205 isolated node(s):** `Each item: {unit_title, lessons: [{lesson, html}, ...]}`, `Apply learn_widgets column migration to Supabase. Run: /root/pipeline-venv/bin/p`, `Call DO Llama 3.3 70B. Returns response text.`, `Generate 8 questions in a single Claude call. Returns list of raw question dicts`, `Filter questions with obvious structural issues. Full verification skipped for s` (+200 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **Thin community `Community 35`** (2 nodes): `RecoveryRedirect.tsx`, `RecoveryRedirect()`
+- **Thin community `Community 49`** (2 nodes): `RecoveryRedirect.tsx`, `RecoveryRedirect()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 36`** (2 nodes): `robots.ts`, `robots()`
+- **Thin community `Community 50`** (2 nodes): `robots.ts`, `robots()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 37`** (2 nodes): `sitemap.ts`, `sitemap()`
+- **Thin community `Community 51`** (2 nodes): `sitemap.ts`, `sitemap()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 38`** (2 nodes): `page.tsx`, `ProgressBar()`
+- **Thin community `Community 52`** (2 nodes): `page.tsx`, `SolarSystemPage()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 39`** (2 nodes): `page.tsx`, `TestWidgetsPage()`
+- **Thin community `Community 53`** (2 nodes): `page.tsx`, `formatTime()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 40`** (2 nodes): `RegenerateButton.tsx`, `RegenerateButton()`
+- **Thin community `Community 54`** (2 nodes): `page.tsx`, `ProgressBar()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 41`** (2 nodes): `MonitoringActions.tsx`, `MonitoringActions()`
+- **Thin community `Community 55`** (2 nodes): `page.tsx`, `OldAdminUnlockPage()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 42`** (2 nodes): `page.tsx`, `formatDate()`
+- **Thin community `Community 56`** (2 nodes): `LockButton.tsx`, `LockButton()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 43`** (2 nodes): `PhysicalRewardsToggle.tsx`, `PhysicalRewardsToggle()`
+- **Thin community `Community 57`** (2 nodes): `page.tsx`, `TestWidgetsPage()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 44`** (2 nodes): `StreakPing.tsx`, `StreakPing()`
+- **Thin community `Community 58`** (2 nodes): `RegenerateButton.tsx`, `RegenerateButton()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 45`** (2 nodes): `NewParentLinkNotice.tsx`, `NewParentLinkNotice()`
+- **Thin community `Community 59`** (2 nodes): `FlaggedQuestionActions.tsx`, `FlaggedQuestionActions()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 46`** (2 nodes): `RegisterForm.tsx`, `RegisterForm()`
+- **Thin community `Community 60`** (2 nodes): `MonitoringActions.tsx`, `MonitoringActions()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 47`** (2 nodes): `page.tsx`, `RegisterPage()`
+- **Thin community `Community 61`** (2 nodes): `page.tsx`, `formatDate()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 48`** (2 nodes): `page.tsx`, `LoginPage()`
+- **Thin community `Community 62`** (2 nodes): `PhysicalRewardsToggle.tsx`, `PhysicalRewardsToggle()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 49`** (2 nodes): `layout.tsx`, `LegalLayout()`
+- **Thin community `Community 63`** (2 nodes): `StreakPing.tsx`, `StreakPing()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 50`** (2 nodes): `page.tsx`, `PrivacyPolicyPage()`
+- **Thin community `Community 64`** (2 nodes): `NewParentLinkNotice.tsx`, `NewParentLinkNotice()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 51`** (2 nodes): `layout.tsx`, `HelpLayout()`
+- **Thin community `Community 65`** (2 nodes): `page.tsx`, `RegisterPage()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 52`** (2 nodes): `page.tsx`, `HelpPage()`
+- **Thin community `Community 66`** (2 nodes): `page.tsx`, `LoginPage()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 53`** (2 nodes): `page.tsx`, `GamificationPage()`
+- **Thin community `Community 67`** (2 nodes): `layout.tsx`, `LegalLayout()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 54`** (2 nodes): `page.tsx`, `StudentGuidePage()`
+- **Thin community `Community 68`** (2 nodes): `page.tsx`, `PrivacyPolicyPage()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 55`** (2 nodes): `page.tsx`, `HowDeciferWorksPage()`
+- **Thin community `Community 69`** (2 nodes): `page.tsx`, `PricingPage()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 56`** (2 nodes): `SignOutButton.tsx`, `SignOutButton()`
+- **Thin community `Community 70`** (2 nodes): `layout.tsx`, `OnboardingLayout()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 57`** (2 nodes): `DeciferMark.tsx`, `DeciferMark()`
+- **Thin community `Community 71`** (2 nodes): `layout.tsx`, `HelpLayout()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 58`** (2 nodes): `XPBadge.tsx`, `XPBadge()`
+- **Thin community `Community 72`** (2 nodes): `page.tsx`, `HelpPage()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 59`** (2 nodes): `TopBar.tsx`, `TopBar()`
+- **Thin community `Community 73`** (2 nodes): `page.tsx`, `GamificationPage()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 60`** (2 nodes): `OfflineBanner.tsx`, `OfflineBanner()`
+- **Thin community `Community 74`** (2 nodes): `page.tsx`, `StudentGuidePage()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 61`** (2 nodes): `DeciferLogo.tsx`, `DeciferLogo()`
+- **Thin community `Community 75`** (2 nodes): `page.tsx`, `HowDeciferWorksPage()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 62`** (2 nodes): `BottomNav()`, `BottomNav.tsx`
+- **Thin community `Community 76`** (2 nodes): `SignOutButton.tsx`, `SignOutButton()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 63`** (2 nodes): `GuideCard.tsx`, `GuideCard()`
+- **Thin community `Community 77`** (2 nodes): `DeciferMark.tsx`, `DeciferMark()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 64`** (2 nodes): `ScrollReveal.tsx`, `ScrollReveal()`
+- **Thin community `Community 78`** (2 nodes): `UpgradeButton.tsx`, `UpgradeButton()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 65`** (2 nodes): `DeciferProductLogo.tsx`, `DeciferProductLogo()`
+- **Thin community `Community 79`** (2 nodes): `XPBadge.tsx`, `XPBadge()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 66`** (2 nodes): `Skeleton.tsx`, `Skeleton()`
+- **Thin community `Community 80`** (2 nodes): `OfflineBanner.tsx`, `OfflineBanner()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 67`** (2 nodes): `LearnWidgetRenderer.tsx`, `LearnWidgetRenderer()`
+- **Thin community `Community 81`** (2 nodes): `DeciferLogo.tsx`, `DeciferLogo()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 68`** (2 nodes): `HeroMockup.tsx`, `HeroMockup()`
+- **Thin community `Community 82`** (2 nodes): `BottomNav()`, `BottomNav.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 69`** (2 nodes): `DifficultyPicker.tsx`, `DifficultyPicker()`
+- **Thin community `Community 83`** (2 nodes): `GuideCard.tsx`, `GuideCard()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 70`** (2 nodes): `HintButton.tsx`, `HintButton()`
+- **Thin community `Community 84`** (2 nodes): `ScrollReveal.tsx`, `ScrollReveal()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 71`** (2 nodes): `HeartsDisplay.tsx`, `HeartsDisplay()`
+- **Thin community `Community 85`** (2 nodes): `CookieConsent.tsx`, `CookieConsent()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 72`** (2 nodes): `LinkChildForm.tsx`, `handleSubmit()`
+- **Thin community `Community 86`** (2 nodes): `UpgradeWall.tsx`, `UpgradeWall()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 73`** (2 nodes): `EquationBalancer.tsx`, `submit()`
+- **Thin community `Community 87`** (2 nodes): `DeciferProductLogo.tsx`, `DeciferProductLogo()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 74`** (2 nodes): `Apply learn_widgets column migration to Supabase. Run: /root/pipeline-venv/bin/p`, `migrate-learn-widgets.py`
+- **Thin community `Community 88`** (2 nodes): `Skeleton.tsx`, `Skeleton()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 75`** (2 nodes): `main()`, `map-outcomes-to-topics.ts`
+- **Thin community `Community 89`** (2 nodes): `LearnWidgetRenderer.tsx`, `LearnWidgetRenderer()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 76`** (2 nodes): `Regenerate all flagged quiz questions by calling the pipeline's /pipeline/regene`, `regenerate-flagged.py`
+- **Thin community `Community 90`** (2 nodes): `HeroMockup.tsx`, `HeroMockup()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 77`** (2 nodes): `seed-knowledge-base.py`, `main()`
+- **Thin community `Community 91`** (2 nodes): `GuardianVictoryScreen.tsx`, `makeParticles()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 78`** (2 nodes): `main()`, `publish-ready-topics.ts`
+- **Thin community `Community 92`** (2 nodes): `HintButton.tsx`, `HintButton()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 79`** (2 nodes): `sm2.ts`, `sm2()`
+- **Thin community `Community 93`** (2 nodes): `HeartsDisplay.tsx`, `HeartsDisplay()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 80`** (2 nodes): `profile.ts`, `pickYearGroupLabel()`
+- **Thin community `Community 94`** (2 nodes): `NarrationButton.tsx`, `isIOS()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 81`** (2 nodes): `createSupabaseBrowserClient()`, `client.ts`
+- **Thin community `Community 95`** (2 nodes): `EquationBalancer.tsx`, `submit()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 82`** (2 nodes): `embed_chunks.py — Compute sentence-transformer embeddings for curriculum_chunks.`, `embed_chunks.py`
+- **Thin community `Community 96`** (2 nodes): `Apply learn_widgets column migration to Supabase. Run: /root/pipeline-venv/bin/p`, `migrate-learn-widgets.py`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 83`** (2 nodes): `Decifer Learning — Content Autopilot Foundation (Sprint 2B.1)  Modules:     cove`, `__init__.py`
+- **Thin community `Community 97`** (2 nodes): `main()`, `map-outcomes-to-topics.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 84`** (1 nodes): `next.config.js`
+- **Thin community `Community 98`** (2 nodes): `Regenerate all flagged quiz questions by calling the pipeline's /pipeline/regene`, `regenerate-flagged.py`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 85`** (1 nodes): `next-env.d.ts`
+- **Thin community `Community 99`** (2 nodes): `seed-knowledge-base.py`, `main()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 86`** (1 nodes): `tailwind.config.ts`
+- **Thin community `Community 100`** (2 nodes): `main()`, `publish-ready-topics.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 87`** (1 nodes): `vitest.config.ts`
+- **Thin community `Community 101`** (2 nodes): `main()`, `audit-launch-readiness.py`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 88`** (1 nodes): `opengraph-image.tsx`
+- **Thin community `Community 102`** (2 nodes): `sm2.ts`, `sm2()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 89`** (1 nodes): `layout.tsx`
+- **Thin community `Community 103`** (2 nodes): `isUnlocked()`, `avatar-catalogue.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 90`** (1 nodes): `page.tsx`
+- **Thin community `Community 104`** (2 nodes): `profile.ts`, `pickYearGroupLabel()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 91`** (1 nodes): `page.tsx`
+- **Thin community `Community 105`** (2 nodes): `parent-recommendations.ts`, `buildParentActions()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 92`** (1 nodes): `loading.tsx`
+- **Thin community `Community 106`** (2 nodes): `createSupabaseBrowserClient()`, `client.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 93`** (1 nodes): `page.tsx`
+- **Thin community `Community 107`** (2 nodes): `embed_chunks.py — Compute sentence-transformer embeddings for curriculum_chunks.`, `embed_chunks.py`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 94`** (1 nodes): `loading.tsx`
+- **Thin community `Community 108`** (2 nodes): `Decifer Learning — Content Autopilot Foundation (Sprint 2B.1)  Modules:     cove`, `__init__.py`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 95`** (1 nodes): `page.tsx`
+- **Thin community `Community 109`** (1 nodes): `tailwind.config.design.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 96`** (1 nodes): `page.tsx`
+- **Thin community `Community 110`** (1 nodes): `worker.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 97`** (1 nodes): `loading.tsx`
+- **Thin community `Community 111`** (1 nodes): `next.config.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 98`** (1 nodes): `page.tsx`
+- **Thin community `Community 112`** (1 nodes): `next-env.d.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 99`** (1 nodes): `page.tsx`
+- **Thin community `Community 113`** (1 nodes): `tailwind.config.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 100`** (1 nodes): `UsersTable.tsx`
+- **Thin community `Community 114`** (1 nodes): `vitest.config.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 101`** (1 nodes): `page.tsx`
+- **Thin community `Community 115`** (1 nodes): `opengraph-image.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 102`** (1 nodes): `page.tsx`
+- **Thin community `Community 116`** (1 nodes): `layout.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 103`** (1 nodes): `page.tsx`
+- **Thin community `Community 117`** (1 nodes): `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 104`** (1 nodes): `FulfillButton.tsx`
+- **Thin community `Community 118`** (1 nodes): `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 105`** (1 nodes): `page.tsx`
+- **Thin community `Community 119`** (1 nodes): `loading.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 106`** (1 nodes): `loading.tsx`
+- **Thin community `Community 120`** (1 nodes): `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 107`** (1 nodes): `layout.tsx`
+- **Thin community `Community 121`** (1 nodes): `CollectionGrid.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 108`** (1 nodes): `page.tsx`
+- **Thin community `Community 122`** (1 nodes): `loading.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 109`** (1 nodes): `page.tsx`
+- **Thin community `Community 123`** (1 nodes): `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 110`** (1 nodes): `page.tsx`
+- **Thin community `Community 124`** (1 nodes): `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 111`** (1 nodes): `page.tsx`
+- **Thin community `Community 125`** (1 nodes): `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 112`** (1 nodes): `ProgressRing.tsx`
+- **Thin community `Community 126`** (1 nodes): `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 113`** (1 nodes): `TopicCard.tsx`
+- **Thin community `Community 127`** (1 nodes): `loading.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 114`** (1 nodes): `EmptyState.tsx`
+- **Thin community `Community 128`** (1 nodes): `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 115`** (1 nodes): `TopicNode.tsx`
+- **Thin community `Community 129`** (1 nodes): `loading.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 116`** (1 nodes): `ZoneMap.tsx`
+- **Thin community `Community 130`** (1 nodes): `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 117`** (1 nodes): `WidgetWrapper.tsx`
+- **Thin community `Community 131`** (1 nodes): `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 118`** (1 nodes): `LearningJourney.tsx`
+- **Thin community `Community 132`** (1 nodes): `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 119`** (1 nodes): `QualityPipeline.tsx`
+- **Thin community `Community 133`** (1 nodes): `loading.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 120`** (1 nodes): `DiscoveryCard.tsx`
+- **Thin community `Community 134`** (1 nodes): `loading.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 121`** (1 nodes): `CardReveal.tsx`
+- **Thin community `Community 135`** (1 nodes): `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 122`** (1 nodes): `BadgePopup.tsx`
+- **Thin community `Community 136`** (1 nodes): `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 123`** (1 nodes): `WorkedExample.tsx`
+- **Thin community `Community 137`** (1 nodes): `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 124`** (1 nodes): `prisma.ts`
+- **Thin community `Community 138`** (1 nodes): `FulfillButton.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 125`** (1 nodes): `customise-config.ts`
+- **Thin community `Community 139`** (1 nodes): `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 126`** (1 nodes): `learn-widgets.ts`
+- **Thin community `Community 140`** (1 nodes): `loading.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 127`** (1 nodes): `__init__.py`
+- **Thin community `Community 141`** (1 nodes): `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 128`** (1 nodes): `__init__.py`
+- **Thin community `Community 142`** (1 nodes): `layout.tsx`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 143`** (1 nodes): `page.tsx`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 144`** (1 nodes): `page.tsx`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 145`** (1 nodes): `page.tsx`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 146`** (1 nodes): `page.tsx`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 147`** (1 nodes): `page.tsx`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 148`** (1 nodes): `DeciferAvatar.tsx`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 149`** (1 nodes): `TopBar.tsx`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 150`** (1 nodes): `ProgressRing.tsx`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 151`** (1 nodes): `TopicCard.tsx`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 152`** (1 nodes): `MathText.tsx`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 153`** (1 nodes): `EmptyState.tsx`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 154`** (1 nodes): `TopicNode.tsx`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 155`** (1 nodes): `ZoneMap.tsx`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 156`** (1 nodes): `WidgetWrapper.tsx`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 157`** (1 nodes): `LearningJourney.tsx`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 158`** (1 nodes): `QualityPipeline.tsx`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 159`** (1 nodes): `ChapterStrip.tsx`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 160`** (1 nodes): `DiscoveryCard.tsx`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 161`** (1 nodes): `CardReveal.tsx`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 162`** (1 nodes): `BadgePopup.tsx`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 163`** (1 nodes): `DifficultyPicker.tsx`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 164`** (1 nodes): `ExamTimer.tsx`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 165`** (1 nodes): `WorkedExample.tsx`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 166`** (1 nodes): `GuardianBattleHeader.tsx`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 167`** (1 nodes): `ExamResultCard.tsx`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 168`** (1 nodes): `sw.js`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 169`** (1 nodes): `prisma.ts`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 170`** (1 nodes): `customise-config.ts`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 171`** (1 nodes): `learn-widgets.ts`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 172`** (1 nodes): `onboarding.ts`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 173`** (1 nodes): `admin-gate.ts`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 174`** (1 nodes): `__init__.py`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 175`** (1 nodes): `__init__.py`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 176`** (1 nodes): `Call Claude Haiku to produce widget specs. Returns [] on error.`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 177`** (1 nodes): `Bulk-insert curriculum chunks in a single connection. Returns (inserted, skipped`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 178`** (1 nodes): `Return id + question_text for all published questions in a topic.`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 179`** (1 nodes): `Return question_text, correct_answer, and question_metadata for all published qu`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 180`** (1 nodes): `Insert a quiz_question row with provenance fields. Returns the new question id.`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 181`** (1 nodes): `Create a pipeline_runs row and return its id.`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 182`** (1 nodes): `Mark a pipeline_runs row as completed or failed.`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 183`** (1 nodes): `Mark a running pipeline run as cancelled. Returns True if updated.`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 184`** (1 nodes): `Write a generation_errors row. Returns the new error id.`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 185`** (1 nodes): `Return topic coverage stats for the admin coverage dashboard.`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 186`** (1 nodes): `Return the publish threshold for a given question_type.`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 187`** (1 nodes): `Dispatch to subject-specific prompt builder.      existing_questions: list of {q`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 188`** (1 nodes): `Extract the first {...} block from text, tolerating leading/trailing prose.`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 189`** (1 nodes): `Stage 1: RAG retrieval + Claude generation (subject-aware prompt).`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 190`** (1 nodes): `Stage 2: code verification dispatched by question_type. Unknown types fail close`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 191`** (1 nodes): `Stage 3: consensus check at temperature=0.`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 192`** (1 nodes): `Stage 4: constitutional critique. Returns list of violations.`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 193`** (1 nodes): `Stage 5: semantic dedup. Returns True if NOT a duplicate.`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 194`** (1 nodes): `Stage 6: confidence scoring + RAG grounding check + per-type threshold.      Wei`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 195`** (1 nodes): `Run the full 6-stage pipeline for a single question slot.      Retries up to MAX`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 196`** (1 nodes): `Re-run the pipeline to replace a single flagged question.      The original flag`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 197`** (1 nodes): `Generate `count` questions for a topic at the given tier.      Emits a structure`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 198`** (1 nodes): `Return True if this LT error is a false positive in educational prose fields.`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 199`** (1 nodes): `All prose fields (except intentional-error stimulus) should be grammatically cle`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 200`** (1 nodes): `For english_grammar and english_spelling questions.      question_metadata must`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 201`** (1 nodes): `For english_phonics questions.      Phonics content (phoneme notation, digraph/t`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 202`** (1 nodes): `For english_punctuation questions.      Punctuation demonstration questions ask`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 203`** (1 nodes): `For english_etymology questions.      Etymology questions ask about word origins`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 204`** (1 nodes): `For english_comprehension, english_vocabulary, english_literary_analysis.      F`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 205`** (1 nodes): `Stage 2 English verification.      Returns (verified: bool, detail: str).     Di`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 206`** (1 nodes): `Inline self-tests for CI / pre-batch gate. Prints pass/fail summary.`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 207`** (1 nodes): `Pass if .PIPELINE_STOP exists (generation is properly controlled).`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 208`** (1 nodes): `Pass if no Learning pipeline lock is currently held.`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 209`** (1 nodes): `Pass if the planned job count does not exceed MAX_TOPICS_PER_RUN.`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 210`** (1 nodes): `Pass if the text contains no Decifer Trading references.`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 211`** (1 nodes): `Pass if the job exists in the queue (or if job_id is None for dry-run).`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 212`** (1 nodes): `Run all safety checks. Returns (all_passed, [results]).      Args:         job_t`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 213`** (1 nodes): `Run all checks and raise RuntimeError on the first failure.`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `GET()` connect `Community 0` to `Community 1`, `Community 2`, `Community 3`, `Community 4`, `Community 6`, `Community 7`, `Community 8`, `Community 9`, `Community 10`, `Community 11`, `Community 12`, `Community 13`, `Community 14`, `Community 15`, `Community 16`, `Community 17`, `Community 18`?**
-  _High betweenness centrality (0.497) - this node is a cross-community bridge._
-- **Why does `Search()` connect `Community 10` to `Community 8`, `Community 2`, `Community 5`?**
-  _High betweenness centrality (0.108) - this node is a cross-community bridge._
-- **Why does `_classify_error_messages()` connect `Community 10` to `Community 0`?**
-  _High betweenness centrality (0.087) - this node is a cross-community bridge._
-- **Are the 115 inferred relationships involving `GET()` (e.g. with `createSupabaseServerClient()` and `ChildDashboardPage()`) actually correct?**
-  _`GET()` has 115 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 49 inferred relationships involving `str` (e.g. with `run_topic_tier()` and `main()`) actually correct?**
-  _`str` has 49 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 17 inferred relationships involving `POST()` (e.g. with `createSupabaseServerClient()` and `GET()`) actually correct?**
-  _`POST()` has 17 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 35 inferred relationships involving `error()` (e.g. with `POST()` and `run_topic_tier()`) actually correct?**
-  _`error()` has 35 INFERRED edges - model-reasoned connections that need verification._
+- **Why does `GET()` connect `Community 4` to `Community 0`, `Community 1`, `Community 2`, `Community 3`, `Community 5`, `Community 7`, `Community 8`, `Community 9`, `Community 10`, `Community 11`, `Community 12`, `Community 13`, `Community 14`, `Community 15`, `Community 16`, `Community 17`, `Community 18`, `Community 19`, `Community 20`, `Community 21`, `Community 22`, `Community 24`?**
+  _High betweenness centrality (0.337) - this node is a cross-community bridge._
+- **Why does `Search()` connect `Community 11` to `Community 5`, `Community 6`, `Community 7`, `Community 8`, `Community 14`, `Community 15`, `Community 17`, `Community 18`?**
+  _High betweenness centrality (0.089) - this node is a cross-community bridge._
+- **Why does `POST()` connect `Community 0` to `Community 1`, `Community 2`, `Community 3`, `Community 4`, `Community 21`?**
+  _High betweenness centrality (0.078) - this node is a cross-community bridge._
+- **Are the 143 inferred relationships involving `GET()` (e.g. with `createSupabaseServerClient()` and `ChildDashboardPage()`) actually correct?**
+  _`GET()` has 143 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 69 inferred relationships involving `str` (e.g. with `lesson_to_html()` and `import_questions()`) actually correct?**
+  _`str` has 69 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 24 inferred relationships involving `POST()` (e.g. with `createSupabaseServerClient()` and `GET()`) actually correct?**
+  _`POST()` has 24 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 42 inferred relationships involving `create()` (e.g. with `POST()` and `dropCard()`) actually correct?**
+  _`create()` has 42 INFERRED edges - model-reasoned connections that need verification._

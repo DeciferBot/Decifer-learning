@@ -7,7 +7,7 @@
 
 import { NextResponse, type NextRequest } from 'next/server'
 import { updateSession } from '@/lib/supabase/middleware'
-import { getUserRole, ROLE_HOME, type Role } from '@/lib/auth/roles'
+import { getUserRole, canActAsParent, ROLE_HOME, type Role } from '@/lib/auth/roles'
 
 const PUBLIC_EXACT = new Set<string>([
   '/', '/login', '/register', '/reset-password',
@@ -69,7 +69,10 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   if (pathname === '/dashboard') return response
 
   const needed = isAdminRoleExempt(pathname) ? null : requiredRoleForPath(pathname)
-  if (needed && role !== needed) {
+  // Admin is a superset of parent: allow admins into /dashboard/parent/* to oversee
+  // their own linked children. All other role gates remain exact.
+  const allowed = !needed || role === needed || (needed === 'parent' && canActAsParent(role))
+  if (!allowed) {
     if (pathname.startsWith('/api/')) {
       return NextResponse.json({ error: 'Forbidden', code: 'FORBIDDEN' }, { status: 403 })
     }

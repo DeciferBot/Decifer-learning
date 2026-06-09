@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
-import { getUserRole } from '@/lib/auth/roles'
+import { getUserRole, canActAsParent } from '@/lib/auth/roles'
 import { prisma } from '@/lib/prisma'
 import { getVaultStatus } from '@/lib/vault/status'
 import { getOrCreateParentSettings } from '@/lib/vault/settings'
@@ -61,7 +61,7 @@ export default async function ParentVaultPage({ params }: Params) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) notFound()
 
-  if (getUserRole(user) !== 'parent') notFound()
+  if (!canActAsParent(getUserRole(user))) notFound()
 
   const parentProfile = await prisma.profile.findUnique({
     where: { user_id: user.id },

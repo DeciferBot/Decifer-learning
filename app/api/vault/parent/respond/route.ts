@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
-import { getUserRole } from '@/lib/auth/roles'
+import { getUserRole, canActAsParent } from '@/lib/auth/roles'
 import { prisma } from '@/lib/prisma'
 import { respondToRequest, VaultError } from '@/lib/vault/requests'
 
@@ -23,7 +23,7 @@ export async function POST(req: Request) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const role = getUserRole(user)
-  if (role !== 'parent' && role !== 'child') {
+  if (!canActAsParent(role) && role !== 'child') {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 

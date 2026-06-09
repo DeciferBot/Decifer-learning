@@ -5,7 +5,7 @@
 
 import { NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
-import { getUserRole } from '@/lib/auth/roles'
+import { getUserRole, canActAsParent } from '@/lib/auth/roles'
 import { prisma } from '@/lib/prisma'
 import { getSignalsForChild } from '@/lib/learning-signals-runner'
 
@@ -15,7 +15,7 @@ export async function GET(_req: Request, { params }: Params) {
   const supabase = createSupabaseServerClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  if (getUserRole(user) !== 'parent') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  if (!canActAsParent(getUserRole(user))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const link = await prisma.familyLink.findFirst({
     where: { parent_user_id: user.id, child: { id: params.childId } },

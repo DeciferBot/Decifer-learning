@@ -4,7 +4,7 @@
 
 import { NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
-import { getUserRole } from '@/lib/auth/roles'
+import { getUserRole, canActAsParent } from '@/lib/auth/roles'
 import { prisma } from '@/lib/prisma'
 import { getRewardSuggestions } from '@/lib/vault/suggestions'
 
@@ -17,7 +17,7 @@ export async function GET(
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
-  if (getUserRole(user) !== 'parent') {
+  if (!canActAsParent(getUserRole(user))) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 

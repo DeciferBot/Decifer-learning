@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import { getCurrentProfile } from '@/lib/profile'
+import { canActAsParent } from '@/lib/auth/roles'
 
 // GET /api/exam/result/[attemptId]
 // Accessible by the child who sat it, or the parent who assigned it.
@@ -31,7 +32,7 @@ export async function GET(
   // Access check: child who sat it, or parent who assigned it
   const isChild = attempt.profile_id === profile.id
   const isParent =
-    profile.role === 'parent' &&
+    canActAsParent(profile.role) &&
     attempt.assignment.parent_profile_id === profile.id
   if (!isChild && !isParent) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })

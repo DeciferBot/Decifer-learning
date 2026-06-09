@@ -71,6 +71,14 @@ export function getUserRole(user: Pick<User, 'user_metadata'>): Role | null {
   return isRole(role) ? role : null
 }
 
+// Admin is a superset of parent: an account granted admin (e.g. a parent who is
+// also the family's ops/admin) may view and manage the parent dashboard for the
+// children linked to them. Family-link checks still scope which children are
+// visible, so this never exposes another family's data.
+export function canActAsParent(role: Role | null): boolean {
+  return role === 'parent' || role === 'admin'
+}
+
 export function getUserYearGroup(
   user: Pick<User, 'user_metadata'>
 ): YearGroupLabel | null {

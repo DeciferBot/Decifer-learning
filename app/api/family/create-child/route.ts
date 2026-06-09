@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { createSupabaseAdminClient } from '@/lib/supabase/admin'
-import { getUserRole, isYearGroupLabel, type YearGroupLabel } from '@/lib/auth/roles'
+import { getUserRole, canActAsParent, isYearGroupLabel, type YearGroupLabel } from '@/lib/auth/roles'
 import { prisma } from '@/lib/prisma'
 
 export async function POST(req: Request) {
@@ -12,7 +12,7 @@ export async function POST(req: Request) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const role = getUserRole(user)
-  if (role !== 'parent') {
+  if (!canActAsParent(role)) {
     return NextResponse.json({ error: 'Only parent accounts can create child accounts.' }, { status: 403 })
   }
 

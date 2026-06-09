@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
-import { getUserRole } from '@/lib/auth/roles'
+import { getUserRole, canActAsParent } from '@/lib/auth/roles'
 import { prisma } from '@/lib/prisma'
 import { getOrCreateParentSettings, updateParentSettings } from '@/lib/vault/settings'
 import type { DeliveryAddress } from '@/lib/vault/settings'
@@ -27,7 +27,7 @@ export async function GET(_req: Request, { params }: Params) {
   } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  if (getUserRole(user) !== 'parent') {
+  if (!canActAsParent(getUserRole(user))) {
     return NextResponse.json({ error: 'Only parent accounts can read vault settings' }, { status: 403 })
   }
 
@@ -52,7 +52,7 @@ export async function PATCH(req: Request, { params }: Params) {
   } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  if (getUserRole(user) !== 'parent') {
+  if (!canActAsParent(getUserRole(user))) {
     return NextResponse.json({ error: 'Only parent accounts can update vault settings' }, { status: 403 })
   }
 

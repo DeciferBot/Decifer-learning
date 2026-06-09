@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import { getCurrentProfile } from '@/lib/profile'
+import { canActAsParent } from '@/lib/auth/roles'
 
 type AssignBody = {
   childProfileId: string
@@ -23,7 +24,7 @@ export async function POST(request: Request) {
   if (!user) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 
   const parentProfile = await getCurrentProfile(supabase, user.id)
-  if (!parentProfile || parentProfile.role !== 'parent') {
+  if (!parentProfile || !canActAsParent(parentProfile.role)) {
     return NextResponse.json({ error: 'Parent account required' }, { status: 403 })
   }
 

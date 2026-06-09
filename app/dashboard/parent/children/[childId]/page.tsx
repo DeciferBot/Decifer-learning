@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { redirect, notFound } from 'next/navigation'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { getCurrentProfile } from '@/lib/profile'
+import { canActAsParent } from '@/lib/auth/roles'
 import { prisma } from '@/lib/prisma'
 import { getTopicCurriculumCoverage, getCompletedTopicOutcomes } from '@/lib/curriculum'
 import {
@@ -62,7 +63,7 @@ export default async function ChildDetailPage({
   } = await supabase.auth.getUser()
 
   const parentProfile = user ? await getCurrentProfile(supabase, user.id) : null
-  if (!parentProfile || parentProfile.role !== 'parent') redirect('/dashboard')
+  if (!parentProfile || !canActAsParent(parentProfile.role)) redirect('/dashboard')
 
   // Load child profile
   const childProfile = await prisma.profile.findUnique({
