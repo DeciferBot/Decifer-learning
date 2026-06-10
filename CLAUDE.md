@@ -130,6 +130,11 @@ DO_API_TOKEN                  # DO read/write API token — used for DO GenAI se
 SHOPIFY_STORE_DOMAIN          # e.g. yourstore.myshopify.com (no https://)
 SHOPIFY_ADMIN_ACCESS_TOKEN    # Shopify Admin API access token (Custom App → API credentials)
 SHOPIFY_WEBHOOK_SECRET        # HMAC secret for validating webhook payloads
+
+# Email + cron (Vercel: Production env only — preview deploys do not send email)
+RESEND_API_KEY                # Resend — weekly parent digest + parent/guardian
+                              # verification emails (lib/parent-verification.ts)
+CRON_SECRET                   # Bearer secret checked by every /api/cron/* route
 ```
 
 `.env.local` for dev; Vercel project env for prod; GCP Secret Manager for the pipeline service (Cloud Run). **Do not add new env vars without updating this section first.**

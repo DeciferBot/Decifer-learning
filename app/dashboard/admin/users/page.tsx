@@ -150,6 +150,7 @@ export default async function AdminUsersPage() {
       email: emailByUserId.get(p.user_id) ?? null,
       role: p.role,
       yearGroup: p.year_group ? (YEAR_DISPLAY[p.year_group.label] ?? p.year_group.label) : null,
+      yearGroupLabel: p.year_group?.label ?? null,
       points: p.total_points,
       streak: p.streak_days,
       lastActive: relativeTime(p.last_active, now),

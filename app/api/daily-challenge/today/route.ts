@@ -6,6 +6,7 @@ export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
+import { getConsentGate } from '@/lib/parental-consent'
 
 export async function GET() {
   const supabase = createSupabaseServerClient()
@@ -20,6 +21,13 @@ export async function GET() {
   })
   if (!profile?.year_group_id) {
     return NextResponse.json({ challenge: null })
+  }
+
+  // Parental-consent soft gate — surface the page's normal empty state rather
+  // than an error; the layout banner explains why quizzes are paused.
+  const consentGate = await getConsentGate(user.id)
+  if (consentGate.state === 'gated') {
+    return NextResponse.json({ challenge: null, reason: 'PARENT_CONSENT_REQUIRED' })
   }
 
   // Today's date in UK timezone (UTC+0/+1), stored as DATE

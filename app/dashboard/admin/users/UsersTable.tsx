@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useCallback } from 'react'
 import { Search, Package, X } from '@/components/ui/icons'
+import { MVP_YEAR_GROUPS } from '@/lib/auth/roles'
 
 export type UserRow = {
   id: string       // profile id
@@ -9,7 +10,8 @@ export type UserRow = {
   name: string
   email: string | null
   role: 'child' | 'parent' | 'admin'
-  yearGroup: string | null
+  yearGroup: string | null       // display string, e.g. "Year 3"
+  yearGroupLabel: string | null  // label, e.g. "year-3" — drives the edit select
   points: number
   streak: number
   lastActive: string
@@ -54,8 +56,35 @@ export function UsersTable({ rows }: { rows: UserRow[] }) {
     })
   }, [localRows, query, role, sort])
 
+  const [yearBusyId, setYearBusyId] = useState<string | null>(null) // userId mid-year-change
+
   const confirmDelete = useCallback((userId: string) => setDeletingId(userId), [])
   const cancelDelete  = useCallback(() => setDeletingId(null), [])
+
+  // Fix a mis-registered year group (e.g. a kid who signed up as Y7 but is in Y3).
+  async function changeYearGroup(userId: string, yearGroup: string) {
+    setYearBusyId(userId)
+    try {
+      const res = await fetch(`/api/admin/users/${userId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ yearGroup }),
+      })
+      if (res.ok) {
+        const display = MVP_YEAR_GROUPS.find((y) => y.label === yearGroup)?.display ?? yearGroup
+        setLocalRows((prev) =>
+          prev.map((r) => (r.userId === userId ? { ...r, yearGroup: display, yearGroupLabel: yearGroup } : r)),
+        )
+      } else {
+        const data = await res.json().catch(() => ({})) as { error?: string }
+        alert(data.error ?? 'Year group change failed. Try again.')
+      }
+    } catch {
+      alert('Network error. Try again.')
+    } finally {
+      setYearBusyId(null)
+    }
+  }
 
   async function executeDelete(userId: string) {
     setBusyId(userId)
@@ -223,7 +252,23 @@ export function UsersTable({ rows }: { rows: UserRow[] }) {
                       {r.role}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-muted whitespace-nowrap">{r.yearGroup ?? '—'}</td>
+                  <td className="px-4 py-3 text-muted whitespace-nowrap">
+                    {r.role === 'child' && r.yearGroupLabel ? (
+                      <select
+                        value={r.yearGroupLabel}
+                        onChange={(e) => changeYearGroup(r.userId, e.target.value)}
+                        disabled={yearBusyId === r.userId}
+                        aria-label={`Year group for ${r.name}`}
+                        className="min-h-[36px] rounded-lg border border-black/10 bg-surface px-2 text-sm text-ink focus:border-brand focus:outline-none disabled:opacity-50"
+                      >
+                        {MVP_YEAR_GROUPS.map((y) => (
+                          <option key={y.label} value={y.label}>{y.display}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      r.yearGroup ?? '—'
+                    )}
+                  </td>
                   <td className="px-4 py-3 text-right font-mono text-ink">{r.points.toLocaleString()}</td>
                   <td className="px-4 py-3 text-right font-mono text-ink">{r.streak}</td>
                   <td className="px-4 py-3 text-muted whitespace-nowrap">{r.lastActive}</td>

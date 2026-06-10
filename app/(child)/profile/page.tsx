@@ -9,6 +9,7 @@ import {
   Compass, Gem, Crown, Leaf, Target, Fox, Medal,
 } from '@/components/ui/icons'
 import { DeciferAvatar } from '@/components/ui/DeciferAvatar'
+import { YearGroupEditor } from '@/components/profile/YearGroupEditor'
 import { DEFAULT_AVATAR_CONFIG } from '@/lib/avatar-catalogue'
 import type { AvatarConfig } from '@/lib/avatar-catalogue'
 
@@ -126,11 +127,7 @@ export default async function ProfilePage() {
           >
             {displayName}
           </p>
-          {yearGroup && (
-            <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-              {yearGroup.display} · {yearGroup.keyStage}
-            </p>
-          )}
+          {yearGroup && <YearGroupEditor current={yearGroup.label} />}
           <p
             className="mt-1 text-xs font-bold"
             style={{ color: 'var(--brand)', fontFamily: 'var(--font-display)' }}

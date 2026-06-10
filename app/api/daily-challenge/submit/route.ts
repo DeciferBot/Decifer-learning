@@ -6,6 +6,7 @@
 import { NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
+import { getConsentGate, CONSENT_GATE_RESPONSE } from '@/lib/parental-consent'
 
 const BASE_POINTS   = 20
 const FLARE_POINTS  = 30
@@ -24,6 +25,12 @@ export async function POST(req: Request) {
   })
   if (!profile) {
     return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
+  }
+
+  // Parental-consent soft gate — same rule as /api/quiz/submit.
+  const consentGate = await getConsentGate(user.id)
+  if (consentGate.state === 'gated') {
+    return NextResponse.json(CONSENT_GATE_RESPONSE, { status: 422 })
   }
 
   const body = await req.json() as {

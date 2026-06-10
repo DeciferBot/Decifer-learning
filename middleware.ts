@@ -14,12 +14,16 @@ const PUBLIC_EXACT = new Set<string>([
   // Marketing + legal pages — must be reachable without a session.
   '/pricing', '/subjects', '/how-it-works',
   '/legal/terms', '/legal/privacy', '/legal/privacy-for-kids',
+  // Parent/guardian consent confirmation — opened from an email, no session.
+  '/verify-parent',
 ])
 // Auth callback must be public so the middleware never redirects the token exchange request.
 // Help pages are public so unauthenticated visitors can read guides linked from the homepage.
 // Vercel Cron routes carry no session cookie — they self-authenticate via the CRON_SECRET
 // bearer header inside each handler, so the middleware must NOT redirect them to /login.
-const PUBLIC_PREFIX = ['/auth/callback', '/_next/', '/help', '/opengraph-image', '/twitter-image', '/sitemap', '/robots', '/legal/', '/api/cron/']
+// /api/parent-verification is called right after child signup, before any
+// session exists (email-confirmation flow), so it must also stay public.
+const PUBLIC_PREFIX = ['/auth/callback', '/_next/', '/help', '/opengraph-image', '/twitter-image', '/sitemap', '/robots', '/legal/', '/api/cron/', '/api/parent-verification/']
 const STATIC_EXT =
   /\.(svg|png|jpg|jpeg|gif|webp|ico|css|js|map|woff2?|ttf|otf|txt|xml|json)$/i
 

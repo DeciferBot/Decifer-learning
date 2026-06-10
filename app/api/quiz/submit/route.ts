@@ -7,6 +7,7 @@ import { sm2 } from '@/lib/sm2'
 import { pickRarity } from '@/lib/cards'
 import { checkAndUpdateMilestone } from '@/lib/vault/status'
 import { recordLearningEvent } from '@/lib/learning-events'
+import { getConsentGate, CONSENT_GATE_RESPONSE } from '@/lib/parental-consent'
 
 type AnswerInput = {
   questionId: string
@@ -102,6 +103,13 @@ export async function POST(req: Request) {
     }
   }
   // ── End screen-time enforcement ───────────────────────────────────────────
+
+  // ── Parental-consent soft gate (Children's Code) — quizzes pause when the
+  // grace window lapses with no parent confirmation; Learn stays open. ───────
+  const consentGate = await getConsentGate(user.id)
+  if (consentGate.state === 'gated') {
+    return NextResponse.json(CONSENT_GATE_RESPONSE, { status: 422 })
+  }
   const correctMap = new Map(correctAnswers.map((q) => [q.id, q.correct_answer]))
   const typeMap    = new Map(correctAnswers.map((q) => [q.id, q.question_type]))
 

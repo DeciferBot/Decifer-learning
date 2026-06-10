@@ -15,6 +15,10 @@
     {
       "path": "/api/cron/anomaly-detect",
       "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/cron/parent-verify",
+      "schedule": "0 16 * * *"
     }
   ]
 }

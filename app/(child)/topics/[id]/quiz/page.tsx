@@ -10,6 +10,8 @@ import { selectQuizQuestions, selectInterleavedQuestions } from '@/lib/adaptive'
 import { QuizEventTracker } from '@/components/quiz/QuizEventTracker'
 import { UpgradeWall } from '@/components/ui/UpgradeWall'
 import { isTopicAccessible } from '@/lib/stripe'
+import { getConsentGate } from '@/lib/parental-consent'
+import { ConsentGateScreen } from '@/components/child/ConsentGateScreen'
 
 // RLS: topics_select_published (is_published=true)
 // RLS: quiz_questions_select_published (status='published') + FORCE RLS
@@ -37,6 +39,15 @@ export default async function QuizPage({ params }: { params: { id: string } }) {
   } = await supabase.auth.getUser()
 
   const profile = user ? await getCurrentProfile(supabase, user.id) : null
+
+  // Parental-consent soft gate — quizzes pause after the grace window until a
+  // parent confirms. /api/quiz/submit enforces the same rule server-side.
+  if (user) {
+    const consentGate = await getConsentGate(user.id)
+    if (consentGate.state === 'gated') {
+      return <ConsentGateScreen learnHref={`/topics/${params.id}/learn`} />
+    }
+  }
 
   // Subscription gate: free users can only access 3 Maths topics
   if (user) {

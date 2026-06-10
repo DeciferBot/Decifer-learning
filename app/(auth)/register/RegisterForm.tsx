@@ -25,10 +25,13 @@ const ALWAYS_CONSENT_REQUIRED = true
 export function RegisterForm() {
   const router = useRouter()
   const [role, setRole] = useState<SelfRegisterableRole>('child')
-  const [yearGroup, setYearGroup] = useState<YearGroupLabel>('year-7')
+  // No default on purpose: a pre-selected year sent kids into the wrong year
+  // group when they didn't notice the picker. They must choose explicitly.
+  const [yearGroup, setYearGroup] = useState<YearGroupLabel | null>(null)
   const [examBoard, setExamBoard] = useState<ExamBoard | ''>('')
   const [displayName, setDisplayName] = useState('')
   const [email, setEmail] = useState('')
+  const [parentEmail, setParentEmail] = useState('')
   const [password, setPassword] = useState('')
   const [parentalConsent, setParentalConsent] = useState(false)
   const [ageConfirm, setAgeConfirm] = useState(false)
@@ -36,7 +39,8 @@ export function RegisterForm() {
   const [notice, setNotice] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
-  const needsExamBoard = role === 'child' && yearGroupRequiresExamBoard(yearGroup)
+  const needsExamBoard =
+    role === 'child' && yearGroup !== null && yearGroupRequiresExamBoard(yearGroup)
   const needsConsent = role === 'child' && ALWAYS_CONSENT_REQUIRED
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>): void {
@@ -48,9 +52,16 @@ export function RegisterForm() {
     if (!trimmedName) { setError('Display name is required.'); return }
     if (!isSelfRegisterableRole(role)) { setError('Choose a role.'); return }
     if (role === 'child') {
-      if (!isYearGroupLabel(yearGroup)) { setError('Choose a year group.'); return }
+      if (!isYearGroupLabel(yearGroup)) { setError('Choose the school year you are in now.'); return }
       if (needsExamBoard && !isExamBoard(examBoard)) {
         setError('Choose your exam board for GCSE subjects.'); return
+      }
+      const trimmedParentEmail = parentEmail.trim()
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedParentEmail)) {
+        setError('Enter your parent or guardian’s email address.'); return
+      }
+      if (trimmedParentEmail.toLowerCase() === email.trim().toLowerCase()) {
+        setError('Your parent or guardian’s email must be different from your own.'); return
       }
       if (needsConsent && !parentalConsent) {
         setError('A parent or guardian must confirm consent before a child account can be created.'); return
@@ -71,15 +82,31 @@ export function RegisterForm() {
             data: {
               role,
               display_name: trimmedName,
-              ...(role === 'child' ? { year_group: yearGroup } : {}),
+              ...(role === 'child' && yearGroup ? { year_group: yearGroup } : {}),
+              ...(role === 'child' ? { parent_email: parentEmail.trim() } : {}),
               ...(needsExamBoard && examBoard ? { exam_board: examBoard } : {}),
               ...(needsConsent && parentalConsent ? { parental_consent_given: true } : {}),
             },
           },
         })
         if (signUpError) { setError(signUpError.message); return }
+
+        // Kick off the parent/guardian verification email. Best-effort — the
+        // daily parent-verify cron retries any child who never got one.
+        if (role === 'child' && data.user?.id) {
+          fetch('/api/parent-verification/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: data.user.id }),
+          }).catch(() => {})
+        }
+
         if (!data.session) {
-          setNotice('Check your email to confirm your account, then sign in.')
+          setNotice(
+            role === 'child'
+              ? 'Check your email to confirm your account, then sign in. We’ve also emailed your parent or guardian to confirm.'
+              : 'Check your email to confirm your account, then sign in.'
+          )
           return
         }
         router.refresh()
@@ -121,6 +148,9 @@ export function RegisterForm() {
       {role === 'child' ? (
         <fieldset>
           <legend className="text-sm font-medium">Year group</legend>
+          <p className="mt-0.5 text-xs text-muted">
+            Pick the school year you&apos;re in now — it decides which topics you see.
+          </p>
           <div className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-4">
             {MVP_YEAR_GROUPS.map((y) => {
               const active = yearGroup === y.label
@@ -203,6 +233,24 @@ export function RegisterForm() {
           className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-white px-3 text-base outline-none focus:border-maths focus:ring-2 focus:ring-maths/30"
         />
       </label>
+
+      {/* Parent / guardian email (child accounts) — used for consent verification */}
+      {role === 'child' ? (
+        <label className="block">
+          <span className="text-sm font-medium">Parent or guardian&apos;s email</span>
+          <input
+            type="email"
+            autoComplete="off"
+            required
+            value={parentEmail}
+            onChange={(e) => setParentEmail(e.target.value)}
+            className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-white px-3 text-base outline-none focus:border-maths focus:ring-2 focus:ring-maths/30"
+          />
+          <span className="mt-1 block text-xs text-muted">
+            We&apos;ll send them one email to confirm it&apos;s OK for you to use Decifer Learning.
+          </span>
+        </label>
+      ) : null}
 
       <label className="block">
         <span className="text-sm font-medium">Password</span>

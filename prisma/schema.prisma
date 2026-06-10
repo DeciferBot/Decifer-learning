@@ -65,6 +65,16 @@ model Profile {
   consented_by_user_id   String?   @db.Uuid
   // KS4 only: 'AQA' | 'Edexcel' | 'OCR'. Null for KS1–KS3.
   exam_board             String?
+  // Parent/guardian contact captured at child self-registration. The parent
+  // confirms via an emailed link (/verify-parent?token=…); reminders go out
+  // via /api/cron/parent-verify until verified (max 3 reminders).
+  parent_email                 String?
+  parent_email_verified_at     DateTime?
+  parent_verify_token          String?   @unique @db.Uuid
+  parent_verify_sent_at        DateTime?
+  parent_verify_reminder_count Int       @default(0)
+  // Last child-initiated year-group change — drives the self-service cooldown.
+  year_group_changed_at        DateTime?
   // Denormalised subscription tier for fast gating — kept in sync by webhook.
   subscription_tier      String    @default("free")
   created_at             DateTime  @default(now())

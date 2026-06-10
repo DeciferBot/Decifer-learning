@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import { calcQuizPoints } from '@/lib/points'
+import { getConsentGate, CONSENT_GATE_RESPONSE } from '@/lib/parental-consent'
 import type { DroppedCard, EarnedBadge } from '@/app/api/quiz/submit/route'
 
 type AnswerInput = {
@@ -39,6 +40,12 @@ export async function POST(req: Request, { params }: { params: { zoneId: string 
 
   const profile = await prisma.profile.findUnique({ where: { user_id: user.id } })
   if (!profile) return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
+
+  // Parental-consent soft gate — same rule as /api/quiz/submit.
+  const consentGate = await getConsentGate(user.id)
+  if (consentGate.state === 'gated') {
+    return NextResponse.json(CONSENT_GATE_RESPONSE, { status: 422 })
+  }
 
   // Scope zone to the child's year group — prevent cross-year-group submissions
   const zone = await prisma.zone.findFirst({
