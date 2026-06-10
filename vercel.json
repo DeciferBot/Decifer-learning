@@ -20,6 +20,14 @@
     {
       "path": "/api/cron/parent-verify",
       "schedule": "0 16 * * *"
+    },
+    {
+      "path": "/api/cron/regenerate-flagged",
+      "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/cron/oak-refresh",
+      "schedule": "0 4 * * *"
     }
   ]
 }

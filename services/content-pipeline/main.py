@@ -12,13 +12,17 @@ Phase 11A endpoints (pipeline/admin only — not child-facing):
   GET  /pipeline/runs               list pipeline_runs
   GET  /pipeline/runs/{id}          get a single pipeline_run
   POST /pipeline/runs/{id}/cancel   cancel a running pipeline_run
+  POST /pipeline/regenerate-flagged re-run pipeline for flagged questions (max 20)
+  POST /pipeline/oak-daily-update   ingest new Oak NA lessons + top-up thin topics (async)
 """
 
+import json
 import logging
+import os
 import sys
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException
+from fastapi import BackgroundTasks, FastAPI, HTTPException
 from pydantic import BaseModel
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
@@ -453,3 +457,195 @@ def regenerate_flagged(limit: int = 20) -> RegenerateFlaggedResponse:
             ))
 
     return RegenerateFlaggedResponse(triggered=len(flagged), results=results)
+
+
+# ── /pipeline/oak-daily-update ────────────────────────────────────────────────
+#
+# Triggered by Vercel cron at 04:00 UTC.
+# Fetches new/updated Oak NA lessons, embeds+dedupes chunks, then generates
+# questions for any topic with < 10 published questions.
+# Runs as a background task — returns immediately.
+
+@app.post("/pipeline/oak-daily-update")
+def oak_daily_update(background_tasks: BackgroundTasks) -> dict:
+    """
+    Triggered by Vercel cron at 04:00 UTC.
+    Fetches new/updated Oak NA lessons, embeds+dedupes chunks, then generates
+    questions for any topic with < 10 published questions.
+    Runs as a background task — returns immediately.
+    """
+    background_tasks.add_task(_run_oak_daily_update)
+    return {"status": "started", "message": "Oak daily update running in background"}
+
+
+def _run_oak_daily_update():
+    import psycopg2
+    import psycopg2.extras
+    import time
+    import uuid
+
+    import pipeline as pl
+
+    oak_key = os.environ.get("OAK_API_KEY", "").strip().strip('"')
+    if not oak_key:
+        log.error("OAK_API_KEY not set — skipping oak-daily-update")
+        return
+
+    import config
+
+    OAK_BASE = "https://open-api.thenational.academy/api/v0"
+    SOURCE = "Oak NA (OGL v3.0)"
+    SUBJECT_SLUG = {
+        "Maths": "maths", "English": "english", "Science": "science",
+        "History": "history", "Geography": "geography",
+    }
+    YEAR_TO_KS = {
+        "year-1": "ks1", "year-2": "ks1",
+        "year-3": "ks2", "year-4": "ks2", "year-5": "ks2", "year-6": "ks2",
+        "year-7": "ks3", "year-8": "ks3", "year-9": "ks3",
+    }
+    SIM_THRESHOLD = 0.85  # skip chunk if too similar to existing
+
+    def oak_get(path):
+        import urllib.request
+        import urllib.error
+        url = path if path.startswith("http") else f"{OAK_BASE}{path}"
+        req = urllib.request.Request(url, headers={
+            "Authorization": f"Bearer {oak_key}",
+            "User-Agent": "Decifer-Learning/1.0",
+        })
+        for attempt in range(4):
+            try:
+                with urllib.request.urlopen(req, timeout=25) as r:
+                    return json.loads(r.read().decode("utf-8"))
+            except urllib.error.HTTPError as ex:
+                if ex.code in (429, 403, 500, 502, 503):
+                    time.sleep(3 * (attempt + 1))
+                    continue
+                raise
+            except Exception:
+                time.sleep(2)
+                continue
+        return None
+
+    conn = psycopg2.connect(config.DATABASE_URL)
+    conn.autocommit = False
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+    # Get all active topics grouped by subject + year_group
+    cur.execute("""
+        SELECT DISTINCT s.name as subject, yg.label as year_group
+        FROM topics t
+        JOIN subjects s ON t.subject_id = s.id
+        JOIN year_groups yg ON t.year_group_id = yg.id
+        WHERE t.is_published = true
+          AND s.name IN ('Maths','English','Science','History','Geography')
+          AND yg.label IN ('year-1','year-2','year-3','year-4','year-5','year-6','year-7','year-8','year-9')
+        ORDER BY s.name, yg.label
+    """)
+    combos = cur.fetchall()
+
+    total_new_chunks = 0
+    total_skipped = 0
+    topics_triggered = 0
+
+    for row in combos:
+        subject = row["subject"]
+        year_group = row["year_group"]
+        oslug = SUBJECT_SLUG.get(subject)
+        ks = YEAR_TO_KS.get(year_group)
+        if not oslug or not ks:
+            continue
+
+        # Fetch Oak units for this subject/KS
+        units_resp = oak_get(f"/units?subjectSlug={oslug}&keystageSlug={ks}")
+        if not units_resp:
+            continue
+        units = units_resp if isinstance(units_resp, list) else units_resp.get("data", [])
+
+        for unit in units[:15]:  # cap per subject/year to avoid runaway
+            unit_title = unit.get("unitTitle") or unit.get("title", "")
+            lessons_resp = oak_get(f"/lessons?unitSlug={unit.get('unitSlug','')}&subjectSlug={oslug}&keystageSlug={ks}")
+            if not lessons_resp:
+                continue
+            lessons = lessons_resp if isinstance(lessons_resp, list) else lessons_resp.get("data", [])
+
+            for lesson in lessons[:8]:
+                lesson_title = lesson.get("lessonTitle") or lesson.get("title", "")
+                keywords = lesson.get("lessonKeywords") or []
+                intro = lesson.get("pupilLessonOutcome") or lesson.get("introText") or ""
+
+                # Build chunk text
+                kw_text = " | ".join(
+                    f"{k['keyword']}: {k['description']}" for k in keywords if isinstance(k, dict) and k.get("keyword")
+                ) if keywords else ""
+                chunk_text = f"{unit_title} — {lesson_title}"
+                if kw_text:
+                    chunk_text += f"\nKeywords: {kw_text}"
+                if intro:
+                    chunk_text += f"\n{intro[:400]}"
+
+                if len(chunk_text.strip()) < 30:
+                    continue
+
+                # Embed
+                emb = pl.embed_text(chunk_text)
+                if emb is None:
+                    continue
+                emb_list = emb.tolist()
+
+                # Dedup check against existing chunks for same subject+year
+                cur.execute("""
+                    SELECT 1 FROM curriculum_chunks
+                    WHERE subject = %s AND year_group = %s
+                      AND embedding <=> %s::vector < %s
+                    LIMIT 1
+                """, (subject, year_group, str(emb_list), 1 - SIM_THRESHOLD))
+                if cur.fetchone():
+                    total_skipped += 1
+                    continue
+
+                # Insert new chunk
+                cur.execute("""
+                    INSERT INTO curriculum_chunks (id, subject, year_group, source_name, chunk_text, embedding)
+                    VALUES (%s, %s, %s, %s, %s, %s::vector)
+                    ON CONFLICT DO NOTHING
+                """, (str(uuid.uuid4()), subject, year_group, SOURCE, chunk_text, str(emb_list)))
+                total_new_chunks += 1
+
+        conn.commit()
+
+    # Now trigger generation for thin topics (< 10 published questions)
+    cur.execute("""
+        SELECT t.id, t.title, s.name as subject, yg.label as year_group,
+               COUNT(qq.id) FILTER (WHERE qq.status = 'published') as pub_count
+        FROM topics t
+        JOIN subjects s ON t.subject_id = s.id
+        JOIN year_groups yg ON t.year_group_id = yg.id
+        LEFT JOIN quiz_questions qq ON qq.topic_id = t.id
+        WHERE t.is_published = true
+        GROUP BY t.id, t.title, s.name, yg.label
+        HAVING COUNT(qq.id) FILTER (WHERE qq.status = 'published') < 10
+        ORDER BY pub_count ASC
+        LIMIT 20
+    """)
+    thin_topics = cur.fetchall()
+
+    for topic_row in thin_topics:
+        try:
+            topic_dict = {
+                "id": str(topic_row["id"]),
+                "title": topic_row["title"],
+                "subject_name": topic_row["subject"],
+                "year_group_label": topic_row["year_group"],
+            }
+            for tier in ("sprout", "explorer", "lightning"):
+                pl.run_pipeline(topic_dict, tier, n_questions=5)
+            topics_triggered += 1
+        except Exception as exc:
+            log.error(f"oak-daily-update: generation error for topic {topic_row['id']}: {exc}")
+
+    cur.close()
+    conn.close()
+
+    log.info(f"oak-daily-update complete: {total_new_chunks} new chunks, {total_skipped} skipped (dedup), {topics_triggered} thin topics topped up")
