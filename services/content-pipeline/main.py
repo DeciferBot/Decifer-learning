@@ -633,14 +633,8 @@ def _run_oak_daily_update():
 
     for topic_row in thin_topics:
         try:
-            topic_dict = {
-                "id": str(topic_row["id"]),
-                "title": topic_row["title"],
-                "subject_name": topic_row["subject"],
-                "year_group_label": topic_row["year_group"],
-            }
             for tier in ("sprout", "explorer", "lightning"):
-                pl.run_pipeline(topic_dict, tier, n_questions=5)
+                pl.run_for_topic(str(topic_row["id"]), tier, 5)
             topics_triggered += 1
         except Exception as exc:
             log.error(f"oak-daily-update: generation error for topic {topic_row['id']}: {exc}")

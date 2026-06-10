@@ -680,6 +680,7 @@ Hint progression: hint_1 is general, hint_2 is more specific, hint_3 is closest 
 Single defensible correct answer.
 Difficulty level broadly matches the stated tier (sprout=simple, explorer=multi-step, lightning=challenging).
 Question text is clear and unambiguous.
+The question must test knowledge specific to its subject. In a non-Maths subject, a question whose answer is found purely by arithmetic (e.g. "The Romans built 7 forts. Each fort had 8 soldiers. How many soldiers?") is a clear violation — the historical or geographical setting is decoration, not the thing being tested. Numbers may appear only when the subject knowledge itself is what's assessed (dates, data interpretation, scientific formulae).
 Only flag violations that are clear and significant. Do not flag minor wording imperfections."""
 
 
