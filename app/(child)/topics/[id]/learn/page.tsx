@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic'
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { createSupabaseServerClient, getAuthUser } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import { LessonEventTracker, LessonCompleteCTA } from '@/components/learn/LessonEventTracker'
 import { LearnWidgetRenderer } from '@/components/learn/LearnWidgetRenderer'
@@ -60,7 +60,7 @@ export default async function LearnPage({
     { data: topic },
     { data: content },
     { data: practice },
-    { data: { user } },
+    user,
     [units, subjectRow],
   ] = await Promise.all([
     supabase
@@ -81,7 +81,7 @@ export default async function LearnPage({
       .eq('topic_id', params.id)
       .eq('status', 'published')
       .maybeSingle<PracticeRow>(),
-    supabase.auth.getUser(),
+    getAuthUser(),
     Promise.all([
       prisma.curriculumUnit.findMany({
         where: { topic_id: params.id },

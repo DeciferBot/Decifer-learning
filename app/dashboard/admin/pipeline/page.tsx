@@ -4,7 +4,7 @@
 // the client calls (/api/pipeline/{health,generate}) re-check admin via
 // authoriseAdminRequest. This UI is an internal tool, not a product feature.
 
-import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { getAuthUser } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import { PipelinePanel, type TopicOption } from './PipelinePanel'
 
@@ -12,10 +12,7 @@ export const metadata = { title: 'Pipeline — Decifer Learning' }
 export const dynamic = 'force-dynamic'
 
 export default async function PipelineAdminPage() {
-  const supabase = createSupabaseServerClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getAuthUser()
 
   // Topics surfaced in the picker: every topic that does not yet have any
   // quiz_questions, or that has only `staged` questions. This deliberately

@@ -1,21 +1,16 @@
 export const dynamic = 'force-dynamic'
 import { redirect } from 'next/navigation'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { getAuthUser } from '@/lib/supabase/server'
 import { getUserDisplayName, getUserRole } from '@/lib/auth/roles'
-import { childNeedsOnboarding } from '@/lib/onboarding'
 import { TopBar } from '@/components/ui/TopBar'
 import { BottomNav } from '@/components/ui/BottomNav'
 import { ConsentBanner } from '@/components/child/ConsentBanner'
-import { prisma } from '@/lib/prisma'
-import { getConsentGate, type ConsentGate } from '@/lib/parental-consent'
+import { getChildGate, type ChildGate } from '@/lib/child-gate'
 
 const VALID_THEMES = new Set(['default', 'maths', 'english', 'science', 'night'])
 
 export default async function ChildLayout({ children }: { children: React.ReactNode }) {
-  const supabase = createSupabaseServerClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getAuthUser()
 
   if (!user) redirect('/login')
 
@@ -23,30 +18,27 @@ export default async function ChildLayout({ children }: { children: React.ReactN
   // Non-child roles get bounced to their own dashboard
   if (role && role !== 'child') redirect('/dashboard')
 
+  // One combined profile read covers onboarding, theme, and consent —
+  // fail-open so a DB hiccup never blocks the app.
+  let gate: ChildGate = {
+    role: null,
+    needsOnboarding: false,
+    theme: 'default',
+    consent: { state: 'verified' },
+  }
+  try {
+    gate = await getChildGate(user.id)
+  } catch {
+    // defaults above: default theme, no banner, no onboarding redirect
+  }
+
   // First-run gate: a child who hasn't seen the avatar + about-me prompt goes
   // to /onboarding (which lives outside this route group, so no redirect loop).
-  if (await childNeedsOnboarding(user.id)) redirect('/onboarding')
+  if (gate.needsOnboarding) redirect('/onboarding')
 
-  // Read saved theme — fail-open (undefined = default, no data-theme attr)
-  let theme: string | undefined
-  try {
-    const profile = await prisma.profile.findUnique({
-      where: { user_id: user.id },
-      select: { theme_name: true },
-    })
-    const saved = profile?.theme_name ?? 'default'
-    if (saved && saved !== 'default' && VALID_THEMES.has(saved)) theme = saved
-  } catch {
-    // theme stays undefined — default styling
-  }
-
-  // Parental-consent banner — fail-open: a DB hiccup must never block the app.
-  let consentGate: ConsentGate = { state: 'verified' }
-  try {
-    consentGate = await getConsentGate(user.id)
-  } catch {
-    // banner simply not shown
-  }
+  const theme =
+    gate.theme !== 'default' && VALID_THEMES.has(gate.theme) ? gate.theme : undefined
+  const consentGate = gate.consent
 
   return (
     <div className="min-h-screen bg-background" {...(theme ? { 'data-theme': theme } : {})}>

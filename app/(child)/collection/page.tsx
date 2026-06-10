@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic'
 import { notFound } from 'next/navigation'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { createSupabaseServerClient, getAuthUser } from '@/lib/supabase/server'
 import { getCurrentProfile } from '@/lib/profile'
 import { CollectionGrid } from './CollectionGrid'
 
@@ -8,7 +8,7 @@ export const metadata = { title: 'My Collection — Decifer Learning' }
 
 export default async function CollectionPage() {
   const supabase = createSupabaseServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getAuthUser()
   if (!user) notFound()
 
   const profile = await getCurrentProfile(supabase, user.id)

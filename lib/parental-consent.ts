@@ -22,6 +22,13 @@ export type ConsentGate =
   | { state: 'grace'; daysLeft: number; hasParentEmail: boolean }
   | { state: 'gated'; hasParentEmail: boolean }
 
+export type ConsentProfileFields = {
+  role: string
+  parent_email: string | null
+  parent_email_verified_at: Date | null
+  created_at: Date
+}
+
 export async function getConsentGate(userId: string): Promise<ConsentGate> {
   const [profile, link] = await Promise.all([
     prisma.profile.findUnique({
@@ -39,8 +46,18 @@ export async function getConsentGate(userId: string): Promise<ConsentGate> {
     }),
   ])
 
+  return evaluateConsentGate(profile, !!link)
+}
+
+// Pure evaluation over already-fetched rows — lets callers that have the
+// profile in hand (e.g. the child layout's combined gate query) avoid a
+// second database round-trip.
+export function evaluateConsentGate(
+  profile: ConsentProfileFields | null,
+  hasFamilyLink: boolean,
+): ConsentGate {
   if (!profile || profile.role !== 'child') return { state: 'verified' }
-  if (profile.parent_email_verified_at || link) return { state: 'verified' }
+  if (profile.parent_email_verified_at || hasFamilyLink) return { state: 'verified' }
 
   const anchor = Math.max(profile.created_at.getTime(), CONSENT_GATE_LAUNCH.getTime())
   const msLeft = anchor + CONSENT_GRACE_MS - Date.now()

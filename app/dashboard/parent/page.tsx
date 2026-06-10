@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic'
 
 import Link from 'next/link'
 import { buildParentActions } from '@/lib/parent-recommendations'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { createSupabaseServerClient, getAuthUser } from '@/lib/supabase/server'
 import { getUserDisplayName } from '@/lib/auth/roles'
 import { getCurrentProfile } from '@/lib/profile'
 import { prisma } from '@/lib/prisma'
@@ -38,9 +38,7 @@ const VAULT_STATUS_LABELS: Record<string, { label: string; colour: string; bg: s
 
 export default async function ParentDashboardPage() {
   const supabase = createSupabaseServerClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getAuthUser()
 
   const profile = user ? await getCurrentProfile(supabase, user.id) : null
   const displayName = profile?.display_name ?? (user ? getUserDisplayName(user) : 'Parent')

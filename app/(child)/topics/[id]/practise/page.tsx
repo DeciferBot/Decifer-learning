@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { createSupabaseServerClient, getAuthUser } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import { UpgradeWall } from '@/components/ui/UpgradeWall'
 import { isTopicAccessible } from '@/lib/stripe'
@@ -52,7 +52,7 @@ export default async function PractisePage({ params }: { params: { id: string } 
 
   // Subscription gate
   {
-    const { data: { user } } = await supabase.auth.getUser()
+    const user = await getAuthUser()
     if (user && topic) {
       const [profileRow, topicRow] = await Promise.all([
         prisma.profile.findUnique({ where: { user_id: user.id }, select: { subscription_tier: true } }),

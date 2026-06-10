@@ -3,14 +3,11 @@
 export const dynamic = 'force-dynamic'
 
 import { redirect } from 'next/navigation'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { getAuthUser } from '@/lib/supabase/server'
 import { getUserRole, ROLE_HOME } from '@/lib/auth/roles'
 
 export default async function DashboardGatewayPage() {
-  const supabase = createSupabaseServerClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getAuthUser()
   if (!user) redirect('/login')
 
   const role = getUserRole(user)

@@ -3,21 +3,19 @@
 export const dynamic = 'force-dynamic'
 
 import { redirect } from 'next/navigation'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { getAuthUser } from '@/lib/supabase/server'
 import { getUserDisplayName, getUserRole } from '@/lib/auth/roles'
 import { TopBar } from '@/components/ui/TopBar'
 import { ConsentBanner } from '@/components/child/ConsentBanner'
-import { getConsentGate, type ConsentGate } from '@/lib/parental-consent'
+import { getChildGate } from '@/lib/child-gate'
+import type { ConsentGate } from '@/lib/parental-consent'
 
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const supabase = createSupabaseServerClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getAuthUser()
 
   if (!user) redirect('/login')
 
@@ -28,7 +26,7 @@ export default async function DashboardLayout({
   let consentGate: ConsentGate = { state: 'verified' }
   if (role === 'child') {
     try {
-      consentGate = await getConsentGate(user.id)
+      consentGate = (await getChildGate(user.id)).consent
     } catch {
       // banner simply not shown
     }

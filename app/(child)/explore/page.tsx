@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { createSupabaseServerClient, getAuthUser } from '@/lib/supabase/server'
 import { getCurrentProfile } from '@/lib/profile'
 import { redirect } from 'next/navigation'
 
@@ -76,7 +76,7 @@ const AIDS: Aid[] = [
 
 export default async function ExplorePage() {
   const supabase = createSupabaseServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getAuthUser()
   if (!user) redirect('/login')
 
   const profile = await getCurrentProfile(supabase, user.id)

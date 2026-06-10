@@ -1,6 +1,6 @@
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { createSupabaseServerClient, getAuthUser } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import { getCurrentProfile } from '@/lib/profile'
 import { selectQuizQuestions } from '@/lib/adaptive'
@@ -34,9 +34,7 @@ export default async function PreTestPage({ params }: { params: { id: string } }
   })
   const subjectName = subjectRow?.subject?.name ?? null
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getAuthUser()
 
   const profile = user ? await getCurrentProfile(supabase, user.id) : null
   const selected = profile

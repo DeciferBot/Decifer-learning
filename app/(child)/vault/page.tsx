@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic'
 import { notFound } from 'next/navigation'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { createSupabaseServerClient, getAuthUser } from '@/lib/supabase/server'
 import { getCurrentProfile } from '@/lib/profile'
 import { prisma } from '@/lib/prisma'
 import { getVaultStatus } from '@/lib/vault/status'
@@ -34,9 +34,7 @@ function ProgressBar({ current, total }: { current: number; total: number }) {
 
 export default async function VaultPage() {
   const supabase = createSupabaseServerClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getAuthUser()
   if (!user) notFound()
 
   const profile = await getCurrentProfile(supabase, user.id)

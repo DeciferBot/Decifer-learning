@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { getAuthUser } from '@/lib/supabase/server'
 import { getUserRole, canActAsParent } from '@/lib/auth/roles'
 import { prisma } from '@/lib/prisma'
 import { getVaultStatus } from '@/lib/vault/status'
@@ -57,8 +57,7 @@ const FULFILMENT_TEXT: Record<string, string> = {
 type Params = { params: { childId: string } }
 
 export default async function ParentVaultPage({ params }: Params) {
-  const supabase = createSupabaseServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getAuthUser()
   if (!user) notFound()
 
   if (!canActAsParent(getUserRole(user))) notFound()

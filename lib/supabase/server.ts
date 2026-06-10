@@ -3,8 +3,10 @@
 // errors in pure-RSC render contexts where cookie mutation is disallowed;
 // the middleware layer is responsible for the cookie refresh in those cases.
 
+import { cache } from 'react'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import type { User } from '@supabase/supabase-js'
 
 export function createSupabaseServerClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -34,3 +36,15 @@ export function createSupabaseServerClient() {
     },
   })
 }
+
+// getUser() is a network round-trip to the Supabase Auth server. Layouts and
+// pages in the same request tree both need the verified user, so memoize the
+// call per request — one Auth round-trip per navigation instead of one per
+// Server Component.
+export const getAuthUser = cache(async (): Promise<User | null> => {
+  const supabase = createSupabaseServerClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  return user
+})

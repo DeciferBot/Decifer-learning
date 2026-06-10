@@ -1,6 +1,6 @@
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { createSupabaseServerClient, getAuthUser } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import { getCurrentProfile } from '@/lib/profile'
 import { QuizShell, type QuizQuestion } from '@/components/quiz/QuizShell'
@@ -17,9 +17,7 @@ export async function generateMetadata() {
 export default async function CheckpointPage({ params }: { params: { id: string } }) {
   const supabase = createSupabaseServerClient()
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getAuthUser()
   if (!user) redirect('/login')
 
   const profile = await getCurrentProfile(supabase, user.id)

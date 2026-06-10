@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic'
 
 import Link from 'next/link'
 import { requireAdmin } from '@/lib/auth/admin-guard'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { getAuthUser } from '@/lib/supabase/server'
 import { getUserDisplayName } from '@/lib/auth/roles'
 import { prisma } from '@/lib/prisma'
 import { BarChart, Gift, Users, Flag, RefreshCw, TrendingUp, BookOpen, Bell, AlertTriangle } from '@/components/ui/icons'
@@ -18,10 +18,7 @@ const DAY = 86_400_000
 export default async function AdminDashboardPage() {
   await requireAdmin()
 
-  const supabase = createSupabaseServerClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getAuthUser()
   const displayName = user ? getUserDisplayName(user) : 'Admin'
 
   const now = Date.now()

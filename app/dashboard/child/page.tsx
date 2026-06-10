@@ -5,8 +5,8 @@ export const dynamic = 'force-dynamic'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { PushNotificationButton } from '@/components/ui/PushNotificationButton'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
-import { childNeedsOnboarding } from '@/lib/onboarding'
+import { createSupabaseServerClient, getAuthUser } from '@/lib/supabase/server'
+import { getChildGate } from '@/lib/child-gate'
 import { getUserDisplayName, MVP_YEAR_GROUPS } from '@/lib/auth/roles'
 import { getCurrentProfile } from '@/lib/profile'
 import { prisma } from '@/lib/prisma'
@@ -47,12 +47,10 @@ const SUBJECT_ORDER = ['Maths', 'English', 'Science']
 
 export default async function ChildDashboardPage() {
   const supabase = createSupabaseServerClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getAuthUser()
 
   // First-run gate: send children who haven't seen the prompt to /onboarding.
-  if (user && (await childNeedsOnboarding(user.id))) redirect('/onboarding')
+  if (user && (await getChildGate(user.id)).needsOnboarding) redirect('/onboarding')
 
   const profile = user ? await getCurrentProfile(supabase, user.id) : null
   const displayName = profile?.display_name ?? (user ? getUserDisplayName(user) : 'Explorer')

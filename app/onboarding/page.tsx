@@ -3,7 +3,7 @@
 // already on the profile so a partial revisit isn't blank.
 
 import { redirect } from 'next/navigation'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { getAuthUser } from '@/lib/supabase/server'
 import { getUserRole, getUserDisplayName } from '@/lib/auth/roles'
 import { prisma } from '@/lib/prisma'
 import type { LearningProfile } from '@/lib/onboarding-config'
@@ -13,8 +13,7 @@ export const metadata = { title: 'Welcome — Decifer Learning' }
 export const dynamic = 'force-dynamic'
 
 export default async function OnboardingPage() {
-  const supabase = createSupabaseServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getAuthUser()
   if (!user) redirect('/login')
 
   if (getUserRole(user) !== 'child') redirect('/dashboard')

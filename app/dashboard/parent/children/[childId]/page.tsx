@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic'
 
 import Link from 'next/link'
 import { redirect, notFound } from 'next/navigation'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { createSupabaseServerClient, getAuthUser } from '@/lib/supabase/server'
 import { getCurrentProfile } from '@/lib/profile'
 import { canActAsParent } from '@/lib/auth/roles'
 import { prisma } from '@/lib/prisma'
@@ -61,9 +61,7 @@ export default async function ChildDetailPage({
   params: { childId: string }
 }) {
   const supabase = createSupabaseServerClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getAuthUser()
 
   const parentProfile = user ? await getCurrentProfile(supabase, user.id) : null
   if (!parentProfile || !canActAsParent(parentProfile.role)) redirect('/dashboard')

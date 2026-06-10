@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic'
 import { redirect } from 'next/navigation'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { createSupabaseServerClient, getAuthUser } from '@/lib/supabase/server'
 import { getCurrentProfile } from '@/lib/profile'
 import { prisma } from '@/lib/prisma'
 import { ZoneMap, type ZoneNode } from '@/components/world-map/ZoneMap'
@@ -40,9 +40,7 @@ function computeCheckpointTopicId(
 
 export default async function WorldMapPage() {
   const supabase = createSupabaseServerClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getAuthUser()
   if (!user) redirect('/login')
 
   const profile = await getCurrentProfile(supabase, user.id)

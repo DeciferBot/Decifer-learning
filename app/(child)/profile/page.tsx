@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { createSupabaseServerClient, getAuthUser } from '@/lib/supabase/server'
 import { getCurrentProfile } from '@/lib/profile'
 import { prisma } from '@/lib/prisma'
 import { getUserDisplayName, MVP_YEAR_GROUPS } from '@/lib/auth/roles'
@@ -26,7 +26,7 @@ const RARITY_TOKEN: Record<string, { bg: string; text: string; border: string; l
 
 export default async function ProfilePage() {
   const supabase = createSupabaseServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getAuthUser()
   if (!user) redirect('/login')
 
   const profile = await getCurrentProfile(supabase, user.id)
