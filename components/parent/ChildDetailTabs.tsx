@@ -11,12 +11,23 @@ const TABS: { id: TabId; label: string }[] = [
   { id: 'settings',   label: 'Settings'   },
 ]
 
+// Panels are pre-rendered server-side and passed as named props so no function
+// crosses the Server → Client boundary (functions are not serialisable in RSC).
 interface Props {
-  children: (activeTab: TabId) => React.ReactNode
+  overview:   React.ReactNode
+  curriculum: React.ReactNode
+  activity:   React.ReactNode
+  settings:   React.ReactNode
   defaultTab?: TabId
 }
 
-export function ChildDetailTabs({ children, defaultTab = 'overview' }: Props) {
+export function ChildDetailTabs({
+  overview,
+  curriculum,
+  activity,
+  settings,
+  defaultTab = 'overview',
+}: Props) {
   const [active, setActive] = useState<TabId>(defaultTab)
 
   // Sync with ?tab= query param on mount
@@ -25,6 +36,8 @@ export function ChildDetailTabs({ children, defaultTab = 'overview' }: Props) {
     const tab = params.get('tab') as TabId | null
     if (tab && TABS.some((t) => t.id === tab)) setActive(tab)
   }, [])
+
+  const panels: Record<TabId, React.ReactNode> = { overview, curriculum, activity, settings }
 
   return (
     <div>
@@ -57,15 +70,19 @@ export function ChildDetailTabs({ children, defaultTab = 'overview' }: Props) {
         </div>
       </div>
 
-      {/* Panel */}
-      <div
-        role="tabpanel"
-        id={`tabpanel-${active}`}
-        aria-labelledby={`tab-${active}`}
-        tabIndex={0}
-      >
-        {children(active)}
-      </div>
+      {/* Panels — all rendered server-side; CSS controls visibility */}
+      {TABS.map((tab) => (
+        <div
+          key={tab.id}
+          role="tabpanel"
+          id={`tabpanel-${tab.id}`}
+          aria-labelledby={`tab-${tab.id}`}
+          tabIndex={0}
+          hidden={active !== tab.id}
+        >
+          {panels[tab.id]}
+        </div>
+      ))}
     </div>
   )
 }
