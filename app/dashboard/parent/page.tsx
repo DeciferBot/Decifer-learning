@@ -47,13 +47,18 @@ export default async function ParentDashboardPage() {
 
   const children = profile ? await getLinkedChildren(profile.user_id) : []
 
-  // Subscription status for the parent
-  const subscription = user
-    ? await prisma.subscription.findUnique({
-        where: { user_id: user.id },
-        select: { plan: true, status: true, current_period_end: true },
-      }).catch(() => null)
-    : null
+  // Subscription status for the parent (guarded: model may not exist in older deploys)
+  let subscription: { plan: string; status: string; current_period_end: Date | null } | null = null
+  try {
+    subscription = user
+      ? await (prisma as any).subscription?.findUnique?.({
+          where: { user_id: user.id },
+          select: { plan: true, status: true, current_period_end: true },
+        }) ?? null
+      : null
+  } catch {
+    subscription = null
+  }
 
   // Fetch per-child data in parallel
   // Need year_group_id for curriculum progress

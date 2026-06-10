@@ -227,12 +227,9 @@ export default async function ChildDetailPage({
       </div>
 
       {/* ── Tabbed sections ───────────────────────────────────────────────────── */}
-      <ChildDetailTabs>
-        {(activeTab) => (
-          <>
-            {/* ══ OVERVIEW tab ═══════════════════════════════════════════════════ */}
-            {activeTab === 'overview' && (
-              <div className="space-y-5">
+      <ChildDetailTabs
+        overview={
+          <div className="space-y-5">
 
                 {/* Recommended next lesson */}
                 {recommended && (
@@ -445,11 +442,9 @@ export default async function ChildDetailPage({
                   )}
                 </div>
               </div>
-            )}
-
-            {/* ══ CURRICULUM tab ═════════════════════════════════════════════════ */}
-            {activeTab === 'curriculum' && (
-              <div className="space-y-5">
+          }
+          curriculum={
+            <div className="space-y-5">
                 <SyllabusHeatmap
                   subjects={curriculumProgress}
                   childName={childProfile.display_name}
@@ -533,12 +528,10 @@ export default async function ChildDetailPage({
                     </p>
                   )}
                 </Card>
-              </div>
-            )}
-
-            {/* ══ ACTIVITY tab ═══════════════════════════════════════════════════ */}
-            {activeTab === 'activity' && (
-              <div className="space-y-5">
+            </div>
+          }
+          activity={
+            <div className="space-y-5">
                 <Card title="Recent quiz sessions">
                   {recentActivity.length > 0 ? (
                     <ul className="divide-y divide-black/[0.04]">
@@ -636,11 +629,9 @@ export default async function ChildDetailPage({
                   )}
                 </Card>
               </div>
-            )}
-
-            {/* ══ SETTINGS tab ═══════════════════════════════════════════════════ */}
-            {activeTab === 'settings' && (
-              <div className="space-y-5">
+          }
+          settings={
+            <div className="space-y-5">
                 {/* Exam Revision first — most frequent action */}
                 <ExamSection
                   childProfileId={childProfile.id}
@@ -659,10 +650,8 @@ export default async function ChildDetailPage({
                   />
                 </Card>
               </div>
-            )}
-          </>
-        )}
-      </ChildDetailTabs>
+          }
+      />
     </section>
   )
 }
