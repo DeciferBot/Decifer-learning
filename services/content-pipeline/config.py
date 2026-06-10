@@ -10,7 +10,22 @@ if _env_file.exists():
     load_dotenv(_env_file)
 
 ANTHROPIC_API_KEY: str = os.environ.get("ANTHROPIC_API_KEY", "")
-DATABASE_URL: str      = os.environ.get("DATABASE_URL", "")
+
+
+def _psycopg2_safe_dsn(url: str) -> str:
+    """Strip Prisma-only query params (e.g. pgbouncer=true) that psycopg2 rejects."""
+    if not url or "?" not in url:
+        return url
+    from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
+    parts = urlsplit(url)
+    params = [(k, v) for k, v in parse_qsl(parts.query) if k.lower() not in ("pgbouncer", "connection_limit", "pool_timeout")]
+    return urlunsplit(parts._replace(query=urlencode(params)))
+
+
+# Prefer the direct (non-pooled) connection for long-running pipeline work.
+DATABASE_URL: str = _psycopg2_safe_dsn(
+    os.environ.get("DIRECT_URL") or os.environ.get("DATABASE_URL", "")
+)
 
 # Embeddings via sentence-transformers (local, no API key needed).
 EMBEDDINGS_ENABLED: bool = True
