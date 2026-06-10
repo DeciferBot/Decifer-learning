@@ -128,7 +128,7 @@ export default async function ChildDetailPage({
   ])
 
   // Screen-time controls + exam assignments (parallel)
-  const [parentControls, examAssignments, subjects] = await Promise.all([
+  const [parentControls, examAssignments] = await Promise.all([
     prisma.parentControl.findUnique({
       where:  { child_profile_id: childProfile.id },
       select: { daily_time_limit_minutes: true, leaderboard_visible: true },
@@ -146,7 +146,6 @@ export default async function ChildDetailPage({
         },
       },
     }),
-    prisma.subject.findMany({ select: { id: true, name: true, colour_token: true } }),
   ])
 
   // Curriculum coverage for most recent topic (sequential — depends on recentTopicId)
@@ -636,9 +635,6 @@ export default async function ChildDetailPage({
                 <ExamSection
                   childProfileId={childProfile.id}
                   childName={childProfile.display_name}
-                  yearGroupId={childProfile.year_group_id ?? null}
-                  yearGroupLabel={yearGroupLabel}
-                  subjects={subjects}
                   initialAssignments={examAssignmentRows}
                 />
 

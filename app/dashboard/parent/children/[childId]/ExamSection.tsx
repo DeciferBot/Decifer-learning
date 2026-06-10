@@ -18,18 +18,12 @@ type AssignmentRow = {
 interface Props {
   childProfileId: string
   childName: string
-  yearGroupId: string | null
-  yearGroupLabel: string | null
-  subjects: Subject[]
   initialAssignments: AssignmentRow[]
 }
 
 export function ExamSection({
   childProfileId,
   childName,
-  yearGroupId,
-  yearGroupLabel,
-  subjects,
   initialAssignments,
 }: Props) {
   const [assignments, setAssignments] = useState<AssignmentRow[]>(initialAssignments)
@@ -108,9 +102,6 @@ export function ExamSection({
         <SetExamModal
           childProfileId={childProfileId}
           childName={childName}
-          subjects={subjects}
-          yearGroupId={yearGroupId}
-          yearGroupLabel={yearGroupLabel}
           onClose={() => setShowModal(false)}
           onSuccess={handleSuccess}
         />

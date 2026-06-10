@@ -45,6 +45,53 @@ export interface TopicBreakdown {
   total: number
 }
 
+// Topics the child has actually engaged with — completed/started topics,
+// quiz attempts, or completed lessons/practice. Exams are drawn from what
+// the child has already learnt, never from unseen content.
+export async function getLearntTopicIds(
+  childProfileId: string,
+  filter?: { subjectId?: string; yearGroupId?: string | null },
+): Promise<string[]> {
+  const [progress, attempts, events] = await Promise.all([
+    prisma.topicProgress.findMany({
+      where: { profile_id: childProfileId },
+      select: { topic_id: true },
+    }),
+    prisma.quizAttempt.findMany({
+      where: { profile_id: childProfileId },
+      select: { topic_id: true },
+      distinct: ['topic_id'],
+    }),
+    prisma.learningEvent.findMany({
+      where: {
+        profile_id: childProfileId,
+        event_type: { in: ['lesson_completed', 'practice_completed', 'quiz_completed'] },
+        topic_id: { not: null },
+      },
+      select: { topic_id: true },
+      distinct: ['topic_id'],
+    }),
+  ])
+
+  const ids = new Set<string>()
+  for (const r of progress) ids.add(r.topic_id)
+  for (const r of attempts) ids.add(r.topic_id)
+  for (const r of events) if (r.topic_id) ids.add(r.topic_id)
+  if (ids.size === 0) return []
+
+  // Restrict to published topics (optionally within a subject / year group)
+  const topics = await prisma.topic.findMany({
+    where: {
+      id: { in: [...ids] },
+      is_published: true,
+      ...(filter?.subjectId ? { subject_id: filter.subjectId } : {}),
+      ...(filter?.yearGroupId ? { year_group_id: filter.yearGroupId } : {}),
+    },
+    select: { id: true },
+  })
+  return topics.map((t) => t.id)
+}
+
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr]
   for (let i = a.length - 1; i > 0; i--) {
@@ -94,7 +141,13 @@ export async function selectExamQuestions(
       .filter(([, s]) => s.total >= 5 && (s.total - s.correct) / s.total > 0.5)
       .map(([id]) => id)
 
-    // Fall back to all topics if no weak areas found
+    // Fall back to topics the child has already learnt, then to all topics
+    if (topicIds.length === 0) {
+      topicIds = await getLearntTopicIds(childProfileId, {
+        subjectId: assignment.subject_id,
+        yearGroupId: assignment.year_group_id,
+      })
+    }
     if (topicIds.length === 0) {
       const all = await prisma.topic.findMany({
         where: {
