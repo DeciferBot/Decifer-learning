@@ -34,7 +34,8 @@ const AIDS: Aid[] = [
     emoji: '🌍',
     gradient: 'linear-gradient(135deg, #1b4332 0%, #2d6a4f 50%, #40916c 100%)',
     href: '/explore/world-atlas',
-    available: false,
+    available: true,
+    badge: 'NEW',
   },
   {
     id: 'human-body',
