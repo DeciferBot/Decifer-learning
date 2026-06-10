@@ -95,6 +95,10 @@ export interface SignalEngineInput {
   quizAttempts: QuizAttemptInput[]
   quizAnswers: QuizAnswerInput[]
   learningEvents: LearningEventInput[]
+  // topicId → title for topics referenced by events/attempts that have no
+  // topic_progress row yet (e.g. lesson done, quiz not attempted). Without
+  // this, signal titles fall back to a raw UUID.
+  topicTitles?: Record<string, string>
   generatedAt: Date
 }
 
@@ -224,7 +228,7 @@ function generateLowerAccuracySignals(
 
     const progress = progressByTopic.get(topicId)
     const subjectName = progress?.subjectName ?? ''
-    const topicTitle  = progress?.topicTitle  ?? topicId
+    const topicTitle  = progress?.topicTitle ?? input.topicTitles?.[topicId] ?? 'Unknown topic'
 
     signals.push({
       id:              signalId('lower_accuracy', topicId),
@@ -275,7 +279,7 @@ function generateHighEffortLowProgressSignals(
     if (avgTime < medianTime * 1.3) continue // not significantly above average
 
     const progress = progressByTopic.get(topicId)
-    const topicTitle = progress?.topicTitle ?? topicId
+    const topicTitle = progress?.topicTitle ?? input.topicTitles?.[topicId] ?? 'Unknown topic'
 
     signals.push({
       id:              signalId('high_effort_low_progress', topicId),
@@ -322,7 +326,7 @@ function generateQuickSuccessSignals(
     if (avgTime > medianTime * 0.7) continue // not notably quick
 
     const progress = progressByTopic.get(topicId)
-    const topicTitle = progress?.topicTitle ?? topicId
+    const topicTitle = progress?.topicTitle ?? input.topicTitles?.[topicId] ?? 'Unknown topic'
 
     signals.push({
       id:              signalId('quick_success', topicId),
@@ -361,7 +365,7 @@ function generateRushingSignals(
     if (lowTimeAttempts.length < 2) continue
 
     const progress = progressByTopic.get(topicId)
-    const topicTitle = progress?.topicTitle ?? topicId
+    const topicTitle = progress?.topicTitle ?? input.topicTitles?.[topicId] ?? 'Unknown topic'
 
     signals.push({
       id:              signalId('rushing_or_low_engagement', topicId),
@@ -403,7 +407,7 @@ function generatePersistenceSignals(
     if (latest.score < first.score + 0.2) continue // no meaningful improvement
 
     const progress = progressByTopic.get(topicId)
-    const topicTitle = progress?.topicTitle ?? topicId
+    const topicTitle = progress?.topicTitle ?? input.topicTitles?.[topicId] ?? 'Unknown topic'
     const improvement = Math.round((latest.score - first.score) * 100)
 
     signals.push({
@@ -444,7 +448,7 @@ function generateRepeatedWithoutProgressSignals(
     if (!allLow || !noProgress) continue
 
     const progress = progressByTopic.get(topicId)
-    const topicTitle = progress?.topicTitle ?? topicId
+    const topicTitle = progress?.topicTitle ?? input.topicTitles?.[topicId] ?? 'Unknown topic'
 
     signals.push({
       id:              signalId('repeated_without_progress', topicId),
@@ -490,7 +494,7 @@ function generateInterestSignals(
     if (days.size < 2) continue
 
     const progress = progressByTopic.get(topicId)
-    const topicTitle = progress?.topicTitle ?? topicId
+    const topicTitle = progress?.topicTitle ?? input.topicTitles?.[topicId] ?? 'Unknown topic'
     const subjectName = progress?.subjectName ?? ''
 
     signals.push({
@@ -537,7 +541,7 @@ function generateAvoidanceSignals(
     if (clickedTopics.has(topicId) || openedTopics.has(topicId)) continue
 
     const progress = progressByTopic.get(topicId)
-    const topicTitle = progress?.topicTitle ?? topicId
+    const topicTitle = progress?.topicTitle ?? input.topicTitles?.[topicId] ?? 'Unknown topic'
 
     signals.push({
       id:              signalId('avoidance_signal', topicId),
@@ -584,7 +588,7 @@ function generateConfidenceGapSignals(
     if (quizStartedTopics.has(topicId) || attemptedTopics.has(topicId)) continue
 
     const progress = progressByTopic.get(topicId)
-    const topicTitle = progress?.topicTitle ?? topicId
+    const topicTitle = progress?.topicTitle ?? input.topicTitles?.[topicId] ?? 'Unknown topic'
 
     signals.push({
       id:              signalId('confidence_gap', topicId),

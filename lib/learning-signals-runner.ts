@@ -82,12 +82,31 @@ export async function getSignalsForChild(childProfileId: string): Promise<Learni
       occurredAt: e.occurredAt,
     }))
 
+    // Titles for topics referenced by events/attempts that have no
+    // topic_progress row yet — otherwise signal titles show a raw UUID.
+    const knownTopicIds = new Set(topicProgress.map((p) => p.topicId))
+    const orphanTopicIds = [
+      ...new Set(
+        [...learningEvents.map((e) => e.topicId), ...quizAttempts.map((a) => a.topicId)]
+          .filter((id): id is string => !!id && !knownTopicIds.has(id)),
+      ),
+    ]
+    const topicTitles: Record<string, string> = {}
+    if (orphanTopicIds.length > 0) {
+      const titleRows = await prisma.topic.findMany({
+        where:  { id: { in: orphanTopicIds } },
+        select: { id: true, title: true },
+      })
+      for (const t of titleRows) topicTitles[t.id] = t.title
+    }
+
     const input: SignalEngineInput = {
       childProfileId,
       topicProgress,
       quizAttempts,
       quizAnswers,
       learningEvents,
+      topicTitles,
       generatedAt: new Date(),
     }
 

@@ -307,6 +307,34 @@ describe('avoidance_signal', () => {
   })
 })
 
+// ── Topic title resolution ────────────────────────────────────────────────────
+
+describe('topic title resolution without a progress row', () => {
+  it('uses input.topicTitles for confidence_gap signals (never the raw topic id)', () => {
+    const input = baseInput()
+    // Lesson completed, no quiz — and crucially no topicProgress row for the topic.
+    input.learningEvents = [makeEvent('lesson_completed', 'topic-uuid-no-progress', NOW)]
+    input.topicTitles = { 'topic-uuid-no-progress': 'Animals: Nutrition and Skeletons' }
+
+    const signals = computeSignals(input)
+    const gap = signals.find((s) => s.signalType === 'confidence_gap')
+    expect(gap).toBeDefined()
+    expect(gap!.title).toContain('Animals: Nutrition and Skeletons')
+    expect(gap!.title).not.toContain('topic-uuid-no-progress')
+  })
+
+  it('falls back to "Unknown topic" when no title is available anywhere', () => {
+    const input = baseInput()
+    input.learningEvents = [makeEvent('lesson_completed', 'topic-uuid-no-progress', NOW)]
+
+    const signals = computeSignals(input)
+    const gap = signals.find((s) => s.signalType === 'confidence_gap')
+    expect(gap).toBeDefined()
+    expect(gap!.title).toContain('Unknown topic')
+    expect(gap!.title).not.toContain('topic-uuid-no-progress')
+  })
+})
+
 // ── Deduplication ─────────────────────────────────────────────────────────────
 
 describe('signal deduplication', () => {
