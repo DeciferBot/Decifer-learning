@@ -16,6 +16,13 @@ const PUBLISHED_VERIFIED = {
   verification_status: 'verified',
 } satisfies { status: 'published'; verification_status: string }
 
+// Children only ever see lessons for their own year group. `lessons.year_group`
+// holds the same labels as `year_groups.label` ('year-3', 'year-7', …), so the
+// caller passes the child's profile year-group label straight through.
+function publishedVerifiedFor(yearGroup: string) {
+  return { ...PUBLISHED_VERIFIED, year_group: yearGroup }
+}
+
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export type SubjectCard = {
@@ -55,21 +62,22 @@ export type LessonDetail = LessonCard & {
 // ── Queries ───────────────────────────────────────────────────────────────────
 
 /**
- * Returns subjects that have at least one published+verified lesson.
- * Safe for child-facing subject-browse page.
+ * Returns subjects that have at least one published+verified lesson
+ * in the child's year group. Safe for child-facing subject-browse page.
  */
-export async function getPublishedSubjects(): Promise<SubjectCard[]> {
+export async function getPublishedSubjects(yearGroup: string): Promise<SubjectCard[]> {
+  const gate = publishedVerifiedFor(yearGroup)
   const rows = await prisma.subject.findMany({
     where: {
       slug: { not: null },
-      lessons: { some: PUBLISHED_VERIFIED },
+      lessons: { some: gate },
     },
     select: {
       id: true,
       name: true,
       slug: true,
       colour_token: true,
-      _count: { select: { lessons: { where: PUBLISHED_VERIFIED } } },
+      _count: { select: { lessons: { where: gate } } },
     },
     orderBy: { name: 'asc' },
   })
@@ -84,10 +92,13 @@ export async function getPublishedSubjects(): Promise<SubjectCard[]> {
 }
 
 /**
- * Returns topics under a subject that have at least one published+verified lesson.
- * Returns null for subject if the slug is unknown.
+ * Returns topics under a subject that have at least one published+verified lesson
+ * in the child's year group. Returns null for subject if the slug is unknown.
  */
-export async function getPublishedTopicsForSubject(subjectSlug: string): Promise<{
+export async function getPublishedTopicsForSubject(
+  subjectSlug: string,
+  yearGroup: string,
+): Promise<{
   subject: Pick<SubjectCard, 'id' | 'name' | 'slug' | 'colour_token'> | null
   topics: TopicCard[]
 }> {
@@ -97,18 +108,19 @@ export async function getPublishedTopicsForSubject(subjectSlug: string): Promise
   })
   if (!subject || !subject.slug) return { subject: null, topics: [] }
 
+  const gate = publishedVerifiedFor(yearGroup)
   const topics = await prisma.topic.findMany({
     where: {
       subject_id: subject.id,
       is_published: true,
       slug: { not: null },
-      lessons: { some: PUBLISHED_VERIFIED },
+      lessons: { some: gate },
     },
     select: {
       id: true,
       title: true,
       slug: true,
-      _count: { select: { lessons: { where: PUBLISHED_VERIFIED } } },
+      _count: { select: { lessons: { where: gate } } },
     },
     orderBy: { order_index: 'asc' },
   })
@@ -125,12 +137,14 @@ export async function getPublishedTopicsForSubject(subjectSlug: string): Promise
 }
 
 /**
- * Returns published+verified lessons for a topic identified by subject+topic slugs.
+ * Returns published+verified lessons in the child's year group for a topic
+ * identified by subject+topic slugs.
  * Returns null for topic if the combination is unknown or unpublished.
  */
 export async function getPublishedLessonsForTopic(
   subjectSlug: string,
   topicSlug: string,
+  yearGroup: string,
 ): Promise<{
   subject: Pick<SubjectCard, 'name' | 'slug' | 'colour_token'> | null
   topic: Pick<TopicCard, 'id' | 'title' | 'slug'> | null
@@ -155,7 +169,7 @@ export async function getPublishedLessonsForTopic(
   }
 
   const lessons = await prisma.lesson.findMany({
-    where: { topic_id: topic.id, ...PUBLISHED_VERIFIED },
+    where: { topic_id: topic.id, ...publishedVerifiedFor(yearGroup) },
     select: {
       id: true,
       title: true,
@@ -176,13 +190,17 @@ export async function getPublishedLessonsForTopic(
 }
 
 /**
- * Returns a single published+verified lesson by global slug.
+ * Returns a single published+verified lesson by global slug, restricted to the
+ * child's year group so a direct URL cannot surface another year's lesson.
  * Returns null for any lesson that is not published AND verified.
  * Never falls back to AI generation or seed content.
  */
-export async function getPublishedLesson(lessonSlug: string): Promise<LessonDetail | null> {
+export async function getPublishedLesson(
+  lessonSlug: string,
+  yearGroup: string,
+): Promise<LessonDetail | null> {
   const lesson = await prisma.lesson.findFirst({
-    where: { slug: lessonSlug, ...PUBLISHED_VERIFIED },
+    where: { slug: lessonSlug, ...publishedVerifiedFor(yearGroup) },
     select: {
       id: true,
       title: true,

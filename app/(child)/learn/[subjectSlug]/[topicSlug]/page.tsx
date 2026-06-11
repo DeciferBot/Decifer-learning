@@ -1,5 +1,7 @@
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
+import { getAuthUser } from '@/lib/supabase/server'
+import { getChildYearGroupLabel } from '@/lib/child-gate'
 import { getPublishedLessonsForTopic } from '@/lib/lesson-store'
 
 type Props = { params: { subjectSlug: string; topicSlug: string } }
@@ -15,9 +17,15 @@ const LANE_LABEL: Record<string, string> = {
 }
 
 export default async function TopicPage({ params }: Props) {
+  const user = await getAuthUser()
+  if (!user) redirect('/login')
+  const yearGroup = await getChildYearGroupLabel(user.id)
+  if (!yearGroup) redirect('/dashboard')
+
   const { subject, topic, lessons } = await getPublishedLessonsForTopic(
     params.subjectSlug,
     params.topicSlug,
+    yearGroup,
   )
 
   if (!subject) notFound()

@@ -1,11 +1,19 @@
 export const dynamic = 'force-dynamic'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
+import { getAuthUser } from '@/lib/supabase/server'
+import { getChildYearGroupLabel } from '@/lib/child-gate'
 import { getPublishedSubjects } from '@/lib/lesson-store'
 
 export const metadata = { title: 'Learn — Decifer Learning' }
 
 export default async function LearnIndexPage() {
-  const subjects = await getPublishedSubjects()
+  const user = await getAuthUser()
+  if (!user) redirect('/login')
+  const yearGroup = await getChildYearGroupLabel(user.id)
+  if (!yearGroup) redirect('/dashboard')
+
+  const subjects = await getPublishedSubjects(yearGroup)
 
   return (
     <div className="space-y-6">

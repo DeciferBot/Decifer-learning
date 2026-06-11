@@ -21,6 +21,16 @@ export type ChildGate = {
   consent: ConsentGate
 }
 
+// Year-group label ('year-3', 'year-7', …) for the signed-in child.
+// The Lessons section uses this to scope every query to the child's own year.
+export const getChildYearGroupLabel = cache(async (userId: string): Promise<string | null> => {
+  const profile = await prisma.profile.findUnique({
+    where: { user_id: userId },
+    select: { year_group: { select: { label: true } } },
+  })
+  return profile?.year_group?.label ?? null
+})
+
 export const getChildGate = cache(async (userId: string): Promise<ChildGate> => {
   const [profile, link] = await Promise.all([
     prisma.profile.findUnique({

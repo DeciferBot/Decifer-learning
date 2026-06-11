@@ -1,5 +1,8 @@
 export const dynamic = 'force-dynamic'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
+import { getAuthUser } from '@/lib/supabase/server'
+import { getChildYearGroupLabel } from '@/lib/child-gate'
 import { getPublishedLesson } from '@/lib/lesson-store'
 import { prisma } from '@/lib/prisma'
 import { LessonEventTracker, LessonCompleteCTA } from '@/components/learn/LessonEventTracker'
@@ -48,8 +51,14 @@ function NotReadyPage({
 export default async function LessonDetailPage({ params }: Props) {
   const { subjectSlug, topicSlug, lessonSlug } = params
 
-  // Safety gate: only published+verified lessons are allowed through.
-  const lesson = await getPublishedLesson(lessonSlug)
+  const user = await getAuthUser()
+  if (!user) redirect('/login')
+  const yearGroup = await getChildYearGroupLabel(user.id)
+  if (!yearGroup) redirect('/dashboard')
+
+  // Safety gate: only published+verified lessons in the child's own year group
+  // are allowed through — a direct URL to another year's lesson shows NotReady.
+  const lesson = await getPublishedLesson(lessonSlug, yearGroup)
 
   if (!lesson) {
     // Show safe not-ready state regardless of whether the slug exists.

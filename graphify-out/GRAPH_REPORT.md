@@ -1,11 +1,11 @@
 # Graph Report - .  (2026-06-11)
 
 ## Corpus Check
-- 400 files · ~567,670 words
+- 398 files · ~567,324 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1609 nodes · 2445 edges · 252 communities detected
+- 1603 nodes · 2444 edges · 252 communities detected
 - Extraction: 70% EXTRACTED · 30% INFERRED · 0% AMBIGUOUS · INFERRED: 722 edges (avg confidence: 0.76)
 - Token cost: 0 input · 0 output
 
@@ -265,10 +265,10 @@
 
 ## God Nodes (most connected - your core abstractions)
 1. `GET()` - 176 edges
-2. `POST()` - 77 edges
+2. `POST()` - 75 edges
 3. `create()` - 49 edges
 4. `error()` - 45 edges
-5. `fetch()` - 43 edges
+5. `fetch()` - 41 edges
 6. `classify()` - 36 edges
 7. `PipelineLockError` - 28 edges
 8. `FailureAction` - 27 edges
@@ -291,55 +291,55 @@
 
 ### Community 0 - "Community 0"
 Cohesion: 0.02
-Nodes (164): main(), parseWidgets(), bulk_upsert_chunks(), cancel_pipeline_run(), complete_pipeline_run(), count_published_questions(), create_pipeline_run(), get_connection() (+156 more)
+Nodes (64): createSupabaseAdminClient(), hasAdminRole(), requireAdmin(), requireAdminApi(), pickRarity(), createCatalogueItem(), getActiveCatalogueItems(), getAllCatalogueItems() (+56 more)
 
 ### Community 1 - "Community 1"
-Cohesion: 0.02
-Nodes (65): createSupabaseAdminClient(), hasAdminRole(), requireAdmin(), requireAdminApi(), pickRarity(), createCatalogueItem(), getActiveCatalogueItems(), getAllCatalogueItems() (+57 more)
+Cohesion: 0.03
+Nodes (125): bulk_upsert_chunks(), cancel_pipeline_run(), complete_pipeline_run(), count_published_questions(), create_pipeline_run(), get_connection(), get_flagged_questions(), get_pipeline_run() (+117 more)
 
 ### Community 2 - "Community 2"
-Cohesion: 0.02
-Nodes (46): createItem(), toggleActive(), resend(), saveEmail(), toggleAssign(), async(), handleSuccess(), advance() (+38 more)
+Cohesion: 0.03
+Nodes (72): main(), parseWidgets(), main(), learning-autopilot-run.py — Execute the next batch of queued content jobs.  Dequ, error(), LoginForm(), main(), _build_command() (+64 more)
 
 ### Community 3 - "Community 3"
-Cohesion: 0.04
-Nodes (53): getAllRequests(), getVaultStats(), main(), Publish any topic that has >= 5 published questions and is not yet published. Sa, _chempy_available(), _lookup_element(), Chemistry verifier for Decifer Learning content pipeline.  Stage 2: code verific, Use ChemPy to check mass balance of a chemical equation. (+45 more)
+Cohesion: 0.03
+Nodes (44): createItem(), toggleActive(), resend(), saveEmail(), toggleAssign(), async(), handleSuccess(), advance() (+36 more)
 
 ### Community 4 - "Community 4"
 Cohesion: 0.04
-Nodes (49): _classify(), coverage_summary(), CoverageState, _fetch_raw(), print_coverage(), coverage_scanner.py — Topic coverage state scanner for the Decifer Learning auto, Return classified TopicCoverage objects for every topic., Return a dict of state → count for a coverage list. (+41 more)
+Nodes (51): _classify(), coverage_summary(), CoverageState, _fetch_raw(), print_coverage(), coverage_scanner.py — Topic coverage state scanner for the Decifer Learning auto, Return classified TopicCoverage objects for every topic., Return a dict of state → count for a coverage list. (+43 more)
 
 ### Community 5 - "Community 5"
+Cohesion: 0.04
+Nodes (56): getAllRequests(), getVaultStats(), main(), Publish any topic that has >= 5 published questions and is not yet published. Sa, chunks_from_quiz(), chunks_from_summary(), chunks_from_transcript(), main() (+48 more)
+
+### Community 6 - "Community 6"
 Cohesion: 0.03
 Nodes (0): 
 
-### Community 6 - "Community 6"
-Cohesion: 0.07
-Nodes (53): Enum, main(), learning-autopilot-run.py — Execute the next batch of queued content jobs.  Dequ, _build_command(), JobResult, _log_result(), _pipeline_gate_open(), print_run_summary() (+45 more)
-
 ### Community 7 - "Community 7"
 Cohesion: 0.07
-Nodes (46): BaseModel, BatchItem, BatchItemResult, generate(), GenerateBatchRequest, GenerateBatchResponse, GenerateRequest, GenerateResponse (+38 more)
+Nodes (45): BaseModel, BatchItem, BatchItemResult, generate(), GenerateBatchRequest, GenerateBatchResponse, GenerateRequest, GenerateResponse (+37 more)
 
 ### Community 8 - "Community 8"
-Cohesion: 0.08
-Nodes (45): get_confidence_threshold(), _psycopg2_safe_dsn(), Runtime configuration for the Decifer Learning content pipeline., Strip Prisma-only query params (e.g. pgbouncer=true) that psycopg2 rejects., Return the publish threshold for a given question_type., main(), oak(), Ingest Oak National Academy lesson CONTENT into curriculum_chunks.  This is the (+37 more)
+Cohesion: 0.07
+Nodes (46): generate_body_html(), generate_widgets(), get_curriculum_chunks(), get_topics_needing_learn_content(), insert_learn_content(), _label_to_display(), _label_to_year_group_key(), main() (+38 more)
 
 ### Community 9 - "Community 9"
 Cohesion: 0.06
-Nodes (25): deduplicateById(), getHistoryIds(), logSelection(), pickWithTierBalance(), rotateFillBlankItems(), selectInterleavedQuestions(), selectPracticeItems(), selectQuizQuestions() (+17 more)
+Nodes (29): deduplicateById(), getHistoryIds(), logSelection(), pickWithTierBalance(), rotateFillBlankItems(), selectInterleavedQuestions(), selectPracticeItems(), selectQuizQuestions() (+21 more)
 
 ### Community 10 - "Community 10"
-Cohesion: 0.08
-Nodes (20): Tests for verifier_router.py — proving each question type routes correctly.  Cov, These tests require the english verifier and LanguageTool to be available., A valid grammar question with a stimulus error should pass LT verification., A phonics question with phoneme content should pass without LT false positives., A punctuation demonstration question should not be blocked by LT style rules., An etymology question with Latin roots should not be blocked by MORFOLOGIK., A grammar question whose intentional_error_type is phonics should re-route., TestEnglishRouting (+12 more)
+Cohesion: 0.07
+Nodes (43): _anthropic(), _conn(), _do_llama(), get_chunks(), get_existing_questions(), get_gaps(), infer_qtype(), _llama_call() (+35 more)
 
 ### Community 11 - "Community 11"
-Cohesion: 0.09
-Nodes (36): main(), map_unit(), oak(), Build an LLM-assisted mapping from Oak National Academy unit slugs → our NC-deri, Ask Claude to map one Oak unit title to one of our NC-derived topic slugs., _anthropic(), _conn(), _do_llama() (+28 more)
+Cohesion: 0.08
+Nodes (41): _run_tests(), _check_prose_fields(), _get_lt(), _lt_errors(), _normalize_quotes(), _overlaps(), English verifier for Decifer Learning content pipeline.  Stage 2: code verificat, Replace Unicode smart quotes with ASCII equivalents before LanguageTool checks. (+33 more)
 
 ### Community 12 - "Community 12"
-Cohesion: 0.1
-Nodes (33): _run_tests(), _check_prose_fields(), _get_lt(), _lt_errors(), _normalize_quotes(), _overlaps(), English verifier for Decifer Learning content pipeline.  Stage 2: code verificat, Replace Unicode smart quotes with ASCII equivalents before LanguageTool checks. (+25 more)
+Cohesion: 0.08
+Nodes (20): Tests for verifier_router.py — proving each question type routes correctly.  Cov, These tests require the english verifier and LanguageTool to be available., A valid grammar question with a stimulus error should pass LT verification., A phonics question with phoneme content should pass without LT false positives., A punctuation demonstration question should not be blocked by LT style rules., An etymology question with Latin roots should not be blocked by MORFOLOGIK., A grammar question whose intentional_error_type is phonics should re-route., TestEnglishRouting (+12 more)
 
 ### Community 13 - "Community 13"
 Cohesion: 0.11
@@ -350,32 +350,32 @@ Cohesion: 0.14
 Nodes (24): _classify_error_messages(), _conn(), diagnose_topic(), _expected_type_for_slug(), fetch_generation_errors(), fetch_last_pipeline_run(), fetch_published_question_types(), fetch_recent_question_types_staged() (+16 more)
 
 ### Community 15 - "Community 15"
-Cohesion: 0.13
-Nodes (20): _conn(), fix_one(), get_questions(), main(), _opus(), _conn(), get_questions_needing_improvement(), _haiku() (+12 more)
+Cohesion: 0.09
+Nodes (12): get_confidence_threshold(), _psycopg2_safe_dsn(), Runtime configuration for the Decifer Learning content pipeline., Strip Prisma-only query params (e.g. pgbouncer=true) that psycopg2 rejects., Return the publish threshold for a given question_type., getChildWeakAreas(), getProgressBySubject(), getRecommendedNextLesson() (+4 more)
 
 ### Community 16 - "Community 16"
+Cohesion: 0.13
+Nodes (22): main(), map_unit(), oak(), Build an LLM-assisted mapping from Oak National Academy unit slugs → our NC-deri, Ask Claude to map one Oak unit title to one of our NC-derived topic slugs., RuntimeError, assert_safe(), check_job_in_queue() (+14 more)
+
+### Community 17 - "Community 17"
 Cohesion: 0.2
 Nodes (18): cosine(), embedBatch(), main(), Flag near-duplicate published quiz questions within the same topic.  Uses the sa, build_body_html(), check_rate(), get_lessons_for_unit(), import_questions() (+10 more)
 
-### Community 17 - "Community 17"
-Cohesion: 0.14
-Nodes (7): getChildWeakAreas(), getProgressBySubject(), getRecommendedNextLesson(), getStrongestTopics(), signalLevel(), toRecommendedLesson(), main()
-
 ### Community 18 - "Community 18"
-Cohesion: 0.18
-Nodes (16): assign_tier(), fetch_oak_content(), import_chunk(), import_questions(), infer_qtype(), main(), make_hints(), match_lessons_to_topics() (+8 more)
-
-### Community 19 - "Community 19"
 Cohesion: 0.24
 Nodes (16): _cache_get(), _cache_set(), check_rate(), claude_match(), _ensure_cache_table(), insert_questions(), job_match(), job_quiz() (+8 more)
 
-### Community 20 - "Community 20"
+### Community 19 - "Community 19"
 Cohesion: 0.19
 Nodes (7): appUrl(), escapeHtml(), parentVerifyUrl(), sendParentVerificationEmail(), buildEmailHtml(), buildEmailText(), handler()
 
-### Community 21 - "Community 21"
+### Community 20 - "Community 20"
 Cohesion: 0.26
 Nodes (12): _bar(), _classify(), fetch_coverage(), main(), _parse_curriculum_map(), print_csv(), print_gaps(), print_report() (+4 more)
+
+### Community 21 - "Community 21"
+Cohesion: 0.22
+Nodes (12): _chempy_available(), _lookup_element(), Chemistry verifier for Decifer Learning content pipeline.  Stage 2: code verific, Use ChemPy to check mass balance of a chemical equation., Basic format check when ChemPy is not available., Check element property answers against the local periodic table., Stage 2 Chemistry/Science verification.      Dispatches by question_type. Unknow, Look up an element by symbol (case-sensitive) or name (case-insensitive). (+4 more)
 
 ### Community 22 - "Community 22"
 Cohesion: 0.33
@@ -1706,14 +1706,14 @@ Nodes (1): Run all checks and raise RuntimeError on the first failure.
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `GET()` connect `Community 3` to `Community 0`, `Community 1`, `Community 2`, `Community 4`, `Community 6`, `Community 7`, `Community 8`, `Community 9`, `Community 10`, `Community 11`, `Community 12`, `Community 13`, `Community 14`, `Community 15`, `Community 16`, `Community 17`, `Community 18`, `Community 19`, `Community 20`, `Community 21`, `Community 22`, `Community 23`, `Community 26`?**
-  _High betweenness centrality (0.362) - this node is a cross-community bridge._
-- **Why does `fetch()` connect `Community 2` to `Community 1`, `Community 3`, `Community 9`, `Community 13`, `Community 16`, `Community 20`, `Community 24`?**
-  _High betweenness centrality (0.089) - this node is a cross-community bridge._
-- **Why does `create()` connect `Community 0` to `Community 1`, `Community 3`, `Community 6`, `Community 8`, `Community 11`, `Community 15`, `Community 18`, `Community 19`, `Community 20`, `Community 23`?**
-  _High betweenness centrality (0.079) - this node is a cross-community bridge._
-- **Are the 149 inferred relationships involving `GET()` (e.g. with `createSupabaseServerClient()` and `ChildDashboardPage()`) actually correct?**
-  _`GET()` has 149 INFERRED edges - model-reasoned connections that need verification._
+- **Why does `GET()` connect `Community 5` to `Community 0`, `Community 1`, `Community 2`, `Community 3`, `Community 4`, `Community 7`, `Community 8`, `Community 9`, `Community 10`, `Community 11`, `Community 12`, `Community 13`, `Community 14`, `Community 15`, `Community 16`, `Community 17`, `Community 18`, `Community 19`, `Community 20`, `Community 21`, `Community 22`, `Community 23`, `Community 26`?**
+  _High betweenness centrality (0.372) - this node is a cross-community bridge._
+- **Why does `fetch()` connect `Community 3` to `Community 0`, `Community 2`, `Community 5`, `Community 9`, `Community 13`, `Community 17`, `Community 19`, `Community 24`?**
+  _High betweenness centrality (0.081) - this node is a cross-community bridge._
+- **Why does `Search()` connect `Community 10` to `Community 4`, `Community 5`, `Community 6`, `Community 7`, `Community 11`, `Community 14`, `Community 16`, `Community 18`?**
+  _High betweenness centrality (0.069) - this node is a cross-community bridge._
+- **Are the 150 inferred relationships involving `GET()` (e.g. with `createSupabaseServerClient()` and `ChildDashboardPage()`) actually correct?**
+  _`GET()` has 150 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 71 inferred relationships involving `str` (e.g. with `lesson_to_html()` and `import_questions()`) actually correct?**
   _`str` has 71 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 27 inferred relationships involving `POST()` (e.g. with `createSupabaseServerClient()` and `getConsentGate()`) actually correct?**
