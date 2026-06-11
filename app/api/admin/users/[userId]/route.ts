@@ -9,6 +9,7 @@ import { requireAdminApi } from '@/lib/auth/admin-guard'
 import { createSupabaseAdminClient } from '@/lib/supabase/admin'
 import { prisma } from '@/lib/prisma'
 import { isYearGroupLabel, yearGroupRequiresExamBoard } from '@/lib/auth/roles'
+import { syncPerChildQuantity, cancelStripeSubscriptionForUser } from '@/lib/stripe-sync'
 
 type Params = { params: { userId: string } }
 
@@ -73,6 +74,17 @@ export async function DELETE(_req: Request, { params }: Params) {
   // Look up the profile id first — needed to cascade through gameplay tables.
   const profile = await prisma.profile.findUnique({ where: { user_id: userId }, select: { id: true } })
 
+  // Billing: capture this child's parent before family_links rows are removed,
+  // so the parent's Per Child quantity can be re-synced after deletion.
+  const parentLink = await prisma.familyLink.findUnique({
+    where: { child_user_id: userId },
+    select: { parent_user_id: true },
+  })
+
+  // If the deleted user is themselves a subscriber (a parent), cancel their
+  // Stripe subscription and remove the local row — never bill a deleted account.
+  await cancelStripeSubscriptionForUser(userId)
+
   if (profile) {
     // Manually cascade: Prisma schema FK relations lack onDelete:Cascade, so Postgres
     // would block auth.users deletion unless we clear dependent rows first.
@@ -112,6 +124,12 @@ export async function DELETE(_req: Request, { params }: Params) {
   const { error } = await admin.auth.admin.deleteUser(userId)
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  // The deleted user was someone's linked child — re-sync that parent's
+  // Per Child billing quantity now the link is gone.
+  if (parentLink) {
+    await syncPerChildQuantity(parentLink.parent_user_id)
   }
 
   return NextResponse.json({ ok: true })

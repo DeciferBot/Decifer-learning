@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { getUserRole, canActAsParent } from '@/lib/auth/roles'
 import { prisma } from '@/lib/prisma'
+import { syncPerChildQuantity } from '@/lib/stripe-sync'
 
 type AuthUserRow = {
   id: string
@@ -94,6 +95,9 @@ export async function POST(req: Request) {
       seen_by_child: false,
     },
   })
+
+  // Per Child plan bills per linked child — keep Stripe quantity in step.
+  await syncPerChildQuantity(user.id)
 
   const profile = await prisma.profile.findUnique({
     where: { user_id: childUser.id },

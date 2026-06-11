@@ -3,6 +3,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { createSupabaseAdminClient } from '@/lib/supabase/admin'
 import { getUserRole, canActAsParent, isYearGroupLabel, type YearGroupLabel } from '@/lib/auth/roles'
 import { prisma } from '@/lib/prisma'
+import { syncPerChildQuantity } from '@/lib/stripe-sync'
 
 export async function POST(req: Request) {
   const supabase = createSupabaseServerClient()
@@ -102,6 +103,9 @@ export async function POST(req: Request) {
       seen_by_child: true,
     },
   })
+
+  // Per Child plan bills per linked child — keep Stripe quantity in step.
+  await syncPerChildQuantity(user.id)
 
   return NextResponse.json({
     success: true,
