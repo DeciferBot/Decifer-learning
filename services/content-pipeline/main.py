@@ -649,6 +649,89 @@ def _run_oak_daily_update():
 
         conn.commit()
 
+    # ── Chapter content ingestion ──────────────────────────────────────────────
+    # Populate curriculum_units.content_json for any units that don't have it yet.
+    # Uses the same oak_get helper already defined above.
+    PACE_SECONDS = 0.35
+    MAX_UNIT_LESSONS = 6
+
+    def normalise_summary(s: dict) -> dict:
+        return {
+            "lessonTitle": s.get("lessonTitle"),
+            "pupilLessonOutcome": s.get("pupilLessonOutcome"),
+            "keyLearningPoints": [
+                kp.get("keyLearningPoint")
+                for kp in (s.get("keyLearningPoints") or [])
+                if kp.get("keyLearningPoint")
+            ],
+            "keywords": [
+                {"keyword": kw.get("keyword"), "description": kw.get("description")}
+                for kw in (s.get("lessonKeywords") or [])
+                if kw.get("keyword")
+            ],
+            "misconceptions": [
+                {"misconception": m.get("misconception"), "response": m.get("response")}
+                for m in (s.get("misconceptionsAndCommonMistakes") or [])
+                if m.get("misconception")
+            ],
+        }
+
+    def fetch_chapter_content(slug: str) -> dict | None:
+        import urllib.parse as _up
+        parts = slug.split("/")
+        lessons: list = []
+        canonical = None
+        if len(parts) >= 5:
+            summary = oak_get(f"/lessons/{parts[4]}/summary")
+            if isinstance(summary, dict):
+                canonical = summary.get("canonicalUrl")
+                lessons.append(normalise_summary(summary))
+        elif len(parts) == 4:
+            subject_slug_local, key_stage_local, _, unit_slug_local = parts
+            data = oak_get(
+                f"/key-stages/{key_stage_local}/subject/{subject_slug_local}/lessons"
+                f"?unit={_up.quote(unit_slug_local)}"
+            )
+            unit_lessons = []
+            if isinstance(data, list):
+                for group in data:
+                    unit_lessons.extend(group.get("lessons") or [])
+            for lesson in unit_lessons[:MAX_UNIT_LESSONS]:
+                lesson_slug = lesson.get("lessonSlug")
+                if not lesson_slug:
+                    continue
+                time.sleep(PACE_SECONDS)
+                summary = oak_get(f"/lessons/{lesson_slug}/summary")
+                if isinstance(summary, dict):
+                    canonical = canonical or summary.get("canonicalUrl")
+                    lessons.append(normalise_summary(summary))
+        if not lessons:
+            return None
+        return {"lessons": lessons, "attribution": "Oak National Academy", "canonicalUrl": canonical}
+
+    cur.execute(
+        "SELECT id, oak_unit_slug FROM curriculum_units "
+        "WHERE oak_unit_slug IS NOT NULL AND content_json IS NULL "
+        "ORDER BY created_at LIMIT 200"
+    )
+    units_to_ingest = cur.fetchall()
+    chapters_ok = chapters_missing = 0
+    for unit_row in units_to_ingest:
+        try:
+            content = fetch_chapter_content(unit_row["oak_unit_slug"])
+            if content:
+                cur.execute(
+                    "UPDATE curriculum_units SET content_json = %s, content_fetched_at = now() WHERE id = %s",
+                    (json.dumps(content), unit_row["id"]),
+                )
+                conn.commit()
+                chapters_ok += 1
+            else:
+                chapters_missing += 1
+        except Exception as exc:
+            log.warning(f"oak-daily-update: chapter content error for {unit_row['oak_unit_slug']}: {exc}")
+    log.info(f"oak-daily-update chapters: {chapters_ok} ingested, {chapters_missing} missing")
+
     # Now trigger generation for thin topics (< 15 published questions)
     cur.execute("""
         SELECT t.id, t.title, s.name as subject, yg.label as year_group,
