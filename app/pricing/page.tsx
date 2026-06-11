@@ -16,6 +16,15 @@ const FREE_FEATURES = [
   'Progress tracking',
 ]
 
+const PER_CHILD_FEATURES = [
+  'All subjects: Maths, English, Science',
+  'All year groups — Year 1 to Year 11',
+  'Unlimited topics and quizzes',
+  'Learning map showing strengths and where to focus',
+  'Screen-time controls',
+  'Pay only for the children you add',
+]
+
 const FAMILY_FEATURES = [
   'All subjects: Maths, English, Science',
   'All year groups — Year 1 to Year 11',
@@ -53,12 +62,12 @@ export default function PricingPage() {
           </p>
         </div>
 
-        <div className="mt-12 grid gap-6 sm:grid-cols-2">
+        <div className="mt-12 grid gap-6 lg:grid-cols-3">
           {/* Free plan */}
           <div className="rounded-2xl border border-black/10 bg-surface p-6">
             <p className="text-sm font-semibold uppercase tracking-wide text-muted">Free</p>
             <div className="mt-2 flex items-baseline gap-1">
-              <span className="font-heading text-4xl font-bold text-ink">£0</span>
+              <span className="font-heading text-4xl font-bold text-ink">AED 0</span>
               <span className="text-muted">forever</span>
             </div>
             <p className="mt-2 text-sm text-muted">
@@ -80,14 +89,45 @@ export default function PricingPage() {
             </Link>
           </div>
 
+          {/* Per Child plan */}
+          <div className="rounded-2xl border border-black/10 bg-surface p-6">
+            <p className="text-sm font-semibold uppercase tracking-wide text-science">Per Child</p>
+            <div className="mt-2 flex items-baseline gap-1">
+              <span className="font-heading text-4xl font-bold text-ink">AED 350</span>
+              <span className="text-muted">/child/month</span>
+            </div>
+            <p className="mt-2 text-sm text-muted">
+              Full access, billed per child account you link.
+            </p>
+            <ul className="mt-6 space-y-3">
+              {PER_CHILD_FEATURES.map((f) => (
+                <li key={f} className="flex items-start gap-2 text-sm text-ink">
+                  <span className="mt-0.5 text-science">✓</span>
+                  {f}
+                </li>
+              ))}
+            </ul>
+            <div className="mt-8">
+              <UpgradeButton
+                plan="per_child"
+                className="flex h-12 w-full items-center justify-center rounded-xl border-2 border-science bg-white font-semibold text-ink transition active:scale-[0.98] disabled:opacity-60"
+              >
+                Choose Per Child
+              </UpgradeButton>
+            </div>
+            <p className="mt-3 text-center text-xs text-muted">
+              Cancel anytime. Secure checkout via Stripe.
+            </p>
+          </div>
+
           {/* Family plan */}
           <div className="relative rounded-2xl border-2 border-maths bg-surface p-6">
             <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-maths px-3 py-0.5 text-xs font-bold text-white">
-              Most popular
+              Best value — 2+ children
             </div>
             <p className="text-sm font-semibold uppercase tracking-wide text-maths">Family</p>
             <div className="mt-2 flex items-baseline gap-1">
-              <span className="font-heading text-4xl font-bold text-ink">£7.99</span>
+              <span className="font-heading text-4xl font-bold text-ink">AED 500</span>
               <span className="text-muted">/month</span>
             </div>
             <p className="mt-2 text-sm text-muted">
@@ -116,8 +156,8 @@ export default function PricingPage() {
           <div className="mt-6 divide-y divide-black/5">
             {[
               {
-                q: 'How many children can use one Family subscription?',
-                a: 'Unlimited. Link as many child accounts as you have — no extra charge.',
+                q: 'Per Child or Family — which should I pick?',
+                a: 'Per Child (AED 350/child/month) is billed for each child account you link. Family (AED 500/month) covers unlimited children for one flat price — it works out cheaper from the second child onwards.',
               },
               {
                 q: 'What year groups are covered?',

@@ -126,6 +126,13 @@ DO_API_TOKEN                  # DO read/write API token — used for DO GenAI se
                               # (Llama 3.3 70B for pipeline consensus/constitutional checks)
                               # Endpoint: https://inference.do-ai.run/v1
 
+# Stripe subscriptions (UAE — all prices in AED)
+STRIPE_SECRET_KEY             # server-only secret key (sk_test_/sk_live_)
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY  # browser-safe publishable key
+STRIPE_WEBHOOK_SECRET         # signing secret — `stripe listen` locally, dashboard in prod
+STRIPE_FAMILY_PRICE_ID        # Family plan: AED 500/month flat, unlimited children
+STRIPE_PER_CHILD_PRICE_ID     # Per Child plan: AED 350/child/month, quantity = linked children
+
 # Reward Vault Stage 3 — Shopify integration (optional; absent = manual fulfilment)
 SHOPIFY_STORE_DOMAIN          # e.g. yourstore.myshopify.com (no https://)
 SHOPIFY_ADMIN_ACCESS_TOKEN    # Shopify Admin API access token (Custom App → API credentials)

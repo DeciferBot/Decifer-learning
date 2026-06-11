@@ -25,6 +25,7 @@ export const stripe = new Proxy({} as Stripe, {
 // Any additional topic requires a Family plan subscription.
 export const FREE_TOPICS_PER_SUBJECT = 3
 
+// All prices are in AED (fils for Stripe unit amounts). UAE market.
 export const PLANS = {
   free: {
     name: 'Free',
@@ -34,10 +35,22 @@ export const PLANS = {
     parentDashboard: false,
     quizAttemptsPerDay: 3,
   },
+  per_child: {
+    name: 'Per Child',
+    priceFils: 35000,
+    priceDisplay: 'AED 350',
+    priceSuffix: '/child/month',
+    interval: 'month',
+    topicsPerSubject: Infinity,
+    subjects: ['Maths', 'English', 'Science'],
+    parentDashboard: true,
+    quizAttemptsPerDay: Infinity,
+  },
   family: {
     name: 'Family',
-    pricePence: 799,
-    priceDisplay: '£7.99',
+    priceFils: 50000,
+    priceDisplay: 'AED 500',
+    priceSuffix: '/month',
     interval: 'month',
     topicsPerSubject: Infinity,
     subjects: ['Maths', 'English', 'Science'],
@@ -48,6 +61,16 @@ export const PLANS = {
 
 export type Plan = keyof typeof PLANS
 
+// Paid checkout options — maps plan key to its Stripe price env var.
+export const PAID_PLAN_PRICE_ENV = {
+  family: 'STRIPE_FAMILY_PRICE_ID',
+  per_child: 'STRIPE_PER_CHILD_PRICE_ID',
+} as const
+
+export type PaidPlan = keyof typeof PAID_PLAN_PRICE_ENV
+
+// Both paid plans grant identical access; profiles.subscription_tier
+// stays 'family' for any active paid subscription.
 export function isPaidPlan(tier: string | null | undefined): boolean {
   return tier === 'family'
 }

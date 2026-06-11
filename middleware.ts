@@ -16,6 +16,9 @@ const PUBLIC_EXACT = new Set<string>([
   '/legal/terms', '/legal/privacy', '/legal/privacy-for-kids',
   // Parent/guardian consent confirmation — opened from an email, no session.
   '/verify-parent',
+  // Stripe webhook — Stripe's servers carry no session cookie; the route
+  // authenticates via signature verification (STRIPE_WEBHOOK_SECRET).
+  '/api/stripe/webhook',
 ])
 // Auth callback must be public so the middleware never redirects the token exchange request.
 // Help pages are public so unauthenticated visitors can read guides linked from the homepage.

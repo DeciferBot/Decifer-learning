@@ -1,13 +1,21 @@
 import { NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
-import { stripe } from '@/lib/stripe'
+import { stripe, PAID_PLAN_PRICE_ENV, type PaidPlan } from '@/lib/stripe'
 import { prisma } from '@/lib/prisma'
 
-export async function POST() {
+export async function POST(req: Request) {
   const supabase = createSupabaseServerClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) {
     return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
+  }
+
+  let plan: PaidPlan = 'family'
+  try {
+    const body = await req.json()
+    if (body?.plan === 'per_child') plan = 'per_child'
+  } catch {
+    // no body — default to family plan
   }
 
   const profile = await prisma.profile.findUnique({
@@ -44,9 +52,18 @@ export async function POST() {
     })
   }
 
-  const priceId = process.env.STRIPE_FAMILY_PRICE_ID
+  const priceId = process.env[PAID_PLAN_PRICE_ENV[plan]]
   if (!priceId) {
     return NextResponse.json({ error: 'Stripe price not configured' }, { status: 500 })
+  }
+
+  // Per Child plan bills per linked child account (minimum 1).
+  let quantity = 1
+  if (plan === 'per_child') {
+    const childCount = await prisma.familyLink.count({
+      where: { parent_user_id: user.id },
+    })
+    quantity = Math.max(1, childCount)
   }
 
   const origin = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
@@ -54,11 +71,11 @@ export async function POST() {
   const session = await stripe.checkout.sessions.create({
     customer: stripeCustomerId,
     mode: 'subscription',
-    line_items: [{ price: priceId, quantity: 1 }],
+    line_items: [{ price: priceId, quantity }],
     allow_promotion_codes: true,
     success_url: `${origin}/dashboard?upgraded=1`,
     cancel_url: `${origin}/pricing`,
-    metadata: { user_id: user.id },
+    metadata: { user_id: user.id, plan },
   })
 
   return NextResponse.json({ url: session.url })

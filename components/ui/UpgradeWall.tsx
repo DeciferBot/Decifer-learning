@@ -26,7 +26,7 @@ export function UpgradeWall({ topicTitle, subjectName }: Props) {
           href="/pricing"
           className="flex h-12 w-full items-center justify-center rounded-xl bg-maths font-semibold text-white transition active:scale-[0.98]"
         >
-          See Family plan — £7.99/mo
+          See plans — from AED 350/mo
         </Link>
         <Link
           href="/dashboard/child"

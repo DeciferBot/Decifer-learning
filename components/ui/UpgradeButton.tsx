@@ -5,9 +5,10 @@ import { useState } from 'react'
 type Props = {
   className?: string
   children?: React.ReactNode
+  plan?: 'family' | 'per_child'
 }
 
-export function UpgradeButton({ className, children }: Props) {
+export function UpgradeButton({ className, children, plan = 'family' }: Props) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -15,7 +16,11 @@ export function UpgradeButton({ className, children }: Props) {
     setLoading(true)
     setError(null)
     try {
-      const res = await fetch('/api/stripe/checkout', { method: 'POST' })
+      const res = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan }),
+      })
       const data = await res.json()
       if (data.url) {
         window.location.href = data.url
@@ -39,7 +44,12 @@ export function UpgradeButton({ className, children }: Props) {
           'flex h-12 w-full items-center justify-center rounded-xl bg-maths font-semibold text-white transition active:scale-[0.98] disabled:opacity-60'
         }
       >
-        {loading ? 'Redirecting to checkout…' : (children ?? 'Upgrade to Family — £7.99/mo')}
+        {loading
+          ? 'Redirecting to checkout…'
+          : (children ??
+            (plan === 'per_child'
+              ? 'Choose Per Child — AED 350/child/mo'
+              : 'Upgrade to Family — AED 500/mo'))}
       </button>
       {error ? <p className="mt-2 text-center text-sm text-incorrect">{error}</p> : null}
     </div>
