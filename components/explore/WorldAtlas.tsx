@@ -538,7 +538,7 @@ function CountryMarker({ country, isSelected, onSelect }: {
       {/* Core dot */}
       <mesh
         ref={meshRef}
-        onPointerDown={(e) => { e.stopPropagation(); onSelect(country) }}
+        onPointerUp={(e) => { e.stopPropagation(); onSelect(country) }}
       >
         <sphereGeometry args={[isSelected ? 0.06 : 0.042, 12, 12]} />
         <meshBasicMaterial color={isSelected ? '#FFFFFF' : country.color} />
@@ -549,11 +549,11 @@ function CountryMarker({ country, isSelected, onSelect }: {
 
 function GlobeController({ cameraLat, cameraLng }: { cameraLat: number; cameraLng: number }) {
   const { camera } = useThree()
-  const target = useRef(new THREE.Vector3(0, 0.8, 5.5))
+  const target = useRef(new THREE.Vector3(0, 0, 7.5))
 
   useFrame((_, delta) => {
-    const newPos = latLngTo3D(cameraLat, cameraLng, 5.5)
-    newPos.y = Math.max(newPos.y, -3)
+    const newPos = latLngTo3D(cameraLat, cameraLng, 7.5)
+    newPos.y = Math.max(newPos.y, -4)
     target.current.lerp(newPos, delta * 1.8)
     camera.position.copy(target.current)
     camera.lookAt(0, 0, 0)
@@ -1042,6 +1042,8 @@ export function WorldAtlas({ onAskDecifer, onExplore }: WorldAtlasProps) {
   }, [selectedCountry, journeyStep])
 
   const handleSelectCountry = useCallback(async (country: Country) => {
+    // If the pointer moved more than 5px total, this was a drag not a tap — ignore
+    if (dragDistanceRef.current > 5) return
     stopNarration()
     setSelectedCountry(country)
     autoOrbitRef.current = false
@@ -1118,11 +1120,57 @@ export function WorldAtlas({ onAskDecifer, onExplore }: WorldAtlasProps) {
 
   const currentJourneyContinent = journeyStep !== null ? JOURNEY_CONTINENTS[journeyStep] : null
 
+  // ── Drag-to-rotate ──────────────────────────────────────────────────────────
+  const [isDragging, setIsDragging] = useState(false)
+  const lastPointerRef = useRef({ x: 0, y: 0 })
+  const dragActiveRef = useRef(false)
+  const dragDistanceRef = useRef(0)
+  const dragResumeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const handlePointerDown = useCallback((e: React.PointerEvent) => {
+    dragActiveRef.current = true
+    dragDistanceRef.current = 0
+    setIsDragging(true)
+    lastPointerRef.current = { x: e.clientX, y: e.clientY }
+    autoOrbitRef.current = false
+    if (dragResumeTimer.current) clearTimeout(dragResumeTimer.current)
+  }, [])
+
+  const handlePointerMove = useCallback((e: React.PointerEvent) => {
+    if (!dragActiveRef.current) return
+    const dx = e.clientX - lastPointerRef.current.x
+    const dy = e.clientY - lastPointerRef.current.y
+    dragDistanceRef.current += Math.sqrt(dx * dx + dy * dy)
+    lastPointerRef.current = { x: e.clientX, y: e.clientY }
+    setCameraLng(prev => (prev - dx * 0.45) % 360)
+    setCameraLat(prev => Math.max(-78, Math.min(78, prev + dy * 0.22)))
+  }, [])
+
+  const handlePointerUp = useCallback(() => {
+    if (!dragActiveRef.current) return
+    dragActiveRef.current = false
+    setIsDragging(false)
+    // Resume auto-orbit after 10s if nothing is selected
+    if (!selectedCountry && journeyStep === null) {
+      dragResumeTimer.current = setTimeout(() => {
+        autoOrbitRef.current = true
+      }, 10000)
+    }
+  }, [selectedCountry, journeyStep])
+
   return (
-    <div className="absolute inset-0" style={{ background: '#020408' }}>
-      {/* Globe */}
+    <div
+      className="absolute inset-0"
+      style={{ background: '#020408', cursor: isDragging ? 'grabbing' : 'grab', touchAction: 'none' }}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerLeave={handlePointerUp}
+      onPointerCancel={handlePointerUp}
+    >
+      {/* Globe — pointer events kept on so Three.js raycasting works for markers */}
       <Canvas
-        camera={{ position: [0, 0.8, 5.5], fov: 50 }}
+        camera={{ position: [0, 0, 7.5], fov: 48 }}
         dpr={[1, 2]}
         performance={{ min: 0.5 }}
         gl={{ antialias: true, powerPreference: 'high-performance' }}
