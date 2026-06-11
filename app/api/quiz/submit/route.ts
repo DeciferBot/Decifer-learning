@@ -56,6 +56,9 @@ export async function POST(req: Request) {
   if (!topicId || !Array.isArray(answers) || answers.length === 0) {
     return NextResponse.json({ error: 'Invalid body' }, { status: 400 })
   }
+  if (answers.length > 50) {
+    return NextResponse.json({ error: 'Too many answers' }, { status: 400 })
+  }
 
   // Wave 1: profile + correct answers in parallel (correct answers need only topicId, not profile.id)
   const questionIds = answers.map((a) => a.questionId)
@@ -113,14 +116,15 @@ export async function POST(req: Request) {
   const correctMap = new Map(correctAnswers.map((q) => [q.id, q.correct_answer]))
   const typeMap    = new Map(correctAnswers.map((q) => [q.id, q.question_type]))
 
-  // Multi-part types (true_false_grid, ordered_list) are scored client-side;
-  // trust the client's wasCorrect rather than attempting a string compare.
+  // Multi-part types cannot be verified by simple string comparison on the server.
+  // We trust the client's wasCorrect only when the child actually provided a non-empty answer,
+  // preventing fabricated perfect scores from blank submissions.
   const MULTIPART_TYPES = new Set(['true_false_grid', 'ordered_list', 'source_analysis', 'explain_example', 'structured_answer'])
 
   const scoredAnswers = answers.map((a) => ({
     ...a,
     wasCorrect: MULTIPART_TYPES.has(typeMap.get(a.questionId) ?? '')
-      ? Boolean(a.wasCorrect)
+      ? Boolean(a.wasCorrect) && typeof a.childAnswer === 'string' && a.childAnswer.trim().length > 0
       : correctMap.get(a.questionId)?.trim().toLowerCase() === a.childAnswer?.trim().toLowerCase(),
   }))
   // ── End server-side scoring ───────────────────────────────────────────────
@@ -145,7 +149,7 @@ export async function POST(req: Request) {
         score: scoreFraction,
         hints_used: hintsUsedCount,
         time_taken_seconds: timeTakenSeconds ?? 0,
-        hearts_remaining: heartsRemaining,
+        hearts_remaining: Math.max(0, Math.min(3, heartsRemaining ?? 3)),
       },
     })
 
@@ -343,7 +347,6 @@ async function dropCard(
   yearGroupId: string | null,
 ): Promise<DroppedCard | null> {
   const rarity = pickRarity()
-  console.log('[dropCard] rarity:', rarity, 'yearGroupId:', yearGroupId)
 
   // Find published cards for this rarity: year-group-specific OR shared (null)
   const candidates = await db.cardCatalog.findMany({
@@ -360,8 +363,6 @@ async function dropCard(
 
   const card = candidates[Math.floor(Math.random() * candidates.length)]
 
-  console.log('[dropCard] candidates found:', candidates.length, 'picking card:', card.id, card.title)
-
   // Upsert child_collection
   const existing = await db.childCollection.findUnique({
     where: { profile_id_card_id: { profile_id: profileId, card_id: card.id } },
@@ -376,8 +377,6 @@ async function dropCard(
       data: { profile_id: profileId, card_id: card.id, quantity: 1 },
     })
   }
-  console.log('[dropCard] card written to collection, isNew:', !existing)
-
   return {
     id: card.id,
     title: card.title,

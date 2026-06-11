@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { rateLimit } from '@/lib/rate-limit'
+import { headers } from 'next/headers'
 
 type AuthUserRow = {
   id: string
@@ -11,6 +13,12 @@ type AuthUserRow = {
 // account so the client can call signInWithPassword(email, pin).
 // We only reveal the email for parent_created accounts (real emails are never returned).
 export async function POST(req: Request) {
+  // Rate limit: 10 requests per IP per minute to prevent account enumeration and PIN brute-force
+  const ip = headers().get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
+  if (!rateLimit(`child-lookup:${ip}`, 10, 60_000)) {
+    return NextResponse.json({ error: 'Too many requests. Please wait a moment.' }, { status: 429 })
+  }
+
   let body: { displayName?: string }
   try {
     body = await req.json()

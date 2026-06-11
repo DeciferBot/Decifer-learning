@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { rateLimit } from '@/lib/rate-limit'
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
@@ -9,9 +10,19 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return new Response('Unauthorised', { status: 401 })
 
-  const { message, aid, context, yearGroup, history = [] } = await req.json()
+  // Rate limit: 30 requests per user per minute to prevent API budget exhaustion
+  if (!rateLimit(`explore-ask:${user.id}`, 30, 60_000)) {
+    return new Response('Too many requests', { status: 429 })
+  }
 
-  if (!message?.trim()) return new Response('Bad request', { status: 400 })
+  const raw = await req.json()
+  const message: string = String(raw.message ?? '').trim().slice(0, 1000)
+  const aid: string = String(raw.aid ?? '').slice(0, 100)
+  const context: string = String(raw.context ?? '').slice(0, 200)
+  const yearGroup: string = String(raw.yearGroup ?? '').slice(0, 50)
+  const history: { role: string; content: string }[] = Array.isArray(raw.history) ? raw.history : []
+
+  if (!message) return new Response('Bad request', { status: 400 })
 
   const systemPrompt = `You are Decifer, a brilliant and enthusiastic assistant teacher in the Decifer Learning app.
 You're currently helping a child who is exploring the ${aid} in the interactive learning area.
@@ -30,12 +41,11 @@ Your personality:
 
 You know everything about: science, space, geography, history, biology, chemistry, animals, and all school subjects.`
 
-  // Anthropic requires conversation to start with a user turn.
-  // Strip any leading assistant messages (injected UI greetings from the client).
-  const rawHistory: { role: string; content: string }[] = Array.isArray(history)
-    ? history.slice(-6)
-    : []
-  const firstUserIdx = rawHistory.findIndex(m => m.role === 'user')
+  // Cap each history message body and strip leading assistant turns
+  const rawHistory = history
+    .slice(-6)
+    .map((m) => ({ role: m.role, content: String(m.content ?? '').slice(0, 1000) }))
+  const firstUserIdx = rawHistory.findIndex((m) => m.role === 'user')
   const safeHistory = firstUserIdx === -1 ? [] : rawHistory.slice(firstUserIdx)
 
   const messages = [

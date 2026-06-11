@@ -11,7 +11,6 @@ interface CatalogueItem {
   min_milestone: string | null
   price_pence: number
   is_active: boolean
-  shopify_variant_id?: string | null
 }
 
 interface Props {
@@ -22,7 +21,7 @@ export function CataloguePanel({ items: initialItems }: Props) {
   const router = useRouter()
   const [localItems, setLocalItems] = useState(initialItems)
   const [adding, setAdding] = useState(false)
-  const [form, setForm] = useState({ name: '', description: '', category: '', min_milestone: '', price_pence: '', shopify_variant_id: '' })
+  const [form, setForm] = useState({ name: '', description: '', category: '', min_milestone: '', price_pence: '' })
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [togglingId, setTogglingId] = useState<string | null>(null)
@@ -38,7 +37,6 @@ export function CataloguePanel({ items: initialItems }: Props) {
         category: form.category.trim() || undefined,
         min_milestone: form.min_milestone || undefined,
         price_pence: isNaN(pence) ? 0 : pence,
-        shopify_variant_id: form.shopify_variant_id.trim() || undefined,
       }
       const res = await fetch('/api/admin/vault/catalogue', {
         method: 'POST',
@@ -54,7 +52,7 @@ export function CataloguePanel({ items: initialItems }: Props) {
       if (created?.id) {
         setLocalItems((prev) => [...prev, created])
       }
-      setForm({ name: '', description: '', category: '', min_milestone: '', price_pence: '', shopify_variant_id: '' })
+      setForm({ name: '', description: '', category: '', min_milestone: '', price_pence: '' })
       setAdding(false)
       router.refresh()
     } finally {
@@ -144,14 +142,6 @@ export function CataloguePanel({ items: initialItems }: Props) {
             onChange={(e) => setForm({ ...form, price_pence: e.target.value })}
             className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-brand focus:outline-none"
           />
-          <input
-            type="text"
-            maxLength={60}
-            placeholder="Shopify variant ID (optional — Stage 3)"
-            value={form.shopify_variant_id}
-            onChange={(e) => setForm({ ...form, shopify_variant_id: e.target.value })}
-            className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 text-sm font-mono text-ink placeholder:text-muted focus:border-brand focus:outline-none"
-          />
           {error && <p className="text-sm text-incorrect">{error}</p>}
           <div className="flex gap-2">
             <button
@@ -192,9 +182,6 @@ export function CataloguePanel({ items: initialItems }: Props) {
                       )}
                       {item.min_milestone && (
                         <span className="capitalize">{item.min_milestone}+</span>
-                      )}
-                      {item.shopify_variant_id && (
-                        <span className="font-mono text-brand/60">#{item.shopify_variant_id}</span>
                       )}
                     </div>
                   </div>
