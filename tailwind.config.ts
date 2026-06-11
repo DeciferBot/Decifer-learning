@@ -40,6 +40,12 @@ const config: Config = {
         correct: '#29D17C',        // mastered / positive
         'points-gold': '#F5A524',  // caution / in progress
         incorrect: '#F05452',      // data/analytics views only — use `rose` for child copy
+        // -700 shades pass 4.5:1 on white/paper — use for small text; base shades
+        // are for fills, borders, and large icons only
+        'correct-700': '#1B7D45',
+        'incorrect-700': '#C03A38',
+        'points-gold-700': '#8F6400',
+        'rose-700': '#C2185B',     // wrong-answer text for child copy (rose, never harsh red)
 
         // ── RARITY / DIFFICULTY TIERS ───────────────────────────────
         sprout: '#A8E6CF',
@@ -53,7 +59,7 @@ const config: Config = {
         // ── TYPOGRAPHY ──────────────────────────────────────────────
         ink: '#1F1A14',            // Learning adaptation ink (warm dark)
         'ink-2': '#5C5147',
-        muted: '#9A8E82',          // ink-3
+        muted: '#796C5F',          // ink-3 — 4.8:1 on paper, 5.1:1 on white (AA small text)
 
         // ── STATE ────────────────────────────────────────────────────
         success: '#29D17C',

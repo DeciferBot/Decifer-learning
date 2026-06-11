@@ -205,8 +205,8 @@ export default async function LearnPage({
                   className="flex items-start gap-4 rounded-2xl border border-black/5 bg-surface p-4 shadow-sm transition-shadow hover:shadow-md active:opacity-80"
                 >
                   <span
-                    className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
-                    style={{ backgroundColor: subjectColor }}
+                    className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold text-ink"
+                    style={{ backgroundColor: `${subjectColor}3D` }}
                     aria-hidden
                   >
                     {i + 1}

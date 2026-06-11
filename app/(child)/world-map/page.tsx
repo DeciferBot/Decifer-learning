@@ -11,21 +11,6 @@ export const metadata = { title: 'World Map — Decifer Learning' }
 
 export const revalidate = 60
 
-// Grid fallback: auto-generate 0–1 positions for topics with no DB node entry.
-// Keeps the map working if a newly-published topic hasn't been seeded yet.
-function gridPositions(count: number): Array<{ x: number; y: number }> {
-  const cols = Math.min(4, count)
-  const rows = Math.ceil(count / cols)
-  return Array.from({ length: count }, (_, i) => {
-    const col = i % cols
-    const row = Math.floor(i / cols)
-    return {
-      x: cols === 1 ? 0.5 : 0.1 + (col / (cols - 1)) * 0.8,
-      y: rows === 1 ? 0.5 : 0.15 + (row / Math.max(rows - 1, 1)) * 0.7,
-    }
-  })
-}
-
 function computeNodeState(
   topicId: string,
   unlockedByTopicId: string | null,
@@ -107,8 +92,8 @@ export default async function WorldMapPage() {
           const colour = zone.subject.colour_token ?? '#6C9EFF'
           const nodeMap = new Map(zone.world_map_nodes.map((n) => [n.topic_id, n]))
 
-          // Use DB node positions where available; fall back to auto grid
-          const fallbackPositions = gridPositions(zone.topics.length)
+          // Nodes render in order_index order; ZoneMap lays them out as a
+          // serpentine path, so DB x/y positions are no longer needed here.
           const mappedNodes: ZoneNode[] = zone.topics.map((t, i) => {
             const dbNode = nodeMap.get(t.id)
             return {
@@ -117,8 +102,6 @@ export default async function WorldMapPage() {
               topicTitle: t.title,
               state: computeNodeState(t.id, dbNode?.unlocked_by_topic_id ?? (i > 0 ? zone.topics[i - 1].id : null), completedSet),
               href: `/topics/${t.id}/learn`,
-              xPct: (dbNode ? dbNode.x_pos : fallbackPositions[i].x) * 100,
-              yPct: (dbNode ? dbNode.y_pos : fallbackPositions[i].y) * 100,
               quizOptional: t.quiz_optional,
               chapterCount: chapterCountByTopic.get(t.id) ?? 0,
             }

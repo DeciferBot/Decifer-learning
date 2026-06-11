@@ -167,7 +167,7 @@ export default async function QuizPage({ params }: { params: { id: string } }) {
         <Gift className="w-6 h-6 flex-none" style={{ color: '#FFD43B' }} aria-hidden />
         <div className="flex-1 min-w-0">
           <p className="text-sm font-extrabold text-white font-heading">Score 70%+ → win a Discovery Card</p>
-          <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.55)' }}>
+          <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.82)' }}>
             Guaranteed reward — every quiz pass earns a card
           </p>
         </div>

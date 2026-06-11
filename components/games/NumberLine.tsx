@@ -112,13 +112,12 @@ function QuestionView({
 
           {/* Filled portion */}
           <div
-            className="absolute rounded-full"
+            className="absolute rounded-full bg-maths"
             style={{
               top: 24,
               left: 0,
               width: Math.max(0, thumbX),
               height: 4,
-              backgroundColor: '#6C9EFF',
             }}
           />
 
@@ -126,16 +125,13 @@ function QuestionView({
           {ticks.map(({ v, x, isMajor }) => (
             <div key={v} className="absolute" style={{ left: x, top: isMajor ? 16 : 20 }}>
               <div
-                className="w-px"
-                style={{
-                  height: isMajor ? 16 : 8,
-                  backgroundColor: isMajor ? '#2D3748' : '#A0AEC0',
-                }}
+                className={`w-px ${isMajor ? 'bg-ink' : 'bg-black/30'}`}
+                style={{ height: isMajor ? 16 : 8 }}
               />
               {isMajor && (
                 <p
-                  className="mt-1 text-center text-xs"
-                  style={{ color: '#718096', transform: 'translateX(-50%)' }}
+                  className="mt-1 text-center text-xs text-muted"
+                  style={{ transform: 'translateX(-50%)' }}
                 >
                   {v}
                 </p>
@@ -146,8 +142,8 @@ function QuestionView({
           {/* Target indicator (shown after submit) */}
           {submitted && !correct && (
             <div
-              className="absolute"
-              style={{ left: targetX - 1, top: 10, width: 2, height: 28, backgroundColor: '#40C057' }}
+              className="absolute bg-correct-700"
+              style={{ left: targetX - 1, top: 10, width: 2, height: 28 }}
             />
           )}
 
@@ -158,13 +154,14 @@ function QuestionView({
             dragElastic={0}
             dragControls={dragControls}
             onDrag={handleDrag}
-            className="absolute flex cursor-grab items-center justify-center rounded-full border-2 border-white font-heading font-bold text-white shadow-md active:cursor-grabbing"
+            className={`absolute flex cursor-grab items-center justify-center rounded-full border-2 border-white font-heading font-bold text-white shadow-md active:cursor-grabbing ${
+              submitted ? (correct ? 'bg-correct-700' : 'bg-rose-700') : 'bg-maths'
+            }`}
             style={{
               width: THUMB_SIZE,
               height: THUMB_SIZE,
               top: 4,
               left: thumbX - THUMB_SIZE / 2,
-              backgroundColor: submitted ? (correct ? '#40C057' : '#FF6B6B') : '#6C9EFF',
             }}
           >
             {value}
@@ -183,7 +180,7 @@ function QuestionView({
             animate={{ opacity: 1, y: 0 }}
             className={`mt-4 rounded-xl p-3 text-center ${correct ? 'bg-correct/10' : 'bg-incorrect/10'}`}
           >
-            <p className="font-bold" style={{ color: correct ? '#40C057' : '#FF6B6B' }}>
+            <p className={`font-bold ${correct ? 'text-correct-700' : 'text-rose-700'}`}>
               {correct ? <span className="flex items-center justify-center gap-1"><Check className="w-4 h-4" aria-hidden /> Correct!</span> : `Not quite — ${question.label} is ${question.target}`}
             </p>
           </motion.div>

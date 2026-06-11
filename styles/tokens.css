@@ -76,7 +76,7 @@
 
   /* Text (warm — Learning adaptation) */
   --text-primary: #1F1A14;   /* main ink — warm dark                         */
-  --text-muted:   #9A8E82;   /* captions, meta — ink-3                       */
+  --text-muted:   #796C5F;   /* captions, meta — ink-3 (AA on paper/white)   */
 
 
   /* ─────────────────────────────────────────────────────────
@@ -167,7 +167,7 @@
   --text-heading:     #1F1A14;   /* headings — warm dark (Learning ink)           */
   --text-body:        #1F1A14;   /* body copy — ink                               */
   --text-secondary:   #5C5147;   /* secondary — ink-2                             */
-  --text-muted:       #9A8E82;   /* captions, timestamps — ink-3                  */
+  --text-muted:       #796C5F;   /* captions, timestamps — ink-3 (AA contrast)    */
   --text-placeholder: #C4B8AC;   /* input placeholders                            */
   --text-disabled:    #D4C8BC;   /* disabled labels                               */
   --text-inverse:     #FFFFFF;   /* text on dark/coloured backgrounds             */

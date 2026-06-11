@@ -511,8 +511,7 @@ export function QuizShell({
           <motion.div
             initial={{ opacity: 0, y: -16 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-4 overflow-hidden rounded-2xl p-5 text-center"
-            style={{ background: 'linear-gradient(135deg, #6C9EFF22 0%, #52D9A022 100%)', border: '2px solid #6C9EFF' }}
+            className="mb-4 overflow-hidden rounded-2xl border-2 border-maths bg-gradient-to-br from-maths/10 to-science/10 p-5 text-center"
           >
             <div className="flex justify-center mb-1"><Sparkles className="w-8 h-8 text-maths" aria-hidden /></div>
             <p className="mt-1 font-heading text-lg font-bold text-ink">You completed your first topic!</p>
@@ -533,10 +532,7 @@ export function QuizShell({
           <h2 className="font-heading text-2xl font-bold text-ink">
             {passed ? (isFirstWin ? 'First topic complete!' : 'Great work!') : 'Keep going!'}
           </h2>
-          <p
-            className="mt-2 text-4xl font-bold"
-            style={{ color: passed ? '#40C057' : '#FF6B6B' }}
-          >
+          <p className={`mt-2 text-4xl font-bold ${passed ? 'text-correct-700' : 'text-ink'}`}>
             {questionsCorrect} / {activeQuestions.length}
           </p>
           <p className="mt-1 text-muted">
@@ -555,8 +551,8 @@ export function QuizShell({
             <div className="mt-4 space-y-2 text-center">
               {passed ? (
                 <>
-                  <div className="flex justify-center animate-pulse"><Gift className="w-8 h-8" style={{ color: '#FFD43B' }} aria-hidden /></div>
-                  <p className="text-sm font-bold" style={{ color: '#FFD43B' }}>Opening your Discovery Card…</p>
+                  <div className="flex justify-center animate-pulse"><Gift className="w-8 h-8 text-points-gold" aria-hidden /></div>
+                  <p className="text-sm font-bold text-points-gold-700">Opening your Discovery Card…</p>
                 </>
               ) : (
                 <p className="text-sm text-muted">Saving results…</p>
@@ -569,7 +565,7 @@ export function QuizShell({
           ) : (
             <div className="mt-4 space-y-1">
               {typeof serverPoints === 'number' && (
-                <p className="font-heading font-bold" style={{ color: '#FFC107' }}>
+                <p className="font-heading font-bold text-points-gold-700">
                   +{serverPoints} points earned
                 </p>
               )}
@@ -580,8 +576,8 @@ export function QuizShell({
                 <p className="text-sm text-muted flex items-center gap-1"><Flame className="w-3.5 h-3.5" aria-hidden /> {streakDays} day streak</p>
               )}
               {shieldAwarded && (
-                <p className="text-sm font-bold flex items-center gap-1" style={{ color: '#74C0FC' }}>
-                  <Shield className="w-3.5 h-3.5" aria-hidden /> Streak Shield awarded!
+                <p className="text-sm font-bold flex items-center gap-1 text-ink-2">
+                  <Shield className="w-3.5 h-3.5 text-explorer" aria-hidden /> Streak Shield awarded!
                 </p>
               )}
             </div>
@@ -703,7 +699,7 @@ export function QuizShell({
             exit={{ opacity: 0, scale: 0.8, y: -10 }}
             className="rounded-2xl bg-points-gold/20 px-5 py-3 text-center"
           >
-            <p className="font-heading text-lg font-bold flex items-center justify-center gap-1.5" style={{ color: '#FFC107' }}>
+            <p className="font-heading text-lg font-bold flex items-center justify-center gap-1.5 text-points-gold-700">
               <Flame className="w-5 h-5" aria-hidden /> 3-in-a-row! Bonus +5 pts!
             </p>
           </motion.div>
@@ -734,11 +730,10 @@ export function QuizShell({
             <motion.span
               animate={shieldFlash ? { scale: [1, 1.4, 1], opacity: [1, 0.5, 1] } : {}}
               transition={{ duration: 0.4 }}
-              className="flex items-center gap-0.5 text-sm font-bold"
-              style={{ color: '#74C0FC' }}
+              className="flex items-center gap-0.5 text-sm font-bold text-ink-2"
               title="Streak Shields — absorb 1 heart loss each"
             >
-              <Shield className="w-4 h-4" aria-hidden /> ×{shields}
+              <Shield className="w-4 h-4 text-explorer" aria-hidden /> ×{shields}
             </motion.span>
           )}
           {/* Live score display */}
@@ -754,8 +749,7 @@ export function QuizShell({
                   animate={{ opacity: 0, y: -20 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 1.1 }}
-                  className="absolute -top-5 right-0 text-sm font-bold"
-                  style={{ color: '#FFC107' }}
+                  className="absolute -top-5 right-0 text-sm font-bold text-points-gold-700"
                 >
                   +{pointsFlash}pts
                 </motion.span>
@@ -775,7 +769,7 @@ export function QuizShell({
           {qIndex > 0 && (
             <button
               onClick={() => setShowingPrevReview(true)}
-              className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold text-muted transition-colors hover:bg-black/5 hover:text-ink"
+              className="-my-3 inline-flex min-h-[48px] items-center gap-1 rounded-lg px-3 text-sm font-semibold text-ink-2 transition-colors hover:bg-black/5 hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
               title="Review previous question"
             >
               ← prev
@@ -783,7 +777,7 @@ export function QuizShell({
           )}
         </div>
         {!questionDone && attempts > 0 && (
-          <span className="text-xs font-bold" style={{ color: '#FF6B6B' }}>
+          <span className="text-xs font-bold text-points-gold-700">
             {attemptsLeft} attempt{attemptsLeft !== 1 ? 's' : ''} left
           </span>
         )}
@@ -815,8 +809,7 @@ export function QuizShell({
             <motion.div
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold"
-              style={{ background: '#FFF3CD', color: '#B8860B' }}
+              className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-lightning/25 px-3 py-1 text-xs font-bold text-points-gold-700"
             >
               <Star className="w-3.5 h-3.5" aria-hidden /> Bonus Challenge — double points!
             </motion.div>
@@ -893,8 +886,7 @@ export function QuizShell({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="mb-3 text-sm font-bold"
-                style={{ color: '#FF6B6B' }}
+                className="mb-3 text-sm font-bold text-rose-700"
               >
                 {attempts === 1 && q.technique_hint
                   ? "Not quite — read the tip above and try again!"
@@ -956,14 +948,14 @@ export function QuizShell({
                   'min-h-[56px] rounded-xl border-2 px-4 py-3 text-center font-heading font-bold text-ink transition-colors'
                 if (!questionDone) {
                   if (choice === lastPicked && attempts > 0) {
-                    cls += ' border-incorrect bg-incorrect/20 text-incorrect'
+                    cls += ' border-incorrect bg-incorrect/20 text-rose-700'
                   } else {
                     cls += ' border-black/10 bg-background hover:border-maths hover:bg-maths/10'
                   }
                 } else if (choice === q.correct_answer) {
-                  cls += ' border-correct bg-correct/20 text-correct'
+                  cls += ' border-correct bg-correct/20 text-correct-700'
                 } else if (choice === lastPicked && !answeredCorrectly) {
-                  cls += ' border-incorrect bg-incorrect/20 text-incorrect'
+                  cls += ' border-incorrect bg-incorrect/20 text-rose-700'
                 } else {
                   cls += ' border-black/10 bg-background opacity-50'
                 }
@@ -995,10 +987,7 @@ export function QuizShell({
               >
                 {/* Multipart types render their own feedback — only show explanation/technique here */}
                 {!MULTIPART_QTYPES.has(q.question_type) && (
-                  <p
-                    className="font-bold"
-                    style={{ color: answeredCorrectly ? '#40C057' : '#FF6B6B' }}
-                  >
+                  <p className={`font-bold ${answeredCorrectly ? 'text-correct-700' : 'text-rose-700'}`}>
                     {answeredCorrectly
                       ? attempts === 0
                         ? isBonusQuestion

@@ -60,8 +60,8 @@ export function OrderedList({ items, onAnswer, disabled }: Props) {
 
   return (
     <div className="space-y-3">
-      <p className="text-xs font-bold uppercase tracking-wide text-muted">
-        Drag into the correct order using the arrows
+      <p className="text-sm font-semibold text-ink-2">
+        Use the arrows to put these in the correct order
       </p>
 
       <div className="space-y-2">
@@ -82,20 +82,20 @@ export function OrderedList({ items, onAnswer, disabled }: Props) {
               }`}
             >
               {/* Position number */}
-              <span className="shrink-0 flex h-7 w-7 items-center justify-center rounded-full bg-maths/10 text-sm font-bold text-maths">
+              <span className="shrink-0 flex h-7 w-7 items-center justify-center rounded-full bg-black/5 text-sm font-bold text-ink-2">
                 {index + 1}
               </span>
 
               <p className="flex-1 text-sm leading-snug text-ink">{item}</p>
 
-              {/* Up/down controls */}
+              {/* Up/down controls — 48px targets for developing motor control */}
               {!submitted && (
-                <div className="flex flex-col gap-0.5 shrink-0">
+                <div className="flex gap-1 shrink-0">
                   <button
                     onClick={() => moveUp(index)}
                     disabled={index === 0 || disabled}
                     aria-label={`Move "${item}" up`}
-                    className="flex h-7 w-7 items-center justify-center rounded-lg text-muted transition-colors hover:bg-maths/10 hover:text-maths disabled:opacity-30 disabled:cursor-not-allowed"
+                    className="flex h-12 w-12 items-center justify-center rounded-lg border border-black/10 bg-surface text-ink-2 transition-colors hover:border-maths hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink disabled:opacity-30 disabled:cursor-not-allowed"
                   >
                     ▲
                   </button>
@@ -103,7 +103,7 @@ export function OrderedList({ items, onAnswer, disabled }: Props) {
                     onClick={() => moveDown(index)}
                     disabled={index === currentOrder.length - 1 || disabled}
                     aria-label={`Move "${item}" down`}
-                    className="flex h-7 w-7 items-center justify-center rounded-lg text-muted transition-colors hover:bg-maths/10 hover:text-maths disabled:opacity-30 disabled:cursor-not-allowed"
+                    className="flex h-12 w-12 items-center justify-center rounded-lg border border-black/10 bg-surface text-ink-2 transition-colors hover:border-maths hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink disabled:opacity-30 disabled:cursor-not-allowed"
                   >
                     ▼
                   </button>
@@ -116,7 +116,7 @@ export function OrderedList({ items, onAnswer, disabled }: Props) {
                   <motion.span
                     initial={{ opacity: 0, scale: 0.5 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className={`shrink-0 text-lg ${isCorrect ? 'text-correct' : 'text-incorrect'}`}
+                    className={`shrink-0 text-lg ${isCorrect ? 'text-correct-700' : 'text-rose-700'}`}
                     aria-hidden
                   >
                     {isCorrect ? '✓' : '✗'}
@@ -136,7 +136,7 @@ export function OrderedList({ items, onAnswer, disabled }: Props) {
             animate={{ opacity: 1, y: 0 }}
             className="rounded-xl bg-correct/10 px-4 py-3 text-sm text-ink"
           >
-            <p className="font-bold text-correct mb-1">Correct order:</p>
+            <p className="font-bold text-correct-700 mb-1">Correct order:</p>
             <ol className="list-decimal list-inside space-y-0.5">
               {correctOrder.map((item, i) => (
                 <li key={i} className="text-ink">{item}</li>

@@ -5,6 +5,7 @@ import { getUserDisplayName, getUserRole } from '@/lib/auth/roles'
 import { TopBar } from '@/components/ui/TopBar'
 import { BottomNav } from '@/components/ui/BottomNav'
 import { ConsentBanner } from '@/components/child/ConsentBanner'
+import { MotionProvider } from '@/components/providers/MotionProvider'
 import { getChildGate, type ChildGate } from '@/lib/child-gate'
 
 const VALID_THEMES = new Set(['default', 'maths', 'english', 'science', 'night'])
@@ -41,19 +42,21 @@ export default async function ChildLayout({ children }: { children: React.ReactN
   const consentGate = gate.consent
 
   return (
-    <div className="min-h-screen bg-background" {...(theme ? { 'data-theme': theme } : {})}>
-      <TopBar displayName={getUserDisplayName(user)} />
-      {consentGate.state !== 'verified' ? (
-        <ConsentBanner
-          state={consentGate.state}
-          daysLeft={consentGate.state === 'grace' ? consentGate.daysLeft : undefined}
-          hasParentEmail={consentGate.hasParentEmail}
-          userId={user.id}
-        />
-      ) : null}
-      {/* pb-20 keeps content clear of the 56px bottom nav + safe-area inset */}
-      <div className="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-10 py-6 pb-24">{children}</div>
-      <BottomNav />
-    </div>
+    <MotionProvider>
+      <div className="min-h-screen bg-background" {...(theme ? { 'data-theme': theme } : {})}>
+        <TopBar displayName={getUserDisplayName(user)} />
+        {consentGate.state !== 'verified' ? (
+          <ConsentBanner
+            state={consentGate.state}
+            daysLeft={consentGate.state === 'grace' ? consentGate.daysLeft : undefined}
+            hasParentEmail={consentGate.hasParentEmail}
+            userId={user.id}
+          />
+        ) : null}
+        {/* pb-20 keeps content clear of the 56px bottom nav + safe-area inset */}
+        <div className="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-10 py-6 pb-24">{children}</div>
+        <BottomNav />
+      </div>
+    </MotionProvider>
   )
 }

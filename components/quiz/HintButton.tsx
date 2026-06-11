@@ -50,10 +50,18 @@ export function HintButton({ hints, revealed, onReveal, disabled, countdown }: P
       {!disabled && !isLocked && remaining > 0 && (
         <button
           onClick={onReveal}
-          className="text-sm text-muted underline underline-offset-2 hover:text-ink"
+          className="inline-flex min-h-[48px] items-center gap-1.5 rounded-xl border border-black/10 bg-surface px-4 text-sm font-semibold text-ink-2 transition-colors hover:bg-lightning/15 hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
         >
+          <Lightbulb size={16} className="flex-none" aria-hidden />
           {revealed.length === 0 ? 'Show hint' : 'Show another hint'} ({remaining} left)
         </button>
+      )}
+
+      {/* All hints used — tell the child why the button is gone */}
+      {!disabled && !isLocked && remaining === 0 && revealed.length > 0 && (
+        <p className="text-xs font-semibold text-ink-2">
+          That&apos;s all the hints for this one — you&apos;ve got this!
+        </p>
       )}
     </div>
   )

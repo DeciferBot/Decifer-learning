@@ -11,51 +11,39 @@ type Props = {
   state: NodeState
   href: string
   subjectColor: string
-  xPct: number // 0–100, percentage of container width
-  yPct: number // 0–100, percentage of container height
+  xPct: number // 0–100, horizontal centre as a percentage of the canvas width
+  yPx: number  // px offset of the node box top within the canvas
   quizOptional?: boolean // Learn-only topic — show book icon instead of star
   chapterCount?: number  // number of Oak curriculum chapters in this topic
 }
 
-const SIZE = 64 // px — satisfies the ≥48 tap-target requirement
+export const NODE_CIRCLE = 64 // px — satisfies the ≥48 tap-target requirement
+export const NODE_BOX_W = 94  // px column reserved for circle + label + chip
 
-export function TopicNode({ title, state, href, subjectColor, xPct, yPct, quizOptional = false, chapterCount }: Props) {
-  const positionStyle: React.CSSProperties = {
-    position: 'absolute',
-    left: `${xPct}%`,
-    top: `${yPct}%`,
-    transform: 'translate(-50%, -50%)',
-    width: SIZE,
-    height: SIZE + 28, // extra for label
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  }
-
+export function TopicNode({ title, state, href, subjectColor, xPct, yPx, quizOptional = false, chapterCount }: Props) {
   const circle = (
     <div
+      className={state === 'locked' ? 'bg-black/10' : ''}
       style={{
-        width: SIZE,
-        height: SIZE,
+        width: NODE_CIRCLE,
+        height: NODE_CIRCLE,
         flexShrink: 0,
         borderRadius: '50%',
-        backgroundColor: state === 'locked' ? '#E2E8F0' : subjectColor,
+        backgroundColor: state === 'locked' ? undefined : subjectColor,
         border:
           state === 'completed'
-            ? '3px solid #40C057'
+            ? '3px solid #1B7D45'
             : state === 'available'
               ? `3px solid ${subjectColor}`
-              : '3px solid #CBD5E0',
+              : '3px dashed #C9CFD8',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        opacity: state === 'locked' ? 0.5 : 1,
-        fontSize: 20,
         cursor: state === 'locked' ? 'default' : 'pointer',
       }}
       aria-hidden
     >
-      {state === 'locked'    ? <Lock size={20} style={{ color: '#718096' }} />      :
+      {state === 'locked'    ? <Lock size={20} className="text-ink-2" />           :
        state === 'completed' ? <Check size={20} style={{ color: '#ffffff' }} />    :
        quizOptional          ? <BookOpen size={20} style={{ color: '#ffffff' }} /> :
                                <Star size={20} style={{ color: '#ffffff' }} />}
@@ -63,35 +51,23 @@ export function TopicNode({ title, state, href, subjectColor, xPct, yPct, quizOp
   )
 
   const label = (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+    <div className="pointer-events-none flex flex-col items-center gap-1" style={{ width: NODE_BOX_W }}>
       <p
+        className={`mt-1.5 text-center text-[11px] font-bold leading-tight ${state === 'locked' ? 'text-ink-2' : 'text-ink'}`}
         style={{
-          marginTop: 6,
-          fontSize: 11,
-          fontWeight: 700,
-          color: state === 'locked' ? '#718096' : '#2D3748',
-          maxWidth: 88,
-          textAlign: 'center',
+          display: '-webkit-box',
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: 'vertical',
           overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap',
-          lineHeight: 1.2,
         }}
+        title={title}
       >
         {title}
       </p>
-      {chapterCount && chapterCount > 1 && (
+      {chapterCount !== undefined && chapterCount > 1 && (
         <span
-          style={{
-            fontSize: 9,
-            fontWeight: 700,
-            color: state === 'locked' ? '#718096' : '#fff',
-            backgroundColor: state === 'locked' ? '#CBD5E0' : subjectColor,
-            borderRadius: 99,
-            padding: '1px 6px',
-            lineHeight: 1.4,
-            opacity: state === 'locked' ? 0.6 : 0.85,
-          }}
+          className={`rounded-full px-2 text-[11px] font-bold leading-[18px] ${state === 'locked' ? 'bg-black/5 text-ink-2' : 'text-ink'}`}
+          style={state === 'locked' ? undefined : { backgroundColor: `${subjectColor}2E` }}
         >
           {chapterCount} chapters
         </span>
@@ -99,17 +75,33 @@ export function TopicNode({ title, state, href, subjectColor, xPct, yPct, quizOp
     </div>
   )
 
+  const positionStyle: React.CSSProperties = {
+    position: 'absolute',
+    left: `${xPct}%`,
+    top: yPx,
+    transform: 'translateX(-50%)',
+    width: NODE_BOX_W,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  }
+
   if (state === 'locked') {
     return (
       <div style={positionStyle}>
         {circle}
         {label}
+        <span className="sr-only">{title} — locked</span>
       </div>
     )
   }
 
   const linked = (
-    <Link href={href} aria-label={`${title}${state === 'completed' ? ' — completed' : ''}`}>
+    <Link
+      href={href}
+      aria-label={`${title}${state === 'completed' ? ' — completed' : ''}`}
+      className="block rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+    >
       {circle}
     </Link>
   )
@@ -117,6 +109,8 @@ export function TopicNode({ title, state, href, subjectColor, xPct, yPct, quizOp
   return (
     <div style={positionStyle}>
       {state === 'available' ? (
+        // MotionConfig reducedMotion="user" (child layout) disables this pulse
+        // for children who prefer reduced motion.
         <motion.div
           animate={{ scale: [1, 1.08, 1] }}
           transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}

@@ -73,14 +73,16 @@ export function TrueFalseGrid({ statements, onAnswer, disabled }: Props) {
                 onClick={() => toggle(i, true)}
                 disabled={submitted || disabled}
                 aria-label={`Mark statement ${i + 1} as True`}
-                className={`min-h-[40px] w-14 rounded-lg border-2 text-sm font-bold transition-colors
+                aria-pressed={answer === true}
+                className={`min-h-[48px] w-14 rounded-lg border-2 text-sm font-bold transition-colors
+                  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink
                   ${answer === true
                     ? submitted
                       ? s.correct
-                        ? 'border-correct bg-correct/20 text-correct'
-                        : 'border-incorrect bg-incorrect/20 text-incorrect'
-                      : 'border-maths bg-maths/20 text-maths'
-                    : 'border-black/10 bg-surface text-muted hover:border-maths hover:text-maths'
+                        ? 'border-correct bg-correct/20 text-correct-700'
+                        : 'border-incorrect bg-incorrect/20 text-rose-700'
+                      : 'border-maths bg-maths/20 text-ink'
+                    : 'border-black/10 bg-surface text-muted hover:border-maths hover:text-ink'
                   }
                   disabled:cursor-default`}
               >
@@ -92,14 +94,16 @@ export function TrueFalseGrid({ statements, onAnswer, disabled }: Props) {
                 onClick={() => toggle(i, false)}
                 disabled={submitted || disabled}
                 aria-label={`Mark statement ${i + 1} as False`}
-                className={`min-h-[40px] w-14 rounded-lg border-2 text-sm font-bold transition-colors
+                aria-pressed={answer === false}
+                className={`min-h-[48px] w-14 rounded-lg border-2 text-sm font-bold transition-colors
+                  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink
                   ${answer === false
                     ? submitted
                       ? !s.correct
-                        ? 'border-correct bg-correct/20 text-correct'
-                        : 'border-incorrect bg-incorrect/20 text-incorrect'
-                      : 'border-maths bg-maths/20 text-maths'
-                    : 'border-black/10 bg-surface text-muted hover:border-maths hover:text-muted'
+                        ? 'border-correct bg-correct/20 text-correct-700'
+                        : 'border-incorrect bg-incorrect/20 text-rose-700'
+                      : 'border-maths bg-maths/20 text-ink'
+                    : 'border-black/10 bg-surface text-muted hover:border-maths hover:text-ink'
                   }
                   disabled:cursor-default`}
               >
@@ -113,7 +117,7 @@ export function TrueFalseGrid({ statements, onAnswer, disabled }: Props) {
                 <motion.span
                   initial={{ opacity: 0, scale: 0.5 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className={`shrink-0 text-lg ${isCorrect ? 'text-correct' : 'text-incorrect'}`}
+                  className={`shrink-0 text-lg ${isCorrect ? 'text-correct-700' : 'text-rose-700'}`}
                   aria-hidden
                 >
                   {isCorrect ? '✓' : '✗'}
@@ -132,7 +136,7 @@ export function TrueFalseGrid({ statements, onAnswer, disabled }: Props) {
             animate={{ opacity: 1, y: 0 }}
             className="rounded-xl bg-correct/10 px-4 py-3 text-sm text-ink"
           >
-            <span className="font-bold text-correct">Correct answers: </span>
+            <span className="font-bold text-correct-700">Correct answers: </span>
             {statements.map((s, i) => (
               <span key={s.statement} className="mr-2">
                 Row {i + 1}: <strong>{s.correct ? 'True' : 'False'}</strong>
