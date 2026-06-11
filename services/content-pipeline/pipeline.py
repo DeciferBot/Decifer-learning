@@ -629,6 +629,111 @@ Return ONLY valid JSON (no extra text, no markdown fences):
 }}{diversity_section}"""
 
 
+def _build_humanities_prompt(topic: dict, tier: str, chunks: list[dict],
+                             existing_questions: list[dict] | None = None) -> str:
+    subject = topic.get("subject_name", "History")
+    qtype = "history_factual" if subject.lower() == "history" else "geography_factual"
+    year_label, key_stage = _YEAR_GROUP_DISPLAY.get(
+        topic["year_group_label"], (topic["year_group_label"], "")
+    )
+    tier_desc = _TIER_DESCRIPTIONS.get(tier, tier)
+
+    if chunks:
+        chunks_text = "\n\n".join(
+            f"[Source {i+1} — {c['source_name']}]\n{c['chunk_text']}"
+            for i, c in enumerate(chunks)
+        )
+        chunk_ids = json.dumps([str(c["id"]) for c in chunks])
+        source_section = (
+            f"Use ONLY the following curriculum sources. "
+            f"Do not introduce facts not supported by these sources.\n\n"
+            f"{chunks_text}\n\n"
+            f"Set source_chunk_ids to: {chunk_ids}"
+        )
+    else:
+        source_section = (
+            "No curriculum source text is provided. Set source_chunk_ids to [].\n"
+            f"NOTE: {qtype} questions REQUIRE non-empty source_chunk_ids — "
+            "without sources this question will be rejected at Stage 6."
+        )
+
+    if existing_questions:
+        used_answers = list({
+            q.get("correct_answer", "").strip()
+            for q in existing_questions
+            if q.get("correct_answer")
+        })
+        used_questions = list({
+            q.get("question_text", "").strip()[:80]
+            for q in existing_questions
+            if q.get("question_text")
+        })
+        diversity_lines = []
+        if used_answers:
+            diversity_lines.append(
+                "IMPORTANT — DIVERSITY: These correct_answer values are already used. "
+                "Test a DIFFERENT fact, person, place, event, or process:\n  "
+                + ", ".join(f'"{a}"' for a in used_answers[:12])
+            )
+        if used_questions:
+            diversity_lines.append(
+                "These questions already exist. Do NOT create near-duplicates:\n  "
+                + "\n  ".join(f'"{q}"' for q in used_questions[:8])
+            )
+        diversity_section = "\n\n" + "\n\n".join(diversity_lines) if diversity_lines else ""
+    else:
+        diversity_section = ""
+
+    return f"""You are an expert UK {subject} curriculum writer generating quiz questions for {year_label} pupils ({key_stage}, UK National Curriculum).
+
+Topic: {topic['title']}
+Subject: {subject}
+Year group: {year_label}
+Difficulty tier: {tier} — {tier_desc}
+
+{source_section}
+
+Generate ONE multiple-choice {subject} question. Follow these rules exactly:
+
+⛔ ABSOLUTE RULE — THIS IS A {subject.upper()} QUESTION, NOT A MATHS QUESTION:
+The question must test {subject.lower()}-specific knowledge: facts, causes, consequences, people,
+places, processes, sources, chronology, or interpretation. It must NEVER be answerable by
+arithmetic alone. A question like "The Romans built 7 forts. Each fort had 8 soldiers. How many
+soldiers?" is a maths question in costume and will be REJECTED. Numbers may appear ONLY when the
+subject knowledge itself is being tested (e.g. "In which year did the Great Fire of London start?"
+or "Which line of latitude runs through the centre of the Earth?").
+
+OAK SOURCE USAGE — read the sources above carefully before writing anything:
+• If any source line starts with "Common misconception:", use that misconception as the basis for at least one distractor.
+• If any source line starts with "Lesson outcome:", your question MUST test that outcome — do not test tangential concepts.
+• If any source line starts with "Learning point:", prioritise those points as the question focus.
+
+QUESTION: Clear, unambiguous, appropriate for {year_label}. One correct answer, fully supported by the sources.
+
+DISTRACTORS: Exactly 3 wrong answers — plausible {subject.lower()} alternatives (wrong date from the same era,
+neighbouring country, similar historical figure, related but incorrect process). Never random or silly options.
+
+HINTS — strictly follow this progression (constitutional requirement — violations cause rejection):
+  hint_1: Conceptual nudge — point to the era, region, or theme. Do NOT mention answer specifics.
+  hint_2: Narrow the field — recall a related fact from the lesson that helps eliminate distractors.
+  hint_3: Closest guidance WITHOUT stating the answer or naming the correct option.
+
+EXPLANATION: State the correct answer and explain WHY, citing the relevant fact from the sources.
+
+Return ONLY valid JSON with this exact structure (no extra text, no markdown fences):
+{{
+  "question_text": "<the question>",
+  "question_type": "{qtype}",
+  "correct_answer": "<the correct option text>",
+  "distractors": ["<wrong1>", "<wrong2>", "<wrong3>"],
+  "hint_1": "<conceptual nudge>",
+  "hint_2": "<narrowing fact>",
+  "hint_3": "<closest guidance — never the answer>",
+  "explanation": "<why this answer is correct, grounded in the sources>",
+  "source_chunk_ids": <the chunk id list given above>
+}}{diversity_section}"""
+
+
 def _build_generation_prompt(
     topic: dict,
     tier: str,
@@ -652,6 +757,8 @@ def _build_generation_prompt(
         return _build_english_prompt(topic, tier, chunks, existing_questions=existing_questions)
     if "science" in subject:
         return _build_science_prompt(topic, tier, chunks, existing_questions=existing_questions)
+    if "history" in subject or "geography" in subject:
+        return _build_humanities_prompt(topic, tier, chunks, existing_questions=existing_questions)
     return _build_maths_prompt(topic, tier, chunks, existing_questions=existing_questions)
 
 
@@ -821,6 +928,7 @@ _PHYSICS_TYPES = {"science_physics_calculation"}
 _CHEMISTRY_TYPES = {"science_chemistry_equation", "chemistry_element_fact", "biology_factual", "science_factual"}
 # Multi-part types: structural verification only (no code or LanguageTool check)
 _MULTIPART_TYPES = {"true_false_grid", "ordered_list", "source_analysis", "explain_example", "structured_answer"}
+_HUMANITIES_TYPES = {"history_factual", "geography_factual"}
 
 
 def _verify_multipart(question_data: dict) -> tuple[bool, str]:
@@ -1163,6 +1271,11 @@ def stage2_verify(question_data: dict, result: PipelineResult) -> bool:
     elif qtype in _MULTIPART_TYPES:
         verified, detail = _verify_multipart(question_data)
         result.verifier_version = "multipart-v1"
+    elif qtype in _HUMANITIES_TYPES:
+        # RAG-only pass-through: Stage 6 enforces non-empty source_chunk_ids
+        # (config.RAG_REQUIRED_TYPES) and the 90-point publish threshold.
+        verified, detail = True, "RAG-only type — grounding enforced at Stage 6"
+        result.verifier_version = "humanities-passthrough-v1"
     else:
         verified = False
         detail = f"Unknown question_type: {qtype!r} — failing closed"
