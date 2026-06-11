@@ -459,11 +459,45 @@ def regenerate_flagged(limit: int = 20) -> RegenerateFlaggedResponse:
     return RegenerateFlaggedResponse(triggered=len(flagged), results=results)
 
 
+@app.post("/pipeline/regenerate-flagged-all")
+def regenerate_flagged_all(background_tasks: BackgroundTasks, cap: int = 150) -> dict:
+    """Drain the flagged queue as a background task, up to `cap` questions.
+
+    Used by the nightly Vercel cron (fire-and-forget) so regeneration is not
+    bounded by the 300s serverless function timeout.
+    """
+    if not (1 <= cap <= 500):
+        raise HTTPException(status_code=400, detail="cap must be 1–500")
+    background_tasks.add_task(_run_regenerate_flagged_all, cap)
+    return {"status": "started", "cap": cap}
+
+
+def _run_regenerate_flagged_all(cap: int) -> None:
+    import pipeline as pl
+    import db as _db
+
+    done = 0
+    published = 0
+    while done < cap:
+        batch = _db.get_flagged_questions(limit=min(20, cap - done))
+        if not batch:
+            break
+        for q in batch:
+            try:
+                result = pl.regenerate_question(q)
+                if result.status == "published":
+                    published += 1
+            except Exception as exc:
+                log.exception(f"regenerate-flagged-all: error on {q.get('id')}: {exc}")
+            done += 1
+    log.info(f"regenerate-flagged-all complete: processed={done} published={published}")
+
+
 # ── /pipeline/oak-daily-update ────────────────────────────────────────────────
 #
 # Triggered by Vercel cron at 04:00 UTC.
 # Fetches new/updated Oak NA lessons, embeds+dedupes chunks, then generates
-# questions for any topic with < 10 published questions.
+# questions for any topic with < 15 published questions.
 # Runs as a background task — returns immediately.
 
 @app.post("/pipeline/oak-daily-update")
@@ -471,7 +505,7 @@ def oak_daily_update(background_tasks: BackgroundTasks) -> dict:
     """
     Triggered by Vercel cron at 04:00 UTC.
     Fetches new/updated Oak NA lessons, embeds+dedupes chunks, then generates
-    questions for any topic with < 10 published questions.
+    questions for any topic with < 15 published questions.
     Runs as a background task — returns immediately.
     """
     background_tasks.add_task(_run_oak_daily_update)
@@ -615,7 +649,7 @@ def _run_oak_daily_update():
 
         conn.commit()
 
-    # Now trigger generation for thin topics (< 10 published questions)
+    # Now trigger generation for thin topics (< 15 published questions)
     cur.execute("""
         SELECT t.id, t.title, s.name as subject, yg.label as year_group,
                COUNT(qq.id) FILTER (WHERE qq.status = 'published') as pub_count
@@ -625,7 +659,7 @@ def _run_oak_daily_update():
         LEFT JOIN quiz_questions qq ON qq.topic_id = t.id
         WHERE t.is_published = true
         GROUP BY t.id, t.title, s.name, yg.label
-        HAVING COUNT(qq.id) FILTER (WHERE qq.status = 'published') < 10
+        HAVING COUNT(qq.id) FILTER (WHERE qq.status = 'published') < 15
         ORDER BY pub_count ASC
         LIMIT 20
     """)

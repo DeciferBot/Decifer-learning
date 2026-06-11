@@ -8,6 +8,7 @@
 //   3. Question references a visual ("this graph", "the diagram", etc.) but has no foundation_images
 //   4. Any two hints are identical (broken hint progression)
 //   5. Non-Maths question is a pure arithmetic word problem (subject mismatch)
+// After flagging, staged questions that pass every gate are auto-promoted to published.
 
 export const dynamic = 'force-dynamic'
 
@@ -30,9 +31,11 @@ async function handler(req: Request) {
   const { data: missingVisual,   error: e3 } = await supabase.rpc('flag_missing_visual_questions')
   const { data: hintDup,         error: e4 } = await supabase.rpc('flag_hint_duplication_questions')
   const { data: subjectMismatch, error: e5 } = await supabase.rpc('flag_subject_mismatch_questions')
+  // Auto-publish: staged questions passing every gate (score, hints, grounding/verification, visuals)
+  const { data: promoted,        error: e6 } = await supabase.rpc('promote_qualified_staged_questions')
 
-  const rpcErrors = { e1, e2, e3, e4, e5 }
-  const hasErrors = e1 || e2 || e3 || e4 || e5
+  const rpcErrors = { e1, e2, e3, e4, e5, e6 }
+  const hasErrors = e1 || e2 || e3 || e4 || e5 || e6
   if (hasErrors) {
     console.error('[anomaly-detect] RPC errors (partial results will still be logged)', rpcErrors)
   }
@@ -43,6 +46,7 @@ async function handler(req: Request) {
     flagged_missing_visual:   missingVisual   ?? 0,
     flagged_hint_duplication: hintDup         ?? 0,
     flagged_subject_mismatch: subjectMismatch ?? 0,
+    promoted_staged:          promoted        ?? 0,
     total: (highError ?? 0) + (highHint ?? 0) + (missingVisual ?? 0) + (hintDup ?? 0) + (subjectMismatch ?? 0),
     ...(hasErrors ? { errors: rpcErrors } : {}),
   }

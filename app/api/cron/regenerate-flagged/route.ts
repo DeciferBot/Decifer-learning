@@ -1,7 +1,7 @@
 // POST /api/cron/regenerate-flagged
 // Vercel Cron — runs nightly at 03:00 UTC (one hour after anomaly-detect).
-// Calls the pipeline's /pipeline/regenerate-flagged endpoint.
-// Fire-and-forget with a 30s timeout — the pipeline processes up to 20 questions per call.
+// Fires the pipeline's /pipeline/regenerate-flagged-all background drain
+// (up to 150 questions/night) — not bounded by the serverless timeout.
 
 export const dynamic = 'force-dynamic'
 
@@ -20,11 +20,11 @@ async function handler(req: Request) {
   }
 
   try {
-    const res = await fetch(`${pipelineUrl.replace(/\/$/, '')}/pipeline/regenerate-flagged?limit=20`, {
+    const res = await fetch(`${pipelineUrl.replace(/\/$/, '')}/pipeline/regenerate-flagged-all?cap=150`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: '{}',
-      signal: AbortSignal.timeout(280_000), // 280s — just under Vercel's 300s function timeout
+      signal: AbortSignal.timeout(30_000), // returns immediately — the drain runs as a pipeline background task
     })
     const body = await res.json()
     console.log('[regenerate-flagged] pipeline response', body)
