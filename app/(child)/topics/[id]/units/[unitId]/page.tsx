@@ -3,57 +3,20 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 
-type OakLesson = {
-  lessonSlug: string
+// Chapter content is ingested from Oak National Academy (OGL v3.0) on the droplet
+// and served from curriculum_units.content_json — never fetched live (CLAUDE.md §6).
+type ChapterLesson = {
   lessonTitle: string
-  pupilLessonOutcome?: string
-}
-
-type OakLessonGroup = {
-  lessons?: OakLesson[]
-}
-
-type OakSummary = {
-  keyLearningPoints?: Array<{ keyLearningPoint: string }>
+  pupilLessonOutcome?: string | null
+  keyLearningPoints?: string[]
   keywords?: Array<{ keyword: string; description: string }>
   misconceptions?: Array<{ misconception: string; response: string }>
 }
 
-async function oakFetch(path: string): Promise<unknown> {
-  const key = process.env.OAK_API_KEY
-  if (!key) return null
-  try {
-    const res = await fetch(`https://open-api.thenational.academy/api/v0${path}`, {
-      headers: { Authorization: `Bearer ${key}`, 'User-Agent': 'Decifer-Learning/1.0' },
-      next: { revalidate: 3600 },
-    })
-    if (!res.ok) return null
-    return res.json()
-  } catch {
-    return null
-  }
-}
-
-async function fetchUnitLessons(oakUnitSlug: string): Promise<OakLesson[]> {
-  // oak_unit_slug format: "history/ks3/year-7/{unit-slug}"
-  const parts = oakUnitSlug.split('/')
-  if (parts.length < 4) return []
-  const [subjectSlug, keyStage, , unitSlug] = parts
-
-  const data = await oakFetch(
-    `/key-stages/${keyStage}/subject/${subjectSlug}/lessons?unit=${encodeURIComponent(unitSlug)}`
-  ) as OakLessonGroup[] | null
-
-  if (!Array.isArray(data)) return []
-  const lessons: OakLesson[] = []
-  for (const group of data) {
-    if (group.lessons) lessons.push(...group.lessons)
-  }
-  return lessons
-}
-
-async function fetchLessonSummary(lessonSlug: string): Promise<OakSummary | null> {
-  return oakFetch(`/lessons/${lessonSlug}/summary`) as Promise<OakSummary | null>
+type ChapterContent = {
+  lessons?: ChapterLesson[]
+  attribution?: string
+  canonicalUrl?: string | null
 }
 
 export async function generateMetadata({ params }: { params: { id: string; unitId: string } }) {
@@ -72,7 +35,7 @@ export default async function ChapterPage({
   const [unit, topicRow] = await Promise.all([
     prisma.curriculumUnit.findUnique({
       where: { id: params.unitId, topic_id: params.id },
-      select: { id: true, title: true, description: true, oak_unit_slug: true, order_index: true },
+      select: { id: true, title: true, description: true, order_index: true, content_json: true },
     }),
     prisma.topic.findUnique({
       where: { id: params.id },
@@ -86,18 +49,8 @@ export default async function ChapterPage({
   if (!unit || !topicRow) notFound()
 
   const subjectColor = topicRow.subject?.colour_token ?? '#6C9EFF'
-
-  // Fetch Oak NA lessons for this unit
-  const lessons = unit.oak_unit_slug
-    ? await fetchUnitLessons(unit.oak_unit_slug)
-    : []
-
-  // Fetch summaries for up to 6 lessons (to keep load reasonable)
-  const summaries: Array<{ lesson: OakLesson; summary: OakSummary | null }> = []
-  for (const lesson of lessons.slice(0, 6)) {
-    const summary = await fetchLessonSummary(lesson.lessonSlug)
-    summaries.push({ lesson, summary })
-  }
+  const content = (unit.content_json ?? null) as ChapterContent | null
+  const lessons = content?.lessons ?? []
 
   return (
     <div className="space-y-5">
@@ -128,14 +81,14 @@ export default async function ChapterPage({
         )}
       </div>
 
-      {summaries.length === 0 && (
+      {lessons.length === 0 && (
         <div className="rounded-2xl border border-black/5 bg-surface p-8 text-center">
-          <p className="text-muted text-sm">Lesson content for this chapter is loading — check back soon.</p>
+          <p className="text-muted text-sm">Lesson content for this chapter is on its way — try the quiz, or check back soon.</p>
         </div>
       )}
 
-      {summaries.map(({ lesson, summary }, i) => (
-        <div key={lesson.lessonSlug} className="rounded-2xl border border-black/5 bg-surface p-6 shadow-sm space-y-4">
+      {lessons.map((lesson, i) => (
+        <div key={`${lesson.lessonTitle}-${i}`} className="rounded-2xl border border-black/5 bg-surface p-6 shadow-sm space-y-4">
           <div>
             <p className="text-xs font-bold uppercase tracking-wide text-muted mb-1">Lesson {i + 1}</p>
             <h2 className="font-heading text-lg font-bold text-ink">{lesson.lessonTitle}</h2>
@@ -144,29 +97,29 @@ export default async function ChapterPage({
             )}
           </div>
 
-          {summary?.keyLearningPoints && summary.keyLearningPoints.length > 0 && (
+          {lesson.keyLearningPoints && lesson.keyLearningPoints.length > 0 && (
             <div>
               <h3 className="text-xs font-bold uppercase tracking-wide text-muted mb-2">Key Learning Points</h3>
               <ul className="space-y-1">
-                {summary.keyLearningPoints.map((kp, j) => (
+                {lesson.keyLearningPoints.map((kp, j) => (
                   <li key={j} className="flex items-start gap-2 text-sm text-ink">
                     <span
                       className="mt-1 h-2 w-2 shrink-0 rounded-full"
                       style={{ backgroundColor: subjectColor }}
                       aria-hidden
                     />
-                    {kp.keyLearningPoint}
+                    {kp}
                   </li>
                 ))}
               </ul>
             </div>
           )}
 
-          {summary?.keywords && summary.keywords.length > 0 && (
+          {lesson.keywords && lesson.keywords.length > 0 && (
             <div>
               <h3 className="text-xs font-bold uppercase tracking-wide text-muted mb-2">Key Vocabulary</h3>
               <dl className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                {summary.keywords.slice(0, 8).map((kw) => (
+                {lesson.keywords.slice(0, 8).map((kw) => (
                   <div key={kw.keyword} className="rounded-xl bg-black/5 px-3 py-2">
                     <dt className="text-xs font-bold text-ink">{kw.keyword}</dt>
                     <dd className="text-xs text-muted mt-0.5">{kw.description}</dd>
@@ -176,11 +129,11 @@ export default async function ChapterPage({
             </div>
           )}
 
-          {summary?.misconceptions && summary.misconceptions.length > 0 && (
+          {lesson.misconceptions && lesson.misconceptions.length > 0 && (
             <div>
               <h3 className="text-xs font-bold uppercase tracking-wide text-muted mb-2">Common Misconceptions</h3>
               <ul className="space-y-2">
-                {summary.misconceptions.slice(0, 3).map((m, j) => (
+                {lesson.misconceptions.slice(0, 3).map((m, j) => (
                   <li key={j} className="rounded-xl bg-incorrect/10 px-3 py-2 text-sm">
                     <p className="font-medium text-ink">{m.misconception}</p>
                     <p className="text-muted mt-0.5">{m.response}</p>
@@ -191,6 +144,20 @@ export default async function ChapterPage({
           )}
         </div>
       ))}
+
+      {lessons.length > 0 && (
+        <p className="text-xs text-muted">
+          Lesson content adapted from{' '}
+          {content?.canonicalUrl ? (
+            <a href={content.canonicalUrl} className="underline" target="_blank" rel="noopener noreferrer">
+              Oak National Academy
+            </a>
+          ) : (
+            'Oak National Academy'
+          )}
+          , licensed under the Open Government Licence v3.0.
+        </p>
+      )}
 
       <div className="flex justify-between">
         <Link

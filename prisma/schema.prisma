@@ -236,6 +236,8 @@ model CurriculumUnit {
   order_index    Int      @default(0)                 // Oak teaching sequence
   oak_unit_slug  String?  @unique                     // traceability back to Oak API
   oak_confidence String?                              // 'high' | 'medium' | 'low'
+  content_json   Json?                                // Oak lesson summary (key learning points, keywords, misconceptions) — ingested on the droplet, served from DB
+  content_fetched_at DateTime?                        // when content_json was last refreshed from Oak
   created_at     DateTime @default(now())
 
   subject     Subject    @relation(fields: [subject_id], references: [id])
