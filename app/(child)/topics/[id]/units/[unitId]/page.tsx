@@ -146,17 +146,32 @@ export default async function ChapterPage({
       ))}
 
       {lessons.length > 0 && (
-        <p className="text-xs text-muted">
-          Lesson content adapted from{' '}
-          {content?.canonicalUrl ? (
-            <a href={content.canonicalUrl} className="underline" target="_blank" rel="noopener noreferrer">
-              Oak National Academy
-            </a>
-          ) : (
-            'Oak National Academy'
-          )}
-          , licensed under the Open Government Licence v3.0.
-        </p>
+        content?.attribution === 'Decifer Learning' ? (
+          <p className="text-xs text-muted">
+            Study guide written by Decifer Learning
+            {content?.canonicalUrl && (
+              <>
+                {' '}— lesson sequence from{' '}
+                <a href={content.canonicalUrl} className="underline" target="_blank" rel="noopener noreferrer">
+                  Oak National Academy
+                </a>
+              </>
+            )}
+            .
+          </p>
+        ) : (
+          <p className="text-xs text-muted">
+            Lesson content adapted from{' '}
+            {content?.canonicalUrl ? (
+              <a href={content.canonicalUrl} className="underline" target="_blank" rel="noopener noreferrer">
+                Oak National Academy
+              </a>
+            ) : (
+              'Oak National Academy'
+            )}
+            , licensed under the Open Government Licence v3.0.
+          </p>
+        )
       )}
 
       <div className="flex justify-between">
