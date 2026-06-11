@@ -22,6 +22,7 @@ export type ZoneNode = {
 type Props = {
   zoneId: string
   zoneName: string
+  subjectName: string
   theme: string | null
   subjectColor: string
   nodes: ZoneNode[]
@@ -41,7 +42,7 @@ const THEME_ICON: Record<string, IconType> = {
 // Container height gives room for nodes + labels without horizontal overflow.
 const NODE_AREA_HEIGHT = 180
 
-export function ZoneMap({ zoneId, zoneName, theme, subjectColor, nodes, allCompleted, checkpointTopicId }: Props) {
+export function ZoneMap({ zoneId, zoneName, subjectName, theme, subjectColor, nodes, allCompleted, checkpointTopicId }: Props) {
   const ThemeIcon: IconType = theme ? (THEME_ICON[theme] ?? MapFold) : MapFold
   const completedCount = nodes.filter((n) => n.state === 'completed').length
 
@@ -53,7 +54,10 @@ export function ZoneMap({ zoneId, zoneName, theme, subjectColor, nodes, allCompl
       {/* Zone header */}
       <div className="flex items-center gap-2 px-5 pb-2 pt-4">
         <ThemeIcon size={20} style={{ color: subjectColor }} aria-hidden />
-        <h3 className="font-heading text-base font-bold text-ink">{zoneName}</h3>
+        <div>
+          <p className="text-[11px] font-bold uppercase tracking-widest" style={{ color: subjectColor }}>{subjectName}</p>
+          <h3 className="font-heading text-base font-bold text-ink leading-tight">{zoneName}</h3>
+        </div>
       </div>
 
       {nodes.length === 0 ? (

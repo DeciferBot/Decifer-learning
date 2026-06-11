@@ -104,7 +104,7 @@ export default async function WorldMapPage() {
       )}
 
       <div className="space-y-4">
-        {zones.map((zone) => {
+        {zones.filter((zone) => (nodesByZone.get(zone.id) ?? []).length > 0).map((zone) => {
           const zoneNodes = nodesByZone.get(zone.id) ?? []
           const colour = zone.subject.colour_token ?? '#6C9EFF'
 
@@ -133,6 +133,7 @@ export default async function WorldMapPage() {
               key={zone.id}
               zoneId={zone.id}
               zoneName={zone.name}
+              subjectName={zone.subject.name}
               theme={zone.theme}
               subjectColor={colour}
               nodes={mappedNodes}
