@@ -3,36 +3,19 @@ import { redirect } from 'next/navigation'
 import { createSupabaseServerClient, getAuthUser } from '@/lib/supabase/server'
 import { getCurrentProfile } from '@/lib/profile'
 import { prisma } from '@/lib/prisma'
-import { ZoneMap, type ZoneNode } from '@/components/world-map/ZoneMap'
-import type { NodeState } from '@/components/world-map/TopicNode'
+import { ZoneMap, type ZoneTopic } from '@/components/world-map/ZoneMap'
 import { MapFold } from '@/components/ui/icons'
 
 export const metadata = { title: 'World Map — Decifer Learning' }
 
-// Zone/node structure changes only when content is published — 60 s cache is fine.
-// Progress (completed nodes) is user-specific; Next.js caches per cookie/request.
 export const revalidate = 60
 
-function computeNodeState(
-  topicId: string,
-  unlockedByTopicId: string | null,
-  completedSet: Set<string>,
-): NodeState {
-  if (completedSet.has(topicId)) return 'completed'
-  if (unlockedByTopicId === null) return 'available'
-  if (completedSet.has(unlockedByTopicId)) return 'available'
-  return 'locked'
-}
-
-// Returns the topic_id to use for a zone checkpoint when the child has completed
-// exactly a multiple of 3 topics in the zone (but not all of them).
-// The checkpoint is drawn from the most recently completed topic in that batch.
 function computeCheckpointTopicId(
-  zoneTopicIds: string[],
+  topicIds: string[],
   completedSet: Set<string>,
 ): string | null {
-  const completed = zoneTopicIds.filter((id) => completedSet.has(id))
-  const total = zoneTopicIds.length
+  const completed = topicIds.filter((id) => completedSet.has(id))
+  const total = topicIds.length
   if (completed.length === 0 || completed.length === total) return null
   if (completed.length % 3 !== 0) return null
   return completed[completed.length - 1]
@@ -46,27 +29,22 @@ export default async function WorldMapPage() {
   const profile = await getCurrentProfile(supabase, user.id)
   if (!profile?.year_group_id) redirect('/dashboard')
 
-  // Zones and progress are independent — fetch in parallel
-  const [zones, progress] = await Promise.all([
+  const [zones, progress, unitCounts] = await Promise.all([
     prisma.zone.findMany({
       where: { year_group_id: profile.year_group_id },
-      include: { subject: { select: { name: true, colour_token: true } } },
+      include: {
+        subject: { select: { name: true, colour_token: true } },
+        topics: {
+          where: { is_published: true },
+          orderBy: { order_index: 'asc' },
+          select: { id: true, title: true, order_index: true, quiz_optional: true },
+        },
+      },
       orderBy: { name: 'asc' },
     }),
     prisma.topicProgress.findMany({
       where: { profile_id: profile.id, status: 'completed' },
       select: { topic_id: true },
-    }),
-  ])
-
-  const completedSet = new Set(progress.map((p) => p.topic_id))
-
-  // Nodes depend on zone IDs but not on progress
-  const zoneIds = zones.map((z) => z.id)
-  const [nodes, unitCounts] = await Promise.all([
-    prisma.worldMapNode.findMany({
-      where: { zone_id: { in: zoneIds } },
-      include: { topic: { select: { id: true, title: true, quiz_optional: true } } },
     }),
     prisma.curriculumUnit.groupBy({
       by: ['topic_id'],
@@ -74,19 +52,15 @@ export default async function WorldMapPage() {
       _count: { id: true },
     }),
   ])
+
+  const completedSet = new Set(progress.map((p) => p.topic_id))
   const chapterCountByTopic = new Map(
     unitCounts
       .filter((r) => r.topic_id !== null)
       .map((r) => [r.topic_id as string, r._count.id])
   )
 
-  // Group nodes by zone for efficient lookup
-  const nodesByZone = new Map<string, typeof nodes>()
-  for (const node of nodes) {
-    const existing = nodesByZone.get(node.zone_id) ?? []
-    existing.push(node)
-    nodesByZone.set(node.zone_id, existing)
-  }
+  const zonesWithTopics = zones.filter((z) => z.topics.length > 0)
 
   return (
     <div className="space-y-5">
@@ -95,7 +69,7 @@ export default async function WorldMapPage() {
         <p className="mt-1 text-sm text-muted">Your learning adventure</p>
       </div>
 
-      {zones.length === 0 && (
+      {zonesWithTopics.length === 0 && (
         <div className="rounded-2xl border border-black/5 bg-surface px-5 py-10 text-center shadow-sm">
           <div className="flex justify-center"><MapFold className="w-8 h-8 text-muted" aria-hidden /></div>
           <p className="mt-3 font-heading text-base font-bold text-ink">Your world map is being built</p>
@@ -104,29 +78,26 @@ export default async function WorldMapPage() {
       )}
 
       <div className="space-y-4">
-        {zones.filter((zone) => (nodesByZone.get(zone.id) ?? []).length > 0).map((zone) => {
-          const zoneNodes = nodesByZone.get(zone.id) ?? []
+        {zonesWithTopics.map((zone) => {
           const colour = zone.subject.colour_token ?? '#6C9EFF'
 
-          const mappedNodes: ZoneNode[] = zoneNodes.map((node) => ({
-            id: node.id,
-            topicId: node.topic_id,
-            topicTitle: node.topic.title,
-            state: computeNodeState(node.topic_id, node.unlocked_by_topic_id, completedSet),
-            href: `/topics/${node.topic_id}/learn`,
-            xPct: node.x_pos * 100,
-            yPct: node.y_pos * 100,
-            quizOptional: node.topic.quiz_optional,
-            chapterCount: chapterCountByTopic.get(node.topic_id) ?? 0,
-          }))
+          const topics: ZoneTopic[] = zone.topics.map((t, i) => {
+            const completed = completedSet.has(t.id)
+            // first topic always available; subsequent unlock after previous complete
+            const prevCompleted = i === 0 || completedSet.has(zone.topics[i - 1].id)
+            const state = completed ? 'completed' : prevCompleted ? 'available' : 'locked'
+            return {
+              id: t.id,
+              title: t.title,
+              state,
+              href: `/topics/${t.id}/learn`,
+              quizOptional: t.quiz_optional,
+              chapterCount: chapterCountByTopic.get(t.id) ?? 0,
+            }
+          })
 
-          const allCompleted =
-            mappedNodes.length > 0 && mappedNodes.every((n) => n.state === 'completed')
-
-          const checkpointTopicId = computeCheckpointTopicId(
-            zoneNodes.map((n) => n.topic_id),
-            completedSet,
-          )
+          const allCompleted = topics.length > 0 && topics.every((t) => t.state === 'completed')
+          const checkpointTopicId = computeCheckpointTopicId(zone.topics.map((t) => t.id), completedSet)
 
           return (
             <ZoneMap
@@ -136,7 +107,7 @@ export default async function WorldMapPage() {
               subjectName={zone.subject.name}
               theme={zone.theme}
               subjectColor={colour}
-              nodes={mappedNodes}
+              topics={topics}
               allCompleted={allCompleted}
               checkpointTopicId={checkpointTopicId}
             />
