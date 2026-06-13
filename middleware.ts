@@ -26,13 +26,20 @@ const PUBLIC_EXACT = new Set<string>([
 // bearer header inside each handler, so the middleware must NOT redirect them to /login.
 // /api/parent-verification is called right after child signup, before any
 // session exists (email-confirmation flow), so it must also stay public.
-const PUBLIC_PREFIX = ['/auth/callback', '/_next/', '/help', '/opengraph-image', '/twitter-image', '/sitemap', '/robots', '/legal/', '/api/cron/', '/api/parent-verification/']
+const PUBLIC_PREFIX = ['/auth/callback', '/_next/', '/help', '/sitemap', '/robots', '/legal/', '/api/cron/', '/api/parent-verification/']
+// Next.js metadata image routes (opengraph-image / twitter-image) live at any
+// depth — e.g. /opengraph-image AND /pricing/opengraph-image. Social crawlers
+// (WhatsApp, Facebook, etc.) fetch these with no session cookie, so every one
+// must be public regardless of which page generated it. A prefix match only
+// catches the root, so match the trailing segment instead.
+const PUBLIC_IMAGE_SEGMENTS = ['/opengraph-image', '/twitter-image']
 const STATIC_EXT =
   /\.(svg|png|jpg|jpeg|gif|webp|ico|css|js|map|woff2?|ttf|otf|txt|xml|json)$/i
 
 function isPublic(pathname: string): boolean {
   if (PUBLIC_EXACT.has(pathname)) return true
   if (PUBLIC_PREFIX.some((p) => pathname.startsWith(p))) return true
+  if (PUBLIC_IMAGE_SEGMENTS.some((s) => pathname.endsWith(s))) return true
   if (pathname.startsWith('/favicon')) return true
   if (STATIC_EXT.test(pathname)) return true
   return false
