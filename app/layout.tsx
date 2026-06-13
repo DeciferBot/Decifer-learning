@@ -10,6 +10,7 @@ import { Instrument_Serif } from 'next/font/google'
 // does not set cookies or track individuals across sites — compliant by default.
 import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
+import { jsonLd } from '@/lib/json-ld'
 import { OfflineBanner } from '@/components/ui/OfflineBanner'
 import { CookieConsent } from '@/components/ui/CookieConsent'
 import './globals.css'
@@ -29,13 +30,14 @@ const organizationJsonLd = {
   '@context': 'https://schema.org',
   '@graph': [
     {
-      '@type': 'Organization',
+      '@type': 'EducationalOrganization',
       '@id': 'https://www.deciferlearning.com/#organization',
       name: 'DECIFER Learning',
       url: 'https://www.deciferlearning.com',
+      logo: 'https://www.deciferlearning.com/brand/decifer-app-icon.svg',
       parentOrganization: { '@id': 'https://www.decifer.io/#organization' },
       description:
-        'AI-assisted learning for UK National Curriculum — Year 3 and Year 7. Game-like motivation and quality-checked content for families.',
+        'AI-assisted learning for the UK National Curriculum, Year 1 to Year 11. Game-like motivation and quality-checked Maths, English and Science content for families.',
     },
     {
       '@type': 'WebSite',
@@ -119,7 +121,7 @@ export default function RootLayout({
         {children}
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+          dangerouslySetInnerHTML={{ __html: jsonLd(organizationJsonLd) }}
         />
         {/* Vercel Analytics: first-party, no cookies, no cross-site tracking — Children's Code compliant */}
         <Analytics />

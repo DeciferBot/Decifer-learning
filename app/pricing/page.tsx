@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: 'Pricing — DECIFER Learning',
   description:
     'Start free with 3 Maths topics. Upgrade to Family for unlimited access across Maths, English and Science.',
+  alternates: { canonical: '/pricing' },
 }
 
 const FREE_FEATURES = [

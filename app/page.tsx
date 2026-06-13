@@ -495,8 +495,11 @@ export default function Home({
             <DeciferLogo size="xs" product="Learning" />
             <p className="text-xs text-muted">UK National Curriculum. For families.</p>
             <nav className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs text-muted sm:justify-start" aria-label="Footer navigation">
+              <Link href="/curriculum" className="hover:text-ink">Curriculum</Link>
+              <Link href="/subjects" className="hover:text-ink">Subjects</Link>
+              <Link href="/how-it-works" className="hover:text-ink">How it works</Link>
+              <Link href="/pricing" className="hover:text-ink">Pricing</Link>
               <Link href="/help" className="hover:text-ink">Help</Link>
-              <Link href="/help/parent-guide" className="hover:text-ink">Parents</Link>
               <Link href="/help/faq" className="hover:text-ink">FAQ</Link>
               <Link href="/legal/privacy" className="hover:text-ink">Privacy</Link>
               <Link href="/legal/terms" className="hover:text-ink">Terms</Link>

@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: 'What we cover — DECIFER Learning',
   description:
     'Maths, English, and Science from Year 1 to Year 11. UK National Curriculum across all key stages, KS1 to KS4.',
+  alternates: { canonical: '/subjects' },
 }
 
 const SUBJECTS = [
@@ -65,6 +66,12 @@ export default function SubjectsPage() {
           <p className="mt-3 text-lg text-muted">
             UK National Curriculum — Year 1 to Year 11. Three core subjects, all key stages.
           </p>
+          <Link
+            href="/curriculum"
+            className="mt-4 inline-block text-sm font-semibold text-maths hover:underline"
+          >
+            Browse every topic, year by year →
+          </Link>
         </div>
 
         <div className="mt-12 space-y-8">

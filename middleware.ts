@@ -26,7 +26,10 @@ const PUBLIC_EXACT = new Set<string>([
 // bearer header inside each handler, so the middleware must NOT redirect them to /login.
 // /api/parent-verification is called right after child signup, before any
 // session exists (email-confirmation flow), so it must also stay public.
-const PUBLIC_PREFIX = ['/auth/callback', '/_next/', '/help', '/sitemap', '/robots', '/legal/', '/api/cron/', '/api/parent-verification/']
+// /curriculum/* is the public, indexable curriculum browse surface — published
+// topic titles only, no gated content — so crawlers and logged-out visitors must
+// reach it without a session.
+const PUBLIC_PREFIX = ['/auth/callback', '/_next/', '/help', '/curriculum', '/sitemap', '/robots', '/legal/', '/api/cron/', '/api/parent-verification/']
 // Next.js metadata image routes (opengraph-image / twitter-image) live at any
 // depth — e.g. /opengraph-image AND /pricing/opengraph-image. Social crawlers
 // (WhatsApp, Facebook, etc.) fetch these with no session cookie, so every one
