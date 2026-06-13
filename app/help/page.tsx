@@ -3,6 +3,9 @@ import { Users, CircleCheck, Backpack, Star, Search, BookOpen } from '@/componen
 
 export const metadata = {
   title: 'Help — Decifer Learning',
+  description:
+    'Guides for parents and students: set up and link accounts, understand how Decifer works, learn the gamification system, and see how content is quality-checked.',
+  alternates: { canonical: '/help' },
 }
 
 export default function HelpPage() {

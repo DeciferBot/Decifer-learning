@@ -267,13 +267,18 @@ Every content row (`quiz_questions`, `card_catalog`, `learn_content`) carries a 
 | Maths (arithmetic, algebra, geometry) | ≥ 85 | SymPy / safe-eval `verified=true` | — |
 | Science calculations (physics) | ≥ 85 | Pint + SymPy `verified=true` | — |
 | Chemistry equations / element facts | ≥ 85 | ChemPy or periodic-table `verified=true` | — |
-| English grammar | ≥ 85 | LanguageTool clean **and** consensus pass | — |
-| English comprehension | ≥ 90 | — | `source_chunk_ids` non-empty |
+| English grammar / spelling / phonics | ≥ 85 | LanguageTool clean **and** consensus pass | — |
+| English comprehension / vocabulary | ≥ 90 | — | `source_chunk_ids` non-empty |
 | English literary analysis | ≥ 90 | — | `source_chunk_ids` non-empty |
 | Biology factual | ≥ 90 | — | `source_chunk_ids` non-empty |
 | Other open factual science | ≥ 90 | — | `source_chunk_ids` non-empty |
+| History factual | ≥ 90 | — | `source_chunk_ids` non-empty |
+| Geography factual | ≥ 90 | — | `source_chunk_ids` non-empty |
+| Any unlisted type (fail-safe default) | ≥ 90 | — | per `RAG_REQUIRED_TYPES` |
 
 Anything below threshold stays `staged` or routes to `regenerating`. **Nothing auto-publishes that misses its threshold.**
+
+> Authoritative values live in `services/content-pipeline/config.py` (`CONFIDENCE_THRESHOLDS`, `DEFAULT_CONFIDENCE_THRESHOLD = 90`, `RAG_REQUIRED_TYPES`). History/Geography factual types were added with the humanities content expansion (v2.8–2.9). When this table and `config.py` disagree, `config.py` is the runtime truth — update this table to match.
 
 ---
 
@@ -292,8 +297,8 @@ Lives at `services/content-pipeline/` (Python FastAPI on Google Cloud Run). Six 
    - Open-ended types → skip this stage; the higher Stage-6 threshold compensates.
 3. **Consensus check** — Second Claude call at `temperature=0.0` with no source context. Asks: is the answer correct, unambiguous, at the right tier? Structured JSON response.
 4. **Constitutional critique** — Third Claude call against a written constitution: age-appropriateness, cultural sensitivity, distractor plausibility, hint progression (hint_3 closer to answer than hint_1), single defensible answer, tier alignment, no repetition.
-5. **Semantic deduplication** — Embed `question_text`; pgvector cosine similarity against existing `published` questions in the same `topic_id`. Reject if similarity > 0.92.
-6. **Confidence scoring & decision** — Weighted score (computation 60, consensus 25, constitutional −10 per violation, dedup −20, structure −30). Apply §8 thresholds. Decision: `published`, `staged`, or `regenerating`. **Circuit breaker:** max 5 full cycles per question; log and skip if all fail.
+5. **Semantic deduplication** — Embed `question_text`; pgvector cosine similarity against existing `published` questions in the same `topic_id`. Reject above `config.DEDUP_SIMILARITY_THRESHOLD` (currently **0.78** — progressively tightened from the original 0.92 → 0.82 → 0.78 to catch near-paraphrases of the same fact). A secondary guard also rejects when an answer matches > 40% of the topic's published answers. `config.py` is the runtime truth for this value.
+6. **Confidence scoring & decision** — Weighted score: computation **+60**, consensus **+25**, constitutional **−10 per violation**, dedup **−20**, structure **−30**, plus two documented bonuses: **+5 RAG-grounding bonus** for `RAG_REQUIRED_TYPES` with non-empty `source_chunk_ids` (aligns the max achievable score of 90 with the 90 threshold for non-computable types), and a **+5 `english_literary_analysis` buffer** when all quality gates are clean (so one minor hint-phrasing violation doesn't hard-fail otherwise grounded, consensus-validated content). A hard RAG gate runs first: RAG-required types with empty/invalid `source_chunk_ids`, or a cited chunk whose subject/year doesn't match the topic, score 0 → `regenerating`. Apply §8 thresholds. Decision: `score ≥ threshold → published`, `≥ 50 → regenerating`, `else staged`. **Circuit breaker:** max 5 full cycles per question; log and skip if all fail.
 
 **Production anomaly detection (nightly `pg_cron`):**
 - Flag any question with ≥ 20 first-attempt answers and error rate > 0.60 → `status='flagged'`.

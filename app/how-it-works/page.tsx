@@ -5,6 +5,7 @@ import { DeciferLogo } from '@/components/ui/DeciferLogo'
 export const metadata: Metadata = {
   title: 'How it works — DECIFER Learning',
   description: 'Decifer gives parents a clear learning map and children a rewarding way to learn. Here is how both sides work.',
+  alternates: { canonical: '/how-it-works' },
 }
 
 const PARENT_STEPS = [
