@@ -7,6 +7,52 @@
 // eslint-disable-next-line no-undef
 const WB_MANIFEST = self.__WB_MANIFEST || [];
 
+// ---------------------------------------------------------------------------
+// Runtime image cache (offline Learn figures)
+//
+// Learn `foundation_images` are raster URLs (Supabase Storage). A cache-first
+// strategy means any figure a child has viewed once stays available offline —
+// satisfying the PWA offline-Learn requirement without pulling in Workbox.
+// ---------------------------------------------------------------------------
+const IMAGE_CACHE = 'decifer-images-v1';
+
+self.addEventListener('fetch', (event) => {
+  const { request } = event;
+  if (request.method !== 'GET') return;
+
+  let url;
+  try {
+    url = new URL(request.url);
+  } catch {
+    return;
+  }
+
+  const isImage =
+    request.destination === 'image' ||
+    /\/storage\/v1\/object\//.test(url.pathname) ||
+    /\.(png|jpe?g|gif|webp|avif|svg)$/i.test(url.pathname);
+  if (!isImage) return;
+
+  event.respondWith(
+    caches.open(IMAGE_CACHE).then(async (cache) => {
+      const cached = await cache.match(request);
+      if (cached) return cached;
+      try {
+        const response = await fetch(request);
+        // Only cache successful, non-opaque responses.
+        if (response && response.status === 200) {
+          cache.put(request, response.clone());
+        }
+        return response;
+      } catch (err) {
+        const fallback = await cache.match(request);
+        if (fallback) return fallback;
+        throw err;
+      }
+    })
+  );
+});
+
 self.addEventListener('push', (event) => {
   if (!event.data) return
   let payload

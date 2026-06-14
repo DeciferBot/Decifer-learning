@@ -5,6 +5,7 @@ import { createSupabaseServerClient, getAuthUser } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import { LessonEventTracker, LessonCompleteCTA } from '@/components/learn/LessonEventTracker'
 import { LearnWidgetRenderer } from '@/components/learn/LearnWidgetRenderer'
+import { LearnFigures, LearnFigure } from '@/components/learn/LearnFigures'
 import { LearnWidget } from '@/lib/learn-widgets'
 import { UpgradeWall } from '@/components/ui/UpgradeWall'
 import { isTopicAccessible } from '@/lib/stripe'
@@ -16,7 +17,7 @@ import { ChapterStrip } from '@/components/curriculum/ChapterStrip'
 // App-layer .eq() filters are defence-in-depth only.
 
 type TopicRow = { id: string; title: string }
-type ContentRow = { id: string; body_html: string; learn_widgets: unknown }
+type ContentRow = { id: string; body_html: string; learn_widgets: unknown; foundation_images: unknown }
 type PracticeRow = { id: string }
 
 /** Split body_html into sections at <hr>, <!-- SECTION_BREAK -->, or <h2> boundaries. */
@@ -40,6 +41,23 @@ function parseWidgets(raw: unknown): LearnWidget[] {
     }
   }
   return []
+}
+
+/** Safely parse foundation_images JSON ({url, alt?, caption?}[]). Returns [] on any failure. */
+function parseFigures(raw: unknown): LearnFigure[] {
+  let arr: unknown = raw
+  if (typeof raw === 'string') {
+    try {
+      arr = JSON.parse(raw)
+    } catch {
+      return []
+    }
+  }
+  if (!Array.isArray(arr)) return []
+  return arr.filter(
+    (f): f is LearnFigure =>
+      !!f && typeof f === 'object' && typeof (f as LearnFigure).url === 'string'
+  )
 }
 
 export async function generateMetadata({ params }: { params: { id: string } }) {
@@ -71,7 +89,7 @@ export default async function LearnPage({
       .maybeSingle<TopicRow & { subject_id: string; pedagogy_mode: string; quiz_optional: boolean }>(),
     supabase
       .from('learn_content')
-      .select('id, body_html, learn_widgets')
+      .select('id, body_html, learn_widgets, foundation_images')
       .eq('topic_id', params.id)
       .eq('status', 'published')
       .maybeSingle<ContentRow>(),
@@ -151,6 +169,7 @@ export default async function LearnPage({
 
   const sections = splitHtml(content.body_html)
   const widgets = parseWidgets(content.learn_widgets)
+  const figures = parseFigures(content.foundation_images)
   const subjectColor = subjectRow?.subject?.colour_token ?? '#6C9EFF'
 
   const hasChapters = units.length > 0
@@ -176,8 +195,8 @@ export default async function LearnPage({
         <span className="font-medium text-ink">{topic.title}</span>
       </nav>
 
-      <div className="flex gap-2">
-        <span className="rounded-full bg-maths px-3 py-1 text-xs font-bold text-white">1 Learn</span>
+      <div className="flex gap-2" aria-label="Topic steps">
+        <span className="rounded-full bg-maths px-3 py-1 text-xs font-bold text-white" aria-current="step">1 Learn</span>
         {hasPractice && (
           <span className="rounded-full bg-black/10 px-3 py-1 text-xs font-bold text-muted">2 Practise</span>
         )}
@@ -226,6 +245,7 @@ export default async function LearnPage({
           </ol>
 
           <LearnWidgetRenderer widgets={widgets} position="top" />
+          {figures.length > 0 && <LearnFigures images={figures} />}
           <LearnWidgetRenderer widgets={widgets} position="middle" />
           <LearnWidgetRenderer widgets={widgets} position="end" />
 
@@ -249,6 +269,8 @@ export default async function LearnPage({
           <div className="rounded-2xl border border-black/5 bg-surface p-6 shadow-sm">
             <div className="learn-content" dangerouslySetInnerHTML={{ __html: sections[0] }} />
           </div>
+
+          {figures.length > 0 && <LearnFigures images={figures} />}
 
           <LearnWidgetRenderer widgets={widgets} position="after_intro" />
 

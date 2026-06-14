@@ -1,0 +1,2 @@
+ALTER TABLE learn_content ADD COLUMN IF NOT EXISTS foundation_images JSONB DEFAULT '[]';
+COMMENT ON COLUMN learn_content.foundation_images IS 'Raster figures rendered on the Learn page as the SVG-first escape hatch for photos / complex artwork. Array of { url, alt?, caption? }. URLs point at Supabase Storage and are cached by the service worker (next.config.js runtimeCaching) for offline. See components/learn/LearnFigures.tsx.';

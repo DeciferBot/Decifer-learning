@@ -1,6 +1,7 @@
 'use client'
 import { LearnWidget, SentenceBuilderWidget, WidgetPosition } from '@/lib/learn-widgets'
 import { DragLabel } from './widgets/DragLabel'
+import { StaticDiagram } from './widgets/StaticDiagram'
 import { ParticleModel } from './widgets/ParticleModel'
 import { SentenceBuilder } from './widgets/SentenceBuilder'
 
@@ -19,6 +20,8 @@ export function LearnWidgetRenderer({ widgets, position }: Props) {
         switch (widget.type) {
           case 'drag_label':
             return <DragLabel key={i} widget={widget} />
+          case 'diagram':
+            return <StaticDiagram key={i} widget={widget} />
           case 'particle_model':
             return <ParticleModel key={i} widget={widget} />
           case 'sentence_builder':
