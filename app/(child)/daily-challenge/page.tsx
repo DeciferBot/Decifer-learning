@@ -103,7 +103,7 @@ export default function DailyChallengePageInner() {
           {result.correctCount} out of {result.totalQuestions} correct
         </p>
         {result.isFlare && (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-points-gold/20 px-4 py-1 text-xs font-bold text-points-gold">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-points-gold/20 px-4 py-1 text-xs font-bold text-points-gold-700">
             <Zap className="w-3.5 h-3.5" aria-hidden /> Flare Challenge!
           </span>
         )}
@@ -193,7 +193,7 @@ export default function DailyChallengePageInner() {
         {q.hint_1 && (
           <div className="mt-3">
             {showHint ? (
-              <p className="flex items-start gap-1.5 rounded-xl bg-points-gold/10 px-3 py-2 text-sm text-points-gold">
+              <p className="flex items-start gap-1.5 rounded-xl bg-points-gold/10 px-3 py-2 text-sm text-points-gold-700">
                 <Lightbulb className="w-4 h-4 flex-none mt-0.5" aria-hidden /> {q.hint_1}
               </p>
             ) : (

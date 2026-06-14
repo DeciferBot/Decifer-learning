@@ -29,7 +29,7 @@ const BAND_CONFIG: Record<string, { label: string; Icon: IconComponent }> = {
 }
 
 const ACTIVE_STATUS_LABELS: Record<string, { label: string; colour: string; bg: string }> = {
-  pending:         { label: 'Waiting for parent', colour: 'text-points-gold', bg: 'bg-points-gold/20' },
+  pending:         { label: 'Waiting for parent', colour: 'text-points-gold-700', bg: 'bg-points-gold/20' },
   deferred:        { label: 'Deferred',           colour: 'text-muted',       bg: 'bg-black/5'        },
   counter_offered: { label: 'Waiting for child',  colour: 'text-maths',       bg: 'bg-maths/15'       },
 }

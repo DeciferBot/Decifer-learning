@@ -168,7 +168,7 @@ export function SpeedRound({ config, topicId }: { config: SpeedRoundConfig; topi
                 timerPct > 50
                   ? 'bg-correct/20 text-correct'
                   : timerPct > 25
-                  ? 'bg-lightning/20 text-points-gold'
+                  ? 'bg-lightning/20 text-points-gold-700'
                   : 'bg-incorrect/20 text-incorrect',
               ].join(' ')}
               aria-hidden="true"

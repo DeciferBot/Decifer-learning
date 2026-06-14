@@ -93,7 +93,7 @@ export default function ExamResultPage({
   const timedOut = data.attempt.status === 'timed_out'
 
   const scoreColour =
-    pct >= 80 ? 'text-correct' : pct >= 60 ? 'text-points-gold' : 'text-incorrect'
+    pct >= 80 ? 'text-correct' : pct >= 60 ? 'text-points-gold-700' : 'text-incorrect'
   const scoreBg =
     pct >= 80 ? 'bg-correct/10' : pct >= 60 ? 'bg-lightning/20' : 'bg-incorrect/10'
 

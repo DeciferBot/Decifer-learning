@@ -23,7 +23,7 @@ const STATUS_COPY: Record<string, { label: string; description: string; colour: 
   pending: {
     label: 'Waiting for parent',
     description: "Your request has been sent. We'll let you know when your parent responds.",
-    colour: 'text-points-gold',
+    colour: 'text-points-gold-700',
     Icon: Clock,
   },
   deferred: {

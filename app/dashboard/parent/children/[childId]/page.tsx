@@ -51,7 +51,7 @@ const CONFIDENCE_LABEL: Record<string, string> = {
 }
 const CONFIDENCE_COLOUR: Record<string, string> = {
   early:    'text-muted bg-black/[0.04]',
-  moderate: 'text-points-gold bg-points-gold/10',
+  moderate: 'text-points-gold-700 bg-points-gold/10',
   strong:   'text-incorrect bg-incorrect/10',
 }
 
@@ -211,7 +211,7 @@ export default async function ChildDetailPage({
         </div>
         <div className="flex flex-col items-end gap-0.5 text-right">
           {childProfile.total_points > 0 && (
-            <span className="inline-flex items-center gap-1 font-heading text-sm font-bold text-points-gold">
+            <span className="inline-flex items-center gap-1 font-heading text-sm font-bold text-points-gold-700">
               <Star className="w-3.5 h-3.5" aria-hidden /> {childProfile.total_points.toLocaleString()} pts
             </span>
           )}
@@ -763,7 +763,7 @@ function CurriculumTracker({
                           topic.lastScore >= 0.85
                             ? 'bg-correct/20 text-correct'
                             : topic.lastScore >= 0.70
-                              ? 'bg-points-gold/20 text-points-gold'
+                              ? 'bg-points-gold/20 text-points-gold-700'
                               : 'bg-incorrect/15 text-incorrect'
                         }`}>
                           {Math.round(topic.lastScore * 100)}%

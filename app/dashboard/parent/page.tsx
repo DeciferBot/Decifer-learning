@@ -31,7 +31,7 @@ type IconComponent = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
 export const metadata = { title: 'Parent dashboard — Decifer Learning' }
 
 const VAULT_STATUS_LABELS: Record<string, { label: string; colour: string; bg: string }> = {
-  pending:         { label: 'Waiting for parent', colour: 'text-points-gold', bg: 'bg-points-gold/20' },
+  pending:         { label: 'Waiting for parent', colour: 'text-points-gold-700', bg: 'bg-points-gold/20' },
   deferred:        { label: 'Deferred',           colour: 'text-muted',       bg: 'bg-black/5'        },
   counter_offered: { label: 'Waiting for child',  colour: 'text-maths',       bg: 'bg-maths/15'       },
 }
@@ -177,7 +177,7 @@ export default async function ParentDashboardPage() {
                   </span>
                 )}
                 {child.totalPoints > 0 && (
-                  <span className="inline-flex items-center gap-1 font-heading text-sm font-bold text-points-gold">
+                  <span className="inline-flex items-center gap-1 font-heading text-sm font-bold text-points-gold-700">
                     <Star className="w-3.5 h-3.5" aria-hidden /> {child.totalPoints.toLocaleString()}
                   </span>
                 )}
