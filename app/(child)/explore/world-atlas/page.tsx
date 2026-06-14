@@ -1,63 +1,28 @@
-'use client'
-
-import { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
-import { WorldAtlas } from '@/components/explore/WorldAtlas'
-import { AskDecifer } from '@/components/explore/AskDecifer'
+import { redirect } from 'next/navigation'
+import { getAuthUser } from '@/lib/supabase/server'
+import { loadExplorer } from '@/lib/explore/load'
+import type { AtlasExplorer } from '@/lib/explore/types'
+import { WorldAtlasExperience } from '@/components/explore/WorldAtlasExperience'
 
-export default function WorldAtlasPage() {
-  const [askContext, setAskContext] = useState<string | undefined>()
-  const askCountRef = useRef(0)
-  const openedAtRef = useRef<number>(Date.now())
+export const metadata = { title: 'World Atlas — Decifer Learning' }
 
-  useEffect(() => {
-    const startedAt = openedAtRef.current
-    return () => {
-      const duration = Math.round((Date.now() - startedAt) / 1000)
-      fetch('/api/explore/track', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ aidType: 'world-atlas', durationSeconds: duration, askCount: askCountRef.current }),
-        keepalive: true,
-      }).catch(() => {})
-    }
-  }, [])
+export default async function WorldAtlasPage() {
+  const user = await getAuthUser()
+  if (!user) redirect('/login')
 
-  const handleExplore = useCallback((topicKey: string) => {
-    fetch('/api/explore/track', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ aidType: 'world-atlas', topicKey }),
-    }).catch(() => {})
-  }, [])
+  const explorer = await loadExplorer<AtlasExplorer>('world-atlas')
 
-  const handleAskDecifer = useCallback((context: string) => {
-    setAskContext(context)
-  }, [])
-
-  return (
-    <div className="fixed inset-0 z-10">
-      {/* Back */}
-      <Link
-        href="/explore"
-        className="absolute top-4 left-4 z-30 flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-sm font-semibold text-white/80 backdrop-blur hover:bg-white/20 transition-colors"
-        style={{ minHeight: 36 }}
-      >
-        ← Back
-      </Link>
-
-      {/* Title */}
-      <div className="absolute top-4 left-1/2 z-20 -translate-x-1/2 pointer-events-none">
-        <p className="text-xs font-bold uppercase tracking-widest text-white/40">World Atlas</p>
+  if (!explorer || explorer.nodes.length === 0) {
+    return (
+      <div className="fixed inset-0 z-10 flex flex-col items-center justify-center gap-4 px-6 text-center" style={{ background: '#020408' }}>
+        <p className="text-4xl">🌍</p>
+        <p className="text-white/80 font-semibold">This explorer is being prepared.</p>
+        <p className="text-white/40 text-sm">Check back soon — the world is loading.</p>
+        <Link href="/explore" className="mt-2 rounded-full bg-white/10 px-5 py-2 text-sm font-semibold text-white/80">← Back to Explore</Link>
       </div>
+    )
+  }
 
-      <WorldAtlas onAskDecifer={handleAskDecifer} onExplore={handleExplore} />
-
-      <AskDecifer
-        aid="world-atlas"
-        initialContext={askContext}
-        onAskCountChange={(count) => { askCountRef.current = count }}
-      />
-    </div>
-  )
+  return <WorldAtlasExperience explorer={explorer} />
 }

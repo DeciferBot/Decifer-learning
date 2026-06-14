@@ -37,7 +37,7 @@ const PUBLIC_PREFIX = ['/auth/callback', '/_next/', '/help', '/curriculum', '/si
 // catches the root, so match the trailing segment instead.
 const PUBLIC_IMAGE_SEGMENTS = ['/opengraph-image', '/twitter-image']
 const STATIC_EXT =
-  /\.(svg|png|jpg|jpeg|gif|webp|ico|css|js|map|woff2?|ttf|otf|txt|xml|json)$/i
+  /\.(svg|png|jpg|jpeg|gif|webp|ico|css|js|map|woff2?|ttf|otf|txt|xml|json|ktx2|wasm)$/i
 
 function isPublic(pathname: string): boolean {
   if (PUBLIC_EXACT.has(pathname)) return true

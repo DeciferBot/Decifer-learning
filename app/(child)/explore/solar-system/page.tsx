@@ -1,69 +1,27 @@
-'use client'
-
-import { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
-import { SolarSystem } from '@/components/explore/SolarSystem'
-import { AskDecifer } from '@/components/explore/AskDecifer'
+import { redirect } from 'next/navigation'
+import { getAuthUser } from '@/lib/supabase/server'
+import { loadExplorer } from '@/lib/explore/load'
+import { SolarSystemExperience } from '@/components/explore/SolarSystemExperience'
 
-export default function SolarSystemPage() {
-  const [askContext, setAskContext] = useState<string | undefined>()
-  const askCountRef = useRef(0)
-  const openedAtRef = useRef<number>(Date.now())
+export const metadata = { title: 'Solar System — Decifer Learning' }
 
-  // Track session on unmount
-  useEffect(() => {
-    const startedAt = openedAtRef.current
-    return () => {
-      const duration = Math.round((Date.now() - startedAt) / 1000)
-      fetch('/api/explore/track', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          aidType: 'solar-system',
-          durationSeconds: duration,
-          askCount: askCountRef.current,
-        }),
-        keepalive: true,
-      }).catch(() => {})
-    }
-  }, [])
+export default async function SolarSystemPage() {
+  const user = await getAuthUser()
+  if (!user) redirect('/login')
 
-  const handleExplore = useCallback((topicKey: string) => {
-    fetch('/api/explore/track', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ aidType: 'solar-system', topicKey }),
-    }).catch(() => {})
-  }, [])
+  const explorer = await loadExplorer('solar-system')
 
-  const handleAskDecifer = useCallback((context: string) => {
-    setAskContext(context)
-  }, [])
-
-  return (
-    <div className="fixed inset-0 z-10" style={{ top: 0, bottom: 0, left: 0, right: 0 }}>
-      {/* Back button */}
-      <Link
-        href="/explore"
-        className="absolute top-4 left-4 z-30 flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-sm font-semibold text-white/80 backdrop-blur hover:bg-white/20 transition-colors"
-      >
-        ← Back
-      </Link>
-
-      {/* Title */}
-      <div className="absolute top-4 left-1/2 z-20 -translate-x-1/2 pointer-events-none">
-        <p className="text-xs font-bold uppercase tracking-widest text-white/40">Solar System</p>
+  if (!explorer || explorer.nodes.length === 0) {
+    return (
+      <div className="fixed inset-0 z-10 flex flex-col items-center justify-center gap-4 px-6 text-center" style={{ background: '#000008' }}>
+        <p className="text-4xl">🪐</p>
+        <p className="text-white/80 font-semibold">This explorer is being prepared.</p>
+        <p className="text-white/40 text-sm">Check back soon — the cosmos is loading.</p>
+        <Link href="/explore" className="mt-2 rounded-full bg-white/10 px-5 py-2 text-sm font-semibold text-white/80">← Back to Explore</Link>
       </div>
+    )
+  }
 
-      {/* The orrery — fills entire screen */}
-      <SolarSystem onAskDecifer={handleAskDecifer} onExplore={handleExplore} />
-
-      {/* Ask Decifer */}
-      <AskDecifer
-        aid="solar-system"
-        initialContext={askContext}
-        onAskCountChange={(count) => { askCountRef.current = count }}
-      />
-    </div>
-  )
+  return <SolarSystemExperience explorer={explorer} />
 }

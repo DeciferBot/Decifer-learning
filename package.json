@@ -1,6 +1,6 @@
 {
   "name": "decifer-learning",
-  "version": "2.9.0",
+  "version": "2.10.0",
   "private": true,
   "description": "Decifer Learning — UK National Curriculum PWA. See CLAUDE.md.",
   "scripts": {
@@ -27,12 +27,26 @@
     "learning:autopilot:plan": "node --env-file=.env.local scripts/learning-autopilot-plan.mjs",
     "learning:autopilot:queue": "/root/pipeline-venv/bin/python3 scripts/learning-autopilot-queue.py",
     "learning:autopilot:run": "/root/pipeline-venv/bin/python3 scripts/learning-autopilot-run.py",
+    "explore:seed": "node --env-file=.env.local scripts/seed-explorers.mjs",
+    "explore:seed:sql": "node scripts/seed-explorers.mjs --sql",
+    "explore:seed:periodic": "node --env-file=.env.local scripts/seed-periodic-table.mjs",
+    "explore:seed:periodic:sql": "node scripts/seed-periodic-table.mjs --sql",
+    "explore:textures:ktx2": "bash scripts/convert-textures-ktx2.sh",
     "vault:seed": "node --env-file=.env.local scripts/seed-vault-catalogue.mjs",
     "vault:seed:activate": "node --env-file=.env.local scripts/seed-vault-catalogue.mjs --activate",
     "vault:seed:dry": "node --env-file=.env.local scripts/seed-vault-catalogue.mjs --dry-run",
     "verify-vault-safety": "node --env-file=.env.local scripts/verify-reward-vault-safety.mjs",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "explore:seed:body": "node --env-file=.env.local scripts/seed-human-body.mjs",
+    "explore:seed:body:sql": "node scripts/seed-human-body.mjs --sql",
+    "explore:fetch:body": "node scripts/fetch-human-body.mjs",
+    "explore:seed:animals": "node --env-file=.env.local scripts/seed-animals.mjs",
+    "explore:seed:animals:sql": "node scripts/seed-animals.mjs --sql",
+    "explore:fetch:animals": "node scripts/fetch-animals.mjs",
+    "explore:seed:timeline": "node --env-file=.env.local scripts/seed-timeline.mjs",
+    "explore:seed:timeline:sql": "node scripts/seed-timeline.mjs --sql",
+    "explore:fetch:timeline": "node scripts/fetch-timeline.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.101.0",
