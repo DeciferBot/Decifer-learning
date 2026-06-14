@@ -87,8 +87,8 @@ export function SpeedRound({ config, topicId }: { config: SpeedRoundConfig; topi
         <p className="mt-1 text-muted">
           {correctCount} / {questions.length} correct · {pct}%
         </p>
-        {/* Result strip */}
-        <div className="my-4 flex justify-center gap-1">
+        {/* Result strip — dots are decorative; the count text above is the accessible summary */}
+        <div className="my-4 flex justify-center gap-1" aria-hidden="true">
           {results.map((r, i) => (
             <div
               key={i}
@@ -122,7 +122,10 @@ export function SpeedRound({ config, topicId }: { config: SpeedRoundConfig; topi
 
   const q = questions[index]
   const timerPct = (timeLeft / timeLimit) * 100
-  const timerColor = timerPct > 50 ? '#40C057' : timerPct > 25 ? '#FFD43B' : '#FF6B6B'
+  // Urgency label for the screen reader timer announcement
+  const timerLabel = timerPct > 50 ? 'plenty of time' : timerPct > 25 ? 'hurry up' : 'almost out of time'
+  // Tailwind class-based colour — avoids both hardcoded hex and CSS variable strings in style props
+  const timerBarClass = timerPct > 50 ? 'bg-correct' : timerPct > 25 ? 'bg-lightning' : 'bg-incorrect'
 
   return (
     <div className="space-y-4">
@@ -132,12 +135,18 @@ export function SpeedRound({ config, topicId }: { config: SpeedRoundConfig; topi
         <span>{index + 1} / {questions.length}</span>
       </div>
 
-      {/* Timer bar */}
-      <div className="h-2 overflow-hidden rounded-full bg-black/8">
+      {/* Timer bar — role=timer so screen readers can track it */}
+      <div
+        className="h-2 overflow-hidden rounded-full bg-black/8"
+        role="timer"
+        aria-label={`${timeLeft} seconds remaining — ${timerLabel}`}
+        aria-live="off"
+      >
         <motion.div
-          className="h-full rounded-full transition-colors"
-          style={{ width: `${timerPct}%`, backgroundColor: timerColor }}
+          className={`h-full rounded-full transition-colors ${timerBarClass}`}
+          style={{ width: `${timerPct}%` }}
           transition={{ duration: 0.3 }}
+          aria-hidden="true"
         />
       </div>
 
@@ -150,12 +159,19 @@ export function SpeedRound({ config, topicId }: { config: SpeedRoundConfig; topi
           transition={{ duration: 0.18 }}
           className="rounded-2xl border border-black/5 bg-surface p-6 shadow-sm"
         >
-          {/* Timer badge */}
+          {/* Timer badge — decorative (screen reader uses the role=timer above) */}
           <div className="mb-4 flex items-center justify-between">
             <p className="text-xs text-muted">{config.instructions}</p>
             <span
-              className="rounded-full px-3 py-1 font-heading text-sm font-bold"
-              style={{ backgroundColor: timerColor + '22', color: timerColor }}
+              className={[
+                'rounded-full px-3 py-1 font-heading text-sm font-bold',
+                timerPct > 50
+                  ? 'bg-correct/20 text-correct'
+                  : timerPct > 25
+                  ? 'bg-lightning/20 text-points-gold'
+                  : 'bg-incorrect/20 text-incorrect',
+              ].join(' ')}
+              aria-hidden="true"
             >
               {timeLeft}s
             </span>
@@ -165,18 +181,26 @@ export function SpeedRound({ config, topicId }: { config: SpeedRoundConfig; topi
             {q.question}
           </p>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3" role="group" aria-label="Answer choices">
             {options[index].map((opt) => {
-              let cls = 'border-black/15 bg-white text-ink hover:border-maths'
+              const isCorrectOpt = opt === q.correct
+              const isWrongPick = opt !== q.correct && answerState === 'incorrect'
+              let cls = 'border-black/15 bg-white text-ink hover:border-maths focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink'
               if (answerState !== 'unanswered') {
-                if (opt === q.correct) cls = 'border-correct bg-correct/10 text-correct font-bold'
-                else if (opt !== q.correct && answerState === 'incorrect') cls = 'border-incorrect/40 bg-incorrect/5 text-muted'
+                if (isCorrectOpt) cls = 'border-correct bg-correct/10 text-correct font-bold'
+                else if (isWrongPick) cls = 'border-incorrect/40 bg-incorrect/5 text-muted'
+              }
+              let ariaLabel = opt
+              if (answerState !== 'unanswered') {
+                if (isCorrectOpt) ariaLabel = `${opt} — correct answer`
+                else if (isWrongPick) ariaLabel = `${opt} — incorrect`
               }
               return (
                 <button
                   key={opt}
                   onClick={() => answer(opt)}
                   disabled={answerState !== 'unanswered'}
+                  aria-label={ariaLabel}
                   className={[
                     'min-h-[56px] rounded-xl border-2 px-3 py-2 text-sm font-medium transition-colors',
                     cls,
@@ -188,22 +212,24 @@ export function SpeedRound({ config, topicId }: { config: SpeedRoundConfig; topi
             })}
           </div>
 
-          <AnimatePresence>
-            {answerState === 'timeout' && (
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="mt-3 text-center text-sm font-bold text-muted"
-              >
-                <span className="flex items-center justify-center gap-1"><Clock className="w-4 h-4" aria-hidden /> Time&apos;s up! The answer was: {q.correct}</span>
-              </motion.p>
-            )}
-          </AnimatePresence>
+          <div aria-live="polite" aria-atomic="true">
+            <AnimatePresence>
+              {answerState === 'timeout' && (
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="mt-3 text-center text-sm font-bold text-muted"
+                >
+                  <span className="flex items-center justify-center gap-1"><Clock className="w-4 h-4" aria-hidden /> Time&apos;s up! The answer was: {q.correct}</span>
+                </motion.p>
+              )}
+            </AnimatePresence>
+          </div>
         </motion.div>
       </AnimatePresence>
 
-      {/* Progress dots */}
-      <div className="flex justify-center gap-1">
+      {/* Progress dots — decorative; screen readers use the "X / Y" counter above */}
+      <div className="flex justify-center gap-1" aria-hidden="true">
         {questions.map((_, i) => (
           <div
             key={i}

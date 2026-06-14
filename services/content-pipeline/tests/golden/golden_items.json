@@ -1,0 +1,448 @@
+{
+  "_meta": {
+    "purpose": "Fixed regression bank for the Stage-2 deterministic verifiers. Every GOOD item MUST verify true; every BAD item MUST be rejected. Pure/offline — no LLM or network call. See ../../GOLDEN_SET.md for how to add an item.",
+    "schema": {
+      "id": "stable unique slug — never reuse",
+      "verifier": "one of: maths | physics | chemistry | english",
+      "expect_pass": "true = verifier must return verified True; false = must return False",
+      "requires": "optional list of runtime deps the case needs (chempy | pint | languagetool). If a dep is missing the case is SKIPPED, never failed.",
+      "note": "human-readable reason this item is in the bank",
+      "question_data": "exact dict passed to verifier.verify()"
+    }
+  },
+  "items": [
+    {
+      "id": "math-arith-good-add",
+      "verifier": "maths",
+      "expect_pass": true,
+      "note": "basic addition, correct answer",
+      "question_data": {
+        "question_type": "maths_arithmetic",
+        "verification_expression": "2 + 2",
+        "correct_answer": "4"
+      }
+    },
+    {
+      "id": "math-arith-good-longmult",
+      "verifier": "maths",
+      "expect_pass": true,
+      "note": "multi-digit multiplication with thousand separators in answer",
+      "question_data": {
+        "question_type": "maths_arithmetic",
+        "verification_expression": "1234 * 56",
+        "correct_answer": "69,104"
+      }
+    },
+    {
+      "id": "math-arith-good-order-of-ops",
+      "verifier": "maths",
+      "expect_pass": true,
+      "note": "BODMAS / order of operations",
+      "question_data": {
+        "question_type": "maths_arithmetic",
+        "verification_expression": "(100 - 20) * 2 + 5",
+        "correct_answer": "165"
+      }
+    },
+    {
+      "id": "math-arith-good-fraction-answer",
+      "verifier": "maths",
+      "expect_pass": true,
+      "note": "answer expressed as a fraction string",
+      "question_data": {
+        "question_type": "maths_arithmetic",
+        "verification_expression": "3 / 4",
+        "correct_answer": "3/4"
+      }
+    },
+    {
+      "id": "math-arith-bad-2plus2eq5",
+      "verifier": "maths",
+      "expect_pass": false,
+      "note": "the canonical wrong answer — 2+2=5 must be rejected",
+      "question_data": {
+        "question_type": "maths_arithmetic",
+        "verification_expression": "2 + 2",
+        "correct_answer": "5"
+      }
+    },
+    {
+      "id": "math-arith-bad-off-by-one",
+      "verifier": "maths",
+      "expect_pass": false,
+      "note": "subtle off-by-one wrong answer",
+      "question_data": {
+        "question_type": "maths_arithmetic",
+        "verification_expression": "12 * 12",
+        "correct_answer": "145"
+      }
+    },
+    {
+      "id": "math-arith-bad-code-injection",
+      "verifier": "maths",
+      "expect_pass": false,
+      "note": "safe-eval must reject arbitrary code in the expression",
+      "question_data": {
+        "question_type": "maths_arithmetic",
+        "verification_expression": "__import__('os').system('ls')",
+        "correct_answer": "0"
+      }
+    },
+    {
+      "id": "math-arith-bad-missing-expr",
+      "verifier": "maths",
+      "expect_pass": false,
+      "note": "missing verification_expression must fail closed",
+      "question_data": {
+        "question_type": "maths_arithmetic",
+        "correct_answer": "4"
+      }
+    },
+    {
+      "id": "math-algebra-good-linear",
+      "verifier": "maths",
+      "expect_pass": true,
+      "note": "2x + 3 = 11 -> x = 4 (equation given as expr = 0)",
+      "question_data": {
+        "question_type": "maths_algebra",
+        "verification_equation": "2*x + 3 - 11",
+        "verification_variable": "x",
+        "correct_answer": "x = 4"
+      }
+    },
+    {
+      "id": "math-algebra-good-twostep",
+      "verifier": "maths",
+      "expect_pass": true,
+      "note": "5x - 10 = 0 -> x = 2",
+      "question_data": {
+        "question_type": "maths_algebra",
+        "verification_equation": "5*x - 10",
+        "verification_variable": "x",
+        "correct_answer": "2"
+      }
+    },
+    {
+      "id": "math-algebra-bad-wrong-root",
+      "verifier": "maths",
+      "expect_pass": false,
+      "note": "claimed solution does not satisfy the equation",
+      "question_data": {
+        "question_type": "maths_algebra",
+        "verification_equation": "2*x + 3 - 11",
+        "verification_variable": "x",
+        "correct_answer": "x = 5"
+      }
+    },
+    {
+      "id": "math-algebra-bad-missing-eq",
+      "verifier": "maths",
+      "expect_pass": false,
+      "note": "missing verification_equation must fail closed",
+      "question_data": {
+        "question_type": "maths_algebra",
+        "verification_variable": "x",
+        "correct_answer": "4"
+      }
+    },
+    {
+      "id": "math-geom-good-rectangle-area",
+      "verifier": "maths",
+      "expect_pass": true,
+      "note": "rectangle area 8 x 6 = 48 (units stripped from answer)",
+      "question_data": {
+        "question_type": "maths_geometry",
+        "verification_expression": "8 * 6",
+        "correct_answer": "48 cm²"
+      }
+    },
+    {
+      "id": "math-geom-good-circle-area-pi",
+      "verifier": "maths",
+      "expect_pass": true,
+      "note": "circle area pi*r^2, r=5 -> ~78.54 via sympy.pi fallback",
+      "question_data": {
+        "question_type": "maths_geometry",
+        "verification_expression": "pi * 5 ** 2",
+        "correct_answer": "78.5398"
+      }
+    },
+    {
+      "id": "math-geom-bad-wrong-area",
+      "verifier": "maths",
+      "expect_pass": false,
+      "note": "wrong rectangle area",
+      "question_data": {
+        "question_type": "maths_geometry",
+        "verification_expression": "8 * 6",
+        "correct_answer": "42"
+      }
+    },
+    {
+      "id": "physics-good-force",
+      "verifier": "physics",
+      "expect_pass": true,
+      "requires": ["pint"],
+      "note": "F = m*g, 10kg -> 98.1 N",
+      "question_data": {
+        "question_type": "science_physics_calculation",
+        "verification_expression": "g * 10",
+        "verification_unit": "N",
+        "correct_answer": "= 98.1 N"
+      }
+    },
+    {
+      "id": "physics-good-speed",
+      "verifier": "physics",
+      "expect_pass": true,
+      "requires": ["pint"],
+      "note": "speed = distance / time, 100m / 20s = 5 m/s",
+      "question_data": {
+        "question_type": "science_physics_calculation",
+        "verification_expression": "100 / 20",
+        "verification_unit": "m/s",
+        "correct_answer": "5 m/s"
+      }
+    },
+    {
+      "id": "physics-bad-wrong-answer",
+      "verifier": "physics",
+      "expect_pass": false,
+      "requires": ["pint"],
+      "note": "claimed force does not match m*g",
+      "question_data": {
+        "question_type": "science_physics_calculation",
+        "verification_expression": "g * 10",
+        "verification_unit": "N",
+        "correct_answer": "= 50 N"
+      }
+    },
+    {
+      "id": "physics-bad-code-injection",
+      "verifier": "physics",
+      "expect_pass": false,
+      "requires": ["pint"],
+      "note": "physics safe-eval must reject code in the expression",
+      "question_data": {
+        "question_type": "science_physics_calculation",
+        "verification_expression": "open('/etc/passwd').read()",
+        "verification_unit": "N",
+        "correct_answer": "0"
+      }
+    },
+    {
+      "id": "physics-bad-missing-expr",
+      "verifier": "physics",
+      "expect_pass": false,
+      "requires": ["pint"],
+      "note": "missing verification_expression must fail closed",
+      "question_data": {
+        "question_type": "science_physics_calculation",
+        "verification_unit": "N",
+        "correct_answer": "98.1 N"
+      }
+    },
+    {
+      "id": "chem-element-good-oxygen-z",
+      "verifier": "chemistry",
+      "expect_pass": true,
+      "note": "oxygen atomic number = 8 (local periodic-table lookup, no chempy needed)",
+      "question_data": {
+        "question_type": "chemistry_element_fact",
+        "question_text": "What is the atomic number of Oxygen?",
+        "correct_answer": "8",
+        "question_metadata": { "element": "O", "property": "atomic_number" }
+      }
+    },
+    {
+      "id": "chem-element-good-carbon-z",
+      "verifier": "chemistry",
+      "expect_pass": true,
+      "note": "carbon atomic number = 6",
+      "question_data": {
+        "question_type": "chemistry_element_fact",
+        "question_text": "What is the atomic number of Carbon?",
+        "correct_answer": "6",
+        "question_metadata": { "element": "C", "property": "atomic_number" }
+      }
+    },
+    {
+      "id": "chem-element-bad-oxygen-z",
+      "verifier": "chemistry",
+      "expect_pass": false,
+      "note": "wrong atomic number for oxygen (10 not 8)",
+      "question_data": {
+        "question_type": "chemistry_element_fact",
+        "question_text": "What is the atomic number of Oxygen?",
+        "correct_answer": "10",
+        "question_metadata": { "element": "O", "property": "atomic_number" }
+      }
+    },
+    {
+      "id": "chem-element-bad-unknown-element",
+      "verifier": "chemistry",
+      "expect_pass": false,
+      "note": "non-existent element symbol must fail",
+      "question_data": {
+        "question_type": "chemistry_element_fact",
+        "question_text": "What is the atomic number of Xx?",
+        "correct_answer": "999",
+        "question_metadata": { "element": "Xx", "property": "atomic_number" }
+      }
+    },
+    {
+      "id": "chem-eq-good-water-balanced",
+      "verifier": "chemistry",
+      "expect_pass": true,
+      "requires": ["chempy"],
+      "note": "2H2 + O2 -> 2H2O is balanced (chempy)",
+      "question_data": {
+        "question_type": "science_chemistry_equation",
+        "correct_answer": "2 H2 + O2 -> 2 H2O"
+      }
+    },
+    {
+      "id": "chem-eq-bad-unbalanced",
+      "verifier": "chemistry",
+      "expect_pass": false,
+      "requires": ["chempy"],
+      "note": "H2 + O2 -> H2O is NOT balanced",
+      "question_data": {
+        "question_type": "science_chemistry_equation",
+        "correct_answer": "H2 + O2 -> H2O"
+      }
+    },
+    {
+      "id": "chem-eq-bad-no-arrow",
+      "verifier": "chemistry",
+      "expect_pass": false,
+      "note": "malformed equation with no reaction arrow (format check, no chempy needed)",
+      "question_data": {
+        "question_type": "science_chemistry_equation",
+        "correct_answer": "2H2 O2 2H2O"
+      }
+    },
+    {
+      "id": "eng-grammar-good-intentional-error",
+      "verifier": "english",
+      "expect_pass": true,
+      "requires": ["languagetool"],
+      "note": "well-formed grammar question — instruction clean, intentional error in stimulus only",
+      "question_data": {
+        "question_type": "english_grammar",
+        "question_text": "Find and correct the grammar error.",
+        "correct_answer": "She went to the shop.",
+        "explanation": "The verb tense was incorrect. The past tense 'went' is correct here.",
+        "hint_1": "Look at the verb carefully.",
+        "hint_2": "What tense should this sentence be in?",
+        "hint_3": "The word 'go' should be changed to past tense.",
+        "question_metadata": {
+          "instruction_text": "Find and correct the grammar error in the sentence below.",
+          "stimulus_text": "She go to the shop yesterday.",
+          "intentional_error_type": "wrong_verb_tense",
+          "intentional_error_span": { "start": 4, "end": 6 }
+        }
+      }
+    },
+    {
+      "id": "eng-grammar-bad-missing-metadata",
+      "verifier": "english",
+      "expect_pass": false,
+      "note": "missing question_metadata is a structural failure — no LanguageTool needed",
+      "question_data": {
+        "question_type": "english_grammar",
+        "question_text": "Find the error.",
+        "correct_answer": "She went to the shop.",
+        "explanation": "Correct tense.",
+        "hint_1": "Look at the verb.",
+        "hint_2": "Check tense.",
+        "hint_3": "Past tense."
+      }
+    },
+    {
+      "id": "eng-spelling-bad-missing-instruction",
+      "verifier": "english",
+      "expect_pass": false,
+      "note": "english_spelling missing instruction_text — structural failure, no LanguageTool needed",
+      "question_data": {
+        "question_type": "english_spelling",
+        "question_text": "Find the spelling mistake.",
+        "correct_answer": "beautiful",
+        "explanation": "The word was misspelled.",
+        "hint_1": "Look at the vowels.",
+        "hint_2": "Count the syllables.",
+        "hint_3": "The correct spelling is b-e-a-u-t-i-f-u-l.",
+        "question_metadata": {
+          "stimulus_text": "The beautiful flower bloomed in spring.",
+          "intentional_error_type": "misspelled_word"
+        }
+      }
+    },
+    {
+      "id": "eng-phonics-good-digraph",
+      "verifier": "english",
+      "expect_pass": true,
+      "requires": ["languagetool"],
+      "note": "phonics digraph question with phoneme notation — must not be blocked",
+      "question_data": {
+        "question_type": "english_phonics",
+        "question_text": "What sound does the digraph 'sh' make?",
+        "correct_answer": "/sh/",
+        "distractors": ["/s/", "/h/", "/ch/"],
+        "explanation": "The digraph 'sh' makes the /sh/ sound, as in 'ship' or 'shop'.",
+        "hint_1": "Look at what two letters make this sound together.",
+        "hint_2": "Think of the word 'ship' and what sound it starts with.",
+        "hint_3": "The sh digraph makes a sound like hushing someone.",
+        "question_metadata": {
+          "instruction_text": "What sound does this digraph make?",
+          "stimulus_text": "sh",
+          "intentional_error_type": null,
+          "intentional_error_span": null
+        }
+      }
+    },
+    {
+      "id": "eng-phonics-bad-missing-metadata",
+      "verifier": "english",
+      "expect_pass": false,
+      "note": "phonics without question_metadata — structural failure, no LanguageTool needed",
+      "question_data": {
+        "question_type": "english_phonics",
+        "question_text": "What sound does 'sh' make?",
+        "correct_answer": "/sh/",
+        "explanation": "The digraph sh makes a hushing sound.",
+        "hint_1": "Listen carefully.",
+        "hint_2": "Think of the word ship.",
+        "hint_3": "It sounds like hushing."
+      }
+    },
+    {
+      "id": "eng-comprehension-good-rag-grounded",
+      "verifier": "english",
+      "expect_pass": true,
+      "requires": ["languagetool"],
+      "note": "open-ended RAG type — clean prose, source_chunk_ids present",
+      "question_data": {
+        "question_type": "english_comprehension",
+        "question_text": "What did the character do at the beginning of the story?",
+        "correct_answer": "The character went to the forest to find food.",
+        "explanation": "The passage states that the character journeyed to the forest.",
+        "hint_1": "Read the first paragraph carefully.",
+        "hint_2": "The character is looking for something.",
+        "hint_3": "The answer is in the first two sentences.",
+        "source_chunk_ids": ["chunk-1"]
+      }
+    },
+    {
+      "id": "eng-unknown-type-bad",
+      "verifier": "english",
+      "expect_pass": false,
+      "note": "unknown english question_type must fail closed — no LanguageTool needed",
+      "question_data": {
+        "question_type": "english_unknown_type",
+        "question_text": "Anything",
+        "correct_answer": "Anything"
+      }
+    }
+  ]
+}

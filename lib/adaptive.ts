@@ -8,6 +8,7 @@
 // See docs/VERIFIED_ADAPTIVE_CONTENT_BANK.md for full architecture rationale.
 
 import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { abilityFromResponses, rankByTargetDifficulty } from '@/lib/irt'
 
 type SupabaseClient = ReturnType<typeof createSupabaseServerClient>
 
@@ -32,6 +33,11 @@ export interface AdaptiveQuestion {
   source_text: string | null
   source_label: string | null
   source_type: string | null
+  // Selected in every query above; declared here so AdaptiveQuestion stays
+  // structurally compatible with the QuizShell QuizQuestion type it is cast to.
+  foundation_images: { url: string; alt?: string }[] | null
+  // IRT Rasch difficulty (logits); null until the nightly calibration has enough data.
+  difficulty_b: number | null
 }
 
 export interface SelectionAuditLog {
@@ -80,6 +86,8 @@ function logSelection(audit: SelectionAuditLog): void {
 interface HistoryIds {
   recentlySeenIds: Set<string>
   mistakeIds: Set<string>
+  // (question_id, was_correct) over the fetched window — feeds the IRT ability estimate.
+  recentAnswers: Array<{ questionId: string; wasCorrect: boolean }>
 }
 
 async function getHistoryIds(
@@ -99,7 +107,7 @@ async function getHistoryIds(
     .order('created_at', { ascending: false })
     .limit(maxLookback)
 
-  if (!attempts?.length) return { recentlySeenIds: new Set(), mistakeIds: new Set() }
+  if (!attempts?.length) return { recentlySeenIds: new Set(), mistakeIds: new Set(), recentAnswers: [] }
 
   const allAttemptIds = attempts.map((a: { id: string }) => a.id)
   const recentAttemptIds = new Set(allAttemptIds.slice(0, lookbackAttempts))
@@ -111,14 +119,30 @@ async function getHistoryIds(
 
   const recentlySeenIds = new Set<string>()
   const mistakeIds = new Set<string>()
+  const recentAnswers: Array<{ questionId: string; wasCorrect: boolean }> = []
 
   for (const a of answers ?? []) {
     const ans = a as { question_id: string; was_correct: boolean; attempt_id: string }
     if (recentAttemptIds.has(ans.attempt_id)) recentlySeenIds.add(ans.question_id)
     if (!ans.was_correct) mistakeIds.add(ans.question_id)
+    recentAnswers.push({ questionId: ans.question_id, wasCorrect: ans.was_correct })
   }
 
-  return { recentlySeenIds, mistakeIds }
+  return { recentlySeenIds, mistakeIds, recentAnswers }
+}
+
+// Estimate a child's ability (θ) on this topic from their recent answers and the
+// calibrated difficulties of the questions they answered. Uncalibrated items
+// contribute to the success rate but not the difficulty anchor (see lib/irt.ts).
+function estimateAbility(
+  recentAnswers: Array<{ questionId: string; wasCorrect: boolean }>,
+  pool: AdaptiveQuestion[],
+): number {
+  if (recentAnswers.length === 0) return 0
+  const diffById = new Map(pool.map((q) => [q.id, q.difficulty_b ?? null]))
+  return abilityFromResponses(
+    recentAnswers.map((a) => ({ difficulty_b: diffById.get(a.questionId) ?? null, correct: a.wasCorrect })),
+  )
 }
 
 // ── Tier-balanced selection ───────────────────────────────────────────────
@@ -126,11 +150,23 @@ async function getHistoryIds(
 // Quiz mix: ~40% sprout (confidence), ~40% explorer (current skill), ~20% lightning (challenge).
 // Fills any shortfall from the remaining pool so the target count is always met if pool allows.
 
-function pickWithTierBalance(questions: AdaptiveQuestion[], count: number): AdaptiveQuestion[] {
+function pickWithTierBalance(
+  questions: AdaptiveQuestion[],
+  count: number,
+  ability?: number,
+): AdaptiveQuestion[] {
+  // When an ability estimate is supplied, prefer calibrated items pitched near
+  // it WITHIN each tier (desirable difficulty). Shuffling first keeps variety
+  // among equal-distance and uncalibrated items, so a cold-start (all-null)
+  // pool degrades to the original shuffle behaviour. Tier balance is unchanged —
+  // formal tier gates are not bypassed (CLAUDE.md §10).
+  const order = (items: AdaptiveQuestion[]) =>
+    ability == null ? shuffle(items) : rankByTargetDifficulty(shuffle(items), ability)
+
   const byTier: Record<QuestionTier, AdaptiveQuestion[]> = {
-    sprout: shuffle(questions.filter((q) => q.tier === 'sprout')),
-    explorer: shuffle(questions.filter((q) => q.tier === 'explorer')),
-    lightning: shuffle(questions.filter((q) => q.tier === 'lightning')),
+    sprout: order(questions.filter((q) => q.tier === 'sprout')),
+    explorer: order(questions.filter((q) => q.tier === 'explorer')),
+    lightning: order(questions.filter((q) => q.tier === 'lightning')),
   }
 
   const targets: Record<QuestionTier, number> = {
@@ -186,7 +222,7 @@ export async function selectQuizQuestions(
   // Fetch full published pool — .eq('status','published') is defence-in-depth; RLS enforces too.
   const { data: pool } = await supabase
     .from('quiz_questions')
-    .select('id, tier, question_type, question_text, correct_answer, distractors, hint_1, hint_2, hint_3, explanation, worked_example, technique_type, technique_hint, technique_note, answer_parts, source_text, source_label, source_type, foundation_images')
+    .select('id, tier, question_type, question_text, correct_answer, distractors, hint_1, hint_2, hint_3, explanation, worked_example, technique_type, technique_hint, technique_note, answer_parts, source_text, source_label, source_type, foundation_images, difficulty_b')
     .eq('topic_id', topicId)
     .eq('status', 'published')
     .order('created_at', { ascending: true })
@@ -194,7 +230,11 @@ export async function selectQuizQuestions(
   const allQuestions = (pool ?? []) as AdaptiveQuestion[]
   const contentPoolSize = allQuestions.length
 
-  const { recentlySeenIds: recentIds, mistakeIds } = await getHistoryIds(supabase, profileId, topicId, lookbackAttempts, 3)
+  const { recentlySeenIds: recentIds, mistakeIds, recentAnswers } = await getHistoryIds(supabase, profileId, topicId, lookbackAttempts, 3)
+
+  // Estimate the child's ability on this topic so selection can pitch items at
+  // the desirable-difficulty sweet spot. No-op for cold-start / uncalibrated pools.
+  const ability = estimateAbility(recentAnswers, allQuestions)
 
   const fresh = allQuestions.filter((q) => !recentIds.has(q.id))
   const seen = allQuestions.filter((q) => recentIds.has(q.id))
@@ -204,11 +244,11 @@ export async function selectQuizQuestions(
 
   if (fresh.length >= count) {
     // Ideal path: enough fresh questions for a full quiz.
-    selected = pickWithTierBalance(fresh, count)
+    selected = pickWithTierBalance(fresh, count, ability)
   } else if (allQuestions.length >= count) {
     // Pool is large enough but not all questions are fresh — supplement.
     fallbackReason = `Only ${fresh.length} fresh questions; supplementing with ${count - fresh.length} recently-seen`
-    const fromFresh = fresh.length > 0 ? pickWithTierBalance(fresh, fresh.length) : []
+    const fromFresh = fresh.length > 0 ? pickWithTierBalance(fresh, fresh.length, ability) : []
     const fromSeen = shuffle(seen).slice(0, count - fromFresh.length)
     selected = shuffle([...fromFresh, ...fromSeen])
   } else if (allQuestions.length > 0) {
@@ -274,7 +314,7 @@ export async function selectInterleavedQuestions(
     topicIds.map(async (topicId) => {
       const { data } = await supabase
         .from('quiz_questions')
-        .select('id, tier, question_type, question_text, correct_answer, distractors, hint_1, hint_2, hint_3, explanation, worked_example, technique_type, technique_hint, technique_note, answer_parts, source_text, source_label, source_type, foundation_images')
+        .select('id, tier, question_type, question_text, correct_answer, distractors, hint_1, hint_2, hint_3, explanation, worked_example, technique_type, technique_hint, technique_note, answer_parts, source_text, source_label, source_type, foundation_images, difficulty_b')
         .eq('topic_id', topicId)
         .eq('status', 'published')
         .order('created_at', { ascending: true })
@@ -338,7 +378,7 @@ export async function selectPracticeItems(
 
   const { data: pool } = await supabase
     .from('quiz_questions')
-    .select('id, tier, question_type, question_text, correct_answer, distractors, hint_1, hint_2, hint_3, explanation, worked_example, technique_type, technique_hint, technique_note, answer_parts, source_text, source_label, source_type, foundation_images')
+    .select('id, tier, question_type, question_text, correct_answer, distractors, hint_1, hint_2, hint_3, explanation, worked_example, technique_type, technique_hint, technique_note, answer_parts, source_text, source_label, source_type, foundation_images, difficulty_b')
     .eq('topic_id', topicId)
     .eq('status', 'published')
     .order('created_at', { ascending: true })

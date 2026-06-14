@@ -32,7 +32,7 @@ export function TopicNode({ title, state, href, subjectColor, xPct, yPx, quizOpt
         backgroundColor: state === 'locked' ? undefined : subjectColor,
         border:
           state === 'completed'
-            ? '3px solid #1B7D45'
+            ? '3px solid var(--correct)'
             : state === 'available'
               ? `3px solid ${subjectColor}`
               : '3px dashed #C9CFD8',

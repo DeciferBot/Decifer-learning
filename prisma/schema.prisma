@@ -338,6 +338,12 @@ model QuizQuestion {
   generator_version String?
   verifier_version  String?
   published_at      DateTime?
+  // IRT / Rasch difficulty calibration (computed nightly from real responses; see lib/irt.ts)
+  // difficulty_b: Rasch difficulty in logits (higher = harder). Null until calibrated.
+  // calibration_n: number of first-attempt responses the estimate is based on.
+  difficulty_b      Float?
+  calibration_n     Int           @default(0)
+  calibrated_at     DateTime?
 
   topic           Topic           @relation(fields: [topic_id], references: [id])
   quiz_answers    QuizAnswer[]

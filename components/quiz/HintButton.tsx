@@ -40,7 +40,7 @@ export function HintButton({ hints, revealed, onReveal, disabled, countdown }: P
       {/* Locked — show countdown nudge */}
       {isLocked && remaining > 0 && (
         <p className="flex items-center gap-1.5 text-xs text-muted">
-          <Lightbulb size={14} className="flex-none" />
+          <Lightbulb size={14} className="flex-none" aria-hidden />
           Hint unlocks in{' '}
           <span className="tabular-nums font-bold">{countdown}s</span> — give it a try first!
         </p>

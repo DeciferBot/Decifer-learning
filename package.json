@@ -1,6 +1,6 @@
 {
   "name": "decifer-learning",
-  "version": "2.11.0",
+  "version": "2.12.0",
   "private": true,
   "description": "Decifer Learning — UK National Curriculum PWA. See CLAUDE.md.",
   "scripts": {
@@ -38,6 +38,9 @@
     "verify-vault-safety": "node --env-file=.env.local scripts/verify-reward-vault-safety.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
+    "e2e": "playwright test",
+    "e2e:ui": "playwright test --ui",
+    "e2e:report": "playwright show-report",
     "explore:seed:body": "node --env-file=.env.local scripts/seed-human-body.mjs",
     "explore:seed:body:sql": "node scripts/seed-human-body.mjs --sql",
     "explore:fetch:body": "node scripts/fetch-human-body.mjs",
@@ -74,6 +77,7 @@
     "web-push": "^3.6.7"
   },
   "devDependencies": {
+    "@playwright/test": "^1.60.0",
     "@types/node": "^20.16.0",
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.0",
