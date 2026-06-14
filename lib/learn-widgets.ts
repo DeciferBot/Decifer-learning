@@ -6,6 +6,38 @@ export interface BaseWidget {
   title?: string
 }
 
+/**
+ * Every illustration the diagram registry can render. Shared by the interactive
+ * `drag_label` widget and the static `diagram` widget so both draw from the same
+ * inline-SVG set (offline-safe, no network images). Keep in sync with
+ * components/learn/diagrams/index.tsx — the unit test enforces full coverage.
+ */
+export type DiagramType =
+  // Maths
+  | 'circle'
+  | 'triangle'
+  | 'right_triangle'
+  | 'multiplication_groups'
+  | 'bar_model'
+  | 'number_line'
+  | 'fraction_circle'
+  | 'array_grid'
+  | 'place_value'
+  | 'clock_face'
+  // Science
+  | 'plant'
+  | 'animal_cell'
+  | 'water_cycle'
+  | 'human_heart'
+  | 'volcano'
+  | 'river'
+  | 'food_chain'
+  | 'simple_circuit'
+  | 'earth_layers'
+  // English
+  | 'story_mountain'
+  | 'word_anatomy'
+
 export interface DragLabelItem {
   id: string
   label: string
@@ -17,19 +49,30 @@ export interface DragLabelWidget extends BaseWidget {
   config: {
     title: string
     instructions?: string
-    diagram_type:
-      | 'circle'
-      | 'triangle'
-      | 'plant'
-      | 'animal_cell'
-      | 'water_cycle'
-      | 'human_heart'
-      | 'volcano'
-      | 'river'
-      | 'right_triangle'
-      | 'multiplication_groups'
-      | 'bar_model'
+    diagram_type: DiagramType
     items: DragLabelItem[]
+  }
+}
+
+/** A non-interactive annotation pinned to a point on a diagram (x/y in 0–100%). */
+export interface DiagramLabel {
+  text: string
+  x: number
+  y: number
+}
+
+/**
+ * Static, labelled illustration rendered inside a lesson. Unlike `drag_label`
+ * there is no game — it simply surfaces a rich diagram from the registry with
+ * optional pinned annotations and a caption.
+ */
+export interface DiagramWidget extends BaseWidget {
+  type: 'diagram'
+  config: {
+    title?: string
+    caption?: string
+    diagram_type: DiagramType
+    labels?: DiagramLabel[]
   }
 }
 
@@ -81,6 +124,7 @@ export interface SentenceBuilderWidget extends BaseWidget {
 
 export type LearnWidget =
   | DragLabelWidget
+  | DiagramWidget
   | ParticleModelWidget
   | TimelineWidget
   | SentenceBuilderWidget

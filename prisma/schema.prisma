@@ -272,6 +272,9 @@ model LearnContent {
   body_html            String
   examples_json        Json?
   foundation_audio_url String?
+  // Raster figures ({url, alt?, caption?}[]) — SVG-first escape hatch for photos
+  // and complex artwork the diagram registry can't draw. See components/learn/LearnFigures.tsx.
+  foundation_images    Json?         @default("[]")
   status               ContentStatus @default(staged)
   // Phase 11A provenance fields
   confidence_score     Float?
