@@ -16,7 +16,7 @@ export default async function AdminVaultPage() {
   ])
 
   const STATUS_COLOUR: Record<string, string> = {
-    pending:        'bg-points-gold/20 text-points-gold',
+    pending:        'bg-points-gold/20 text-points-gold-700',
     approved:       'bg-correct/20 text-correct',
     rejected:       'bg-incorrect/20 text-incorrect',
     completed:      'bg-science/20 text-science',
@@ -26,7 +26,7 @@ export default async function AdminVaultPage() {
   }
 
   const FULFILMENT_COLOUR: Record<string, string> = {
-    approved:   'bg-points-gold/20 text-points-gold',
+    approved:   'bg-points-gold/20 text-points-gold-700',
     dispatched: 'bg-brand/15 text-brand',
     delivered:  'bg-correct/20 text-correct',
   }

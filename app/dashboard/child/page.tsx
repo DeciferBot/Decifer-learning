@@ -155,7 +155,7 @@ export default async function ChildDashboardPage() {
         </div>
         <div className="flex shrink-0 flex-col items-end gap-1 text-right">
           {points > 0 && (
-            <span className="inline-flex items-center gap-1 font-heading text-sm font-bold text-points-gold">
+            <span className="inline-flex items-center gap-1 font-heading text-sm font-bold text-points-gold-700">
               <Star className="w-3.5 h-3.5" aria-hidden /> {points.toLocaleString()} pts
             </span>
           )}
@@ -170,7 +170,7 @@ export default async function ChildDashboardPage() {
       {/* ── Parent-assigned focus topics ───────────────────────────────── */}
       {assignedMissions.length > 0 && (
         <div className="rounded-2xl border-2 border-points-gold/40 bg-points-gold/8 px-4 py-4 space-y-2">
-          <p className="text-xs font-bold uppercase tracking-widest text-points-gold flex items-center gap-1.5">
+          <p className="text-xs font-bold uppercase tracking-widest text-points-gold-700 flex items-center gap-1.5">
             <MapPin className="w-3.5 h-3.5" aria-hidden /> Focus topics from your parent
           </p>
           <ul className="space-y-1.5">

@@ -15,9 +15,9 @@ interface Entry {
 }
 
 const RANK_STYLE = [
-  'bg-points-gold/20 text-points-gold',  // 1st
+  'bg-points-gold/20 text-points-gold-700',  // 1st
   'bg-black/10 text-muted',              // 2nd
-  'bg-points-gold/10 text-points-gold',  // 3rd (bronze)
+  'bg-points-gold/10 text-points-gold-700',  // 3rd (bronze)
 ]
 
 export default function LeaderboardPage() {
@@ -112,9 +112,9 @@ export default function LeaderboardPage() {
             }`}
           >
             <span className={`flex h-8 w-8 flex-none items-center justify-center rounded-full text-xs font-bold ${
-              i === 0 ? 'bg-points-gold/20 text-points-gold' :
+              i === 0 ? 'bg-points-gold/20 text-points-gold-700' :
               i === 1 ? 'bg-black/10 text-muted' :
-              i === 2 ? 'bg-points-gold/10 text-points-gold' :
+              i === 2 ? 'bg-points-gold/10 text-points-gold-700' :
               'bg-black/5 text-muted'
             }`}>
               {i + 1}

@@ -200,7 +200,7 @@ export function SyllabusHeatmap({ subjects, childName, childProfileId, yearGroup
             </button>
           ))}
           {assignedIds.size > 0 && (
-            <span className="ml-auto flex-none rounded-lg bg-points-gold/15 px-3 py-1 text-xs font-semibold text-points-gold flex items-center gap-1">
+            <span className="ml-auto flex-none rounded-lg bg-points-gold/15 px-3 py-1 text-xs font-semibold text-points-gold-700 flex items-center gap-1">
               <MapPin className="w-3 h-3" aria-hidden /> {assignedIds.size} assigned
             </span>
           )}
@@ -534,7 +534,7 @@ function TopicModal({
               disabled={assigning}
               className={`w-full rounded-xl py-3.5 text-sm font-bold transition-all active:scale-[0.98] disabled:opacity-50 ${
                 isAssigned
-                  ? 'bg-points-gold/15 text-points-gold border border-points-gold/30 hover:bg-points-gold/25'
+                  ? 'bg-points-gold/15 text-points-gold-700 border border-points-gold/30 hover:bg-points-gold/25'
                   : 'text-white hover:opacity-90'
               }`}
               style={isAssigned ? {} : { background: 'linear-gradient(135deg, #1A1F2E 0%, #2D3748 100%)' }}
