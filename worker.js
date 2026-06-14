@@ -16,6 +16,39 @@ const WB_MANIFEST = self.__WB_MANIFEST || [];
 // ---------------------------------------------------------------------------
 const IMAGE_CACHE = 'decifer-images-v1';
 
+// ---------------------------------------------------------------------------
+// Take control immediately + shed legacy precaches.
+//
+// Early PWA installs (before this custom worker existed) ran next-pwa's default
+// Workbox SW, which precached the whole app shell. That cached shell can serve
+// stale HTML referencing JS chunks that no longer exist after a deploy, causing
+// a ChunkLoadError white-screen. We skip waiting, claim open clients so the new
+// (image-only) worker controls them right away, and delete any Workbox precache
+// / runtime caches left over from older workers. The only cache we keep is our
+// own offline-Learn image cache.
+// ---------------------------------------------------------------------------
+self.addEventListener('install', () => {
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    (async () => {
+      try {
+        const keys = await caches.keys();
+        await Promise.all(
+          keys
+            .filter((k) => k !== IMAGE_CACHE)
+            .map((k) => caches.delete(k))
+        );
+      } catch {
+        /* best effort */
+      }
+      await self.clients.claim();
+    })()
+  );
+});
+
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   if (request.method !== 'GET') return;
