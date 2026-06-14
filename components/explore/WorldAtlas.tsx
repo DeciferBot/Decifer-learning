@@ -380,7 +380,7 @@ function WonderOverlay({ type, onClose }: { type: AtlasWonderType; onClose: () =
 
 const PANEL_BG = 'linear-gradient(180deg, rgba(10,12,28,0.98) 0%, rgba(5,7,20,0.99) 100%)'
 
-function InfoPanel({ country, wide, onClose, onAskDecifer, onOpenWonder, muted, onToggleMute }: {
+function InfoPanel({ country, wide, onClose, onAskDecifer, onOpenWonder, muted, onToggleMute, onNarrated }: {
   country: Country
   wide: boolean
   onClose: () => void
@@ -388,6 +388,7 @@ function InfoPanel({ country, wide, onClose, onAskDecifer, onOpenWonder, muted, 
   onOpenWonder: (type: AtlasWonderType) => void
   muted: boolean
   onToggleMute: () => void
+  onNarrated: () => void
 }) {
   const [activeLayer, setActiveLayer] = useState<1 | 2 | 3>(1)
   useEffect(() => { setActiveLayer(1) }, [country.key])
@@ -425,7 +426,7 @@ function InfoPanel({ country, wide, onClose, onAskDecifer, onOpenWonder, muted, 
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <NarrationButton text={layer.narration} muted={muted} onToggleMute={onToggleMute} autoPlay />
+            <NarrationButton text={layer.narration} muted={muted} onToggleMute={onToggleMute} autoPlay onComplete={onNarrated} />
             <button
               onClick={onClose}
               className="flex items-center justify-center rounded-full text-white/60"
@@ -627,7 +628,8 @@ export function WorldAtlas({ explorer, onAskDecifer, onExplore }: WorldAtlasProp
   const [revealCard, setRevealCard] = useState<DroppedCard | null>(null)
   const [wonder, setWonder] = useState<AtlasWonderType | null>(null)
 
-  const visitedRef = useRef<Set<string>>(new Set())
+  const rewardedRef = useRef<Set<string>>(new Set())
+  const selectedKeyRef = useRef<string | null>(null)
   const pendingCardRef = useRef<DroppedCard | null>(null)
   const cameraApi = useRef<CameraApi | null>(null)
 
@@ -646,29 +648,35 @@ export function WorldAtlas({ explorer, onAskDecifer, onExplore }: WorldAtlasProp
     ? countries.filter(c => c.continent === filterContinent)
     : countries
 
-  const handleSelect = useCallback(async (country: Country) => {
+  const handleSelect = useCallback((country: Country) => {
     stopNarration()
     setSelected(country)
+    selectedKeyRef.current = country.key
     onExplore?.(country.key)
-    if (!visitedRef.current.has(country.key)) {
-      visitedRef.current.add(country.key)
-      try {
-        const res = await fetch('/api/explore/card-drop', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ aidType: 'world-atlas', topicKey: country.key }),
-        })
-        if (res.ok) {
-          const data = await res.json()
-          if (data.card) pendingCardRef.current = data.card
-        }
-      } catch { /* non-fatal */ }
-    }
   }, [onExplore])
+
+  // Card drops only when the narration plays through and the child is still on
+  // that country — listening, not just tapping.
+  const handleNarrated = useCallback(async (key: string) => {
+    if (key !== selectedKeyRef.current || rewardedRef.current.has(key)) return
+    rewardedRef.current.add(key)
+    try {
+      const res = await fetch('/api/explore/card-drop', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ aidType: 'world-atlas', topicKey: key }),
+      })
+      if (res.ok) {
+        const data = await res.json()
+        if (data.card) pendingCardRef.current = data.card
+      }
+    } catch { /* non-fatal */ }
+  }, [])
 
   const handleClose = useCallback(() => {
     stopNarration()
     setSelected(null)
+    selectedKeyRef.current = null
     if (pendingCardRef.current) {
       const card = pendingCardRef.current
       pendingCardRef.current = null
@@ -679,6 +687,7 @@ export function WorldAtlas({ explorer, onAskDecifer, onExplore }: WorldAtlasProp
   const handleAskDecifer = useCallback((context: string) => {
     stopNarration()
     setSelected(null)
+    selectedKeyRef.current = null
     onAskDecifer?.(context)
   }, [onAskDecifer])
 
@@ -827,6 +836,7 @@ export function WorldAtlas({ explorer, onAskDecifer, onExplore }: WorldAtlasProp
             onOpenWonder={(type) => setWonder(type)}
             muted={muted}
             onToggleMute={() => setMuted(m => !m)}
+            onNarrated={() => handleNarrated(selected.key)}
           />
         )}
       </AnimatePresence>

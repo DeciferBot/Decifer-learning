@@ -18,9 +18,10 @@ function toAnimal(n: AnimalNode): Animal {
 
 const PANEL_BG = 'linear-gradient(180deg, rgba(18,12,8,0.98) 0%, rgba(10,7,5,0.99) 100%)'
 
-function InfoPanel({ a, wide, attribution, muted, onToggleMute, onClose, onAskDecifer }: {
+function InfoPanel({ a, wide, attribution, muted, onToggleMute, onClose, onAskDecifer, onNarrated }: {
   a: Animal; wide: boolean; attribution: string; muted: boolean
   onToggleMute: () => void; onClose: () => void; onAskDecifer?: (c: string) => void
+  onNarrated: () => void
 }) {
   const motionProps = wide ? { initial: { x: '100%' }, animate: { x: 0 }, exit: { x: '100%' } } : { initial: { y: '100%' }, animate: { y: 0 }, exit: { y: '100%' } }
   const className = wide ? 'fixed right-0 top-0 bottom-0 z-50 w-[min(384px,92vw)] overflow-y-auto' : 'fixed inset-x-0 bottom-0 z-50 rounded-t-3xl overflow-y-auto'
@@ -39,7 +40,7 @@ function InfoPanel({ a, wide, attribution, muted, onToggleMute, onClose, onAskDe
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <NarrationButton text={`${a.kidFact} ${a.summary}`} muted={muted} onToggleMute={onToggleMute} autoPlay />
+            <NarrationButton text={`${a.kidFact} ${a.summary}`} muted={muted} onToggleMute={onToggleMute} autoPlay onComplete={onNarrated} />
             <button onClick={onClose} className="flex items-center justify-center rounded-full text-white/60" style={{ minWidth: 48, minHeight: 48, background: 'rgba(255,255,255,0.08)' }} aria-label="Close">✕</button>
           </div>
         </div>
@@ -69,25 +70,30 @@ export function AnimalKingdom({ explorer, onAskDecifer, onExplore }: Props) {
   const [filter, setFilter] = useState<string | null>(null)
   const [muted, setMuted] = useState(false)
   const [revealCard, setRevealCard] = useState<DroppedCard | null>(null)
-  const visitedRef = useRef<Set<string>>(new Set())
+  const rewardedRef = useRef<Set<string>>(new Set())
+  const selectedKeyRef = useRef<string | null>(null)
   const pendingCardRef = useRef<DroppedCard | null>(null)
 
-  const handleSelect = useCallback(async (a: Animal) => {
-    stopNarration(); setSelected(a); onExplore?.(a.key)
-    if (!visitedRef.current.has(a.key)) {
-      visitedRef.current.add(a.key)
-      try {
-        const res = await fetch('/api/explore/card-drop', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ aidType: 'animal-kingdom', topicKey: a.key }) })
-        if (res.ok) { const d = await res.json(); if (d.card) pendingCardRef.current = d.card }
-      } catch { /* non-fatal */ }
-    }
+  const handleSelect = useCallback((a: Animal) => {
+    stopNarration(); setSelected(a); selectedKeyRef.current = a.key; onExplore?.(a.key)
   }, [onExplore])
 
+  // Card drops only when the narration plays through and the child is still on
+  // that item — listening, not just tapping.
+  const handleNarrated = useCallback(async (key: string) => {
+    if (key !== selectedKeyRef.current || rewardedRef.current.has(key)) return
+    rewardedRef.current.add(key)
+    try {
+      const res = await fetch('/api/explore/card-drop', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ aidType: 'animal-kingdom', topicKey: key }) })
+      if (res.ok) { const d = await res.json(); if (d.card) pendingCardRef.current = d.card }
+    } catch { /* non-fatal */ }
+  }, [])
+
   const handleClose = useCallback(() => {
-    stopNarration(); setSelected(null)
+    stopNarration(); setSelected(null); selectedKeyRef.current = null
     if (pendingCardRef.current) { const c = pendingCardRef.current; pendingCardRef.current = null; setTimeout(() => setRevealCard(c), 350) }
   }, [])
-  const handleAsk = useCallback((ctx: string) => { stopNarration(); setSelected(null); onAskDecifer?.(ctx) }, [onAskDecifer])
+  const handleAsk = useCallback((ctx: string) => { stopNarration(); setSelected(null); selectedKeyRef.current = null; onAskDecifer?.(ctx) }, [onAskDecifer])
   useEffect(() => () => { stopNarration() }, [])
 
   const visible = filter ? animals.filter((a) => a.group.toLowerCase() === filter) : animals
@@ -122,7 +128,7 @@ export function AnimalKingdom({ explorer, onAskDecifer, onExplore }: Props) {
       </div>
 
       <AnimatePresence>
-        {selected && <InfoPanel a={selected} wide={wide} attribution={cfg.attribution} muted={muted} onToggleMute={() => setMuted((m) => !m)} onClose={handleClose} onAskDecifer={handleAsk} />}
+        {selected && <InfoPanel a={selected} wide={wide} attribution={cfg.attribution} muted={muted} onToggleMute={() => setMuted((m) => !m)} onClose={handleClose} onAskDecifer={handleAsk} onNarrated={() => handleNarrated(selected.key)} />}
       </AnimatePresence>
       {revealCard && <CardReveal card={revealCard} onDismiss={() => setRevealCard(null)} />}
     </div>

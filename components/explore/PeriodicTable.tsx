@@ -67,7 +67,7 @@ function Tile({ el, dimmed, onSelect }: { el: Element; dimmed: boolean; onSelect
 
 // ─── Info panel ───────────────────────────────────────────────────────────────
 
-function InfoPanel({ el, wide, attribution, muted, onToggleMute, onClose, onAskDecifer }: {
+function InfoPanel({ el, wide, attribution, muted, onToggleMute, onClose, onAskDecifer, onNarrated }: {
   el: Element
   wide: boolean
   attribution: string
@@ -75,6 +75,7 @@ function InfoPanel({ el, wide, attribution, muted, onToggleMute, onClose, onAskD
   onToggleMute: () => void
   onClose: () => void
   onAskDecifer?: (context: string) => void
+  onNarrated: () => void
 }) {
   const motionProps = wide
     ? { initial: { x: '100%' }, animate: { x: 0 }, exit: { x: '100%' } }
@@ -101,7 +102,7 @@ function InfoPanel({ el, wide, attribution, muted, onToggleMute, onClose, onAskD
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <NarrationButton text={el.summary} muted={muted} onToggleMute={onToggleMute} autoPlay />
+            <NarrationButton text={el.summary} muted={muted} onToggleMute={onToggleMute} autoPlay onComplete={onNarrated} />
             <button onClick={onClose} className="flex items-center justify-center rounded-full text-white/60" style={{ minWidth: 48, minHeight: 48, background: 'rgba(255,255,255,0.08)' }} aria-label="Close">✕</button>
           </div>
         </div>
@@ -164,28 +165,35 @@ export function PeriodicTable({ explorer, onAskDecifer, onExplore }: PeriodicTab
   const [filter, setFilter] = useState<string | null>(null)
   const [muted, setMuted] = useState(false)
   const [revealCard, setRevealCard] = useState<DroppedCard | null>(null)
-  const visitedRef = useRef<Set<string>>(new Set())
+  const rewardedRef = useRef<Set<string>>(new Set())
+  const selectedKeyRef = useRef<string | null>(null)
   const pendingCardRef = useRef<DroppedCard | null>(null)
 
-  const handleSelect = useCallback(async (el: Element) => {
+  const handleSelect = useCallback((el: Element) => {
     stopNarration()
     setSelected(el)
+    selectedKeyRef.current = el.key
     onExplore?.(el.key)
-    if (!visitedRef.current.has(el.key)) {
-      visitedRef.current.add(el.key)
-      try {
-        const res = await fetch('/api/explore/card-drop', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ aidType: 'periodic-table', topicKey: el.key }),
-        })
-        if (res.ok) { const d = await res.json(); if (d.card) pendingCardRef.current = d.card }
-      } catch { /* non-fatal */ }
-    }
   }, [onExplore])
+
+  // Card drops only when the narration plays through and the child is still on
+  // that item — listening, not just tapping.
+  const handleNarrated = useCallback(async (key: string) => {
+    if (key !== selectedKeyRef.current || rewardedRef.current.has(key)) return
+    rewardedRef.current.add(key)
+    try {
+      const res = await fetch('/api/explore/card-drop', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ aidType: 'periodic-table', topicKey: key }),
+      })
+      if (res.ok) { const d = await res.json(); if (d.card) pendingCardRef.current = d.card }
+    } catch { /* non-fatal */ }
+  }, [])
 
   const handleClose = useCallback(() => {
     stopNarration()
     setSelected(null)
+    selectedKeyRef.current = null
     if (pendingCardRef.current) {
       const card = pendingCardRef.current
       pendingCardRef.current = null
@@ -194,7 +202,7 @@ export function PeriodicTable({ explorer, onAskDecifer, onExplore }: PeriodicTab
   }, [])
 
   const handleAsk = useCallback((ctx: string) => {
-    stopNarration(); setSelected(null); onAskDecifer?.(ctx)
+    stopNarration(); setSelected(null); selectedKeyRef.current = null; onAskDecifer?.(ctx)
   }, [onAskDecifer])
 
   useEffect(() => () => { stopNarration() }, [])
@@ -260,6 +268,7 @@ export function PeriodicTable({ explorer, onAskDecifer, onExplore }: PeriodicTab
             onToggleMute={() => setMuted((m) => !m)}
             onClose={handleClose}
             onAskDecifer={handleAsk}
+            onNarrated={() => handleNarrated(selected.key)}
           />
         )}
       </AnimatePresence>

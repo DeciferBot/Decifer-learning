@@ -18,9 +18,10 @@ function toEvent(n: TimelineNode): Event {
 
 const PANEL_BG = 'linear-gradient(180deg, rgba(16,8,18,0.98) 0%, rgba(9,5,11,0.99) 100%)'
 
-function InfoPanel({ e, wide, attribution, muted, onToggleMute, onClose, onAskDecifer }: {
+function InfoPanel({ e, wide, attribution, muted, onToggleMute, onClose, onAskDecifer, onNarrated }: {
   e: Event; wide: boolean; attribution: string; muted: boolean
   onToggleMute: () => void; onClose: () => void; onAskDecifer?: (c: string) => void
+  onNarrated: () => void
 }) {
   const motionProps = wide ? { initial: { x: '100%' }, animate: { x: 0 }, exit: { x: '100%' } } : { initial: { y: '100%' }, animate: { y: 0 }, exit: { y: '100%' } }
   const className = wide ? 'fixed right-0 top-0 bottom-0 z-50 w-[min(384px,92vw)] overflow-y-auto' : 'fixed inset-x-0 bottom-0 z-50 rounded-t-3xl overflow-y-auto'
@@ -36,7 +37,7 @@ function InfoPanel({ e, wide, attribution, muted, onToggleMute, onClose, onAskDe
             <h2 className="font-heading text-xl font-extrabold text-white leading-tight">{e.name}</h2>
           </div>
           <div className="flex items-center gap-2">
-            <NarrationButton text={`${e.kidFact} ${e.summary}`} muted={muted} onToggleMute={onToggleMute} autoPlay />
+            <NarrationButton text={`${e.kidFact} ${e.summary}`} muted={muted} onToggleMute={onToggleMute} autoPlay onComplete={onNarrated} />
             <button onClick={onClose} className="flex items-center justify-center rounded-full text-white/60" style={{ minWidth: 48, minHeight: 48, background: 'rgba(255,255,255,0.08)' }} aria-label="Close">✕</button>
           </div>
         </div>
@@ -66,25 +67,30 @@ export function HistoryTimeline({ explorer, onAskDecifer, onExplore }: Props) {
   const [filter, setFilter] = useState<string | null>(null)
   const [muted, setMuted] = useState(false)
   const [revealCard, setRevealCard] = useState<DroppedCard | null>(null)
-  const visitedRef = useRef<Set<string>>(new Set())
+  const rewardedRef = useRef<Set<string>>(new Set())
+  const selectedKeyRef = useRef<string | null>(null)
   const pendingCardRef = useRef<DroppedCard | null>(null)
 
-  const handleSelect = useCallback(async (e: Event) => {
-    stopNarration(); setSelected(e); onExplore?.(e.key)
-    if (!visitedRef.current.has(e.key)) {
-      visitedRef.current.add(e.key)
-      try {
-        const res = await fetch('/api/explore/card-drop', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ aidType: 'timeline', topicKey: e.key }) })
-        if (res.ok) { const d = await res.json(); if (d.card) pendingCardRef.current = d.card }
-      } catch { /* non-fatal */ }
-    }
+  const handleSelect = useCallback((e: Event) => {
+    stopNarration(); setSelected(e); selectedKeyRef.current = e.key; onExplore?.(e.key)
   }, [onExplore])
 
+  // Card drops only when the narration plays through and the child is still on
+  // that item — listening, not just tapping.
+  const handleNarrated = useCallback(async (key: string) => {
+    if (key !== selectedKeyRef.current || rewardedRef.current.has(key)) return
+    rewardedRef.current.add(key)
+    try {
+      const res = await fetch('/api/explore/card-drop', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ aidType: 'timeline', topicKey: key }) })
+      if (res.ok) { const d = await res.json(); if (d.card) pendingCardRef.current = d.card }
+    } catch { /* non-fatal */ }
+  }, [])
+
   const handleClose = useCallback(() => {
-    stopNarration(); setSelected(null)
+    stopNarration(); setSelected(null); selectedKeyRef.current = null
     if (pendingCardRef.current) { const c = pendingCardRef.current; pendingCardRef.current = null; setTimeout(() => setRevealCard(c), 350) }
   }, [])
-  const handleAsk = useCallback((ctx: string) => { stopNarration(); setSelected(null); onAskDecifer?.(ctx) }, [onAskDecifer])
+  const handleAsk = useCallback((ctx: string) => { stopNarration(); setSelected(null); selectedKeyRef.current = null; onAskDecifer?.(ctx) }, [onAskDecifer])
   useEffect(() => () => { stopNarration() }, [])
 
   const eraKey = (era: string) => era.toLowerCase().replace(/\s+/g, '-')
@@ -127,7 +133,7 @@ export function HistoryTimeline({ explorer, onAskDecifer, onExplore }: Props) {
       </div>
 
       <AnimatePresence>
-        {selected && <InfoPanel e={selected} wide={wide} attribution={cfg.attribution} muted={muted} onToggleMute={() => setMuted((m) => !m)} onClose={handleClose} onAskDecifer={handleAsk} />}
+        {selected && <InfoPanel e={selected} wide={wide} attribution={cfg.attribution} muted={muted} onToggleMute={() => setMuted((m) => !m)} onClose={handleClose} onAskDecifer={handleAsk} onNarrated={() => handleNarrated(selected.key)} />}
       </AnimatePresence>
       {revealCard && <CardReveal card={revealCard} onDismiss={() => setRevealCard(null)} />}
     </div>

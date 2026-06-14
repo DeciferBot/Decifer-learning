@@ -295,11 +295,12 @@ interface InfoPanelProps {
   onOpenWonder?: (type: WonderType, name: string) => void
   muted: boolean
   onToggleMute: () => void
+  onNarrated: () => void
 }
 
 const PANEL_BG = 'linear-gradient(160deg, #1a1a3e 0%, #0d0d20 100%)'
 
-function InfoPanel({ planet, wide, onClose, onAskDecifer, onOpenWonder, muted, onToggleMute }: InfoPanelProps) {
+function InfoPanel({ planet, wide, onClose, onAskDecifer, onOpenWonder, muted, onToggleMute, onNarrated }: InfoPanelProps) {
   const [tab, setTab] = useState<'discover' | 'quiz'>('discover')
   const [activeLayer, setActiveLayer] = useState(0)
   const [showNudge, setShowNudge] = useState(false)
@@ -367,6 +368,7 @@ function InfoPanel({ planet, wide, onClose, onAskDecifer, onOpenWonder, muted, o
             muted={muted}
             onToggleMute={onToggleMute}
             autoPlay
+            onComplete={onNarrated}
           />
           <button
             onClick={onClose}
@@ -506,9 +508,10 @@ interface JourneyPanelProps {
   onNext: () => void
   onStayHere: () => void
   onFinish: () => void
+  onNarrated: () => void
 }
 
-function JourneyPanel({ planet, step, total, wide, muted, onToggleMute, onNext, onStayHere, onFinish }: JourneyPanelProps) {
+function JourneyPanel({ planet, step, total, wide, muted, onToggleMute, onNext, onStayHere, onFinish, onNarrated }: JourneyPanelProps) {
   const isLast = step === total - 1
   const layer = planet.layers[0]
 
@@ -549,7 +552,7 @@ function JourneyPanel({ planet, step, total, wide, muted, onToggleMute, onNext, 
           <p className="text-[10px] text-white/40 uppercase tracking-widest">World {step + 1} of {total}</p>
           <h2 className="text-lg font-bold text-white leading-tight">{planet.name}</h2>
         </div>
-        <NarrationButton text={layer.narration} muted={muted} onToggleMute={onToggleMute} autoPlay />
+        <NarrationButton text={layer.narration} muted={muted} onToggleMute={onToggleMute} autoPlay onComplete={onNarrated} />
       </div>
 
       <div className="mx-5 mt-1.5 rounded-2xl px-4 py-3" style={{ background: 'rgba(255,215,0,0.1)', border: '1px solid rgba(255,215,0,0.2)' }}>
@@ -646,6 +649,9 @@ export function SolarSystem({ explorer, onAskDecifer, onExplore }: SolarSystemPr
   const [journeyDone, setJourneyDone] = useState(false)
   const [wonder, setWonder] = useState<{ type: WonderType; planetName: string } | null>(null)
   const visitedRef = useRef<Set<string>>(new Set())
+  const rewardedRef = useRef<Set<string>>(new Set())
+  // The planet whose narration is currently showing (free-explore or journey).
+  const activeKeyRef = useRef<string | null>(null)
   const cameraApi = useRef<CameraApi | null>(null)
 
   const journeyActive = journeyStep !== null
@@ -656,8 +662,18 @@ export function SolarSystem({ explorer, onAskDecifer, onExplore }: SolarSystemPr
 
   const pendingCardRef = useRef<DroppedCard | null>(null)
 
-  const handleFirstVisit = useCallback(async (id: string) => {
+  // Fire exploration tracking once per planet on first visit.
+  const markVisited = useCallback((id: string) => {
+    if (visitedRef.current.has(id)) return
+    visitedRef.current.add(id)
     onExplore?.(id)
+  }, [onExplore])
+
+  // Card drops only when the narration plays through and the child is still on
+  // that planet — listening, not just tapping.
+  const handleNarrated = useCallback(async (id: string) => {
+    if (id !== activeKeyRef.current || rewardedRef.current.has(id)) return
+    rewardedRef.current.add(id)
     try {
       const res = await fetch('/api/explore/card-drop', {
         method: 'POST',
@@ -671,7 +687,7 @@ export function SolarSystem({ explorer, onAskDecifer, onExplore }: SolarSystemPr
     } catch {
       // card drop failure is non-fatal
     }
-  }, [onExplore])
+  }, [])
 
   const handleSelect = useCallback((planet: Planet | null) => {
     if (journeyActive) {
@@ -679,19 +695,20 @@ export function SolarSystem({ explorer, onAskDecifer, onExplore }: SolarSystemPr
         stopNarration()
         setJourneyStep(null)
         setSelected(planet)
+        activeKeyRef.current = planet.id
+        markVisited(planet.id)
       }
       return
     }
     setSelected(planet)
-    if (planet && !visitedRef.current.has(planet.id)) {
-      visitedRef.current.add(planet.id)
-      handleFirstVisit(planet.id)
-    }
-  }, [journeyActive, handleFirstVisit])
+    activeKeyRef.current = planet?.id ?? null
+    if (planet) markVisited(planet.id)
+  }, [journeyActive, markVisited])
 
   const handleClose = useCallback(() => {
     setSelected(null)
     setPaused(false)
+    activeKeyRef.current = null
     stopNarration()
     if (pendingCardRef.current) {
       const card = pendingCardRef.current
@@ -703,6 +720,7 @@ export function SolarSystem({ explorer, onAskDecifer, onExplore }: SolarSystemPr
   const handleAskDecifer = useCallback((context: string) => {
     setSelected(null)
     setPaused(false)
+    activeKeyRef.current = null
     stopNarration()
     onAskDecifer?.(context)
   }, [onAskDecifer])
@@ -723,12 +741,14 @@ export function SolarSystem({ explorer, onAskDecifer, onExplore }: SolarSystemPr
     setJourneyStep(prev => {
       const planet = prev !== null ? planets[prev] : null
       setSelected(planet)
+      activeKeyRef.current = planet?.id ?? null
       return null
     })
   }, [planets])
 
   const journeyFinish = useCallback(async () => {
     stopNarration()
+    activeKeyRef.current = null
     setJourneyStep(null)
     setTimeout(() => setJourneyDone(true), 350)
     try {
@@ -738,15 +758,15 @@ export function SolarSystem({ explorer, onAskDecifer, onExplore }: SolarSystemPr
     }
   }, [])
 
-  // Mark journey planets visited for card-drop dedup.
+  // Track the active journey planet so its narration can earn a card on completion.
   useEffect(() => {
     if (journeyStep === null) return
     const planet = planets[journeyStep]
-    if (planet && !visitedRef.current.has(planet.id)) {
-      visitedRef.current.add(planet.id)
-      handleFirstVisit(planet.id)
+    if (planet) {
+      activeKeyRef.current = planet.id
+      markVisited(planet.id)
     }
-  }, [journeyStep, planets, handleFirstVisit])
+  }, [journeyStep, planets, markVisited])
 
   useEffect(() => () => {
     document.body.style.cursor = 'auto'
@@ -846,6 +866,7 @@ export function SolarSystem({ explorer, onAskDecifer, onExplore }: SolarSystemPr
             onOpenWonder={(type, name) => setWonder({ type, planetName: name })}
             muted={muted}
             onToggleMute={() => setMuted(m => !m)}
+            onNarrated={() => handleNarrated(selected.id)}
           />
         )}
       </AnimatePresence>
@@ -863,6 +884,7 @@ export function SolarSystem({ explorer, onAskDecifer, onExplore }: SolarSystemPr
             onNext={journeyNext}
             onStayHere={journeyStayHere}
             onFinish={journeyFinish}
+            onNarrated={() => handleNarrated(planets[journeyStep].id)}
           />
         )}
       </AnimatePresence>
