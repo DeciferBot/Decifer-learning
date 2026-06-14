@@ -889,6 +889,48 @@ model ExplorationSession {
   @@map("exploration_sessions")
 }
 
+// ---------- Explorable engine (data-driven immersive explorers) ----------
+// Content lives in the DB so new explorers need zero code (CLAUDE.md §16 r5).
+// RLS enforces published-only reads (CLAUDE.md §8). See migration add_explorers.
+
+model Explorer {
+  id           String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  key          String         @unique
+  title        String
+  tagline      String?
+  emoji        String?
+  scene_type   String // 'orrery' | 'globe' | ...
+  gradient     String?
+  config       Json           @default("{}") // scene-wide settings (sun, starfield, camera)
+  is_published Boolean        @default(false)
+  order_index  Int            @default(0)
+  created_at   DateTime       @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime       @default(now()) @updatedAt @db.Timestamptz(6)
+  nodes        ExplorerNode[]
+
+  @@index([is_published, order_index])
+  @@map("explorers")
+}
+
+model ExplorerNode {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  explorer_id String   @db.Uuid
+  key         String
+  name        String
+  order_index Int      @default(0)
+  visual      Json     @default("{}") // color, radius, orbitRadius, period, texture, rings, wonderType
+  stats       Json     @default("{}") // diameter, distanceFromSun, orbitalPeriod, moons
+  content     Json     @default("{}") // description, fact, narration, layers[]
+  quiz        Json? // question, options[], answer, explanation
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+
+  explorer Explorer @relation(fields: [explorer_id], references: [id], onDelete: Cascade)
+
+  @@unique([explorer_id, key])
+  @@index([explorer_id, order_index])
+  @@map("explorer_nodes")
+}
+
 // ---------- Exam Revision Mode ----------
 
 model ExamAssignment {

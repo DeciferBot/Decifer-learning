@@ -1,0 +1,148 @@
+{
+  "organs": [
+    {
+      "key": "brain",
+      "name": "Brain",
+      "title": "Human brain",
+      "system": "Nervous",
+      "x": 50,
+      "y": 8,
+      "color": "#A78BFA",
+      "kidFact": "Your control centre — it thinks, remembers, and runs your whole body.",
+      "summary": "The human brain is the central organ of the nervous system, and with the spinal cord, comprises the central nervous system. It consists of the cerebrum, the brainstem and the cerebellum. The brain controls most of the activities of the body, processing, integrating, and coordinating the information it receives from the sensory nervous system. The brain integrates sensory information and coordinates instructions sent to the rest of the body.",
+      "source_url": "https://en.wikipedia.org/wiki/Human_brain"
+    },
+    {
+      "key": "eye",
+      "name": "Eyes",
+      "title": "Human eye",
+      "system": "Senses",
+      "x": 45,
+      "y": 11,
+      "color": "#74C0FC",
+      "kidFact": "Turn light into signals so your brain can see the world.",
+      "summary": "The human eye is a sensory organ in the visual system that reacts to visible light allowing eyesight. Other functions include maintaining the circadian rhythm, and keeping balance.",
+      "source_url": "https://en.wikipedia.org/wiki/Human_eye"
+    },
+    {
+      "key": "ear",
+      "name": "Ears",
+      "title": "Ear",
+      "system": "Senses",
+      "x": 55,
+      "y": 11,
+      "color": "#74C0FC",
+      "kidFact": "Let you hear sound and help you keep your balance.",
+      "summary": "In vertebrates, an ear is the organ that enables hearing and body balance using the vestibular system. In humans, the ear is described as having three parts: the outer ear, the middle ear and the inner ear. The outer ear consists of the auricle, the visible outer part, and the ear canal. The middle ear includes the tympanic cavity and the three ossicles. The inner ear sits in the bony labyrinth, and contains structures which are key to several senses: the semicircular canals, which enable balance and eye tracking when moving; the utricle and saccule, which enable balance when stationary; and the cochlea, which enables hearing. The ear canal is cleaned via earwax, which naturally migrates to the auricle.",
+      "source_url": "https://en.wikipedia.org/wiki/Ear"
+    },
+    {
+      "key": "heart",
+      "name": "Heart",
+      "title": "Heart",
+      "system": "Circulatory",
+      "x": 46,
+      "y": 32,
+      "color": "#FF6B6B",
+      "kidFact": "Pumps blood all around your body, day and night.",
+      "summary": "The heart is a muscular organ found in humans and other animals. This organ pumps blood through the blood vessels. The heart and blood vessels together make up the circulatory system. The pumped blood carries oxygen and nutrients to the tissue, while carrying metabolic waste such as carbon dioxide to the lungs. In humans, the heart is approximately the size of a closed fist and is located between the lungs, in the middle compartment of the chest, called the mediastinum.",
+      "source_url": "https://en.wikipedia.org/wiki/Heart"
+    },
+    {
+      "key": "lungs",
+      "name": "Lungs",
+      "title": "Lung",
+      "system": "Respiratory",
+      "x": 54,
+      "y": 31,
+      "color": "#52D9A0",
+      "kidFact": "Take in oxygen when you breathe in and remove carbon dioxide when you breathe out.",
+      "summary": "The lungs are the primary organs of the respiratory system in many animals, including humans. In mammals and most other tetrapods, two lungs are located near the backbone on either side of the heart. Their function in the respiratory system is to extract oxygen from the atmosphere and transfer it into the bloodstream, and to release carbon dioxide from the bloodstream into the atmosphere, in a process of gas exchange. Respiration is driven by different muscular systems in different species. Mammals, reptiles and birds use their musculoskeletal systems to support and foster breathing. In early tetrapods, air was driven into the lungs by the pharyngeal muscles via buccal pumping, a mechanism still seen in amphibians. In humans, the primary muscle that drives breathing is the diaphragm. The lungs also provide airflow that makes vocalisation including speech possible.",
+      "source_url": "https://en.wikipedia.org/wiki/Lung"
+    },
+    {
+      "key": "liver",
+      "name": "Liver",
+      "title": "Liver",
+      "system": "Digestive",
+      "x": 57,
+      "y": 42,
+      "color": "#FFA94D",
+      "kidFact": "Cleans your blood and helps turn food into energy.",
+      "summary": "The liver is a major metabolic organ exclusively found in vertebrates, which performs many essential biological functions such as detoxification of the organism, and the synthesis of various proteins and various other biochemicals necessary for digestion and growth. In humans, it is located in the right upper quadrant of the abdomen, below the diaphragm and mostly shielded by the lower right rib cage. Its other metabolic roles include carbohydrate metabolism, the production of a number of hormones, conversion and storage of nutrients such as glucose and glycogen, and the decomposition of red blood cells. Anatomical and medical terminology often use the prefix hepat- from ἡπατο-, from the Greek word for liver, such as hepatology, and hepatitis.",
+      "source_url": "https://en.wikipedia.org/wiki/Liver"
+    },
+    {
+      "key": "stomach",
+      "name": "Stomach",
+      "title": "Stomach",
+      "system": "Digestive",
+      "x": 44,
+      "y": 43,
+      "color": "#FFA94D",
+      "kidFact": "Breaks down the food you eat using strong acids.",
+      "summary": "The stomach is a muscular, hollow organ in the upper gastrointestinal tract of humans and many other animals, including several invertebrates. The Ancient Greek name for the stomach is gaster which is used as gastric in medical terms related to the stomach. The stomach has a dilated structure and functions as a vital organ in the digestive system. The stomach is involved in the gastric phase of digestion, following the cephalic phase in which the sight and smell of food and the act of chewing are stimuli. In the stomach a chemical breakdown of food takes place by means of secreted digestive enzymes and gastric acid. It also plays a role in regulating gut microbiota, influencing digestion and overall health.",
+      "source_url": "https://en.wikipedia.org/wiki/Stomach"
+    },
+    {
+      "key": "kidneys",
+      "name": "Kidneys",
+      "title": "Kidney",
+      "system": "Urinary",
+      "x": 56,
+      "y": 49,
+      "color": "#FFD43B",
+      "kidFact": "Filter your blood and make urine to remove waste.",
+      "summary": "In humans, the kidneys are two reddish-brown bean-shaped blood-filtering organs that are a multilobar, multipapillary form of mammalian kidneys, usually without signs of external lobulation. They are located on the left and right in the retroperitoneal space, and in adult humans are about 12 centimetres in length. They receive blood from the paired renal arteries; blood exits into the paired renal veins. Each kidney is attached to a ureter, a tube that carries excreted urine to the bladder.",
+      "source_url": "https://en.wikipedia.org/wiki/Kidney"
+    },
+    {
+      "key": "intestine",
+      "name": "Small intestine",
+      "title": "Small intestine",
+      "system": "Digestive",
+      "x": 50,
+      "y": 55,
+      "color": "#FFA94D",
+      "kidFact": "Absorbs the goodness (nutrients) from food into your blood.",
+      "summary": "The small intestine or small bowel is an organ in the gastrointestinal tract where most of the absorption of nutrients from food takes place. It lies between the stomach and large intestine, and receives bile and pancreatic juice through the pancreatic duct to aid in digestion. The small intestine is about 6.5 metres long and folds many times to fit in the abdomen. Although it is longer than the large intestine, it is called the small intestine because it is narrower in diameter.",
+      "source_url": "https://en.wikipedia.org/wiki/Small_intestine"
+    },
+    {
+      "key": "skeleton",
+      "name": "Skeleton",
+      "title": "Human skeleton",
+      "system": "Skeletal",
+      "x": 43,
+      "y": 74,
+      "color": "#CED4DA",
+      "kidFact": "Your 206 bones give your body its shape and protect your organs.",
+      "summary": "The human skeleton is the internal framework of the human body. It is composed of around 270 bones at birth – this total decreases to around 206 bones by adulthood after some bones fuse together, not counting accessory bones. The bone mass in the skeleton makes up about 14% of the total body weight and reaches maximum mass between the ages of 25 and 30. The human skeleton can be divided into the axial skeleton and the appendicular skeleton. The axial skeleton is formed by the spinal column, the rib cage, the skull, and associated bones. The appendicular skeleton, which is attached to the axial skeleton, is formed by the shoulder girdle, the pelvic girdle and the bones of the upper and lower limbs.",
+      "source_url": "https://en.wikipedia.org/wiki/Human_skeleton"
+    },
+    {
+      "key": "muscles",
+      "name": "Muscles",
+      "title": "Muscle",
+      "system": "Muscular",
+      "x": 57,
+      "y": 74,
+      "color": "#F783AC",
+      "kidFact": "Pull on your bones to move your body — you have over 600 of them!",
+      "summary": "Muscle is a specialised soft tissue, one of the four basic types of animal tissues. There are three types of muscle tissues in vertebrates: skeletal muscle tissue, cardiac muscle tissue, and smooth muscle tissue. Muscle tissue gives skeletal muscles the ability to contract and relax. Muscle tissue contains special contractile proteins called actin and myosin which interact to cause movement. Among many other muscle proteins present are two regulatory proteins, troponin and tropomyosin. Muscle is formed during embryonic development, in a process known as myogenesis.",
+      "source_url": "https://en.wikipedia.org/wiki/Muscle"
+    },
+    {
+      "key": "skin",
+      "name": "Skin",
+      "title": "Skin",
+      "system": "Integumentary",
+      "x": 30,
+      "y": 40,
+      "color": "#FFB088",
+      "kidFact": "Your largest organ — it protects you and senses touch, heat and cold.",
+      "summary": "Skin is the layer of usually soft, flexible outer tissue covering the body of a vertebrate animal, with three main functions: protection, regulation, and sensation.",
+      "source_url": "https://en.wikipedia.org/wiki/Skin"
+    }
+  ]
+}
