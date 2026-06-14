@@ -44,3 +44,8 @@ graphify-out/graph.json
 
 # Claude Code local worktrees
 .claude/worktrees/
+
+# Playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/

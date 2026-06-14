@@ -187,6 +187,8 @@ export function QuizShell({
   const questionStartRef = useRef(Date.now())
   const quizStartRef = useRef(Date.now())
   const heartsAtDoneRef = useRef(MAX_HEARTS)
+  // Accessibility: ref to the feedback region so focus can be moved there after answering
+  const feedbackRef = useRef<HTMLDivElement>(null)
 
   const q = activeQuestions[qIndex] ?? activeQuestions[0] ?? questions[0]
   const hints = [q.hint_1, q.hint_2, q.hint_3].filter((h): h is string => h !== null)
@@ -232,6 +234,8 @@ export function QuizShell({
       setTimeout(() => setPointsFlash(null), 1200)
       setAnsweredCorrectly(true)
       setQuestionDone(true)
+      // Move focus to feedback region so screen readers announce the result
+      setTimeout(() => feedbackRef.current?.focus(), 60)
 
       // Hintless streak tracking
       if (manualHintsRevealed === 0) {
@@ -259,6 +263,7 @@ export function QuizShell({
       if (newAttempts >= MAX_ATTEMPTS) {
         // Exhausted all attempts
         setQuestionDone(true)
+        setTimeout(() => feedbackRef.current?.focus(), 60)
         const newExhausted = exhaustedQuestions + 1
         if (newExhausted >= EXHAUSTED_FOR_HEART_LOSS) {
           if (shields > 0) {
@@ -651,7 +656,7 @@ export function QuizShell({
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowingPrevReview(false)}
-            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-bold text-ink transition-colors hover:bg-black/5"
+            className="inline-flex min-h-[48px] items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-bold text-ink transition-colors hover:bg-black/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
           >
             ← Back to quiz
           </button>
@@ -663,7 +668,10 @@ export function QuizShell({
           </p>
           {prevAnswer && (
             <div className={`rounded-xl px-4 py-3 text-sm font-semibold ${prevCorrect ? 'bg-correct/10 text-correct' : 'bg-incorrect/10 text-incorrect'}`}>
-              {prevCorrect ? '✓ You answered:' : '✗ You answered:'} <MathText text={prevAnswer} />
+              {/* aria-hidden the symbol; the surrounding text is sufficient */}
+              <span aria-hidden>{prevCorrect ? '✓' : '✗'}</span>
+              {prevCorrect ? ' You answered: ' : ' Your answer: '}
+              <MathText text={prevAnswer} />
             </div>
           )}
           {!prevCorrect && (
@@ -680,7 +688,7 @@ export function QuizShell({
         </div>
         <button
           onClick={() => setShowingPrevReview(false)}
-          className="min-h-[48px] w-full rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white transition-opacity hover:opacity-90"
+          className="min-h-[48px] w-full rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
         >
           Continue quiz →
         </button>
@@ -731,15 +739,20 @@ export function QuizShell({
               animate={shieldFlash ? { scale: [1, 1.4, 1], opacity: [1, 0.5, 1] } : {}}
               transition={{ duration: 0.4 }}
               className="flex items-center gap-0.5 text-sm font-bold text-ink-2"
-              title="Streak Shields — absorb 1 heart loss each"
+              aria-label={`${shields} streak shield${shields !== 1 ? 's' : ''} — each absorbs one heart loss`}
             >
-              <Shield className="w-4 h-4 text-explorer" aria-hidden /> ×{shields}
+              <Shield className="w-4 h-4 text-explorer" aria-hidden /> <span aria-hidden>×{shields}</span>
             </motion.span>
           )}
           {/* Live score display */}
           <div className="relative flex items-center gap-1">
-            <span className="font-heading text-sm font-bold text-ink">
-              {questionsCorrect}/{activeQuestions.length}
+            <span
+              className="font-heading text-sm font-bold text-ink"
+              aria-live="polite"
+              aria-atomic="true"
+              aria-label={`Score: ${questionsCorrect} of ${activeQuestions.length} correct`}
+            >
+              <span aria-hidden>{questionsCorrect}/{activeQuestions.length}</span>
             </span>
             <AnimatePresence>
               {pointsFlash !== null && (
@@ -783,11 +796,19 @@ export function QuizShell({
         )}
       </div>
 
-      <div className="h-2 overflow-hidden rounded-full bg-black/5">
+      <div
+        className="h-2 overflow-hidden rounded-full bg-black/5"
+        role="progressbar"
+        aria-valuenow={qIndex + 1}
+        aria-valuemin={1}
+        aria-valuemax={activeQuestions.length}
+        aria-label={`Question ${qIndex + 1} of ${activeQuestions.length}`}
+      >
         <motion.div
           className="h-full rounded-full bg-maths"
           animate={{ width: `${(qIndex / activeQuestions.length) * 100}%` }}
           transition={{ duration: 0.4 }}
+          aria-hidden
         />
       </div>
 
@@ -942,23 +963,38 @@ export function QuizShell({
             </div>
           ) : (
             /* Default: MCQ choice buttons */
-            <div className="mt-4 grid grid-cols-2 gap-3">
+            <div
+              className="mt-4 grid grid-cols-2 gap-3"
+              role="group"
+              aria-label="Answer choices"
+            >
               {choices.map((choice) => {
+                const isCorrectChoice = choice === q.correct_answer
+                const isWrongPick = choice === lastPicked && !answeredCorrectly
+
                 let cls =
-                  'min-h-[56px] rounded-xl border-2 px-4 py-3 text-center font-heading font-bold text-ink transition-colors'
+                  'min-h-[56px] rounded-xl border-2 px-4 py-3 text-center font-heading font-bold text-ink transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink'
                 if (!questionDone) {
                   if (choice === lastPicked && attempts > 0) {
                     cls += ' border-incorrect bg-incorrect/20 text-rose-700'
                   } else {
                     cls += ' border-black/10 bg-background hover:border-maths hover:bg-maths/10'
                   }
-                } else if (choice === q.correct_answer) {
-                  cls += ' border-correct bg-correct/20 text-correct-700'
-                } else if (choice === lastPicked && !answeredCorrectly) {
+                } else if (isCorrectChoice) {
+                  cls += ' border-correct bg-correct/20 text-correct'
+                } else if (isWrongPick) {
                   cls += ' border-incorrect bg-incorrect/20 text-rose-700'
                 } else {
                   cls += ' border-black/10 bg-background opacity-50'
                 }
+
+                // Build an accessible label that includes the outcome state when answered
+                let ariaLabel = choice
+                if (questionDone) {
+                  if (isCorrectChoice) ariaLabel = `${choice} — correct answer`
+                  else if (isWrongPick) ariaLabel = `${choice} — your incorrect answer`
+                }
+
                 return (
                   <motion.button
                     key={choice}
@@ -966,6 +1002,8 @@ export function QuizShell({
                     disabled={questionDone}
                     whileTap={questionDone ? {} : { scale: 0.97 }}
                     className={cls}
+                    aria-label={ariaLabel}
+                    aria-pressed={choice === lastPicked ? true : undefined}
                   >
                     <MathText text={choice} />
                   </motion.button>
@@ -974,43 +1012,56 @@ export function QuizShell({
             </div>
           )}
 
-          {/* Post-question feedback */}
-          <AnimatePresence>
-            {questionDone && (
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                className={`mt-4 rounded-xl p-4 ${
-                  answeredCorrectly ? 'bg-correct/10' : 'bg-incorrect/10'
-                }`}
-              >
-                {/* Multipart types render their own feedback — only show explanation/technique here */}
-                {!MULTIPART_QTYPES.has(q.question_type) && (
-                  <p className={`font-bold ${answeredCorrectly ? 'text-correct-700' : 'text-rose-700'}`}>
-                    {answeredCorrectly
-                      ? attempts === 0
-                        ? isBonusQuestion
-                          ? <span className="flex items-center gap-1"><Check className="w-4 h-4" aria-hidden /> Correct! Double points! <Star className="w-4 h-4" aria-hidden /></span>
-                          : <span className="flex items-center gap-1"><Check className="w-4 h-4" aria-hidden /> Correct! Full marks!</span>
-                        : <span className="flex items-center gap-1"><Check className="w-4 h-4" aria-hidden /> Got it on attempt {attempts + 1}!</span>
-                      : `✗ The answer is ${q.correct_answer}`}
-                  </p>
-                )}
-                {isExhausted && (
-                  <p className="mt-0.5 text-xs text-muted">No points this time — you&apos;ll get it next time!</p>
-                )}
-                {q.explanation && (
-                  <p className="mt-1 text-sm text-muted">{q.explanation}</p>
-                )}
-                {q.technique_note && (
-                  <p className="mt-2 text-xs font-semibold text-maths border-t border-maths/20 pt-2">
-                    💡 {q.technique_note}
-                  </p>
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {/* Post-question feedback — aria-live so screen readers announce it;
+               tabIndex so programmatic focus can land here after answering */}
+          <div
+            ref={feedbackRef}
+            aria-live="polite"
+            aria-atomic="true"
+            tabIndex={-1}
+            className="outline-none"
+          >
+            <AnimatePresence>
+              {questionDone && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  className={`mt-4 rounded-xl p-4 ${
+                    answeredCorrectly ? 'bg-correct/10' : 'bg-incorrect/10'
+                  }`}
+                >
+                  {/* Multipart types render their own feedback — only show explanation/technique here */}
+                  {!MULTIPART_QTYPES.has(q.question_type) && (
+                    <p className={`font-bold ${answeredCorrectly ? 'text-correct' : 'text-incorrect'}`}>
+                      {answeredCorrectly
+                        ? attempts === 0
+                          ? isBonusQuestion
+                            ? <span className="flex items-center gap-1"><Check className="w-4 h-4" aria-hidden /> Correct! Double points! <Star className="w-4 h-4" aria-hidden /></span>
+                            : <span className="flex items-center gap-1"><Check className="w-4 h-4" aria-hidden /> Correct! Full marks!</span>
+                          : <span className="flex items-center gap-1"><Check className="w-4 h-4" aria-hidden /> Got it on attempt {attempts + 1}!</span>
+                        : <span className="flex items-center gap-1">
+                            {/* aria-hidden on the ✗ symbol; the text carries the meaning */}
+                            <span aria-hidden>✗</span>
+                            <span>Incorrect. The answer is <strong>{q.correct_answer}</strong></span>
+                          </span>}
+                    </p>
+                  )}
+                  {isExhausted && (
+                    <p className="mt-0.5 text-xs text-muted">No points this time — you&apos;ll get it next time!</p>
+                  )}
+                  {q.explanation && (
+                    <p className="mt-1 text-sm text-muted">{q.explanation}</p>
+                  )}
+                  {q.technique_note && (
+                    <p className="mt-2 text-xs font-semibold text-maths border-t border-maths/20 pt-2">
+                      {q.technique_note}
+                    </p>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
 
           {questionDone && !heartsDead && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-4 space-y-1">

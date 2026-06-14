@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { RARITY_COLOUR, RARITY_LABEL, type Rarity } from '@/lib/cards'
 import { Leaf, Compass, Star, Gem, Crown, Sparkles } from '@/components/ui/icons'
@@ -25,6 +26,8 @@ const RARITY_TOKEN: Record<Rarity, { bg: string; border: string; text: string; p
   legendary: { bg: 'var(--legendary-bg)', border: 'var(--legendary-bdr)', text: 'var(--legendary)', pill: 'var(--legendary-bg)' },
 }
 
+const TITLE_ID = 'card-reveal-title'
+
 export function CardReveal({
   card,
   onDismiss,
@@ -37,13 +40,34 @@ export function CardReveal({
   const label = RARITY_LABEL[rarity] ?? card.rarity
   const tokens = RARITY_TOKEN[rarity] ?? RARITY_TOKEN.common
   const RarityIcon: IconType = RARITY_ICON[rarity] ?? Leaf
+  const dialogRef = useRef<HTMLDivElement>(null)
 
   const isLegendary = rarity === 'legendary'
   const isEpic = rarity === 'epic'
   const isSpecial = isEpic || isLegendary
 
+  // Move focus into dialog on mount; restore on unmount
+  useEffect(() => {
+    const previouslyFocused = document.activeElement as HTMLElement | null
+    // Focus the dialog container so screen readers announce the role/label
+    dialogRef.current?.focus()
+    return () => {
+      previouslyFocused?.focus()
+    }
+  }, [])
+
+  // Close on Escape
+  useEffect(() => {
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') onDismiss()
+    }
+    document.addEventListener('keydown', handleKey)
+    return () => document.removeEventListener('keydown', handleKey)
+  }, [onDismiss])
+
   return (
     <AnimatePresence>
+      {/* Backdrop */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -52,14 +76,23 @@ export function CardReveal({
         className="fixed inset-0 z-[60] flex items-end justify-center px-4 pb-6"
         style={{ background: 'var(--overlay)' }}
         onClick={onDismiss}
+        aria-hidden="true"
+      />
+      {/* Dialog */}
+      <div
+        className="fixed inset-0 z-[61] flex items-end justify-center px-4 pb-6 pointer-events-none"
       >
         <motion.div
+          ref={dialogRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={TITLE_ID}
+          tabIndex={-1}
           initial={{ y: 100, opacity: 0, scale: 0.88 }}
           animate={{ y: 0, opacity: 1, scale: 1 }}
           exit={{ y: 100, opacity: 0, scale: 0.92 }}
           transition={{ type: 'spring', stiffness: 340, damping: 30 }}
-          onClick={(e) => e.stopPropagation()}
-          className="relative w-full max-w-sm overflow-hidden"
+          className="relative w-full max-w-sm overflow-hidden pointer-events-auto outline-none"
           style={{
             borderRadius: 'var(--radius-modal)',
             background: 'var(--surface)',
@@ -142,6 +175,7 @@ export function CardReveal({
             </motion.span>
 
             <h3
+              id={TITLE_ID}
               className="mb-3 text-xl font-extrabold"
               style={{ color: 'var(--text-heading)', fontFamily: 'var(--font-display)', fontSize: 'var(--fs-h3)' }}
             >
@@ -187,7 +221,7 @@ export function CardReveal({
             </p>
           </div>
         </motion.div>
-      </motion.div>
+      </div>
     </AnimatePresence>
   )
 }

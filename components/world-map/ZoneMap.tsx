@@ -95,6 +95,7 @@ export function ZoneMap({ zoneId, zoneName, subjectName, theme, subjectColor, no
         <div
           className="relative mx-5"
           style={{ height }}
+          role="region"
           aria-label={`${zoneName} topic map`}
         >
           {/* Adventure trail connecting consecutive topics */}
@@ -177,10 +178,18 @@ export function ZoneMap({ zoneId, zoneName, subjectName, theme, subjectColor, no
             {nodes.length > 0 ? Math.round((completedCount / nodes.length) * 100) : 0}%
           </p>
         </div>
-        <div className="h-2 overflow-hidden rounded-full bg-black/8">
+        <div
+          className="h-2 overflow-hidden rounded-full bg-black/8"
+          role="progressbar"
+          aria-valuenow={completedCount}
+          aria-valuemin={0}
+          aria-valuemax={nodes.length}
+          aria-label={`${zoneName} progress: ${completedCount} of ${nodes.length} topics complete`}
+        >
           <div
             className="h-full rounded-full transition-all duration-500"
             style={{ width: `${nodes.length > 0 ? (completedCount / nodes.length) * 100 : 0}%`, backgroundColor: subjectColor }}
+            aria-hidden
           />
         </div>
       </div>

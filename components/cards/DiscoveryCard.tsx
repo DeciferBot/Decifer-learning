@@ -79,7 +79,7 @@ export function DiscoveryCard({
       <div className="absolute inset-x-0 top-0 h-1" style={{ background: colour }} />
       <div className="flex h-full flex-col gap-2 p-4">
         <div className="flex items-center gap-2">
-          <span style={{ color: colour }}>
+          <span style={{ color: colour }} aria-hidden="true">
             <RarityIcon size={18} />
           </span>
           <span

@@ -110,16 +110,16 @@ export function OrderedList({ items, onAnswer, disabled }: Props) {
                 </div>
               )}
 
-              {/* Result indicator */}
+              {/* Result indicator — symbol is aria-hidden; sr-only text carries the meaning */}
               <AnimatePresence>
                 {submitted && (
                   <motion.span
                     initial={{ opacity: 0, scale: 0.5 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className={`shrink-0 text-lg ${isCorrect ? 'text-correct-700' : 'text-rose-700'}`}
-                    aria-hidden
+                    className={`shrink-0 text-lg ${isCorrect ? 'text-correct' : 'text-incorrect'}`}
                   >
-                    {isCorrect ? '✓' : '✗'}
+                    <span aria-hidden>{isCorrect ? '✓' : '✗'}</span>
+                    <span className="sr-only">{isCorrect ? 'Correct position' : 'Incorrect position'}</span>
                   </motion.span>
                 )}
               </AnimatePresence>

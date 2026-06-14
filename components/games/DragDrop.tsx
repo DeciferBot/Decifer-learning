@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { Sparkles } from '@/components/ui/icons'
@@ -20,30 +20,54 @@ export function DragDrop({ config, topicId }: { config: DragDropConfig; topicId:
   const [definitions] = useState(() => shuffle(pairs.map((p) => p.definition)))
   const [slots, setSlots] = useState<(string | null)[]>(() => Array(pairs.length).fill(null))
   const [slotState, setSlotState] = useState<SlotState[]>(() => Array(pairs.length).fill('empty'))
+  // dragging: tracks the definition being dragged (HTML5 drag API)
   const [dragging, setDragging] = useState<string | null>(null)
+  // selected: the definition the child has tapped/clicked to "hold" (pointer/keyboard alternative)
+  const [selected, setSelected] = useState<string | null>(null)
   const [completed, setCompleted] = useState(false)
   const [score, setScore] = useState(0)
-  // Touch support
-  const touchItem = useRef<string | null>(null)
 
   const placed = new Set(slots.filter(Boolean) as string[])
   const unplaced = definitions.filter((d) => !placed.has(d))
 
-  function onDragStart(def: string) {
-    setDragging(def)
-  }
-
-  function onDrop(slotIndex: number) {
-    if (!dragging) return
-    // Remove dragging def from any other slot
-    const newSlots = slots.map((s) => (s === dragging ? null : s))
+  // Place a definition (from drag, click-select, or keyboard) into a slot
+  function placeInSlot(def: string, slotIndex: number) {
+    const newSlots = slots.map((s) => (s === def ? null : s))
     const newState: SlotState[] = [...slotState]
     newSlots.forEach((s, i) => { if (s === null) newState[i] = 'empty' })
-    newSlots[slotIndex] = dragging
+    newSlots[slotIndex] = def
     newState[slotIndex] = 'empty'
     setSlots(newSlots)
     setSlotState(newState)
     setDragging(null)
+    setSelected(null)
+  }
+
+  function removeFromSlot(slotIndex: number) {
+    const newSlots = [...slots]; newSlots[slotIndex] = null
+    const newState = [...slotState]; newState[slotIndex] = 'empty'
+    setSlots(newSlots); setSlotState(newState)
+  }
+
+  // Handle a click/tap on a definition card from the bank
+  function handleDefClick(def: string) {
+    if (selected === def) {
+      // Deselect
+      setSelected(null)
+    } else {
+      setSelected(def)
+    }
+  }
+
+  // Handle a click/tap on a slot
+  function handleSlotClick(slotIndex: number) {
+    if (selected) {
+      // Place selected definition into this slot
+      placeInSlot(selected, slotIndex)
+    } else if (slots[slotIndex]) {
+      // Return occupant to the bank
+      removeFromSlot(slotIndex)
+    }
   }
 
   function checkAnswers() {
@@ -90,88 +114,108 @@ export function DragDrop({ config, topicId }: { config: DragDropConfig; topicId:
     <div className="space-y-4">
       <div className="flex items-center justify-between text-sm text-muted">
         <span>{config.title}</span>
-        <span>{placed.size} / {pairs.length} placed</span>
+        <span aria-live="polite" aria-atomic="true">{placed.size} / {pairs.length} placed</span>
       </div>
-      <p className="text-sm text-muted">{config.instructions}</p>
+      <p className="text-sm text-muted" id="dragdrop-instructions">
+        {config.instructions}
+        {/* Keyboard/pointer-alternative hint is always shown — no pointer-required language */}
+        {' '}Tap a definition to select it, then tap a slot to place it.
+      </p>
+
+      {/* Status for screen readers when something is selected */}
+      <div aria-live="polite" aria-atomic="true" className="sr-only">
+        {selected ? `"${selected}" selected. Tap a slot to place it.` : ''}
+      </div>
 
       {/* Unplaced definitions bank */}
-      <div className="flex min-h-[56px] flex-wrap gap-2 rounded-xl border border-dashed border-black/15 p-3">
+      <div
+        className="flex min-h-[56px] flex-wrap gap-2 rounded-xl border border-dashed border-black/15 p-3"
+        aria-label="Available definitions"
+      >
         <AnimatePresence>
           {unplaced.map((def) => (
-            <motion.div
+            <motion.button
               key={def}
               layout
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
+              // HTML5 drag API
               draggable
-              onDragStart={() => onDragStart(def)}
+              onDragStart={() => { setDragging(def); setSelected(null) }}
               onDragEnd={() => setDragging(null)}
-              // Touch
-              onTouchStart={() => { touchItem.current = def }}
+              // Tap-to-select (pointer/keyboard alternative — WCAG 2.5.7)
+              onClick={() => handleDefClick(def)}
+              aria-pressed={selected === def}
+              aria-label={selected === def ? `${def} — selected, tap a slot to place` : def}
               className={[
-                'cursor-grab rounded-xl border-2 px-3 py-2 text-sm font-medium select-none active:cursor-grabbing',
-                dragging === def
-                  ? 'border-maths bg-maths/10 text-maths opacity-50'
-                  : 'border-black/15 bg-surface text-ink',
+                'rounded-xl border-2 px-3 py-2 text-sm font-medium select-none transition-colors',
+                'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink',
+                selected === def
+                  ? 'border-maths bg-maths/15 text-maths ring-2 ring-maths ring-offset-1'
+                  : dragging === def
+                  ? 'border-maths bg-maths/10 text-maths opacity-50 cursor-grabbing'
+                  : 'border-black/15 bg-surface text-ink cursor-grab active:cursor-grabbing hover:border-maths',
               ].join(' ')}
               style={{ minHeight: 48 }}
             >
               {def}
-            </motion.div>
+            </motion.button>
           ))}
         </AnimatePresence>
         {unplaced.length === 0 && <p className="text-xs text-muted">All cards placed</p>}
       </div>
 
       {/* Term → slot grid */}
-      <div className="space-y-2">
+      <div className="space-y-2" role="list" aria-label="Match each term to its definition">
         {pairs.map((pair, i) => (
-          <div key={pair.term} className="flex items-center gap-3">
+          <div key={pair.term} className="flex items-center gap-3" role="listitem">
             {/* Term label */}
-            <div className="w-[42%] shrink-0 rounded-xl border border-black/10 bg-background px-3 py-2 text-sm font-bold text-ink" style={{ minHeight: 48 }}>
+            <div
+              className="w-[42%] shrink-0 rounded-xl border border-black/10 bg-background px-3 py-2 text-sm font-bold text-ink"
+              style={{ minHeight: 48 }}
+              aria-label={`Term: ${pair.term}`}
+            >
               {pair.term}
             </div>
-            {/* Drop slot */}
-            <div
+            {/* Drop slot — also acts as tap-to-place target */}
+            <button
               className={[
                 'flex min-h-[48px] flex-1 items-center justify-center rounded-xl border-2 px-3 py-2 text-sm transition-colors',
+                'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink',
                 slotState[i] === 'correct'
                   ? 'border-correct bg-correct/10 text-correct font-bold'
                   : slotState[i] === 'incorrect'
                   ? 'border-incorrect bg-incorrect/10 text-incorrect font-bold'
+                  : selected
+                  ? 'border-maths bg-maths/5 border-dashed cursor-pointer'
                   : dragging
                   ? 'border-maths bg-maths/5 border-dashed'
                   : 'border-dashed border-black/20 bg-white/50 text-muted',
               ].join(' ')}
               onDragOver={(e) => e.preventDefault()}
-              onDrop={() => onDrop(i)}
-              // Tap-to-place on touch
-              onTouchEnd={() => {
-                if (touchItem.current) {
-                  const def = touchItem.current
-                  touchItem.current = null
-                  setDragging(def)
-                  setTimeout(() => { onDrop(i); setDragging(null) }, 0)
-                }
-              }}
+              onDrop={() => { if (dragging) placeInSlot(dragging, i) }}
+              onClick={() => handleSlotClick(i)}
+              aria-label={
+                slots[i]
+                  ? `${pair.term} matched with "${slots[i]}" — ${slotState[i] === 'correct' ? 'correct' : slotState[i] === 'incorrect' ? 'incorrect' : 'tap to remove'}`
+                  : selected
+                  ? `Place "${selected}" here for ${pair.term}`
+                  : `Empty slot for ${pair.term}`
+              }
             >
               {slots[i] ? (
-                <div
-                  className="flex w-full cursor-pointer items-center justify-between"
-                  onClick={() => {
-                    const newSlots = [...slots]; newSlots[i] = null
-                    const newState = [...slotState]; newState[i] = 'empty'
-                    setSlots(newSlots); setSlotState(newState)
-                  }}
-                >
+                <span className="flex w-full items-center justify-between gap-2">
                   <span>{slots[i]}</span>
-                  <span className="text-muted text-xs ml-2">✕</span>
-                </div>
+                  {/* Screen reader text for the remove action */}
+                  <span className="text-muted text-xs" aria-hidden>✕</span>
+                </span>
               ) : (
-                <span className="text-xs">Drop here</span>
+                <span className="text-xs" aria-hidden>
+                  {selected ? 'Place here' : 'Drop here'}
+                </span>
               )}
-            </div>
+            </button>
           </div>
         ))}
       </div>
@@ -183,6 +227,7 @@ export function DragDrop({ config, topicId }: { config: DragDropConfig; topicId:
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="text-center text-sm text-muted"
+            aria-live="polite"
           >
             {score} correct — fix the highlighted ones and try again!
           </motion.p>
@@ -192,7 +237,7 @@ export function DragDrop({ config, topicId }: { config: DragDropConfig; topicId:
       <button
         onClick={checkAnswers}
         disabled={!allFilled}
-        className="min-h-[48px] w-full rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white shadow-sm transition-opacity hover:opacity-90 disabled:opacity-40"
+        className="min-h-[48px] w-full rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white shadow-sm transition-opacity hover:opacity-90 disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
       >
         Check Answers
       </button>

@@ -15,6 +15,7 @@ export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
+import { alertPipelineFailure } from '@/lib/pipeline-alert'
 
 // Vercel Cron invokes the path with a GET request (and an Authorization: Bearer <CRON_SECRET>
 // header when CRON_SECRET is configured). POST stays exported for manual/local invocation.
@@ -38,6 +39,13 @@ async function handler(req: Request) {
   const hasErrors = e1 || e2 || e3 || e4 || e5 || e6
   if (hasErrors) {
     console.error('[anomaly-detect] RPC errors (partial results will still be logged)', rpcErrors)
+    await alertPipelineFailure({
+      job: 'anomaly-detect',
+      reason: 'One or more anomaly-detection RPCs failed',
+      context: Object.fromEntries(
+        Object.entries(rpcErrors).filter(([, v]) => v).map(([k, v]) => [k, String(v?.message ?? v)]),
+      ),
+    })
   }
 
   const summary = {

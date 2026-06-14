@@ -66,11 +66,19 @@ export function FillBlank({ config, topicId }: { config: Config; topicId: string
         </span>
       </div>
 
-      <div className="h-2 overflow-hidden rounded-full bg-black/5">
+      <div
+        className="h-2 overflow-hidden rounded-full bg-black/5"
+        role="progressbar"
+        aria-valuenow={index + 1}
+        aria-valuemin={1}
+        aria-valuemax={total}
+        aria-label={`Question ${index + 1} of ${total}`}
+      >
         <motion.div
           className="h-full rounded-full bg-maths"
           animate={{ width: `${(index / total) * 100}%` }}
           transition={{ duration: 0.3 }}
+          aria-hidden
         />
       </div>
 
@@ -121,22 +129,28 @@ export function FillBlank({ config, topicId }: { config: Config; topicId: string
             </button>
           </div>
 
-          <AnimatePresence>
-            {feedback && (
-              <motion.p
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                className={`mt-3 text-center font-bold ${
-                  feedback === 'correct' ? 'text-correct' : 'text-incorrect'
-                }`}
-              >
-                {feedback === 'correct'
-                  ? <span className="flex items-center justify-center gap-1"><Check className="w-4 h-4" aria-hidden /> Correct!</span>
-                  : `✗ The answer is ${q.answer} — moving on…`}
-              </motion.p>
-            )}
-          </AnimatePresence>
+          {/* aria-live so screen readers announce the result without moving focus */}
+          <div aria-live="polite" aria-atomic="true">
+            <AnimatePresence>
+              {feedback && (
+                <motion.p
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  className={`mt-3 text-center font-bold ${
+                    feedback === 'correct' ? 'text-correct' : 'text-incorrect'
+                  }`}
+                >
+                  {feedback === 'correct'
+                    ? <span className="flex items-center justify-center gap-1"><Check className="w-4 h-4" aria-hidden /> Correct!</span>
+                    : <span>
+                        <span aria-hidden>✗ </span>
+                        Incorrect. The answer is {q.answer} — moving on…
+                      </span>}
+                </motion.p>
+              )}
+            </AnimatePresence>
+          </div>
         </motion.div>
       </AnimatePresence>
     </div>

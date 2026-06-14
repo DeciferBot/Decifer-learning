@@ -117,9 +117,9 @@ export default async function PractisePage({ params }: { params: { id: string } 
         <span className="font-medium text-ink">Practise</span>
       </nav>
 
-      <div className="flex gap-2">
+      <div className="flex gap-2" aria-label="Topic steps">
         <span className="rounded-full bg-black/10 px-3 py-1 text-xs font-bold text-muted">1 Learn</span>
-        <span className="rounded-full bg-maths px-3 py-1 text-xs font-bold text-white">2 Practise</span>
+        <span className="rounded-full bg-maths px-3 py-1 text-xs font-bold text-white" aria-current="step">2 Practise</span>
         <span className="rounded-full bg-black/10 px-3 py-1 text-xs font-bold text-muted">3 Quiz</span>
       </div>
 

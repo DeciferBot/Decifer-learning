@@ -9,6 +9,8 @@ export function HeartsDisplay({ hearts, max = 3 }: { hearts: number; max?: numbe
       className="flex gap-1"
       role="img"
       aria-label={`${hearts} of ${max} hearts remaining`}
+      aria-live="polite"
+      aria-atomic="true"
     >
       {Array.from({ length: max }).map((_, i) => (
         <AnimatePresence key={i} mode="wait">

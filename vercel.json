@@ -14,6 +14,10 @@
       "schedule": "0 23 * * *"
     },
     {
+      "path": "/api/cron/calibrate-difficulty",
+      "schedule": "0 1 * * *"
+    },
+    {
       "path": "/api/cron/anomaly-detect",
       "schedule": "0 2 * * *"
     },

@@ -54,8 +54,11 @@ export function ReportProblemButton({ questionId }: Props) {
   if (state === 'open' || state === 'submitting') {
     return (
       <div className="mt-3 rounded-2xl border border-black/10 bg-black/[0.02] p-4 space-y-3">
-        <p className="text-xs font-semibold text-ink">What&apos;s wrong with this question?</p>
+        <label htmlFor="report-reason" className="text-xs font-semibold text-ink">
+          What&apos;s wrong with this question?
+        </label>
         <textarea
+          id="report-reason"
           value={reason}
           onChange={(e) => setReason(e.target.value)}
           maxLength={280}
@@ -63,20 +66,25 @@ export function ReportProblemButton({ questionId }: Props) {
           placeholder="e.g. The answer seems wrong, or the question is confusing…"
           className="w-full resize-none rounded-xl border border-black/10 bg-surface px-3 py-2 text-sm text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-brand/40"
           disabled={state === 'submitting'}
+          aria-describedby={error ? 'report-error' : undefined}
         />
-        {error && <p className="text-xs text-incorrect">{error}</p>}
+        {error && (
+          <p id="report-error" role="alert" className="text-xs text-incorrect">
+            {error}
+          </p>
+        )}
         <div className="flex gap-2">
           <button
             onClick={submit}
             disabled={state === 'submitting'}
-            className="flex h-9 items-center justify-center rounded-xl bg-brand px-4 text-xs font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+            className="inline-flex min-h-[48px] items-center justify-center rounded-xl bg-brand px-4 text-xs font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
           >
             {state === 'submitting' ? 'Sending…' : 'Send report'}
           </button>
           <button
             onClick={() => { setState('idle'); setReason(''); setError(null) }}
             disabled={state === 'submitting'}
-            className="flex h-9 items-center justify-center rounded-xl border border-black/10 px-4 text-xs font-medium text-muted hover:text-ink"
+            className="inline-flex min-h-[48px] items-center justify-center rounded-xl border border-black/10 px-4 text-xs font-medium text-muted hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
           >
             Cancel
           </button>
@@ -89,7 +97,7 @@ export function ReportProblemButton({ questionId }: Props) {
   return (
     <button
       onClick={() => setState('open')}
-      className="mt-3 flex items-center gap-1 text-xs text-muted hover:text-ink transition-colors"
+      className="mt-3 inline-flex min-h-[48px] items-center gap-1 text-xs text-muted hover:text-ink transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
     >
       <Flag className="w-3.5 h-3.5" aria-hidden /> Report a problem
     </button>

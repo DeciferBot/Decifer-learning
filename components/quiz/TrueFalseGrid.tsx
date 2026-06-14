@@ -111,16 +111,16 @@ export function TrueFalseGrid({ statements, onAnswer, disabled }: Props) {
               </button>
             </div>
 
-            {/* Result indicator */}
+            {/* Result indicator — symbol is aria-hidden; sr-only text carries the meaning */}
             <AnimatePresence>
               {submitted && (
                 <motion.span
                   initial={{ opacity: 0, scale: 0.5 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className={`shrink-0 text-lg ${isCorrect ? 'text-correct-700' : 'text-rose-700'}`}
-                  aria-hidden
+                  className={`shrink-0 text-lg ${isCorrect ? 'text-correct' : 'text-incorrect'}`}
                 >
-                  {isCorrect ? '✓' : '✗'}
+                  <span aria-hidden>{isCorrect ? '✓' : '✗'}</span>
+                  <span className="sr-only">{isCorrect ? 'Correct' : 'Incorrect'}</span>
                 </motion.span>
               )}
             </AnimatePresence>
