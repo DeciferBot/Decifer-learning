@@ -400,8 +400,8 @@ export function WonderOverlay({ type, planetName, onClose }: {
           {type === 'gravity'         && <GravityViz planetName={planetName} />}
         </div>
 
-        {/* Close button at bottom */}
-        <div className="flex-none px-6 pb-6">
+        {/* Close button at bottom — clear of the iOS home indicator */}
+        <div className="flex-none px-6 pb-6" style={{ paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }}>
           <button
             onClick={onClose}
             className="w-full rounded-2xl py-3 text-sm font-bold text-white active:scale-95 transition-transform"

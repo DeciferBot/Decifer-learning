@@ -145,8 +145,12 @@ export function AskDecifer({ aid, initialContext, yearGroup, onAskCountChange }:
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 320 }}
-            className="fixed inset-x-0 bottom-0 z-50 flex flex-col rounded-t-3xl shadow-2xl"
+            className="fixed inset-x-0 z-50 flex flex-col rounded-t-3xl shadow-2xl"
             style={{
+              // Anchor above the fixed bottom tab bar (+ iOS home indicator) so
+              // the input row is always visible and tappable, never hidden
+              // behind the nav. See --bottom-nav-clearance in tokens.css.
+              bottom: 'var(--bottom-nav-clearance)',
               height: '65vh',
               background: 'linear-gradient(160deg, #1a1a3e 0%, #0d0d20 100%)',
               border: '1px solid rgba(255,255,255,0.1)',

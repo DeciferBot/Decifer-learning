@@ -26,8 +26,8 @@ function InfoPanel({ e, wide, attribution, muted, onToggleMute, onClose, onAskDe
   const motionProps = wide ? { initial: { x: '100%' }, animate: { x: 0 }, exit: { x: '100%' } } : { initial: { y: '100%' }, animate: { y: 0 }, exit: { y: '100%' } }
   const className = wide ? 'fixed right-0 top-0 bottom-0 z-50 w-[min(384px,92vw)] overflow-y-auto' : 'fixed inset-x-0 bottom-0 z-50 rounded-t-3xl overflow-y-auto'
   const style: React.CSSProperties = wide
-    ? { maxHeight: '100dvh', background: PANEL_BG, borderLeft: '1px solid rgba(255,255,255,0.1)', paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }
-    : { maxHeight: '62dvh', background: PANEL_BG, border: '1px solid rgba(255,255,255,0.1)', paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }
+    ? { maxHeight: '100dvh', background: PANEL_BG, borderLeft: '1px solid rgba(255,255,255,0.1)', paddingBottom: 'calc(var(--bottom-nav-clearance) + 1.5rem)' }
+    : { maxHeight: '62dvh', background: PANEL_BG, border: '1px solid rgba(255,255,255,0.1)', paddingBottom: 'calc(var(--bottom-nav-clearance) + 1.5rem)' }
   return (
     <motion.div key={e.key} {...motionProps} transition={{ type: 'spring', damping: 28, stiffness: 300 }} className={className} style={style}>
       <div className="sticky top-0 z-10 px-5 pt-5 pb-3" style={{ background: PANEL_BG }}>

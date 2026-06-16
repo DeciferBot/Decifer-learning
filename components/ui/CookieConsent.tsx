@@ -30,6 +30,8 @@ export function CookieConsent() {
       role="dialog"
       aria-label="Cookie consent"
       className="fixed bottom-0 left-0 right-0 z-50 border-t border-black/10 bg-surface px-4 py-4 shadow-lg sm:bottom-4 sm:left-4 sm:right-auto sm:max-w-sm sm:rounded-xl sm:border"
+      // Keep the button clear of the iOS home indicator when docked at bottom-0.
+      style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}
     >
       <p className="text-sm leading-relaxed text-ink">
         We use essential cookies to keep you logged in and remember your preferences. No tracking

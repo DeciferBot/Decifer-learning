@@ -378,6 +378,19 @@
 
 
   /* ─────────────────────────────────────────────────────────
+     9b. BOTTOM-NAV CLEARANCE
+     Single source of truth for any fixed/bottom-anchored overlay
+     (chat panels, bottom sheets, toasts) that must sit clear of the
+     fixed bottom tab bar. --bottom-nav-height mirrors BottomNav's
+     56px tab height; --bottom-nav-clearance adds the iOS home-indicator
+     safe-area so a sheet's interactive bottom edge is never hidden
+     behind the nav. Reference via var(--bottom-nav-clearance).
+     ───────────────────────────────────────────────────────── */
+  --bottom-nav-height:    56px;
+  --bottom-nav-clearance: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px));
+
+
+  /* ─────────────────────────────────────────────────────────
      10. Z-INDEX SCALE
      ───────────────────────────────────────────────────────── */
   --z-base:         0;
