@@ -6,6 +6,7 @@ Phase 11A endpoints (pipeline/admin only — not child-facing):
   POST /verify/english              test the English verifier
   POST /verify/physics              test the physics verifier
   POST /verify/chemistry            test the chemistry verifier
+  POST /tts                         synthesise narration audio with Piper (WAV)
   POST /ingest                      seed curriculum_chunks with embedded text
   POST /generate                    run the 6-stage pipeline for a topic + tier
   POST /generate/batch              batch generation for multiple topics/tiers (tracked)
@@ -23,6 +24,7 @@ import sys
 from typing import Optional
 
 from fastapi import BackgroundTasks, FastAPI, HTTPException
+from fastapi.responses import Response
 from pydantic import BaseModel
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
@@ -113,6 +115,60 @@ def verify_chemistry(req: VerifyChemistryRequest) -> VerifyResponse:
     from verifiers import chemistry as cv
     verified, detail = cv.verify(req.model_dump())
     return VerifyResponse(verified=verified, detail=detail)
+
+
+# ── /tts ──────────────────────────────────────────────────────────────────
+# Synthesise narration audio with Piper (offline, CPU, no API key). Used by the
+# Explore tab via the Next.js /api/explore/tts route, which caches the WAV in
+# Supabase Storage — so this only runs on a cache miss, never per playback.
+# Returns raw WAV bytes (audio/wav). Voice: en_GB-jenny_dioco-medium (UK female).
+
+PIPER_BIN = os.environ.get("PIPER_BIN", "/opt/piper/piper")
+PIPER_VOICE = os.environ.get(
+    "PIPER_VOICE", "/opt/piper/voices/en_GB-jenny_dioco-medium.onnx"
+)
+# Piper's bundled onnxruntime / phonemize libs ship beside the binary. Scope
+# LD_LIBRARY_PATH to the subprocess only so it never clashes with the Python
+# process's own libraries.
+PIPER_LIB_DIR = os.environ.get("PIPER_LIB_DIR", "/opt/piper")
+
+
+class TTSRequest(BaseModel):
+    text: str
+
+
+@app.post("/tts")
+def tts(req: TTSRequest) -> Response:
+    import subprocess
+    import tempfile
+
+    text = " ".join((req.text or "").split())[:2000]
+    if not text:
+        raise HTTPException(status_code=400, detail="text required")
+
+    try:
+        with tempfile.NamedTemporaryFile(suffix=".wav") as tmp:
+            subprocess.run(
+                [PIPER_BIN, "--model", PIPER_VOICE, "--output_file", tmp.name],
+                input=text.encode("utf-8"),
+                capture_output=True,
+                timeout=60,
+                check=True,
+                cwd=PIPER_LIB_DIR,
+                env={**os.environ, "LD_LIBRARY_PATH": PIPER_LIB_DIR},
+            )
+            tmp.seek(0)
+            audio = tmp.read()
+    except subprocess.CalledProcessError as exc:
+        log.error("piper failed: %s", exc.stderr.decode("utf-8", "ignore")[:500])
+        raise HTTPException(status_code=502, detail="tts synthesis failed")
+    except Exception as exc:  # noqa: BLE001 — surface any synth failure as 502
+        log.error("tts error: %s", exc)
+        raise HTTPException(status_code=502, detail="tts unavailable")
+
+    if not audio:
+        raise HTTPException(status_code=502, detail="tts produced no audio")
+    return Response(content=audio, media_type="audio/wav")
 
 
 # ── /ingest ───────────────────────────────────────────────────────────────

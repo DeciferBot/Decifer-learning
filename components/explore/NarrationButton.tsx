@@ -14,197 +14,149 @@ interface NarrationButtonProps {
   onComplete?: () => void
 }
 
-// Detect iOS Safari — speechSynthesis requires a user gesture there, autoPlay won't work
-function isIOS(): boolean {
-  if (typeof navigator === 'undefined') return false
-  return /iphone|ipad|ipod/i.test(navigator.userAgent) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
-}
+// Narration is synthesised server-side with one fixed OpenAI voice and cached
+// in Supabase Storage (see lib/explore/tts.ts + /api/explore/tts). This replaces
+// the old Web Speech API path, where each device used whatever voice it had
+// installed — the same narration could sound like a warm lady on one phone and
+// a robotic man on another. Now every device plays the identical MP3.
 
-// Rank the available voices for the most natural UK-English read. Quality
-// markers ("Enhanced"/"Premium" on Apple, "Natural" on Microsoft, "Neural")
-// and Google's network voices sound dramatically more human than the basic
-// built-ins — we deliberately do NOT prefer localService, which would exclude
-// them. Falls through to any en-GB, then any English voice.
-function pickBestVoice(voices: SpeechSynthesisVoice[]): SpeechSynthesisVoice | null {
-  if (voices.length === 0) return null
-  const enGB = voices.filter(v => v.lang === 'en-GB')
-  const enAny = voices.filter(v => v.lang.toLowerCase().startsWith('en'))
-  const isPremium = (v: SpeechSynthesisVoice) => /enhanced|premium|neural|natural/i.test(v.name)
-  const isGoogle = (v: SpeechSynthesisVoice) => /google/i.test(v.name)
-  const isNamedUK = (v: SpeechSynthesisVoice) =>
-    /daniel|arthur|oliver|george|ryan|kate|serena|stephanie|sonia|libby|hazel/i.test(v.name)
-  return (
-    enGB.find(isPremium) ||
-    enGB.find(isGoogle) ||
-    enGB.find(isNamedUK) ||
-    enGB[0] ||
-    enAny.find(isPremium) ||
-    enAny.find(isGoogle) ||
-    enAny[0] ||
-    null
-  )
-}
+// The single audio element currently playing anywhere in the app. Mirrors the
+// old global speechSynthesis.cancel() so stopNarration() can silence narration
+// on navigation/unmount regardless of which button started it.
+let activeAudio: HTMLAudioElement | null = null
 
-// Break narration into sentence-sized chunks. Each becomes its own queued
-// utterance, which yields a natural micro-pause between sentences and keeps
-// every utterance comfortably under Chrome's ~15s cutoff.
-function splitIntoSentences(text: string): string[] {
-  const normalised = text.replace(/\s+/g, ' ').trim()
-  if (!normalised) return []
-  const matches = normalised.match(/[^.!?]+[.!?]+(?:["'”’)\]]+)?|[^.!?]+$/g)
-  return (matches ?? [normalised]).map(s => s.trim()).filter(Boolean)
+function stopActiveAudio() {
+  if (activeAudio) {
+    activeAudio.pause()
+    activeAudio.onended = null
+    activeAudio.onerror = null
+    activeAudio = null
+  }
 }
 
 export function NarrationButton({ text, muted, onToggleMute, autoPlay = false, onComplete }: NarrationButtonProps) {
   const [speaking, setSpeaking] = useState(false)
-  const [supported, setSupported] = useState(false)
+  const [loading, setLoading] = useState(false)
   const mountedRef = useRef(true)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
   // Always hold latest text + muted + onComplete in refs so closures are never stale
   const textRef = useRef(text)
   const mutedRef = useRef(muted)
   const onCompleteRef = useRef(onComplete)
-  // Marks the active utterance as cancelled so its onend (which the browser also
-  // fires on cancel()) does NOT count as a natural completion.
-  const cancelActiveRef = useRef<(() => void) | null>(null)
-  // Holds any pending voiceschanged listener so it can be cleaned up on unmount
-  const voicesHandlerRef = useRef<(() => void) | null>(null)
-  // Chrome cuts long utterances off after ~15s; a periodic pause()+resume()
-  // keeps the queue alive. Cleared whenever speech stops. (chromium #679437)
-  const keepAliveRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  // Bumped on every (re)start so an in-flight fetch/playback for stale text is
+  // ignored and never fires onComplete (mute/switch/stop/unmount all bump it).
+  const tokenRef = useRef(0)
+  const abortRef = useRef<AbortController | null>(null)
   textRef.current = text
   mutedRef.current = muted
   onCompleteRef.current = onComplete
 
-  useEffect(() => {
-    setSupported('speechSynthesis' in window)
-    return () => {
-      mountedRef.current = false
-      // Remove any orphaned voiceschanged listener if component unmounts before voices load
-      if (voicesHandlerRef.current) {
-        window.speechSynthesis?.removeEventListener('voiceschanged', voicesHandlerRef.current)
-        voicesHandlerRef.current = null
-      }
-      if (keepAliveRef.current) {
-        clearInterval(keepAliveRef.current)
-        keepAliveRef.current = null
-      }
-    }
-  }, [])
-
-  const clearKeepAlive = useCallback(() => {
-    if (keepAliveRef.current) {
-      clearInterval(keepAliveRef.current)
-      keepAliveRef.current = null
-    }
+  // One audio element per button, created lazily on the client only.
+  const getAudio = useCallback(() => {
+    if (!audioRef.current) audioRef.current = new Audio()
+    return audioRef.current
   }, [])
 
   const stop = useCallback(() => {
-    // Mark the current utterance cancelled before cancelling so its onend is
-    // not mistaken for a natural completion.
-    cancelActiveRef.current?.()
-    clearKeepAlive()
-    if ('speechSynthesis' in window) window.speechSynthesis.cancel()
-    if (mountedRef.current) setSpeaking(false)
-  }, [clearKeepAlive])
+    tokenRef.current += 1 // invalidate any in-flight fetch/playback
+    abortRef.current?.abort()
+    const audio = audioRef.current
+    if (audio) {
+      audio.pause()
+      audio.onended = null
+      audio.onerror = null
+    }
+    if (activeAudio && activeAudio === audio) activeAudio = null
+    if (mountedRef.current) {
+      setSpeaking(false)
+      setLoading(false)
+    }
+  }, [])
 
-  // Returns a function that speaks the current text. Uses refs so it's always fresh.
-  const speakCurrent = useCallback(() => {
-    if (!('speechSynthesis' in window) || mutedRef.current) return
-    // Suppress completion for any previous utterance before replacing it.
-    cancelActiveRef.current?.()
-    clearKeepAlive()
-    window.speechSynthesis.cancel()
+  // Fetch (or cache-hit) the narration audio for the current text, then play it.
+  const speak = useCallback(() => {
+    if (mutedRef.current) return
+    const myToken = ++tokenRef.current
+    abortRef.current?.abort()
+    const controller = new AbortController()
+    abortRef.current = controller
+    if (mountedRef.current) setLoading(true)
 
-    let cancelled = false
-    cancelActiveRef.current = () => { cancelled = true }
-
-    // Speak the text as a queue of per-sentence utterances. Short utterances
-    // give more natural cadence (a brief gap between sentences) and avoid
-    // Chrome's ~15s long-utterance cutoff. onComplete fires only when the LAST
-    // chunk reaches its natural end — never on cancel/mute/switch/unmount.
-    const startSpeaking = () => {
-      if (cancelled || !mountedRef.current) return
-      const voice = pickBestVoice(window.speechSynthesis.getVoices())
-      const chunks = splitIntoSentences(textRef.current)
-      if (chunks.length === 0) return
-
-      // Keep-alive backstop for Chrome's cutoff bug on any long sentence.
-      keepAliveRef.current = setInterval(() => {
-        if (cancelled) { clearKeepAlive(); return }
-        window.speechSynthesis.pause()
-        window.speechSynthesis.resume()
-      }, 10000)
-
-      chunks.forEach((chunk, i) => {
-        const utter = new SpeechSynthesisUtterance(chunk)
-        utter.lang = 'en-GB'
-        // Natural defaults: pitch 1 is the platform baseline; a hair under 1.0
-        // rate reads a touch slower for children without sounding sedated.
-        utter.rate = 0.96
-        utter.pitch = 1.0
-        utter.volume = 1
-        if (voice) utter.voice = voice
-
-        if (i === 0) {
-          utter.onstart = () => { if (mountedRef.current && !cancelled) setSpeaking(true) }
-        }
-        if (i === chunks.length - 1) {
-          utter.onend = () => {
-            clearKeepAlive()
-            if (mountedRef.current) setSpeaking(false)
-            // Natural end only — cancelled utterances skip the reward.
-            if (!cancelled) onCompleteRef.current?.()
-          }
-        }
-        utter.onerror = () => {
-          clearKeepAlive()
-          if (mountedRef.current) setSpeaking(false)
-        }
-
-        window.speechSynthesis.speak(utter)
+    fetch('/api/explore/tts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: textRef.current }),
+      signal: controller.signal,
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error(`tts ${res.status}`)
+        return res.json() as Promise<{ url: string }>
       })
-    }
+      .then(({ url }) => {
+        // Stale (text changed / stopped / muted / unmounted) — drop it silently.
+        if (myToken !== tokenRef.current || !mountedRef.current || mutedRef.current) return
+        stopActiveAudio()
+        const audio = getAudio()
+        audio.src = url
+        activeAudio = audio
+        audio.onended = () => {
+          if (activeAudio === audio) activeAudio = null
+          if (mountedRef.current) setSpeaking(false)
+          // Natural end only — a stop/switch bumps the token first.
+          if (myToken === tokenRef.current) onCompleteRef.current?.()
+        }
+        audio.onerror = () => {
+          if (mountedRef.current) { setSpeaking(false); setLoading(false) }
+        }
+        audio
+          .play()
+          .then(() => {
+            if (myToken === tokenRef.current && mountedRef.current) {
+              setSpeaking(true)
+              setLoading(false)
+            }
+          })
+          .catch(() => {
+            // Autoplay blocked (e.g. iOS before a user gesture) — leave the
+            // Listen button so the child can start it with a tap.
+            if (mountedRef.current) { setSpeaking(false); setLoading(false) }
+          })
+      })
+      .catch(() => {
+        if (mountedRef.current && myToken === tokenRef.current) setLoading(false)
+      })
+  }, [getAudio])
 
-    // Voices may not be ready yet — wait for voiceschanged (fires once on
-    // Chrome/Firefox) so we don't fall back to a worse default voice.
-    if (window.speechSynthesis.getVoices().length === 0) {
-      const handler = () => {
-        window.speechSynthesis.removeEventListener('voiceschanged', handler)
-        voicesHandlerRef.current = null
-        startSpeaking()
-      }
-      voicesHandlerRef.current = handler
-      window.speechSynthesis.addEventListener('voiceschanged', handler)
-    } else {
-      startSpeaking()
-    }
-  }, [clearKeepAlive]) // stable — reads from refs
-
-  // Auto-play when text changes (planet switches). Deps: [text] only — intentional.
-  // Uses refs for muted/speak so no stale-closure risk.
   useEffect(() => {
-    // autoPlay is disabled on iOS Safari — requires user gesture
-    if (!autoPlay || !supported || isIOS()) return
-    const t = setTimeout(speakCurrent, 600)
+    mountedRef.current = true
+    return () => {
+      mountedRef.current = false
+      stop()
+    }
+  }, [stop])
+
+  // Auto-play when text changes (item switches). Deps: [text] only — intentional.
+  // Attempted on every platform; the play() catch handles browsers that block
+  // autoplay until a user gesture.
+  useEffect(() => {
+    if (!autoPlay) return
+    const t = setTimeout(speak, 400)
     return () => {
       clearTimeout(t)
       stop()
     }
-  }, [text, autoPlay, supported, speakCurrent, stop])
+  }, [text, autoPlay, speak, stop])
 
   // Stop when muted mid-speech
   useEffect(() => {
     if (muted) stop()
   }, [muted, stop])
 
-  if (!supported) return null
-
   return (
     <div className="flex items-center gap-2">
       {/* Play/stop — tap target wrapped to 48px */}
       <button
-        onClick={speaking ? stop : speakCurrent}
+        onClick={speaking ? stop : speak}
         className="flex items-center gap-1.5 rounded-full px-4 text-xs font-semibold text-white transition-all active:scale-95"
         style={{
           background: speaking ? 'rgba(108,158,255,0.25)' : 'rgba(255,255,255,0.1)',
@@ -222,7 +174,7 @@ export function NarrationButton({ text, muted, onToggleMute, autoPlay = false, o
         ) : (
           <>
             <span>🔊</span>
-            <span>Listen</span>
+            <span>{loading ? 'Loading…' : 'Listen'}</span>
           </>
         )}
       </button>
@@ -261,5 +213,5 @@ function Waveform() {
 }
 
 export function stopNarration() {
-  if ('speechSynthesis' in window) window.speechSynthesis.cancel()
+  stopActiveAudio()
 }
