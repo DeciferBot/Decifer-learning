@@ -32,6 +32,10 @@
     {
       "path": "/api/cron/oak-refresh",
       "schedule": "0 4 * * *"
+    },
+    {
+      "path": "/api/cron/generate-content",
+      "schedule": "0 0 * * *"
     }
   ]
 }
