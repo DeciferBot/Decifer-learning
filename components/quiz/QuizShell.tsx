@@ -114,6 +114,7 @@ export function QuizShell({
   winMessage = 'Topic complete!',
   isGuardian = false,
   zoneName = '',
+  nextTopic = null,
 }: {
   questions: QuizQuestion[]
   topicId: string | null
@@ -125,6 +126,10 @@ export function QuizShell({
   winMessage?: string
   isGuardian?: boolean
   zoneName?: string
+  // The next topic in this zone — drives the "Continue" CTA and the unlock
+  // celebration on a passing result. newlyUnlocked = the child hasn't completed
+  // it yet (i.e. this pass just opened it up).
+  nextTopic?: { id: string; title: string; newlyUnlocked: boolean } | null
 }) {
   // Difficulty selection — shown before quiz starts
   const [difficulty, setDifficulty] = useState<DifficultyChoice | null>(null)
@@ -588,7 +593,36 @@ export function QuizShell({
             </div>
           )}
 
+          {/* Unlock celebration — only when this pass opens a new topic */}
+          {passed && nextTopic?.newlyUnlocked && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+              className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-science/15 px-4 py-1.5 text-sm font-bold text-science"
+            >
+              <Sparkles className="w-4 h-4 flex-none" aria-hidden /> New topic unlocked!
+            </motion.div>
+          )}
+
           <div className="mt-6 flex flex-col gap-3">
+            {/* Primary forward path — continue the adventure, never a dead-end */}
+            {passed && nextTopic && (
+              <Link
+                href={`/topics/${nextTopic.id}/learn`}
+                className="inline-flex min-h-[48px] items-center justify-center rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white transition-opacity hover:opacity-90"
+              >
+                {nextTopic.newlyUnlocked ? 'Start' : 'Next'}: {nextTopic.title} →
+              </Link>
+            )}
+            {passed && !nextTopic && (
+              <Link
+                href="/world-map"
+                className="inline-flex min-h-[48px] items-center justify-center rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white transition-opacity hover:opacity-90"
+              >
+                See your World Map →
+              </Link>
+            )}
             {passed && (
               <Link
                 href="/collection"

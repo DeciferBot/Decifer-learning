@@ -16,7 +16,7 @@ import { getCurriculumProgress } from '@/lib/parent-dashboard'
 import { StreakPing } from './StreakPing'
 import { getVaultStatus } from '@/lib/vault/status'
 import { NewParentLinkNotice } from './NewParentLinkNotice'
-import { MapFold, Layers, Star, Target, Trophy, PencilLine, Microscope, BookOpen, Gift, Flame, Zap, MapPin } from '@/components/ui/icons'
+import { MapFold, Layers, Star, Target, Trophy, PencilLine, Microscope, BookOpen, Gift, Flame, Zap, MapPin, RefreshCw } from '@/components/ui/icons'
 
 export const metadata = { title: 'Dashboard — Decifer Learning' }
 
@@ -64,8 +64,8 @@ export default async function ChildDashboardPage() {
       })
     : null
 
-  // Fire all independent DB queries in parallel — topics, collection count, vault, assigned focus topics, curriculum progress
-  const [topicRows, collectionCount, vaultResult, assignedMissions, curriculumSubjects] = await Promise.all([
+  // Fire all independent DB queries in parallel — topics, collection count, vault, assigned focus topics, curriculum progress, spaced-repetition reviews due
+  const [topicRows, collectionCount, vaultResult, assignedMissions, curriculumSubjects, dueReviews] = await Promise.all([
     profile?.year_group_id
       ? prisma.topic.findMany({
           where: { year_group_id: profile.year_group_id, is_published: true },
@@ -98,6 +98,14 @@ export default async function ChildDashboardPage() {
       : Promise.resolve([]),
     profile?.id && profile?.year_group_id
       ? getCurriculumProgress(profile.id, profile.year_group_id)
+      : Promise.resolve([]),
+    profile?.id
+      ? prisma.topicProgress.findMany({
+          where: { profile_id: profile.id, status: 'completed', sr_next_review: { lte: new Date() } },
+          include: { topic: { select: { id: true, title: true, is_published: true, subject: { select: { name: true, colour_token: true } } } } },
+          orderBy: { sr_next_review: 'asc' },
+          take: 4,
+        })
       : Promise.resolve([]),
   ])
 
@@ -133,6 +141,19 @@ export default async function ChildDashboardPage() {
   )
   const vaultCredits = vaultResult?.creditBalance ?? 0
   const vaultBand = vaultResult?.currentBand ?? 'none'
+
+  // Spaced-repetition reviews due today — only surface published topics that
+  // still have a quiz to replay. SM-2 schedules these; this is where they finally
+  // become visible to the child (previously computed but never shown).
+  const hasQuizMap = new Map<string, boolean>(topicRows.map((t) => [t.id, t._count.quiz_questions > 0]))
+  const revisitDue = dueReviews
+    .filter((r) => r.topic?.is_published && hasQuizMap.get(r.topic.id))
+    .map((r) => ({
+      id: r.topic!.id,
+      title: r.topic!.title,
+      subject: r.topic!.subject.name,
+      colour: r.topic!.subject.colour_token,
+    }))
 
   return (
     <section className="space-y-5">
@@ -283,6 +304,54 @@ export default async function ChildDashboardPage() {
         </div>
       )}
 
+      {/* ── Time to revisit (spaced repetition) ──────────────────────────── */}
+      {revisitDue.length > 0 && (
+        <div className="rounded-2xl border-2 border-explorer/40 bg-explorer/8 px-4 py-4 space-y-2">
+          <p className="text-xs font-bold uppercase tracking-widest text-explorer flex items-center gap-1.5">
+            <RefreshCw className="w-3.5 h-3.5" aria-hidden /> Time to revisit
+          </p>
+          <p className="-mt-1 text-xs text-muted">A quick replay locks these into your memory.</p>
+          <ul className="space-y-1.5">
+            {revisitDue.map((t) => (
+              <li key={t.id}>
+                <Link
+                  href={`/topics/${t.id}/quiz`}
+                  className="flex items-center justify-between gap-3 rounded-xl bg-white/60 px-3 py-2.5 transition-colors hover:bg-white"
+                >
+                  <div className="flex min-w-0 items-center gap-2">
+                    <span className="h-2.5 w-2.5 flex-none rounded-full" style={{ backgroundColor: t.colour }} />
+                    <span className="truncate text-sm font-semibold text-ink">{t.title}</span>
+                    <span className="flex-none text-xs text-muted">{t.subject}</span>
+                  </div>
+                  <span className="flex-none text-xs font-bold text-explorer">Revisit →</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* ── Daily Mystery Challenge (promoted) ───────────────────────────── */}
+      <Link
+        href="/daily-challenge"
+        className="flex items-center gap-4 rounded-2xl px-5 py-4 transition-transform active:scale-[0.98]"
+        style={{ background: 'linear-gradient(135deg, #FFE3A3 0%, #FFD43B 100%)' }}
+      >
+        <div className="flex-none flex h-11 w-11 items-center justify-center rounded-xl bg-white/40">
+          <Star className="w-6 h-6" style={{ color: '#7a5b00' }} aria-hidden />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-[11px] font-bold uppercase tracking-widest" style={{ color: '#7a5b00' }}>Today only</p>
+          <p className="font-heading text-base font-extrabold leading-snug" style={{ color: '#3d2e00' }}>
+            Daily Mystery Challenge
+          </p>
+          <p className="mt-0.5 text-xs" style={{ color: '#7a5b00' }}>3 fresh questions · earn bonus points</p>
+        </div>
+        <div className="flex-none flex h-9 w-9 items-center justify-center rounded-full bg-white/50 font-bold" style={{ color: '#3d2e00' }}>
+          →
+        </div>
+      </Link>
+
       {/* ── Learning Aid Box ─────────────────────────────────────────────── */}
       <Link
         href="/explore"
@@ -345,13 +414,6 @@ export default async function ChildDashboardPage() {
           Activities
         </h2>
         <div className="grid grid-cols-2 gap-2">
-          <Link
-            href="/daily-challenge"
-            className="flex min-h-[56px] flex-col justify-center rounded-2xl border border-black/5 bg-surface px-4 py-3 shadow-sm transition-colors hover:bg-black/[0.03]"
-          >
-            <span className="font-heading text-sm font-semibold text-ink flex items-center gap-1"><Star className="w-4 h-4" aria-hidden /> Daily Challenge</span>
-            <span className="text-xs text-muted">3 questions · earn points</span>
-          </Link>
           <Link
             href="/missions"
             className="flex min-h-[56px] flex-col justify-center rounded-2xl border border-black/5 bg-surface px-4 py-3 shadow-sm transition-colors hover:bg-black/[0.03]"
