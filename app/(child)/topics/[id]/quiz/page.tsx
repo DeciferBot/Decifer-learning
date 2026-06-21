@@ -130,6 +130,30 @@ export default async function QuizPage({ params }: { params: { id: string } }) {
     initialShields = shield?.quantity ?? 0
   }
 
+  // Next topic in this zone — powers the "Continue" CTA + unlock celebration on
+  // the result screen. Topics unlock sequentially by order_index within a zone.
+  let nextTopic: { id: string; title: string; newlyUnlocked: boolean } | null = null
+  if (topic.zone_id) {
+    const zoneTopics = await prisma.topic.findMany({
+      where: { zone_id: topic.zone_id, subject_id: topic.subject_id ?? undefined, is_published: true },
+      orderBy: { order_index: 'asc' },
+      select: { id: true, title: true },
+    })
+    const idx = zoneTopics.findIndex((t) => t.id === params.id)
+    const nxt = idx >= 0 ? zoneTopics[idx + 1] : undefined
+    if (nxt) {
+      let alreadyCompleted = false
+      if (profile) {
+        const tp = await prisma.topicProgress.findFirst({
+          where: { profile_id: profile.id, topic_id: nxt.id, status: 'completed' },
+          select: { id: true },
+        })
+        alreadyCompleted = !!tp
+      }
+      nextTopic = { id: nxt.id, title: nxt.title, newlyUnlocked: !alreadyCompleted }
+    }
+  }
+
   const questions = selected
 
   return (
@@ -176,7 +200,7 @@ export default async function QuizPage({ params }: { params: { id: string } }) {
         </span>
       </div>
 
-      <QuizShell questions={questions} topicId={params.id} topicTitle={topic.title} initialShields={initialShields} />
+      <QuizShell questions={questions} topicId={params.id} topicTitle={topic.title} initialShields={initialShields} nextTopic={nextTopic} />
     </div>
   )
 }
