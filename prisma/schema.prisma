@@ -73,6 +73,14 @@ model Profile {
   parent_verify_token          String?   @unique @db.Uuid
   parent_verify_sent_at        DateTime?
   parent_verify_reminder_count Int       @default(0)
+  // Re-engagement emails (via /api/cron/engagement-nudge). Two flows, each with
+  // a last-sent timestamp + capped counter: activation = kids who never played,
+  // comeback = kids who were active then went idle. Routed parent-first, child
+  // as fallback when there is no linked parent (and the child has a real email).
+  activation_email_sent_at     DateTime?
+  activation_email_count       Int       @default(0)
+  comeback_email_sent_at       DateTime?
+  comeback_email_count         Int       @default(0)
   // Last child-initiated year-group change — drives the self-service cooldown.
   year_group_changed_at        DateTime?
   // Denormalised subscription tier for fast gating — kept in sync by webhook.
