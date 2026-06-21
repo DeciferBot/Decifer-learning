@@ -8,6 +8,7 @@ import { pickRarity } from '@/lib/cards'
 import { checkAndUpdateMilestone } from '@/lib/vault/status'
 import { recordLearningEvent } from '@/lib/learning-events'
 import { getConsentGate, CONSENT_GATE_RESPONSE } from '@/lib/parental-consent'
+import { notifyParentBigMoment } from '@/lib/parent-notify'
 
 type AnswerInput = {
   questionId: string
@@ -323,6 +324,15 @@ export async function POST(req: Request) {
       // event tracking must never break quiz submission
     }
   })()
+
+  // Non-blocking "big moment" email to the linked parent (an adult). One email
+  // per submit at most: first-win takes precedence, else the first new badge.
+  // notifyParentBigMoment swallows all errors and adds no latency here.
+  if (result.isFirstWin) {
+    void notifyParentBigMoment(profile.id, profile.display_name, { kind: 'first_win' })
+  } else if (result.newBadges.length > 0) {
+    void notifyParentBigMoment(profile.id, profile.display_name, { kind: 'badge', badgeName: result.newBadges[0].name })
+  }
 
   return NextResponse.json({
     points,

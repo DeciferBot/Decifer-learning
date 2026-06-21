@@ -3,6 +3,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import { calcQuizPoints } from '@/lib/points'
 import { getConsentGate, CONSENT_GATE_RESPONSE } from '@/lib/parental-consent'
+import { notifyParentBigMoment } from '@/lib/parent-notify'
 import type { DroppedCard, EarnedBadge } from '@/app/api/quiz/submit/route'
 
 type AnswerInput = {
@@ -53,7 +54,7 @@ export async function POST(req: Request, { params }: { params: { zoneId: string 
       id: params.zoneId,
       ...(profile.year_group_id ? { year_group_id: profile.year_group_id } : {}),
     },
-    select: { id: true },
+    select: { id: true, name: true },
   })
   if (!zone) return NextResponse.json({ error: 'Zone not found' }, { status: 404 })
 
@@ -163,6 +164,12 @@ export async function POST(req: Request, { params }: { params: { zoneId: string 
     },
     { timeout: 15000 },
   )
+
+  // Non-blocking parent email on the first-ever Guardian win (the Guardian
+  // Slayer badge is awarded once, so this fires at most once). Never throws.
+  if (result.earnedBadge) {
+    void notifyParentBigMoment(profile.id, profile.display_name, { kind: 'guardian_win', zoneName: zone.name })
+  }
 
   return NextResponse.json({
     points,

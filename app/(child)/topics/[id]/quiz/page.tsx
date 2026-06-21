@@ -12,6 +12,7 @@ import { UpgradeWall } from '@/components/ui/UpgradeWall'
 import { isTopicAccessible } from '@/lib/stripe'
 import { getConsentGate } from '@/lib/parental-consent'
 import { ConsentGateScreen } from '@/components/child/ConsentGateScreen'
+import { ScreenTimeRestScreen } from '@/components/child/ScreenTimeRestScreen'
 
 // RLS: topics_select_published (is_published=true)
 // RLS: quiz_questions_select_published (status='published') + FORCE RLS
@@ -44,6 +45,27 @@ export default async function QuizPage({ params }: { params: { id: string } }) {
     const consentGate = await getConsentGate(user.id)
     if (consentGate.state === 'gated') {
       return <ConsentGateScreen learnHref={`/topics/${params.id}/learn`} />
+    }
+  }
+
+  // Screen-time soft gate — show a friendly "good place to stop" screen before
+  // the child plays, rather than blocking at submit after they've done the work.
+  // /api/quiz/submit re-checks the same rule server-side as a backstop.
+  if (profile) {
+    const controls = await prisma.parentControl.findUnique({
+      where: { child_profile_id: profile.id },
+      select: { daily_time_limit_minutes: true },
+    })
+    if (controls) {
+      const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0)
+      const { _sum } = await prisma.quizAttempt.aggregate({
+        where: { profile_id: profile.id, created_at: { gte: todayStart } },
+        _sum: { time_taken_seconds: true },
+      })
+      const usedSeconds = _sum.time_taken_seconds ?? 0
+      if (usedSeconds >= controls.daily_time_limit_minutes * 60) {
+        return <ScreenTimeRestScreen learnHref={`/topics/${params.id}/learn`} />
+      }
     }
   }
 

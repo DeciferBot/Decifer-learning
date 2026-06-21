@@ -186,6 +186,19 @@ export default async function ParentDashboardPage() {
 
             {/* Glance row — 3 stats + accuracy */}
             <div className="px-5 py-4 space-y-3">
+              {/* Wins first — lead with what went well, not deficits */}
+              {digest && digest.quizAttempts > 0 && (
+                <div className="flex items-start gap-2 rounded-xl bg-correct/10 px-3 py-2 text-sm">
+                  <span aria-hidden>🎉</span>
+                  <p className="text-ink">
+                    <span className="font-semibold">This week:</span> {digest.quizAttempts} quiz{digest.quizAttempts === 1 ? '' : 'zes'}
+                    {digest.pointsThisWeek > 0 ? ` · +${digest.pointsThisWeek.toLocaleString()} pts` : ''}
+                    {digest.topicsCompleted > 0 ? ` · ${digest.topicsCompleted} mastered` : ''}
+                    {child.streakDays >= 3 ? ` · 🔥 ${child.streakDays}-day streak` : ''}
+                  </p>
+                </div>
+              )}
+
               <div className="grid grid-cols-3 gap-2 text-center">
                 <Stat label="Started"  value={progress.topicsStarted} />
                 <Stat label="Mastered" value={progress.topicsCompleted} />
