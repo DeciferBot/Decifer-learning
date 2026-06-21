@@ -16,7 +16,7 @@ import { getCurriculumProgress } from '@/lib/parent-dashboard'
 import { StreakPing } from './StreakPing'
 import { getVaultStatus } from '@/lib/vault/status'
 import { NewParentLinkNotice } from './NewParentLinkNotice'
-import { MapFold, Layers, Star, Target, Trophy, PencilLine, Microscope, BookOpen, Gift, Flame, Zap, MapPin, RefreshCw } from '@/components/ui/icons'
+import { MapFold, Layers, Star, Target, Trophy, PencilLine, Microscope, BookOpen, Gift, Flame, Zap, MapPin, RefreshCw, Shield, Compass } from '@/components/ui/icons'
 
 export const metadata = { title: 'Dashboard — Decifer Learning' }
 
@@ -64,8 +64,8 @@ export default async function ChildDashboardPage() {
       })
     : null
 
-  // Fire all independent DB queries in parallel — topics, collection count, vault, assigned focus topics, curriculum progress, spaced-repetition reviews due
-  const [topicRows, collectionCount, vaultResult, assignedMissions, curriculumSubjects, dueReviews] = await Promise.all([
+  // Fire all independent DB queries in parallel — topics, collection count, vault, assigned focus topics, curriculum progress, spaced-repetition reviews due, streak shields, quiz-attempt count
+  const [topicRows, collectionCount, vaultResult, assignedMissions, curriculumSubjects, dueReviews, shieldRow, attemptCount] = await Promise.all([
     profile?.year_group_id
       ? prisma.topic.findMany({
           where: { year_group_id: profile.year_group_id, is_published: true },
@@ -107,6 +107,12 @@ export default async function ChildDashboardPage() {
           take: 4,
         })
       : Promise.resolve([]),
+    profile?.id
+      ? prisma.streakShield.findUnique({ where: { profile_id: profile.id }, select: { quantity: true } })
+      : Promise.resolve(null),
+    profile?.id
+      ? prisma.quizAttempt.count({ where: { profile_id: profile.id } })
+      : Promise.resolve(0),
   ])
 
   const topics: TopicRow[] = topicRows.map((t) => ({
@@ -155,6 +161,19 @@ export default async function ChildDashboardPage() {
       colour: r.topic!.subject.colour_token,
     }))
 
+  const shields = shieldRow?.quantity ?? 0
+  const neverPlayed = attemptCount === 0
+
+  // Subject-breadth nudge: when the child has real momentum in exactly one
+  // subject, gently invite them into another (Maths dominates play overall).
+  const subjectsWithProgress = curriculumSubjects.filter((s) => s.completedCount > 0)
+  const totalCompleted = curriculumSubjects.reduce((sum, s) => sum + s.completedCount, 0)
+  const breadthTarget =
+    subjectsWithProgress.length === 1 && totalCompleted >= 2
+      ? curriculumSubjects.find((s) => s.completedCount === 0 && s.topics.length > 0)
+      : undefined
+  const breadthFromSubject = subjectsWithProgress[0]?.subjectName ?? ''
+
   return (
     <section className="space-y-5">
       <StreakPing />
@@ -183,6 +202,11 @@ export default async function ChildDashboardPage() {
           {streak > 0 && (
             <span className="inline-flex items-center gap-1 text-xs text-muted">
               <Flame className="w-3.5 h-3.5" aria-hidden /> {streak} day streak
+            </span>
+          )}
+          {shields > 0 && (
+            <span className="inline-flex items-center gap-1 text-xs text-explorer" title="Each shield saves you from losing a heart in a quiz">
+              <Shield className="w-3.5 h-3.5" aria-hidden /> {shields} shield{shields !== 1 ? 's' : ''}
             </span>
           )}
         </div>
@@ -214,6 +238,16 @@ export default async function ChildDashboardPage() {
               </li>
             ))}
           </ul>
+        </div>
+      )}
+
+      {/* ── First-time welcome — make the very first action unmistakable ─── */}
+      {neverPlayed && firstTopic && firstTopic.hasQuiz && (
+        <div className="flex items-center gap-2 rounded-2xl border-2 border-brand/40 bg-brand/8 px-4 py-3">
+          <span className="text-xl" aria-hidden>👋</span>
+          <p className="text-sm font-semibold text-ink">
+            New here? Tap below to play your first quiz and win your first Discovery Card.
+          </p>
         </div>
       )}
 
@@ -351,6 +385,23 @@ export default async function ChildDashboardPage() {
           →
         </div>
       </Link>
+
+      {/* ── Subject-breadth nudge ────────────────────────────────────────── */}
+      {breadthTarget && (
+        <Link
+          href={`/topics/${breadthTarget.topics[0].topicId}/learn`}
+          className="flex items-center gap-3 rounded-2xl border border-science/30 bg-science/8 px-4 py-3 transition-colors hover:bg-science/15"
+        >
+          <Compass className="w-5 h-5 flex-none text-science" aria-hidden />
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-ink">
+              You&apos;re smashing {breadthFromSubject}! Ready to try {breadthTarget.subjectName}?
+            </p>
+            <p className="text-xs text-muted">Branch out and collect cards from a new subject.</p>
+          </div>
+          <span className="flex-none text-xs font-bold text-science">Try →</span>
+        </Link>
+      )}
 
       {/* ── Learning Aid Box ─────────────────────────────────────────────── */}
       <Link

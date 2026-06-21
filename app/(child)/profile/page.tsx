@@ -36,7 +36,7 @@ export default async function ProfilePage() {
   const yearGroup = MVP_YEAR_GROUPS.find((y) => y.label === profile.year_group_label)
 
   // Fetch badges, recent quizzes, collection count, and avatar config in parallel
-  const [profileBadges, recentAttempts, collectionCount, completedTopics, rawProfile] = await Promise.all([
+  const [profileBadges, recentAttempts, collectionCount, completedTopics, rawProfile, shieldRow] = await Promise.all([
     prisma.profileBadge.findMany({
       where: { profile_id: profile.id },
       include: { badge: { select: { name: true, description: true, icon_url: true } } },
@@ -54,10 +54,15 @@ export default async function ProfilePage() {
       where: { id: profile.id },
       select: { avatar_config: true, study_buddy: true },
     }),
+    prisma.streakShield.findUnique({
+      where: { profile_id: profile.id },
+      select: { quantity: true },
+    }),
   ])
 
   const points = profile.total_points ?? 0
   const streak = profile.streak_days ?? 0
+  const shields = shieldRow?.quantity ?? 0
 
   // XP level: every 500 points = 1 level
   const level = Math.floor(points / 500) + 1
@@ -200,6 +205,30 @@ export default async function ProfilePage() {
             <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{label}</p>
           </div>
         ))}
+      </div>
+
+      {/* Streak Shields — explain what they do (they used to be invisible) */}
+      <div
+        className="flex items-center gap-3 rounded-2xl px-4 py-3"
+        style={{
+          background: shields > 0 ? 'var(--xp-bg)' : 'var(--surface-raised)',
+          border: `1px solid ${shields > 0 ? 'var(--legendary-bdr)' : 'var(--border-default)'}`,
+          borderRadius: 'var(--radius-card)',
+        }}
+      >
+        <Shield size={22} style={{ color: shields > 0 ? 'var(--xp)' : 'var(--text-muted)' }} aria-hidden />
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-bold" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-display)' }}>
+            {shields > 0
+              ? `${shields} Streak Shield${shields === 1 ? '' : 's'}`
+              : 'No Streak Shields yet'}
+          </p>
+          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+            {shields > 0
+              ? 'Each one saves you from losing a heart in a quiz. Earn more with a 7-day streak.'
+              : 'Reach a 7-day streak to earn a shield that saves you from losing a heart.'}
+          </p>
+        </div>
       </div>
 
       {/* Badges */}
