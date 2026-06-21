@@ -192,6 +192,12 @@ export default async function AdminDashboardPage() {
         <h2 className="font-heading text-sm font-semibold text-muted uppercase tracking-wide mb-2">Tools</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <NavCard
+            href="/dashboard/admin/engagement"
+            icon={<TrendingUp className="w-5 h-5" aria-hidden />}
+            title="Engagement"
+            desc="Activation funnel, per-child status, re-engagement emails"
+          />
+          <NavCard
             href="/dashboard/admin/users"
             icon={<Users className="w-5 h-5" aria-hidden />}
             title="Users & Activity"

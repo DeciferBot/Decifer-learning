@@ -15,12 +15,14 @@ Phase 11A endpoints (pipeline/admin only — not child-facing):
   POST /pipeline/runs/{id}/cancel   cancel a running pipeline_run
   POST /pipeline/regenerate-flagged re-run pipeline for flagged questions (max 20)
   POST /pipeline/oak-daily-update   ingest new Oak NA lessons + top-up thin topics (async)
+  POST /pipeline/autopilot-daily    rebuild work queue + run autopilot (async, nightly)
 """
 
 import json
 import logging
 import os
 import sys
+from pathlib import Path
 from typing import Optional
 
 from fastapi import BackgroundTasks, FastAPI, HTTPException
@@ -814,5 +816,59 @@ def _run_oak_daily_update():
 
     cur.close()
     conn.close()
+
+
+# ── /pipeline/autopilot-daily ─────────────────────────────────────────────────
+#
+# Triggered by Vercel cron at 01:00 UTC (after anomaly-detect at 02:00 and
+# regenerate-flagged at 03:00 in the nightly chain).
+# Rebuilds the autopilot work queue then drains it — fills thin topics across
+# all year groups and subjects. Runs as a background task; returns immediately.
+
+@app.post("/pipeline/autopilot-daily")
+def autopilot_daily(background_tasks: BackgroundTasks) -> dict:
+    """Nightly cron: rebuild work queue and run the autopilot to top-up thin topics."""
+    background_tasks.add_task(_run_autopilot_daily)
+    return {"status": "started", "message": "Autopilot daily run queued in background"}
+
+
+def _run_autopilot_daily():
+    import subprocess
+    import sys
+
+    repo_root = Path(__file__).parent
+    python = sys.executable
+
+    log.info("[autopilot-daily] rebuilding work queue")
+    try:
+        result = subprocess.run(
+            [python, "-m", "autopilot.queue_builder"],
+            cwd=str(repo_root),
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+        log.info(f"[autopilot-daily] queue_builder stdout: {result.stdout.strip()}")
+        if result.returncode != 0:
+            log.error(f"[autopilot-daily] queue_builder failed: {result.stderr.strip()}")
+            return
+    except Exception as exc:
+        log.error(f"[autopilot-daily] queue_builder exception: {exc}")
+        return
+
+    log.info("[autopilot-daily] running autopilot runner")
+    try:
+        result = subprocess.run(
+            [python, "-m", "autopilot.runner"],
+            cwd=str(repo_root),
+            capture_output=True,
+            text=True,
+            timeout=3600,  # up to 1 hour for the nightly run
+        )
+        log.info(f"[autopilot-daily] runner stdout: {result.stdout.strip()}")
+        if result.returncode != 0:
+            log.error(f"[autopilot-daily] runner stderr: {result.stderr.strip()}")
+    except Exception as exc:
+        log.error(f"[autopilot-daily] runner exception: {exc}")
 
     log.info(f"oak-daily-update complete: {total_new_chunks} new chunks, {total_skipped} skipped (dedup), {topics_triggered} thin topics topped up")

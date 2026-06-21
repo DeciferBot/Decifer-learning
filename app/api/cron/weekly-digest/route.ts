@@ -88,7 +88,10 @@ async function handler(req: Request) {
       await resend.emails.send({
         from: FROM,
         to:   parentEmail,
-        subject: `This week on Decifer — ${children.map((c) => c.display_name).join(', ')}`,
+        subject:
+          children.length === 1
+            ? `${children[0].display_name}'s weekly report card`
+            : `Weekly report cards — ${children.map((c) => c.display_name).join(', ')}`,
         html,
         text,
       })
@@ -166,8 +169,8 @@ function buildEmailHtml(parentName: string, summaries: ChildSummary[]): string {
       <span style="font-size:22px;font-weight:700;color:#2D3748"> Learning</span>
     </td></tr>
     <tr><td>
-      <h1 style="margin:0 0 8px;font-size:20px;color:#2D3748">Hi ${parentName} — here's this week's update</h1>
-      <p style="margin:0 0 16px;font-size:14px;color:#718096">A quick summary of how your child${summaries.length > 1 ? 'ren are' : ' is'} getting on, and what you can do to help.</p>
+      <h1 style="margin:0 0 8px;font-size:20px;color:#2D3748">Hi ${parentName} — this week's report card</h1>
+      <p style="margin:0 0 16px;font-size:14px;color:#718096">How your child${summaries.length > 1 ? 'ren are' : ' is'} getting on this week, and what you can do to help.</p>
     </td></tr>
     ${childBlocks}
     <tr><td style="padding:24px 0 0">
@@ -182,7 +185,7 @@ function buildEmailHtml(parentName: string, summaries: ChildSummary[]): string {
 }
 
 function buildEmailText(parentName: string, summaries: ChildSummary[]): string {
-  const lines = [`Hi ${parentName},\n\nHere's this week's Decifer Learning update:\n`]
+  const lines = [`Hi ${parentName},\n\nHere's this week's Decifer Learning report card:\n`]
   for (const { child, digest, actions } of summaries) {
     const name = child.display_name ?? 'Your child'
     lines.push(`── ${name} ──`)
