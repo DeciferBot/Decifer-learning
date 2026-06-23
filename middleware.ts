@@ -33,7 +33,7 @@ const PUBLIC_EXACT = new Set<string>([
 // nickname, so the join page, the public game view, and the Live API must be
 // reachable without a session. Host-only actions (create/start/next) still
 // enforce auth inside their own route handlers.
-const PUBLIC_PREFIX = ['/auth/callback', '/_next/', '/help', '/curriculum', '/sitemap', '/robots', '/legal/', '/api/cron/', '/api/parent-verification/', '/join', '/live/', '/api/live/']
+const PUBLIC_PREFIX = ['/auth/callback', '/_next/', '/help', '/curriculum', '/sitemap', '/robots', '/legal/', '/api/cron/', '/api/parent-verification/', '/join', '/live/', '/api/live/', '/blitz']
 // Next.js metadata image routes (opengraph-image / twitter-image) live at any
 // depth — e.g. /opengraph-image AND /pricing/opengraph-image. Social crawlers
 // (WhatsApp, Facebook, etc.) fetch these with no session cookie, so every one

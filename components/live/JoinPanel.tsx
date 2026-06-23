@@ -50,7 +50,7 @@ export function JoinPanel({ isLoggedIn, initialPin }: { isLoggedIn: boolean; ini
     <div className="w-full max-w-sm">
       <header className="mb-6 text-center">
         <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-brand-50 px-3 py-1 text-sm font-semibold text-brand-600">
-          <Swords className="h-4 w-4" /> Decifer Live
+          <Swords className="h-4 w-4" /> Decifer Blitz
         </div>
         <h1 className="font-heading text-2xl font-extrabold text-ink">Join the battle</h1>
         <p className="mt-1 text-sm text-muted">Type the game code your host is showing.</p>

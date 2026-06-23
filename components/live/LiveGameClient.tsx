@@ -73,21 +73,58 @@ function Lobby({
   isHost: boolean
 }) {
   const [busy, setBusy] = useState(false)
+  const [copied, setCopied] = useState(false)
+
   async function start() {
     setBusy(true)
     await fetch(`/api/live/${gameId}/start`, { method: 'POST' })
     // Realtime flips everyone to the first question; no local nav needed.
   }
+
   const joinUrl =
-    typeof window !== 'undefined' ? `${window.location.host}/join` : 'this site → Join'
+    typeof window !== 'undefined'
+      ? `${window.location.origin}/join?pin=${pin}`
+      : `/join?pin=${pin}`
+
+  async function share() {
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share({ title: 'Decifer Blitz', text: `Join my quiz battle! Code: ${pin}`, url: joinUrl })
+        return
+      } catch {
+        // user cancelled or API unavailable — fall through to clipboard
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(joinUrl)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2500)
+    } catch {
+      // clipboard blocked — nothing to do
+    }
+  }
+
   return (
     <div className="mx-auto max-w-md text-center">
       <p className="text-xs font-bold uppercase tracking-wide text-muted">Game code</p>
       <div className="my-3 rounded-3xl bg-surface px-6 py-6 shadow-sm ring-1 ring-black/5">
         <p className="font-mono text-5xl font-extrabold tracking-[0.3em] text-ink">{pin}</p>
       </div>
-      <p className="mb-6 text-sm text-muted">
-        Friends join at <span className="font-bold text-ink">{joinUrl}</span> — no account needed.
+
+      {/* One-tap share — host taps, sends link via WhatsApp/iMessage/etc. */}
+      <motion.button
+        whileTap={{ scale: 0.96 }}
+        onClick={share}
+        className="mb-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-brand/10 py-3.5 text-sm font-bold text-brand transition hover:bg-brand/20"
+      >
+        {copied ? (
+          <>✓ Link copied!</>
+        ) : (
+          <><ArrowRight className="h-4 w-4 rotate-45" /> Share join link</>
+        )}
+      </motion.button>
+      <p className="mb-6 text-xs text-muted">
+        Or go to <span className="font-semibold text-ink">decifer.app/join</span> and enter the code above
       </p>
 
       <div className="mb-6 rounded-2xl bg-surface p-4 shadow-sm ring-1 ring-black/5">
