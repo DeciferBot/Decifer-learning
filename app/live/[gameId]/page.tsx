@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 
 import { redirect } from 'next/navigation'
 import { resolvePlayer } from '@/lib/live/server'
+import { prisma } from '@/lib/prisma'
 import { LiveGameClient } from '@/components/live/LiveGameClient'
 
 // Public Decifer Live game view — works for logged-in players AND guests who
@@ -10,10 +11,47 @@ export default async function LiveGamePage({ params }: { params: { gameId: strin
   const player = await resolvePlayer(params.gameId)
   if (!player) redirect(`/join`)
 
+  // Human label for what this game is about (e.g. "Maths · Number and Place
+  // Value" or "Science · Mixed blast"), shown in the lobby so the scope is
+  // always visible — no one can play the wrong subject without seeing it.
+  const game = await prisma.liveGame.findUnique({
+    where: { id: params.gameId },
+    select: { mode: true, topic_id: true, subject_id: true },
+  })
+  let scopeLabel: string | null = null
+  if (game) {
+    // Topic-mode games store only topic_id (subject_id is null), so read the
+    // subject via the topic. Subject-mode games store subject_id directly.
+    const [topic, subject] = await Promise.all([
+      game.topic_id
+        ? prisma.topic.findUnique({
+            where: { id: game.topic_id },
+            select: { title: true, subject: { select: { name: true } } },
+          })
+        : null,
+      game.subject_id
+        ? prisma.subject.findUnique({ where: { id: game.subject_id }, select: { name: true } })
+        : null,
+    ])
+    const subjectName = subject?.name ?? topic?.subject?.name
+    if (game.mode === 'subject') {
+      scopeLabel = subjectName ? `${subjectName} · Mixed blast` : 'Mixed blast'
+    } else if (topic?.title) {
+      scopeLabel = subjectName ? `${subjectName} · ${topic.title}` : topic.title
+    } else if (subjectName) {
+      scopeLabel = subjectName
+    }
+  }
+
   return (
     <main className="min-h-screen bg-background px-4 py-6">
       <div className="mx-auto max-w-2xl">
-        <LiveGameClient gameId={params.gameId} myPlayerId={player.id} isHost={player.is_host} />
+        <LiveGameClient
+          gameId={params.gameId}
+          myPlayerId={player.id}
+          isHost={player.is_host}
+          scopeLabel={scopeLabel}
+        />
       </div>
     </main>
   )

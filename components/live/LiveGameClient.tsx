@@ -72,10 +72,12 @@ export function LiveGameClient({
   gameId,
   myPlayerId,
   isHost,
+  scopeLabel,
 }: {
   gameId: string
   myPlayerId: string
   isHost: boolean
+  scopeLabel?: string | null
 }) {
   const { game, players, ready } = useLiveGame(gameId)
 
@@ -89,7 +91,7 @@ export function LiveGameClient({
   }
 
   if (game.status === 'lobby') {
-    return <Lobby gameId={gameId} pin={game.pin} players={players} isHost={isHost} />
+    return <Lobby gameId={gameId} pin={game.pin} players={players} isHost={isHost} scopeLabel={scopeLabel} />
   }
   if (game.status === 'finished') {
     return <Podium players={players} myPlayerId={myPlayerId} isHost={isHost} />
@@ -113,11 +115,13 @@ function Lobby({
   pin,
   players,
   isHost,
+  scopeLabel,
 }: {
   gameId: string
   pin: string
   players: LivePlayer[]
   isHost: boolean
+  scopeLabel?: string | null
 }) {
   const [busy, setBusy] = useState(false)
   const [copied, setCopied] = useState(false)
@@ -169,6 +173,12 @@ function Lobby({
         <p className="font-mono text-6xl font-extrabold leading-none tracking-[0.18em] text-white">
           {pin}
         </p>
+
+        {scopeLabel ? (
+          <p className="mt-3 inline-block rounded-full bg-white/10 px-3 py-1 text-sm font-bold text-white">
+            {scopeLabel}
+          </p>
+        ) : null}
 
         <motion.button
           whileTap={{ scale: 0.97 }}
