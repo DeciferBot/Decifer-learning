@@ -786,6 +786,7 @@ No culturally insensitive, biased, or upsetting content.
 Exactly 3 distractors — each plausible but clearly wrong on careful reflection.
 Hint progression: hint_1 is general, hint_2 is more specific, hint_3 is closest to the answer but does not state it outright.
 Single defensible correct answer.
+Single-answer only — the child UI is one-correct-option multiple choice. Never write multi-answer prompts ("Select all that apply", "Choose all", "Tick all that are true"); phrase as "Which one ..." with exactly one correct option. A "select all"-style prompt is a clear violation even if one listed option is technically correct.
 Difficulty level broadly matches the stated tier (sprout=simple, explorer=multi-step, lightning=challenging).
 Question text is clear and unambiguous.
 No markdown tables, pipe-delimited tables (e.g. "| Col | Col |" with a "|---|---|" separator row), or raw HTML in question_text, correct_answer, or distractors — the child UI renders these as literal text, not a table. Data the child must read from a table, chart, or pictogram must not be embedded as markdown; such questions should use a dedicated table source type instead.
@@ -1509,6 +1510,15 @@ def stage6_score(
         result.confidence_score = 0.0
         return 0.0, "regenerating"
 
+    # Multi-answer prompt gate — the single-answer UI cannot score "select all"
+    # questions, so they must never publish regardless of correctness.
+    if _is_multiselect_prompt(question_data.get("question_text", "")):
+        result.log_stage(
+            "  Multi-answer prompt FAILED: single-answer UI cannot score 'select all'-style questions"
+        )
+        result.confidence_score = 0.0
+        return 0.0, "regenerating"
+
     # RAG grounding gate (before scoring — a hard stop for RAG-required types)
     qtype = question_data.get("question_type", "")
     source_chunk_ids = question_data.get("source_chunk_ids") or []
@@ -1681,6 +1691,28 @@ def _renderability_offenders(data: dict) -> list[str]:
         if _has_unrenderable_markup(str(d)):
             offenders.append(f"distractors[{i}]")
     return offenders
+
+
+# ── Multi-answer prompt gate ───────────────────────────────────────────────
+# Every quiz surface (daily challenge, world-map quiz, exams) is single-answer
+# multiple choice: one correct_answer + 3 distractors, pick exactly one. A
+# "Select all that apply"-style prompt is therefore unscoreable — the child can
+# only tap one option, and such questions were authored with multiple options
+# that satisfy the prompt while only one is marked correct (so a child picking
+# a different correct option is graded wrong). The constitutional critic (Stage
+# 4) is asked to flag these, but an LLM is not a reliable gate, so this is a
+# deterministic hard stop in Stage 6, mirroring the renderability gate.
+_MULTISELECT_PROMPT_RE = re.compile(
+    r"\b(select|choose|tick|mark|pick)\s+(all|every|each)\b|\ball\s+that\s+apply\b",
+    re.IGNORECASE,
+)
+
+
+def _is_multiselect_prompt(text: str) -> bool:
+    """True if the prompt instructs the child to pick more than one option."""
+    if not text:
+        return False
+    return bool(_MULTISELECT_PROMPT_RE.search(text))
 
 
 # ── Main pipeline entry point ─────────────────────────────────────────────
