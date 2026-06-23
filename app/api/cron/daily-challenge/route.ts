@@ -15,6 +15,11 @@ import { prisma } from '@/lib/prisma'
 // Keep this list in sync with MULTIPART_QTYPES in components/quiz/QuizShell.tsx.
 const MULTIPART_QTYPES = ['true_false_grid', 'ordered_list', 'source_analysis', 'explain_example', 'structured_answer']
 
+// Multi-answer ("select all/any") prompts can't be scored by the single-answer
+// daily UI. Mirrors _MULTISELECT_PROMPT_RE in services/content-pipeline/pipeline.py
+// (the pipeline gate now blocks new ones; this is the read-time safety net).
+const MULTISELECT_PROMPT_RE = '(select|choose|tick|mark|pick)\\s+(all|every|each|any)|all that apply'
+
 // Vercel Cron invokes the path with a GET request (and an Authorization: Bearer <CRON_SECRET>
 // header when CRON_SECRET is configured). POST stays exported for manual/local invocation.
 async function handler(req: Request) {
@@ -56,9 +61,7 @@ async function handler(req: Request) {
           AND q.question_type NOT IN (${Prisma.join(MULTIPART_QTYPES)})
           AND (CASE WHEN jsonb_typeof(q.distractors) = 'array'
                     THEN jsonb_array_length(q.distractors) ELSE 0 END) = 3
-          AND q.question_text NOT ILIKE '%select all%'
-          AND q.question_text NOT ILIKE '%choose all%'
-          AND q.question_text NOT ILIKE '%all that apply%'
+          AND q.question_text !~* ${MULTISELECT_PROMPT_RE}
         ORDER BY random()
         LIMIT 3`
 
