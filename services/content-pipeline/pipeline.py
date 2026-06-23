@@ -18,6 +18,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -787,6 +788,7 @@ Hint progression: hint_1 is general, hint_2 is more specific, hint_3 is closest 
 Single defensible correct answer.
 Difficulty level broadly matches the stated tier (sprout=simple, explorer=multi-step, lightning=challenging).
 Question text is clear and unambiguous.
+No markdown tables, pipe-delimited tables (e.g. "| Col | Col |" with a "|---|---|" separator row), or raw HTML in question_text, correct_answer, or distractors — the child UI renders these as literal text, not a table. Data the child must read from a table, chart, or pictogram must not be embedded as markdown; such questions should use a dedicated table source type instead.
 The question must test knowledge specific to its subject. In a non-Maths subject, a question whose answer is found purely by arithmetic (e.g. "The Romans built 7 forts. Each fort had 8 soldiers. How many soldiers?") is a clear violation — the historical or geographical setting is decoration, not the thing being tested. Numbers may appear only when the subject knowledge itself is what's assessed (dates, data interpretation, scientific formulae).
 Only flag violations that are clear and significant. Do not flag minor wording imperfections."""
 
@@ -1495,6 +1497,18 @@ def stage6_score(
     """
     result.log_stage("Stage 6: confidence scoring + RAG grounding")
 
+    # Renderability gate (before scoring — a hard stop for any content type).
+    # The child UI cannot render markdown tables or raw HTML; such content is
+    # unreadable garble on the device, so it must never publish regardless of
+    # factual correctness. Route to regeneration to produce a renderable version.
+    offenders = _renderability_offenders(question_data)
+    if offenders:
+        result.log_stage(
+            f"  Renderability FAILED: markdown table / HTML in {', '.join(offenders)}"
+        )
+        result.confidence_score = 0.0
+        return 0.0, "regenerating"
+
     # RAG grounding gate (before scoring — a hard stop for RAG-required types)
     qtype = question_data.get("question_type", "")
     source_chunk_ids = question_data.get("source_chunk_ids") or []
@@ -1631,6 +1645,42 @@ def _has_required_fields(data: dict) -> bool:
     return all(bool(data.get(f)) for f in _REQUIRED_FIELDS) and len(
         data.get("distractors", [])
     ) == 3
+
+
+# ── Renderability gate ────────────────────────────────────────────────────
+# The child quiz UI renders question_text / answers via <MathText> (KaTeX for
+# $...$ math, plain text otherwise) — it does NOT parse markdown or HTML. So a
+# markdown table or raw HTML emitted into these fields shows up as literal pipe
+# salad on the iPad. None of the six pipeline stages otherwise check for this,
+# which is how garbled data-table questions reached the published pool. This is
+# a deterministic hard gate run in Stage 6 (cheap, zero false positives on the
+# current pool — every pipe-table hit was a genuine markdown table).
+#
+# Signal: a markdown table separator row — a pipe adjacent to 3+ dashes
+# (e.g. "|---|---|"). This is unambiguous: absolute-value notation like |x|
+# never produces "|---". HTML table tags are also caught.
+_MARKDOWN_TABLE_RE = re.compile(r"\|\s*-{3,}|-{3,}\s*\|")
+_HTML_TABLE_RE = re.compile(r"<\s*(table|tr|td|th|thead|tbody)\b", re.IGNORECASE)
+
+
+def _has_unrenderable_markup(text: str) -> bool:
+    """True if text contains a markdown/HTML table the child UI can't render."""
+    if not text:
+        return False
+    return bool(_MARKDOWN_TABLE_RE.search(text)) or bool(_HTML_TABLE_RE.search(text))
+
+
+def _renderability_offenders(data: dict) -> list[str]:
+    """Names of child-facing fields containing unrenderable table/HTML markup."""
+    offenders: list[str] = []
+    if _has_unrenderable_markup(data.get("question_text", "")):
+        offenders.append("question_text")
+    if _has_unrenderable_markup(data.get("correct_answer", "")):
+        offenders.append("correct_answer")
+    for i, d in enumerate(data.get("distractors", []) or []):
+        if _has_unrenderable_markup(str(d)):
+            offenders.append(f"distractors[{i}]")
+    return offenders
 
 
 # ── Main pipeline entry point ─────────────────────────────────────────────
