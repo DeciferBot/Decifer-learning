@@ -118,6 +118,10 @@ model Profile {
   exam_assignments_as_child       ExamAssignment[]       @relation("ChildExamAssignments")
   exam_attempts                   ExamAttempt[]
 
+  // Decifer Live (Kahoot-style multiplayer)
+  hosted_live_games               LiveGame[]             @relation("HostedLiveGames")
+  live_game_players               LiveGamePlayer[]       @relation("LiveGamePlayers")
+
   @@map("profiles")
 }
 
@@ -996,4 +1000,91 @@ model ExamAttempt {
   @@index([exam_assignment_id])
   @@index([profile_id, started_at(sort: Desc)])
   @@map("exam_attempts")
+}
+
+// ---------- Decifer Live (Kahoot-style multiplayer) ----------
+// PIN-gated, authenticated child profiles only. Display-names only, no chat,
+// no public/global leaderboard (UK Children's Code §11). Server-authoritative:
+// correctness is checked against quiz_questions.correct_answer (code-verified
+// content, never an LLM — CLAUDE.md §4) and speed-points are computed from the
+// server clock, never client-reported time. State propagates via Supabase
+// Realtime (Postgres Changes) so all devices stay in sync.
+
+enum LiveGameStatus {
+  lobby
+  in_progress
+  finished
+}
+
+model LiveGame {
+  id                   String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  pin                  String         @unique // 6-digit join code, unique among active games
+  host_profile_id      String         @db.Uuid
+  status               LiveGameStatus @default(lobby)
+  // Content scope: a single topic, or a mixed pool across a subject + year group.
+  mode                 String         @default("topic") // 'topic' | 'subject'
+  topic_id             String?        @db.Uuid
+  subject_id           String?        @db.Uuid
+  year_group_id        String?        @db.Uuid
+  question_ids         Json           // ordered array of PUBLISHED quiz_question IDs
+  question_count       Int            @default(10)
+  seconds_per_question Int            @default(20)
+  current_index        Int            @default(-1) // -1 = lobby; 0..n-1 active; >= n finished
+  current_started_at   DateTime?      // server timestamp the current question went live
+  created_at           DateTime       @default(now())
+  finished_at          DateTime?
+
+  host    Profile          @relation("HostedLiveGames", fields: [host_profile_id], references: [id], onDelete: Cascade)
+  players LiveGamePlayer[]
+  answers LiveGameAnswer[]
+
+  @@index([status, created_at])
+  @@map("live_games")
+}
+
+model LiveGamePlayer {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  game_id       String   @db.Uuid
+  // Null for guest players (joined with just a nickname, no account — Kahoot
+  // style). Logged-in players carry their profile id.
+  profile_id    String?  @db.Uuid
+  // Per-browser token identifying a guest across requests (cookie-backed).
+  guest_token   String?  @db.Uuid
+  is_guest      Boolean  @default(false)
+  display_name  String
+  avatar_config Json?
+  score         Int      @default(0)
+  streak        Int      @default(0)
+  is_host       Boolean  @default(false)
+  joined_at     DateTime @default(now())
+  last_seen     DateTime @default(now())
+
+  game    LiveGame         @relation(fields: [game_id], references: [id], onDelete: Cascade)
+  profile Profile?         @relation("LiveGamePlayers", fields: [profile_id], references: [id], onDelete: Cascade)
+  answers LiveGameAnswer[]
+
+  @@unique([game_id, profile_id]) // a profile joins a given game once
+  @@unique([game_id, guest_token]) // a guest browser joins a given game once
+  @@index([game_id, score(sort: Desc)])
+  @@map("live_game_players")
+}
+
+model LiveGameAnswer {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  game_id        String   @db.Uuid
+  player_id      String   @db.Uuid
+  question_index Int
+  question_id    String   @db.Uuid
+  answer         String
+  was_correct    Boolean
+  ms_taken       Int
+  points_awarded Int
+  created_at     DateTime @default(now())
+
+  game   LiveGame       @relation(fields: [game_id], references: [id], onDelete: Cascade)
+  player LiveGamePlayer @relation(fields: [player_id], references: [id], onDelete: Cascade)
+
+  @@unique([player_id, question_index]) // one answer per player per question
+  @@index([game_id, question_index])
+  @@map("live_game_answers")
 }
