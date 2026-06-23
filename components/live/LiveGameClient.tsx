@@ -413,6 +413,10 @@ function MiniBoard({ players, myPlayerId }: { players: LivePlayer[]; myPlayerId:
 }
 
 // ---------- Podium ----------
+// Shows top 20 players. If the current player is outside top 20 they still
+// see their own row pinned below the list with their exact rank.
+const PODIUM_VISIBLE = 20
+
 function Podium({
   players,
   myPlayerId,
@@ -426,6 +430,8 @@ function Podium({
   const myRank = sorted.findIndex((p) => p.id === myPlayerId)
   const me = sorted[myRank]
   const medalColour = ['#F5A524', '#9CA3AF', '#CD7F32']
+  const visible = sorted.slice(0, PODIUM_VISIBLE)
+  const myRowVisible = myRank < PODIUM_VISIBLE
 
   return (
     <div className="mx-auto max-w-md text-center">
@@ -443,13 +449,13 @@ function Podium({
         </p>
       ) : null}
 
-      <ol className="mb-8 space-y-2 text-left">
-        {sorted.map((p, i) => (
+      <ol className="mb-3 space-y-2 text-left">
+        {visible.map((p, i) => (
           <motion.li
             key={p.id}
             initial={{ x: -12, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: i * 0.05 }}
+            transition={{ delay: Math.min(i, 10) * 0.05 }}
             className={`flex items-center justify-between rounded-2xl px-4 py-3 shadow-sm ring-1 ring-black/5 ${
               p.id === myPlayerId ? 'bg-brand-50' : 'bg-surface'
             }`}
@@ -469,6 +475,28 @@ function Podium({
           </motion.li>
         ))}
       </ol>
+
+      {/* If there are more players than we show, indicate the total */}
+      {sorted.length > PODIUM_VISIBLE && (
+        <p className="mb-3 text-xs text-muted">
+          Showing top {PODIUM_VISIBLE} of {sorted.length} players
+        </p>
+      )}
+
+      {/* Pin the current player's own row when they're outside the visible top */}
+      {me && !myRowVisible && (
+        <div className="mb-6 flex items-center justify-between rounded-2xl bg-brand-50 px-4 py-3 shadow-sm ring-1 ring-brand/20 text-left">
+          <span className="flex items-center gap-3 font-heading font-bold text-ink">
+            <span className="w-5 text-center text-muted">{myRank + 1}</span>
+            {me.display_name} <span className="text-xs font-normal text-muted">(you)</span>
+          </span>
+          <span className="flex items-center gap-1 font-mono font-extrabold text-ink">
+            <Star className="h-4 w-4 text-points-gold" />
+            {me.score}
+          </span>
+        </div>
+      )}
+      {!me && !myRowVisible && <div className="mb-6" />}
 
       <div className="flex flex-col gap-2">
         {isHost ? (

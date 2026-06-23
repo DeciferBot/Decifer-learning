@@ -9,6 +9,8 @@ import {
   GUEST_COOKIE_MAX_AGE,
 } from '@/lib/live/server'
 
+const MAX_PLAYERS = 50 // Supabase Realtime pool is ~100 connections; 50 per game gives headroom for 2 concurrent games
+
 // POST /api/live/join  { pin, nickname? }
 // Join a lobby by its 6-digit PIN. Works two ways:
 //   • logged-in player → joined as their profile (nickname ignored)
@@ -30,7 +32,10 @@ export async function POST(req: Request) {
 
   const game = await prisma.liveGame.findFirst({
     where: { pin, status: { not: 'finished' } },
-    select: { id: true, status: true },
+    select: {
+      id: true, status: true,
+      _count: { select: { players: true } },
+    },
   })
   if (!game) return NextResponse.json({ error: 'game_not_found' }, { status: 404 })
 
@@ -45,6 +50,9 @@ export async function POST(req: Request) {
     if (!existing) {
       if (game.status !== 'lobby') {
         return NextResponse.json({ error: 'game_already_started' }, { status: 409 })
+      }
+      if (game._count.players >= MAX_PLAYERS) {
+        return NextResponse.json({ error: 'game_full', max: MAX_PLAYERS }, { status: 409 })
       }
       await prisma.liveGamePlayer.create({
         data: {
@@ -73,6 +81,9 @@ export async function POST(req: Request) {
   if (!nickname) return NextResponse.json({ error: 'need_nickname' }, { status: 400 })
   if (game.status !== 'lobby') {
     return NextResponse.json({ error: 'game_already_started' }, { status: 409 })
+  }
+  if (game._count.players >= MAX_PLAYERS) {
+    return NextResponse.json({ error: 'game_full', max: MAX_PLAYERS }, { status: 409 })
   }
 
   if (!token) token = randomUUID()
