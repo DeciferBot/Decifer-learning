@@ -8,6 +8,7 @@ import {
   GUEST_COOKIE,
   GUEST_COOKIE_MAX_AGE,
 } from '@/lib/live/server'
+import { broadcastLiveSnapshot } from '@/lib/live/broadcast'
 
 const MAX_PLAYERS = 50 // Supabase Realtime pool is ~100 connections; 50 per game gives headroom for 2 concurrent games
 
@@ -63,6 +64,7 @@ export async function POST(req: Request) {
           is_host: false,
         },
       })
+      await broadcastLiveSnapshot(game.id) // update everyone's lobby roster
     }
     return NextResponse.json({ gameId: game.id })
   }
@@ -96,6 +98,7 @@ export async function POST(req: Request) {
       is_host: false,
     },
   })
+  await broadcastLiveSnapshot(game.id) // update everyone's lobby roster
 
   const res = NextResponse.json({ gameId: game.id })
   res.cookies.set(GUEST_COOKIE, token, {

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { resolveHostAuth } from '@/lib/live/server'
+import { broadcastLiveSnapshot } from '@/lib/live/broadcast'
 
 // POST /api/live/[id]/start — host moves the lobby into the first question.
 // Works for both logged-in profile hosts and cookie-identified guest hosts.
@@ -19,6 +20,8 @@ export async function POST(_req: Request, { params }: { params: { id: string } }
     where: { id: params.id },
     data: { status: 'in_progress', current_index: 0, current_started_at: new Date() },
   })
+
+  await broadcastLiveSnapshot(params.id) // flip everyone into question 1
 
   return NextResponse.json({ ok: true })
 }

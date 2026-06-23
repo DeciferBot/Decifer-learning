@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { resolveHostAuth } from '@/lib/live/server'
 import { liveDeciferPoints } from '@/lib/live/scoring'
+import { broadcastLiveSnapshot } from '@/lib/live/broadcast'
 
 // POST /api/live/[id]/next — host advances to the next question, or ends the
 // game after the last one. Works for profile hosts and guest hosts alike.
@@ -23,6 +24,9 @@ export async function POST(_req: Request, { params }: { params: { id: string } }
       where: { id: params.id },
       data: { current_index: nextIndex, current_started_at: new Date() },
     })
+    // Reveal: push the new question index + leaderboard from the question just
+    // finished to every player at once.
+    await broadcastLiveSnapshot(params.id)
     return NextResponse.json({ ok: true, finished: false, index: nextIndex })
   }
 
@@ -68,6 +72,8 @@ export async function POST(_req: Request, { params }: { params: { id: string } }
       data: { status: 'finished', current_index: game.question_count, finished_at: new Date() },
     })
   })
+
+  await broadcastLiveSnapshot(params.id) // push the final podium to everyone
 
   return NextResponse.json({ ok: true, finished: true })
 }
