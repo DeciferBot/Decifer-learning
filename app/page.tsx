@@ -48,6 +48,13 @@ export default function Home({
             <DeciferLogo size="sm" product="Learning" />
             <div className="flex items-center gap-2">
               <Link
+                href="/play"
+                className="flex h-9 items-center gap-1.5 rounded-lg bg-[#7C3AED] px-3 text-sm font-semibold text-white transition-colors hover:bg-[#6D28D9] sm:px-4"
+              >
+                <Zap size={15} aria-hidden />
+                Blitz
+              </Link>
+              <Link
                 href="/login"
                 className="flex h-9 items-center rounded-lg px-3 text-sm font-semibold text-ink transition-colors hover:bg-black/5 sm:px-4"
               >
