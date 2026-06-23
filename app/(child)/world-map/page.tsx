@@ -5,7 +5,8 @@ import { getCurrentProfile } from '@/lib/profile'
 import { prisma } from '@/lib/prisma'
 import { ZoneMap, type ZoneNode } from '@/components/world-map/ZoneMap'
 import type { NodeState } from '@/components/world-map/TopicNode'
-import { MapFold } from '@/components/ui/icons'
+import { MapFold, Swords, ArrowRight } from '@/components/ui/icons'
+import Link from 'next/link'
 
 export const metadata = { title: 'World Map — Decifer Learning' }
 
@@ -78,6 +79,21 @@ export default async function WorldMapPage() {
         <h1 className="font-heading text-2xl font-bold text-ink">World Map</h1>
         <p className="mt-1 text-sm text-muted">Your learning adventure</p>
       </div>
+
+      {/* Decifer Live — Kahoot-style quiz battle */}
+      <Link
+        href="/play"
+        className="flex items-center gap-4 rounded-2xl bg-gradient-to-r from-brand to-ember-bright px-5 py-4 text-white shadow-sm transition hover:opacity-95"
+      >
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/20">
+          <Swords className="h-6 w-6" aria-hidden />
+        </div>
+        <div className="flex-1">
+          <p className="font-heading text-base font-extrabold leading-tight">Quiz Battle</p>
+          <p className="text-sm text-white/85">Race your friends in a live quiz!</p>
+        </div>
+        <ArrowRight className="h-5 w-5 shrink-0" aria-hidden />
+      </Link>
 
       {zonesWithContent.length === 0 && (
         <div className="rounded-2xl border border-black/5 bg-surface px-5 py-10 text-center shadow-sm">
