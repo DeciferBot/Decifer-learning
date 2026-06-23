@@ -6,14 +6,34 @@
 
 ---
 
+## 0. Current project status (as of 2026-06-23)
+
+**The MVP is shipped. The product is publicly launched (currently v2.12.1).** All 12 build phases (§14) passed their gates. The original MVP plan in §3, §11, and §14 is now **historical** — kept for context, but it no longer describes the boundary of what exists. Read this section first; where §3/§11/§14 say "deferred" or "out of MVP" for something listed as **Shipped** below, **this section wins.**
+
+**Shipped beyond the original MVP:**
+- **Public, paid product.** Stripe subscriptions live (AED two-tier: Per Child + Family), public marketing/SEO surface (`/pricing`, `/subjects`, `/how-it-works`, `/curriculum`, sitemap, OG cards), cookie + parental consent.
+- **Wider curriculum.** KS1 (Year 2), KS4 (Year 10–11 / GCSE), plus **History** and **Geography** alongside Maths/English/Science — all DB + pipeline driven.
+- **More features.** Reward Vault (+ optional Shopify fulfilment), Explore / Learning Aid Box (`/explore`), admin engagement dashboard + automated re-engagement emails, cross-session stickiness loops (streaks, activation, parent nudges), IRT calibration, WCAG 2.2 pass, e2e suite.
+
+**Still genuinely deferred (confirmed not built — these are real, not stale notes):**
+- Head-to-head **live multiplayer** challenges (Supabase Realtime).
+- Cross-subject **Fusion Challenges / Fusion Cards** (schema fields + collection silhouette exist; no challenge engine).
+- **A-level** long-answer mode (Year 12–13).
+- **Teacher accounts / classroom** mode.
+- Full **Foundation Mode** audio-first UI (Year 1; some Y2 content exists, but not the picture-answer/audio-first child UI).
+
+Everything in §4 (constraints), §5 (stack), §6 (env), §7 (schema), §8 (content rules), and §16 (operating rules) remains current and authoritative.
+
+---
+
 ## 1. Project identity
 
 - **Product name:** Decifer Learning
 - **Folder name:** `decifer-learning/`
 - **Form factor:** Progressive Web App (PWA) — installable on iPhone / iPad via Safari "Add to Home Screen". No native app.
 - **Curriculum:** UK National Curriculum.
-- **MVP audience:** Two children — son (Year 3) and daughter (Year 7). Family pilot.
-- **Post-pilot:** Community subscription rollout.
+- **Original MVP audience:** Two children — son (Year 3) and daughter (Year 7). Family pilot.
+- **Current audience:** Publicly launched, subscription-based (see §0). Year groups now span KS1 (Y2) through KS4 (Y10–11), not just Y3 + Y7.
 
 > Old names `edu-platform` and `sproutlearn` are deprecated. They must not appear in code, folders, manifests, copy, or commit messages.
 
@@ -26,6 +46,8 @@ A child opens Safari on their iPad, taps "Add to Home Screen", and the next day 
 ---
 
 ## 3. MVP scope
+
+> **Historical — see §0.** This section describes the original MVP boundary. The MVP is complete and the product has shipped well past it. The list below is preserved to explain the build order, not to constrain current scope. Items marked "out of MVP" that have since shipped are noted in §0.
 
 **In scope (Phase 0–12):**
 - Year 3 (KS2) and Year 7 (KS3) only.
@@ -360,20 +382,28 @@ export function sm2(quality: number, reps: number, easiness: number, interval: n
 
 ---
 
-## 11. Deferred Phase 2 features
+## 11. Post-MVP features — shipped vs. still deferred
 
-Designed-for in the schema or upgrade plan, but **must not** be built in the MVP:
+> Updated 2026-06-23 (see §0). This list was originally "do not build in MVP." The MVP is done, so the list is now split by reality.
 
-- Foundation Mode (Year 1–2 audio-first UI; picture-based answers)
-- GCSE past paper engine (Years 10–11)
-- A-level long-answer mode (Years 12–13)
-- Head-to-head live challenges (Supabase Realtime)
-- Cross-subject Fusion Challenges + Fusion Cards
-- Secret Bonus Room (nice-to-have; defer)
-- Teacher accounts / classroom mode
-- Stripe subscriptions
-- Public community leaderboard outside the family group
-- Full WCAG 2.1 AA audit (MVP does the basics: alt text, keyboard nav, `prefers-reduced-motion`; full audit later)
+**✅ Shipped since MVP (no longer deferred):**
+- Stripe subscriptions (AED two-tier — Per Child + Family).
+- GCSE / KS4 content (Years 10–11) — via the standard pipeline, not a separate past-paper engine.
+- KS1 (Year 2) content.
+- History + Geography subjects.
+- Reward Vault (+ optional Shopify fulfilment).
+- Explore / Learning Aid Box.
+- WCAG 2.2 pass (went past the original "basics only" plan).
+- Public marketing/SEO surface (the MVP-era "no public rollout" line no longer applies).
+
+**⛔ Still genuinely deferred (designed-for in schema/plan, NOT built — verify before assuming otherwise):**
+- Head-to-head **live challenges** (Supabase Realtime).
+- Cross-subject **Fusion Challenges + Fusion Cards** (schema fields + collection silhouette exist; no engine).
+- **A-level** long-answer mode (Years 12–13).
+- Full **Foundation Mode** (Year 1 audio-first UI; picture-based answers).
+- **Teacher accounts / classroom** mode.
+- **Secret Bonus Room** (nice-to-have).
+- **Public community leaderboard** outside the family group.
 
 ---
 
@@ -444,6 +474,8 @@ decifer-learning/
 ---
 
 ## 14. Build phases and gates
+
+> **All 12 phases below are COMPLETE and gate-passed (see §0).** This section is now a historical record of the build order, not a forward plan. The "one session = one phase" discipline applied during the MVP build; new work is feature-driven, not phase-driven.
 
 **Discipline — non-negotiable:**
 - **One Claude Code session = one phase.**
@@ -552,21 +584,21 @@ decifer-learning/
 - Desktop-only patterns (hover dependencies, right-click menus)
 - Third-party ad networks
 - Analytics beyond Supabase built-ins
-- Anything listed in §11 (Deferred Phase 2 features)
+- Anything in the **"Still genuinely deferred"** list in §11 (the shipped half of §11 is fair game)
 
 ---
 
 ## 16. Claude Code operating rules
 
 1. **Read this file first** at the start of every session. Treat it as the single source of truth. Where it conflicts with `EduPlatform_Upgrade_Plan.md`, `EduPlatform_Benchmark_Analysis.md`, or `EduPlatform_BuildGuide.md`, **this file wins**.
-2. **One session = one phase.** Do not bundle phases. Do not skip gates.
+2. **Work in focused, verifiable units.** (The MVP's "one session = one phase" rule is retired — all phases are done, see §0.) Ship a coherent feature per change, verify it, and don't bundle unrelated work.
 3. **Filter content reads.** Every child-facing query on `quiz_questions`, `card_catalog`, `learn_content` must include `WHERE status = 'published'`. When adding a new content route, demonstrate this in the diff.
 4. **Never let an LLM compute the canonical answer.** LLMs may generate, critique, explain, or rephrase. The authoritative answer for any verifiable question must come from a code verifier (SymPy / Pint / ChemPy / periodic-table / LanguageTool).
 5. **Never hardcode topics, questions, hints, cards, or zones in code.** All such data lives in the database. Adding curriculum content must require zero code changes.
 6. **Mobile-first.** Design every UI at 375 px first. Verify no horizontal scroll. Every tap target ≥ 48 px.
 7. **Preserve schema names.** `card_catalog`, `child_collection`, `practice_games`, `quiz_questions.correct_answer`, `quiz_questions.distractors`. Do not rename.
 8. **Use the env var names in §6 exactly.** Do not introduce new secrets silently — if a new one is needed, update §6 and stop for confirmation.
-9. **Stop and report on gate failure.** Do not auto-advance to the next phase.
+9. **Stop and report on verification failure.** Don't push broken work forward.
 10. **Old-name purge.** `edu-platform` and `sproutlearn` must never appear in code, copy, manifest, README, or commit messages. The folder is `decifer-learning/` and the product is "Decifer Learning".
 
 ---
