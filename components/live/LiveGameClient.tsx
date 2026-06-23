@@ -19,10 +19,24 @@ type QuestionPayload = {
 }
 
 type AnswerResult = { correct: boolean; points: number; correctAnswer: string }
+type Tally = {
+  index: number
+  total: number
+  answered: number
+  distribution: Record<string, number>
+  correctAnswer: string | null
+}
 
-export function LiveGameClient({ gameId, myProfileId }: { gameId: string; myProfileId: string }) {
+export function LiveGameClient({
+  gameId,
+  myPlayerId,
+  isHost,
+}: {
+  gameId: string
+  myPlayerId: string
+  isHost: boolean
+}) {
   const { game, players, ready } = useLiveGame(gameId)
-  const isHost = game?.host_profile_id === myProfileId
 
   if (!ready || !game) {
     return <div className="py-20 text-center text-sm text-muted">Loading game…</div>
@@ -32,7 +46,7 @@ export function LiveGameClient({ gameId, myProfileId }: { gameId: string; myProf
     return <Lobby gameId={gameId} pin={game.pin} players={players} isHost={isHost} />
   }
   if (game.status === 'finished') {
-    return <Podium players={players} myProfileId={myProfileId} isHost={isHost} />
+    return <Podium players={players} myPlayerId={myPlayerId} isHost={isHost} />
   }
   return (
     <QuestionView
@@ -41,7 +55,7 @@ export function LiveGameClient({ gameId, myProfileId }: { gameId: string; myProf
       isHost={isHost}
       total={game.question_count}
       players={players}
-      myProfileId={myProfileId}
+      myPlayerId={myPlayerId}
     />
   )
 }
@@ -64,13 +78,17 @@ function Lobby({
     await fetch(`/api/live/${gameId}/start`, { method: 'POST' })
     // Realtime flips everyone to the first question; no local nav needed.
   }
+  const joinUrl =
+    typeof window !== 'undefined' ? `${window.location.host}/join` : 'this site → Join'
   return (
     <div className="mx-auto max-w-md text-center">
       <p className="text-xs font-bold uppercase tracking-wide text-muted">Game code</p>
       <div className="my-3 rounded-3xl bg-surface px-6 py-6 shadow-sm ring-1 ring-black/5">
         <p className="font-mono text-5xl font-extrabold tracking-[0.3em] text-ink">{pin}</p>
       </div>
-      <p className="mb-6 text-sm text-muted">Open Decifer Live on another device and tap Join.</p>
+      <p className="mb-6 text-sm text-muted">
+        Friends join at <span className="font-bold text-ink">{joinUrl}</span> — no account needed.
+      </p>
 
       <div className="mb-6 rounded-2xl bg-surface p-4 shadow-sm ring-1 ring-black/5">
         <div className="mb-3 flex items-center justify-center gap-2 text-sm font-bold text-ink">
@@ -116,20 +134,21 @@ function QuestionView({
   total,
   isHost,
   players,
-  myProfileId,
+  myPlayerId,
 }: {
   gameId: string
   index: number
   total: number
   isHost: boolean
   players: LivePlayer[]
-  myProfileId: string
+  myPlayerId: string
 }) {
   const [payload, setPayload] = useState<QuestionPayload | null>(null)
   const [selected, setSelected] = useState<string | null>(null)
   const [result, setResult] = useState<AnswerResult | null>(null)
   const [remainingMs, setRemainingMs] = useState<number>(0)
   const [advancing, setAdvancing] = useState(false)
+  const [tally, setTally] = useState<Tally | null>(null)
   const lockedRef = useRef(false) // guards double submit (pick or timeout)
 
   // Fetch the question payload whenever the question index changes.
@@ -138,6 +157,7 @@ function QuestionView({
     setPayload(null)
     setSelected(null)
     setResult(null)
+    setTally(null)
     lockedRef.current = false
     fetch(`/api/live/${gameId}/question?index=${index}`)
       .then((r) => r.json())
@@ -183,6 +203,26 @@ function QuestionView({
     return () => clearInterval(id)
   }, [payload, submit])
 
+  // Host presenter: poll the live answer tally (count + distribution) so the
+  // host can see who has answered and reveal the spread. Players don't poll.
+  useEffect(() => {
+    if (!isHost) return
+    let active = true
+    const poll = () =>
+      fetch(`/api/live/${gameId}/tally`)
+        .then((r) => r.json())
+        .then((d) => {
+          if (active && d && typeof d.answered === 'number') setTally(d as Tally)
+        })
+        .catch(() => {})
+    poll()
+    const id = setInterval(poll, 1000)
+    return () => {
+      active = false
+      clearInterval(id)
+    }
+  }, [isHost, gameId, index])
+
   async function next() {
     setAdvancing(true)
     await fetch(`/api/live/${gameId}/next`, { method: 'POST' })
@@ -204,8 +244,15 @@ function QuestionView({
         <span>
           Question {index + 1} / {total}
         </span>
-        <span className="flex items-center gap-1 text-ink">
-          <Clock className="h-4 w-4" /> {secondsLeft}s
+        <span className="flex items-center gap-3 text-ink">
+          {isHost && tally ? (
+            <span className="flex items-center gap-1 text-muted">
+              <Users className="h-4 w-4" /> {tally.answered}/{tally.total}
+            </span>
+          ) : null}
+          <span className="flex items-center gap-1">
+            <Clock className="h-4 w-4" /> {secondsLeft}s
+          </span>
         </span>
       </div>
       {/* Countdown bar */}
@@ -244,8 +291,13 @@ function QuestionView({
         ) : null}
       </AnimatePresence>
 
+      {/* Host-only: answer distribution, revealed once the timer is up */}
+      {isHost && locked && tally ? (
+        <AnswerDistribution choices={payload.choices} tally={tally} />
+      ) : null}
+
       {/* Mini live standings */}
-      <MiniBoard players={players} myProfileId={myProfileId} />
+      <MiniBoard players={players} myPlayerId={myPlayerId} />
 
       {isHost ? (
         <div className="fixed inset-x-0 bottom-16 z-10 mx-auto max-w-2xl px-4">
@@ -263,7 +315,45 @@ function QuestionView({
   )
 }
 
-function MiniBoard({ players, myProfileId }: { players: LivePlayer[]; myProfileId: string }) {
+// Host reveal: a Kahoot-style bar of how many players chose each option, with
+// the correct tile highlighted.
+const TILE_COLOURS = ['#FF6B6B', '#6C9EFF', '#FFD43B', '#52D9A0']
+function AnswerDistribution({ choices, tally }: { choices: string[]; tally: Tally }) {
+  const max = Math.max(1, ...choices.map((c) => tally.distribution[c] ?? 0))
+  const norm = (s: string) => s.trim().toLowerCase()
+  return (
+    <div className="mt-5 space-y-2 rounded-2xl bg-surface p-4 shadow-sm ring-1 ring-black/5">
+      <p className="text-xs font-bold uppercase tracking-wide text-muted">Answers</p>
+      {choices.map((c, i) => {
+        const count = tally.distribution[c] ?? 0
+        const isCorrect = tally.correctAnswer !== null && norm(c) === norm(tally.correctAnswer)
+        return (
+          <div key={`${c}-${i}`} className="flex items-center gap-2">
+            <span aria-hidden className="text-lg" style={{ color: TILE_COLOURS[i % 4] }}>
+              {['▲', '◆', '●', '■'][i % 4]}
+            </span>
+            <div className="relative h-7 flex-1 overflow-hidden rounded-lg bg-background">
+              <div
+                className="h-full rounded-lg transition-all"
+                style={{
+                  width: `${(count / max) * 100}%`,
+                  backgroundColor: isCorrect ? '#29D17C' : TILE_COLOURS[i % 4],
+                  opacity: isCorrect ? 1 : 0.55,
+                }}
+              />
+              <span className="absolute inset-y-0 left-2 flex items-center text-xs font-bold text-ink">
+                {c} {isCorrect ? '✓' : ''}
+              </span>
+            </div>
+            <span className="w-6 text-right font-mono text-sm font-bold text-ink">{count}</span>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+function MiniBoard({ players, myPlayerId }: { players: LivePlayer[]; myPlayerId: string }) {
   const top = players.slice(0, 4)
   return (
     <div className="mt-6 space-y-1.5">
@@ -271,7 +361,7 @@ function MiniBoard({ players, myProfileId }: { players: LivePlayer[]; myProfileI
         <div
           key={p.id}
           className={`flex items-center justify-between rounded-xl px-3 py-2 text-sm ${
-            p.profile_id === myProfileId ? 'bg-brand-50 font-bold text-ink' : 'bg-surface text-ink'
+            p.id === myPlayerId ? 'bg-brand-50 font-bold text-ink' : 'bg-surface text-ink'
           }`}
         >
           <span className="flex items-center gap-2">
@@ -288,15 +378,15 @@ function MiniBoard({ players, myProfileId }: { players: LivePlayer[]; myProfileI
 // ---------- Podium ----------
 function Podium({
   players,
-  myProfileId,
+  myPlayerId,
   isHost,
 }: {
   players: LivePlayer[]
-  myProfileId: string
+  myPlayerId: string
   isHost: boolean
 }) {
   const sorted = [...players].sort((a, b) => b.score - a.score)
-  const myRank = sorted.findIndex((p) => p.profile_id === myProfileId)
+  const myRank = sorted.findIndex((p) => p.id === myPlayerId)
   const me = sorted[myRank]
   const medalColour = ['#F5A524', '#9CA3AF', '#CD7F32']
 
@@ -324,7 +414,7 @@ function Podium({
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: i * 0.05 }}
             className={`flex items-center justify-between rounded-2xl px-4 py-3 shadow-sm ring-1 ring-black/5 ${
-              p.profile_id === myProfileId ? 'bg-brand-50' : 'bg-surface'
+              p.id === myPlayerId ? 'bg-brand-50' : 'bg-surface'
             }`}
           >
             <span className="flex items-center gap-3 font-heading font-bold text-ink">
@@ -345,19 +435,29 @@ function Podium({
 
       <div className="flex flex-col gap-2">
         {isHost ? (
+          <>
+            <Link
+              href="/play"
+              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brand py-4 font-heading text-base font-extrabold text-white shadow-sm transition hover:opacity-90"
+            >
+              Play again <Zap className="h-5 w-5" />
+            </Link>
+            <Link
+              href="/dashboard/child"
+              className="w-full rounded-2xl bg-surface py-4 font-heading text-base font-bold text-ink shadow-sm ring-1 ring-black/5 transition hover:bg-background"
+            >
+              Back home
+            </Link>
+          </>
+        ) : (
+          // Players (incl. logged-out guests) get a public exit, never a login wall.
           <Link
-            href="/play"
-            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brand py-4 font-heading text-base font-extrabold text-white shadow-sm transition hover:opacity-90"
+            href="/join"
+            className="w-full rounded-2xl bg-surface py-4 text-center font-heading text-base font-bold text-ink shadow-sm ring-1 ring-black/5 transition hover:bg-background"
           >
-            Play again <Zap className="h-5 w-5" />
+            Leave game
           </Link>
-        ) : null}
-        <Link
-          href="/dashboard/child"
-          className="w-full rounded-2xl bg-surface py-4 font-heading text-base font-bold text-ink shadow-sm ring-1 ring-black/5 transition hover:bg-background"
-        >
-          Back home
-        </Link>
+        )}
       </div>
     </div>
   )

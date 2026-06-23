@@ -29,7 +29,11 @@ const PUBLIC_EXACT = new Set<string>([
 // /curriculum/* is the public, indexable curriculum browse surface — published
 // topic titles only, no gated content — so crawlers and logged-out visitors must
 // reach it without a session.
-const PUBLIC_PREFIX = ['/auth/callback', '/_next/', '/help', '/curriculum', '/sitemap', '/robots', '/legal/', '/api/cron/', '/api/parent-verification/']
+// Decifer Live guest play: logged-out players join a quiz battle with just a
+// nickname, so the join page, the public game view, and the Live API must be
+// reachable without a session. Host-only actions (create/start/next) still
+// enforce auth inside their own route handlers.
+const PUBLIC_PREFIX = ['/auth/callback', '/_next/', '/help', '/curriculum', '/sitemap', '/robots', '/legal/', '/api/cron/', '/api/parent-verification/', '/join', '/live/', '/api/live/']
 // Next.js metadata image routes (opengraph-image / twitter-image) live at any
 // depth — e.g. /opengraph-image AND /pricing/opengraph-image. Social crawlers
 // (WhatsApp, Facebook, etc.) fetch these with no session cookie, so every one

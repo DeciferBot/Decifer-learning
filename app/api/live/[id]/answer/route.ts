@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
-import { getAuthedProfile } from '@/lib/live/server'
+import { resolvePlayer } from '@/lib/live/server'
 import { normalizeAnswer } from '@/lib/live/questions'
 import { computeLivePoints } from '@/lib/live/scoring'
 
@@ -11,9 +11,6 @@ import { computeLivePoints } from '@/lib/live/scoring'
 // Timing is measured from the server's current_started_at, so a player can't
 // fake a fast buzz. One answer per player per question (DB-enforced).
 export async function POST(req: Request, { params }: { params: { id: string } }) {
-  const profile = await getAuthedProfile()
-  if (!profile) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
   let body: { index?: number; answer?: string; timedOut?: boolean }
   try {
     body = await req.json()
@@ -46,10 +43,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     return NextResponse.json({ error: 'stale_index', currentIndex: index }, { status: 409 })
   }
 
-  const player = await prisma.liveGamePlayer.findUnique({
-    where: { game_id_profile_id: { game_id: params.id, profile_id: profile.id } },
-    select: { id: true, score: true, streak: true },
-  })
+  const player = await resolvePlayer(params.id)
   if (!player) return NextResponse.json({ error: 'Not a player' }, { status: 403 })
 
   const ids = game.question_ids as string[]

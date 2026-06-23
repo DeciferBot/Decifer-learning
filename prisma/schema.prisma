@@ -1045,7 +1045,12 @@ model LiveGame {
 model LiveGamePlayer {
   id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   game_id       String   @db.Uuid
-  profile_id    String   @db.Uuid
+  // Null for guest players (joined with just a nickname, no account — Kahoot
+  // style). Logged-in players carry their profile id.
+  profile_id    String?  @db.Uuid
+  // Per-browser token identifying a guest across requests (cookie-backed).
+  guest_token   String?  @db.Uuid
+  is_guest      Boolean  @default(false)
   display_name  String
   avatar_config Json?
   score         Int      @default(0)
@@ -1055,10 +1060,11 @@ model LiveGamePlayer {
   last_seen     DateTime @default(now())
 
   game    LiveGame         @relation(fields: [game_id], references: [id], onDelete: Cascade)
-  profile Profile          @relation("LiveGamePlayers", fields: [profile_id], references: [id], onDelete: Cascade)
+  profile Profile?         @relation("LiveGamePlayers", fields: [profile_id], references: [id], onDelete: Cascade)
   answers LiveGameAnswer[]
 
   @@unique([game_id, profile_id]) // a profile joins a given game once
+  @@unique([game_id, guest_token]) // a guest browser joins a given game once
   @@index([game_id, score(sort: Desc)])
   @@map("live_game_players")
 }

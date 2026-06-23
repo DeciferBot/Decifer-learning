@@ -1,16 +1,13 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getAuthedProfile } from '@/lib/live/server'
+import { resolvePlayer } from '@/lib/live/server'
 import { buildChoices, choiceSeed } from '@/lib/live/questions'
 
 // GET /api/live/[id]/question?index=K
 // Returns the render payload for the current question: the prompt and shuffled
 // answer tiles — but NOT which one is correct, so the client can't peek. Only
-// players in the game may fetch it, and only while the game is running.
+// players in the game (logged-in or guest) may fetch it, while it's running.
 export async function GET(req: Request, { params }: { params: { id: string } }) {
-  const profile = await getAuthedProfile()
-  if (!profile) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
   const game = await prisma.liveGame.findUnique({
     where: { id: params.id },
     select: {
@@ -24,11 +21,8 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
   })
   if (!game) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
-  // Membership check — only joined players can read the questions.
-  const player = await prisma.liveGamePlayer.findUnique({
-    where: { game_id_profile_id: { game_id: params.id, profile_id: profile.id } },
-    select: { id: true },
-  })
+  // Membership check — only joined players (profile or guest) read questions.
+  const player = await resolvePlayer(params.id)
   if (!player) return NextResponse.json({ error: 'Not a player' }, { status: 403 })
 
   if (game.status !== 'in_progress') {

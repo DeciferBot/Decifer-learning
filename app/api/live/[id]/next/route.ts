@@ -46,6 +46,8 @@ export async function POST(_req: Request, { params }: { params: { id: string } }
       orderBy: { score: 'desc' },
       select: { id: true, profile_id: true },
     })
+    // Real Decifer points only go to players with an account; guests keep their
+    // in-game score and podium place but earn no profile points.
 
     // correct-answer counts per player, for the real-points calculation.
     const correctByPlayer = new Map<string, number>()
@@ -58,6 +60,7 @@ export async function POST(_req: Request, { params }: { params: { id: string } }
 
     for (let rank = 0; rank < players.length; rank++) {
       const p = players[rank]
+      if (!p.profile_id) continue // guest player — no account to credit
       const correctCount = correctByPlayer.get(p.id) ?? 0
       const award = liveDeciferPoints(correctCount, rank)
       if (award <= 0) continue

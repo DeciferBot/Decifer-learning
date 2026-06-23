@@ -57,9 +57,9 @@ export function PlayHome({
       </div>
 
       {tab === 'host' ? (
-        <HostForm subjects={subjects} yearGroupId={yearGroupId} onCreated={(id) => router.push(`/play/${id}`)} />
+        <HostForm subjects={subjects} yearGroupId={yearGroupId} onCreated={(id) => router.push(`/live/${id}`)} />
       ) : (
-        <JoinForm onJoined={(id) => router.push(`/play/${id}`)} />
+        <JoinForm onJoined={(id) => router.push(`/live/${id}`)} />
       )}
     </div>
   )
