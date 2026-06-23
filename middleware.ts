@@ -19,6 +19,9 @@ const PUBLIC_EXACT = new Set<string>([
   // Stripe webhook — Stripe's servers carry no session cookie; the route
   // authenticates via signature verification (STRIPE_WEBHOOK_SECRET).
   '/api/stripe/webhook',
+  // Decifer Blitz host entry — anyone (parents, teachers, logged-out guests)
+  // can host a game with just an email, so no auth redirect here.
+  '/play',
 ])
 // Auth callback must be public so the middleware never redirects the token exchange request.
 // Help pages are public so unauthenticated visitors can read guides linked from the homepage.

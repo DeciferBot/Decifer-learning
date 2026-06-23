@@ -1019,7 +1019,9 @@ enum LiveGameStatus {
 model LiveGame {
   id                   String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   pin                  String         @unique // 6-digit join code, unique among active games
-  host_profile_id      String         @db.Uuid
+  host_profile_id      String?        @db.Uuid  // null for guest hosts
+  host_email           String?                  // required when host_profile_id is null
+  host_guest_token     String?        @db.Uuid  // cookie token for guest-host auth
   status               LiveGameStatus @default(lobby)
   // Content scope: a single topic, or a mixed pool across a subject + year group.
   mode                 String         @default("topic") // 'topic' | 'subject'
@@ -1034,11 +1036,12 @@ model LiveGame {
   created_at           DateTime       @default(now())
   finished_at          DateTime?
 
-  host    Profile          @relation("HostedLiveGames", fields: [host_profile_id], references: [id], onDelete: Cascade)
+  host    Profile?         @relation("HostedLiveGames", fields: [host_profile_id], references: [id], onDelete: Cascade)
   players LiveGamePlayer[]
   answers LiveGameAnswer[]
 
   @@index([status, created_at])
+  @@index([host_guest_token])
   @@map("live_games")
 }
 
