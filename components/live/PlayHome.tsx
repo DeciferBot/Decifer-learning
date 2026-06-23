@@ -107,6 +107,7 @@ function HostForm({
   const [subjectId, setSubjectId] = useState(subjects[0]?.id ?? '')
   const subject = useMemo(() => subjects.find((s) => s.id === subjectId), [subjects, subjectId])
   const [topicId, setTopicId] = useState(subject?.topics[0]?.id ?? '')
+  const selectedTopicTitle = subject?.topics.find((t) => t.id === topicId)?.title
   const [count, setCount] = useState<number>(10)
   const [seconds, setSeconds] = useState<number>(20)
   const [email, setEmail] = useState('')
@@ -279,6 +280,30 @@ function HostForm({
         </div>
       </Field>
 
+      {/* Confirm exactly what will be hosted — so the subject can never be
+          wrong without the host seeing it before they tap Create. */}
+      <div
+        className="flex items-center gap-2 rounded-xl px-4 py-3 text-sm"
+        style={{
+          backgroundColor: subject ? `${subject.colourToken}1A` : 'rgba(0,0,0,0.04)',
+        }}
+      >
+        {subject ? (
+          <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: subject.colourToken }} />
+        ) : null}
+        <span className="text-muted">Hosting:</span>
+        <span className="font-bold text-ink">
+          {subject?.name ?? 'pick a subject'}
+          {subject
+            ? mode === 'subject'
+              ? ' · Mixed blast'
+              : selectedTopicTitle
+                ? ` · ${selectedTopicTitle}`
+                : ''
+            : ''}
+        </span>
+      </div>
+
       {error ? <p className="text-sm font-semibold text-rose-700">{error}</p> : null}
 
       <motion.button
@@ -287,7 +312,8 @@ function HostForm({
         onClick={create}
         className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brand py-4 font-heading text-base font-extrabold text-white shadow-sm transition hover:opacity-90 disabled:opacity-50"
       >
-        {busy ? 'Setting up…' : 'Create game'} <ArrowRight className="h-5 w-5" />
+        {busy ? 'Setting up…' : subject ? `Create ${subject.name} game` : 'Create game'}{' '}
+        <ArrowRight className="h-5 w-5" />
       </motion.button>
     </div>
   )
