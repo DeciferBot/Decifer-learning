@@ -1,29 +1,27 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getAuthedProfile } from '@/lib/live/server'
+import { resolveHostAuth } from '@/lib/live/server'
+import { broadcastLiveSnapshot } from '@/lib/live/broadcast'
 
 // POST /api/live/[id]/start — host moves the lobby into the first question.
-// Realtime propagates the live_games row change to every joined device.
+// Works for both logged-in profile hosts and cookie-identified guest hosts.
 export async function POST(_req: Request, { params }: { params: { id: string } }) {
-  const profile = await getAuthedProfile()
-  if (!profile) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const isHost = await resolveHostAuth(params.id)
+  if (!isHost) return NextResponse.json({ error: 'Only the host can start' }, { status: 403 })
 
   const game = await prisma.liveGame.findUnique({
     where: { id: params.id },
-    select: { host_profile_id: true, status: true },
+    select: { status: true },
   })
   if (!game) return NextResponse.json({ error: 'Not found' }, { status: 404 })
-  if (game.host_profile_id !== profile.id) {
-    return NextResponse.json({ error: 'Only the host can start' }, { status: 403 })
-  }
-  if (game.status !== 'lobby') {
-    return NextResponse.json({ error: 'Already started' }, { status: 409 })
-  }
+  if (game.status !== 'lobby') return NextResponse.json({ error: 'Already started' }, { status: 409 })
 
   await prisma.liveGame.update({
     where: { id: params.id },
     data: { status: 'in_progress', current_index: 0, current_started_at: new Date() },
   })
+
+  await broadcastLiveSnapshot(params.id) // flip everyone into question 1
 
   return NextResponse.json({ ok: true })
 }

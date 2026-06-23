@@ -32,9 +32,11 @@ export function JoinPanel({ isLoggedIn, initialPin }: { isLoggedIn: boolean; ini
             ? "That code didn't match a game. Check the digits!"
             : data.error === 'game_already_started'
               ? 'That game already started.'
-              : data.error === 'need_nickname'
-                ? 'Pick a nickname first.'
-                : 'Enter the 6-digit code.',
+              : data.error === 'game_full'
+                ? `This game is full (max ${data.max ?? 50} players).`
+                : data.error === 'need_nickname'
+                  ? 'Pick a nickname first.'
+                  : 'Enter the 6-digit code.',
         )
         return
       }

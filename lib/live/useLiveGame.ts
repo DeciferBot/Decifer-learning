@@ -3,10 +3,16 @@
 import { useEffect, useRef, useState } from 'react'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 
-// Client view of a live game, kept in sync via Supabase Realtime (Postgres
-// Changes). Subscribes to the game row and its player list; falls back to an
-// initial fetch so first paint is immediate. Writes never happen here — they go
-// through the server routes.
+// Client view of a live game, kept in sync via Supabase Realtime **Broadcast**
+// (pub/sub over WebSocket), not Postgres Changes. The server publishes a `sync`
+// event on the `live:<id>` channel whenever the game state or leaderboard
+// changes (see lib/live/broadcast.ts). Broadcast fans out via the nearest
+// Realtime node (big win for UAE latency) and skips Postgres Changes' per-
+// subscriber RLS check, so it scales far better within the Pro plan.
+//
+// Broadcast has no message replay, so we re-fetch a fresh snapshot every time
+// the channel (re)subscribes — that covers first paint AND self-heals any event
+// missed during a brief disconnect. Writes never happen here.
 
 export type LiveGameState = {
   id: string
@@ -17,16 +23,18 @@ export type LiveGameState = {
   seconds_per_question: number
   current_index: number
   current_started_at: string | null
-  host_profile_id: string
+  host_profile_id: string | null
 }
 
 export type LivePlayer = {
   id: string
-  profile_id: string
+  profile_id: string | null
   display_name: string
   score: number
   is_host: boolean
 }
+
+type SyncPayload = { game?: LiveGameState | null; players?: LivePlayer[] }
 
 export function useLiveGame(gameId: string) {
   const [game, setGame] = useState<LiveGameState | null>(null)
@@ -49,25 +57,23 @@ export function useLiveGame(gameId: string) {
       if (ps) setPlayers(ps as LivePlayer[])
       setReady(true)
     }
+
+    // First paint immediately, even if Realtime is slow/unavailable.
     loadInitial()
 
     const channel = supabase
       .channel(`live:${gameId}`)
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'live_games', filter: `id=eq.${gameId}` },
-        (payload) => {
-          if (payload.new && Object.keys(payload.new).length) setGame(payload.new as LiveGameState)
-        },
-      )
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'live_game_players', filter: `game_id=eq.${gameId}` },
-        (payload) => {
-          setPlayers((prev) => mergePlayer(prev, payload))
-        },
-      )
-      .subscribe()
+      .on('broadcast', { event: 'sync' }, ({ payload }) => {
+        if (!active) return
+        const p = payload as SyncPayload
+        if (p.game) setGame(p.game)
+        if (p.players) setPlayers(p.players)
+      })
+      .subscribe((status) => {
+        // Re-sync on first connect AND on every reconnect (broadcast has no
+        // replay, so a snapshot fetch closes any gap).
+        if (status === 'SUBSCRIBED') loadInitial()
+      })
 
     return () => {
       active = false
@@ -76,23 +82,4 @@ export function useLiveGame(gameId: string) {
   }, [gameId])
 
   return { game, players, ready }
-}
-
-type ChangePayload = {
-  eventType: 'INSERT' | 'UPDATE' | 'DELETE'
-  new: Record<string, unknown>
-  old: Record<string, unknown>
-}
-
-function mergePlayer(prev: LivePlayer[], payload: ChangePayload): LivePlayer[] {
-  let next = prev
-  if (payload.eventType === 'DELETE') {
-    const id = (payload.old as { id?: string }).id
-    next = prev.filter((p) => p.id !== id)
-  } else {
-    const row = payload.new as unknown as LivePlayer
-    const idx = prev.findIndex((p) => p.id === row.id)
-    next = idx === -1 ? [...prev, row] : prev.map((p) => (p.id === row.id ? row : p))
-  }
-  return [...next].sort((a, b) => b.score - a.score)
 }

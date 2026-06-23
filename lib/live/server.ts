@@ -68,10 +68,33 @@ export async function generateUniquePin(): Promise<string> {
   throw new Error('Could not allocate a unique game PIN')
 }
 
+// Returns true if the caller is the host of gameId — works for both
+// logged-in profile hosts and cookie-identified guest hosts.
+export async function resolveHostAuth(gameId: string): Promise<boolean> {
+  const game = await prisma.liveGame.findUnique({
+    where: { id: gameId },
+    select: { host_profile_id: true, host_guest_token: true },
+  })
+  if (!game) return false
+  const profile = await getAuthedProfile()
+  if (profile && game.host_profile_id === profile.id) return true
+  const token = getGuestToken()
+  if (token && game.host_guest_token === token) return true
+  return false
+}
+
 // Trim + bound a guest nickname. Returns null if it can't be made valid.
 export function cleanNickname(raw: unknown): string | null {
   if (typeof raw !== 'string') return null
   const name = raw.trim().replace(/\s+/g, ' ').slice(0, 20)
   if (name.length < 1) return null
   return name
+}
+
+// Basic email sanity check — not a full RFC validator, just enough to reject
+// obviously bad input before it hits the DB.
+export function isValidEmail(raw: unknown): raw is string {
+  if (typeof raw !== 'string') return false
+  const s = raw.trim()
+  return s.length >= 3 && s.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s)
 }

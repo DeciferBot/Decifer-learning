@@ -8,6 +8,9 @@ import {
   GUEST_COOKIE,
   GUEST_COOKIE_MAX_AGE,
 } from '@/lib/live/server'
+import { broadcastLiveSnapshot } from '@/lib/live/broadcast'
+
+const MAX_PLAYERS = 50 // Supabase Realtime pool is ~100 connections; 50 per game gives headroom for 2 concurrent games
 
 // POST /api/live/join  { pin, nickname? }
 // Join a lobby by its 6-digit PIN. Works two ways:
@@ -30,7 +33,10 @@ export async function POST(req: Request) {
 
   const game = await prisma.liveGame.findFirst({
     where: { pin, status: { not: 'finished' } },
-    select: { id: true, status: true },
+    select: {
+      id: true, status: true,
+      _count: { select: { players: true } },
+    },
   })
   if (!game) return NextResponse.json({ error: 'game_not_found' }, { status: 404 })
 
@@ -46,6 +52,9 @@ export async function POST(req: Request) {
       if (game.status !== 'lobby') {
         return NextResponse.json({ error: 'game_already_started' }, { status: 409 })
       }
+      if (game._count.players >= MAX_PLAYERS) {
+        return NextResponse.json({ error: 'game_full', max: MAX_PLAYERS }, { status: 409 })
+      }
       await prisma.liveGamePlayer.create({
         data: {
           game_id: game.id,
@@ -55,6 +64,7 @@ export async function POST(req: Request) {
           is_host: false,
         },
       })
+      await broadcastLiveSnapshot(game.id) // update everyone's lobby roster
     }
     return NextResponse.json({ gameId: game.id })
   }
@@ -74,6 +84,9 @@ export async function POST(req: Request) {
   if (game.status !== 'lobby') {
     return NextResponse.json({ error: 'game_already_started' }, { status: 409 })
   }
+  if (game._count.players >= MAX_PLAYERS) {
+    return NextResponse.json({ error: 'game_full', max: MAX_PLAYERS }, { status: 409 })
+  }
 
   if (!token) token = randomUUID()
   await prisma.liveGamePlayer.create({
@@ -85,6 +98,7 @@ export async function POST(req: Request) {
       is_host: false,
     },
   })
+  await broadcastLiveSnapshot(game.id) // update everyone's lobby roster
 
   const res = NextResponse.json({ gameId: game.id })
   res.cookies.set(GUEST_COOKIE, token, {

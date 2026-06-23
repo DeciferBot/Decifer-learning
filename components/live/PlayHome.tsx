@@ -13,18 +13,32 @@ export type HostSubject = {
   topics: { id: string; title: string }[]
 }
 
+export type YearGroupOption = {
+  id: string
+  label: string
+  subjects: HostSubject[]
+}
+
 type Tab = 'host' | 'join'
 type Mode = 'topic' | 'subject'
 
 const QUESTION_COUNTS = [5, 10, 15] as const
 const SECONDS = [10, 15, 20, 30] as const
 
+// DB year-group labels are slugs ("year-3"); show them as "Year 3".
+function prettyYear(label: string): string {
+  const n = label.replace(/\D/g, '')
+  return n ? `Year ${n}` : label
+}
+
 export function PlayHome({
-  subjects,
+  yearGroupOptions,
   yearGroupId,
+  isLoggedIn,
 }: {
-  subjects: HostSubject[]
+  yearGroupOptions: YearGroupOption[]
   yearGroupId: string | null
+  isLoggedIn: boolean
 }) {
   const router = useRouter()
   const [tab, setTab] = useState<Tab>('host')
@@ -57,7 +71,12 @@ export function PlayHome({
       </div>
 
       {tab === 'host' ? (
-        <HostForm subjects={subjects} yearGroupId={yearGroupId} onCreated={(id) => router.push(`/live/${id}`)} />
+        <HostForm
+          yearGroupOptions={yearGroupOptions}
+          initialYearGroupId={yearGroupId}
+          isLoggedIn={isLoggedIn}
+          onCreated={(id) => router.push(`/live/${id}`)}
+        />
       ) : (
         <JoinForm onJoined={(id) => router.push(`/live/${id}`)} />
       )}
@@ -66,22 +85,41 @@ export function PlayHome({
 }
 
 function HostForm({
-  subjects,
-  yearGroupId,
+  yearGroupOptions,
+  initialYearGroupId,
+  isLoggedIn,
   onCreated,
 }: {
-  subjects: HostSubject[]
-  yearGroupId: string | null
+  yearGroupOptions: YearGroupOption[]
+  initialYearGroupId: string | null
+  isLoggedIn: boolean
   onCreated: (gameId: string) => void
 }) {
+  const defaultYgId = initialYearGroupId ?? yearGroupOptions[0]?.id ?? ''
+  const [selectedYgId, setSelectedYgId] = useState(defaultYgId)
+
+  const subjects = useMemo(
+    () => yearGroupOptions.find((yg) => yg.id === selectedYgId)?.subjects ?? [],
+    [yearGroupOptions, selectedYgId],
+  )
+
   const [mode, setMode] = useState<Mode>('topic')
   const [subjectId, setSubjectId] = useState(subjects[0]?.id ?? '')
   const subject = useMemo(() => subjects.find((s) => s.id === subjectId), [subjects, subjectId])
   const [topicId, setTopicId] = useState(subject?.topics[0]?.id ?? '')
   const [count, setCount] = useState<number>(10)
   const [seconds, setSeconds] = useState<number>(20)
+  const [email, setEmail] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  function onPickYearGroup(id: string) {
+    setSelectedYgId(id)
+    const yg = yearGroupOptions.find((y) => y.id === id)
+    const firstSubject = yg?.subjects[0]
+    setSubjectId(firstSubject?.id ?? '')
+    setTopicId(firstSubject?.topics[0]?.id ?? '')
+  }
 
   function onPickSubject(id: string) {
     setSubjectId(id)
@@ -100,9 +138,10 @@ function HostForm({
           mode,
           subjectId,
           topicId: mode === 'topic' ? topicId : undefined,
-          yearGroupId,
+          yearGroupId: selectedYgId,
           questionCount: count,
           secondsPerQuestion: seconds,
+          email: isLoggedIn ? undefined : email.trim(),
         }),
       })
       const data = await res.json()
@@ -110,7 +149,9 @@ function HostForm({
         setError(
           data.error === 'not_enough_questions'
             ? 'Not enough questions here yet — try another topic or a mixed blast.'
-            : 'Could not start the game. Try again.',
+            : data.error === 'valid_email_required'
+              ? 'Enter a valid email address to host.'
+              : 'Could not start the game. Try again.',
         )
         return
       }
@@ -122,16 +163,58 @@ function HostForm({
     }
   }
 
-  if (subjects.length === 0) {
+  if (yearGroupOptions.length === 0) {
     return (
       <div className="rounded-2xl bg-surface p-6 text-center text-sm text-muted shadow-sm ring-1 ring-black/5">
-        No live-ready quizzes for your year group yet. Check back soon!
+        No live-ready quizzes available yet. Check back soon!
       </div>
     )
   }
 
+  const canCreate =
+    !busy &&
+    (mode === 'subject' || !!topicId) &&
+    (isLoggedIn || email.includes('@'))
+
   return (
     <div className="space-y-5 rounded-2xl bg-surface p-5 shadow-sm ring-1 ring-black/5">
+      {/* Email — guests only */}
+      {!isLoggedIn && (
+        <Field label="Your email">
+          <input
+            type="email"
+            inputMode="email"
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@example.com"
+            className="w-full rounded-xl border border-black/10 bg-background px-4 py-3 text-base text-ink placeholder:text-muted/50"
+          />
+          <p className="mt-1.5 text-xs text-muted">No account needed — we just need your email.</p>
+        </Field>
+      )}
+
+      {/* Year group — shown for guests (logged-in users get theirs pre-set) */}
+      {!initialYearGroupId && (
+        <Field label="Year group">
+          <div className="flex flex-wrap gap-2">
+            {yearGroupOptions.map((yg) => (
+              <button
+                key={yg.id}
+                onClick={() => onPickYearGroup(yg.id)}
+                className={`rounded-xl px-3 py-2 text-sm font-bold transition ${
+                  selectedYgId === yg.id
+                    ? 'bg-brand text-white shadow-sm'
+                    : 'bg-background text-ink hover:opacity-90'
+                }`}
+              >
+                {prettyYear(yg.label)}
+              </button>
+            ))}
+          </div>
+        </Field>
+      )}
+
       <Field label="What to play">
         <div className="grid grid-cols-2 gap-2">
           <Chip active={mode === 'topic'} onClick={() => setMode('topic')} icon={<Target className="h-4 w-4" />}>
@@ -200,7 +283,7 @@ function HostForm({
 
       <motion.button
         whileTap={{ scale: 0.97 }}
-        disabled={busy || (mode === 'topic' && !topicId)}
+        disabled={!canCreate}
         onClick={create}
         className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brand py-4 font-heading text-base font-extrabold text-white shadow-sm transition hover:opacity-90 disabled:opacity-50"
       >

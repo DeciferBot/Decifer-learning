@@ -1,26 +1,21 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getAuthedProfile } from '@/lib/live/server'
+import { resolveHostAuth } from '@/lib/live/server'
 import { liveDeciferPoints } from '@/lib/live/scoring'
+import { broadcastLiveSnapshot } from '@/lib/live/broadcast'
 
 // POST /api/live/[id]/next — host advances to the next question, or ends the
-// game after the last one. On finish, real Decifer points are logged to
-// point_events (once) and added to each player's profile total.
+// game after the last one. Works for profile hosts and guest hosts alike.
 export async function POST(_req: Request, { params }: { params: { id: string } }) {
-  const profile = await getAuthedProfile()
-  if (!profile) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const isHost = await resolveHostAuth(params.id)
+  if (!isHost) return NextResponse.json({ error: 'Only the host can advance' }, { status: 403 })
 
   const game = await prisma.liveGame.findUnique({
     where: { id: params.id },
-    select: { host_profile_id: true, status: true, current_index: true, question_count: true },
+    select: { status: true, current_index: true, question_count: true },
   })
   if (!game) return NextResponse.json({ error: 'Not found' }, { status: 404 })
-  if (game.host_profile_id !== profile.id) {
-    return NextResponse.json({ error: 'Only the host can advance' }, { status: 403 })
-  }
-  if (game.status !== 'in_progress') {
-    return NextResponse.json({ error: 'Game is not running' }, { status: 409 })
-  }
+  if (game.status !== 'in_progress') return NextResponse.json({ error: 'Game is not running' }, { status: 409 })
 
   const nextIndex = game.current_index + 1
 
@@ -29,12 +24,14 @@ export async function POST(_req: Request, { params }: { params: { id: string } }
       where: { id: params.id },
       data: { current_index: nextIndex, current_started_at: new Date() },
     })
+    // Reveal: push the new question index + leaderboard from the question just
+    // finished to every player at once.
+    await broadcastLiveSnapshot(params.id)
     return NextResponse.json({ ok: true, finished: false, index: nextIndex })
   }
 
-  // ---- Finish the game and award real Decifer points (exactly once). ----
+  // ---- Finish the game and award real Decifer points (once). ----
   await prisma.$transaction(async (tx) => {
-    // Re-check status inside the transaction to guard against a double finish.
     const fresh = await tx.liveGame.findUnique({
       where: { id: params.id },
       select: { status: true },
@@ -46,10 +43,7 @@ export async function POST(_req: Request, { params }: { params: { id: string } }
       orderBy: { score: 'desc' },
       select: { id: true, profile_id: true },
     })
-    // Real Decifer points only go to players with an account; guests keep their
-    // in-game score and podium place but earn no profile points.
 
-    // correct-answer counts per player, for the real-points calculation.
     const correctByPlayer = new Map<string, number>()
     const counts = await tx.liveGameAnswer.groupBy({
       by: ['player_id'],
@@ -60,7 +54,7 @@ export async function POST(_req: Request, { params }: { params: { id: string } }
 
     for (let rank = 0; rank < players.length; rank++) {
       const p = players[rank]
-      if (!p.profile_id) continue // guest player — no account to credit
+      if (!p.profile_id) continue // guest — no account to credit
       const correctCount = correctByPlayer.get(p.id) ?? 0
       const award = liveDeciferPoints(correctCount, rank)
       if (award <= 0) continue
@@ -78,6 +72,8 @@ export async function POST(_req: Request, { params }: { params: { id: string } }
       data: { status: 'finished', current_index: game.question_count, finished_at: new Date() },
     })
   })
+
+  await broadcastLiveSnapshot(params.id) // push the final podium to everyone
 
   return NextResponse.json({ ok: true, finished: true })
 }
