@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { submitAnswer } from '@/lib/offline'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
@@ -131,6 +132,8 @@ export function QuizShell({
   // it yet (i.e. this pass just opened it up).
   nextTopic?: { id: string; title: string; newlyUnlocked: boolean } | null
 }) {
+  const router = useRouter()
+
   // Difficulty selection — shown before quiz starts
   const [difficulty, setDifficulty] = useState<DifficultyChoice | null>(null)
 
@@ -419,6 +422,11 @@ export function QuizShell({
           if (data.passed && data.droppedCard) setShowCard(true)
           else if (data.newBadges?.length) setBadgeQueue(data.newBadges)
           else if (data.passed) setShowReflection(true)
+          // Purge the App Router client cache so back-navigation to the
+          // dashboard / world map refetches fresh server data. Without this,
+          // soft navigation serves the pre-quiz RSC payload and the home page
+          // shows the topic as still incomplete until a hard refresh.
+          router.refresh()
         } else {
           setSubmittedOffline(true)
         }
