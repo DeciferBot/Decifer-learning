@@ -55,7 +55,10 @@ export async function GET() {
       id: true,
       question_text: true,
       question_type: true,
-      // correct_answer intentionally omitted — scored server-side in /submit
+      // correct_answer is needed client-side to build the option list and show
+      // per-question feedback (same pattern as /api/topics/[id]/questions).
+      // /api/daily-challenge/submit re-scores server-side as the source of truth.
+      correct_answer: true,
       distractors: true,
       hint_1: true,
       tier: true,
