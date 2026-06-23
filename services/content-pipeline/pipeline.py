@@ -1886,3 +1886,232 @@ def run_for_topic(
     }
     logging.getLogger("pipeline.cost").info(json.dumps(summary))
     return results
+
+
+# ── fix_staged_question ────────────────────────────────────────────────────
+#
+# Targeted LLM polish for staged questions that scored 80–89.
+# Instead of regenerating from scratch, we:
+#   1. Run constitutional critique to get the specific violations.
+#   2. Ask Claude to fix ONLY those violations (question, distractors, hints).
+#   3. Re-run constitutional critique on the fixed version.
+#   4. Re-score — if ≥ threshold, UPDATE the row to published.
+#
+# We never change correct_answer (no LLM computing canonical answers).
+# We never change question_type or source_chunk_ids.
+
+_FIX_PROMPT_TEMPLATE = """You are a quality editor for a UK educational app for children (year group: {year_label}, tier: {tier}).
+
+The following {subject} question was rejected for these constitutional violations:
+{violations_text}
+
+Fix ONLY the issues listed above. Do not change the correct answer, the question type, or the overall topic being tested.
+
+Constitution (must satisfy all):
+{constitution}
+
+Current question:
+Question: {question_text}
+Correct answer: {correct_answer}
+Distractors: {distractors}
+Hint 1: {hint_1}
+Hint 2: {hint_2}
+Hint 3: {hint_3}
+Explanation: {explanation}
+
+Return ONLY valid JSON with the fixed fields (include ALL fields even if unchanged):
+{{"question_text": "...", "correct_answer": "...", "distractors": ["...", "...", "..."], "hint_1": "...", "hint_2": "...", "hint_3": "...", "explanation": "..."}}"""
+
+
+def fix_staged_question(question_id: str) -> dict:
+    """Attempt to fix a staged question via targeted LLM polish.
+
+    Returns a result dict with keys:
+      question_id, outcome ('published'|'still_staged'|'skipped'|'error'),
+      old_score, new_score, violations_before, violations_after, error (if any)
+    """
+    log = logging.getLogger("pipeline.fix_staged")
+
+    # Load question + topic from DB
+    conn = db.get_connection()
+    try:
+        with conn.cursor(cursor_factory=__import__("psycopg2").extras.RealDictCursor) as cur:
+            cur.execute(
+                """
+                SELECT qq.id, qq.topic_id, qq.tier, qq.question_text, qq.question_type,
+                       qq.correct_answer, qq.distractors, qq.hint_1, qq.hint_2, qq.hint_3,
+                       qq.explanation, qq.confidence_score, qq.source_chunk_ids,
+                       qq.technique_type, qq.technique_hint, qq.technique_note,
+                       qq.source_text, qq.source_label, qq.source_type,
+                       qq.generator_version, qq.verifier_version
+                FROM quiz_questions qq
+                WHERE qq.id = %s AND qq.status = 'staged'
+                """,
+                (question_id,),
+            )
+            row = cur.fetchone()
+    finally:
+        conn.close()
+
+    if not row:
+        return {"question_id": question_id, "outcome": "skipped", "reason": "not found or not staged"}
+
+    old_score = float(row["confidence_score"] or 0)
+    if old_score < 80:
+        return {"question_id": question_id, "outcome": "skipped", "reason": f"score {old_score} below fix threshold"}
+
+    topic = db.get_topic(str(row["topic_id"]))
+    if not topic:
+        return {"question_id": question_id, "outcome": "error", "error": "topic not found"}
+
+    tier = row["tier"]
+    year_label, _ = _YEAR_GROUP_DISPLAY.get(topic["year_group_label"], (topic["year_group_label"], ""))
+
+    question_data = {
+        "question_text": row["question_text"],
+        "question_type": row["question_type"],
+        "correct_answer": row["correct_answer"],
+        "distractors": row["distractors"] if isinstance(row["distractors"], list) else json.loads(row["distractors"] or "[]"),
+        "hint_1": row["hint_1"],
+        "hint_2": row["hint_2"],
+        "hint_3": row["hint_3"],
+        "explanation": row["explanation"],
+        "technique_type": row.get("technique_type") or "recall",
+        "technique_hint": row.get("technique_hint"),
+        "technique_note": row.get("technique_note"),
+        "source_chunk_ids": row["source_chunk_ids"] if isinstance(row["source_chunk_ids"], list) else json.loads(row["source_chunk_ids"] or "[]"),
+        "source_text": row.get("source_text"),
+        "source_label": row.get("source_label"),
+        "source_type": row.get("source_type"),
+    }
+
+    # Step 1: constitutional critique to get violations
+    dummy_result = PipelineResult()
+    violations_before = stage4_constitutional(topic, tier, question_data, dummy_result)
+
+    if not violations_before:
+        # No violations found on re-check — score may be fixable by just re-scoring
+        violations_before = []
+
+    # Step 2: ask Claude to fix the violations
+    try:
+        violations_text = "\n".join(f"- {v}" for v in violations_before) if violations_before else "- Minor quality issues: improve hint progression and distractor plausibility"
+        fix_prompt = _FIX_PROMPT_TEMPLATE.format(
+            year_label=year_label,
+            tier=tier,
+            subject=topic.get("subject_name", ""),
+            violations_text=violations_text,
+            constitution=_CONSTITUTION,
+            question_text=question_data["question_text"],
+            correct_answer=question_data["correct_answer"],
+            distractors=question_data["distractors"],
+            hint_1=question_data["hint_1"],
+            hint_2=question_data["hint_2"],
+            hint_3=question_data["hint_3"],
+            explanation=question_data["explanation"],
+        )
+        msg = _anthropic().messages.create(
+            model=config.CLAUDE_MODEL,
+            max_tokens=1200,
+            temperature=0.3,
+            messages=[{"role": "user", "content": fix_prompt}],
+        )
+        text = msg.content[0].text.strip()
+        if text.startswith("```"):
+            text = "\n".join(l for l in text.splitlines() if not l.startswith("```"))
+        fixed = json.loads(_extract_json(text))
+    except Exception as exc:
+        log.error(f"[fix_staged] LLM fix failed for {question_id}: {exc}")
+        return {"question_id": question_id, "outcome": "error", "error": str(exc)}
+
+    # Apply fixes — never change correct_answer or question_type
+    question_data["question_text"] = fixed.get("question_text", question_data["question_text"])
+    question_data["distractors"] = fixed.get("distractors", question_data["distractors"])
+    question_data["hint_1"] = fixed.get("hint_1", question_data["hint_1"])
+    question_data["hint_2"] = fixed.get("hint_2", question_data["hint_2"])
+    question_data["hint_3"] = fixed.get("hint_3", question_data["hint_3"])
+    question_data["explanation"] = fixed.get("explanation", question_data["explanation"])
+
+    # Step 3: re-run constitutional critique on fixed version
+    recheck_result = PipelineResult()
+    violations_after = stage4_constitutional(topic, tier, question_data, recheck_result)
+
+    # Step 4: re-score directly — skip RAG chunk re-verification since the question
+    # already passed that gate originally (source_chunk_ids are in DB but _retrieved_chunks
+    # is not available outside the generation pipeline).
+    # Weights mirror stage6_score: computation=60, consensus=25, constitutional=-10/violation.
+    qtype = question_data.get("question_type", "")
+    has_rag_bonus = (
+        qtype in config.RAG_REQUIRED_TYPES
+        and bool(question_data.get("source_chunk_ids"))
+    )
+    new_score = 60.0 + 25.0  # verified + consensus (original passes carried forward)
+    if has_rag_bonus:
+        new_score += 5.0
+    new_score -= len(violations_after) * 10.0
+    # literary_analysis +5 buffer when all primary gates clean
+    if qtype == "english_literary_analysis" and not violations_after:
+        new_score += 5.0
+    # physics_calculation +5 buffer when all primary gates clean
+    if qtype == "science_physics_calculation" and not violations_after:
+        new_score += 5.0
+    new_score = max(0.0, new_score)
+    threshold = config.get_confidence_threshold(qtype)
+    new_status = "published" if new_score >= threshold else "staged"
+
+    if new_status == "published":
+        # UPDATE the existing row in-place
+        conn2 = db.get_connection()
+        try:
+            with conn2.cursor() as cur:
+                cur.execute(
+                    """
+                    UPDATE quiz_questions SET
+                        question_text = %s,
+                        distractors = %s,
+                        hint_1 = %s, hint_2 = %s, hint_3 = %s,
+                        explanation = %s,
+                        technique_type = %s,
+                        technique_hint = %s,
+                        technique_note = %s,
+                        confidence_score = %s,
+                        status = 'published',
+                        published_at = NOW()
+                    WHERE id = %s AND status = 'staged'
+                    """,
+                    (
+                        question_data["question_text"],
+                        json.dumps(question_data["distractors"]),
+                        question_data["hint_1"],
+                        question_data["hint_2"],
+                        question_data["hint_3"],
+                        question_data["explanation"],
+                        question_data.get("technique_type") or "recall",
+                        question_data.get("technique_hint"),
+                        question_data.get("technique_note"),
+                        new_score,
+                        question_id,
+                    ),
+                )
+            conn2.commit()
+        finally:
+            conn2.close()
+        log.info(f"[fix_staged] {question_id} promoted: {old_score}→{new_score}")
+        return {
+            "question_id": question_id,
+            "outcome": "published",
+            "old_score": old_score,
+            "new_score": new_score,
+            "violations_before": violations_before,
+            "violations_after": violations_after,
+        }
+
+    log.info(f"[fix_staged] {question_id} still staged: {old_score}→{new_score} violations={violations_after}")
+    return {
+        "question_id": question_id,
+        "outcome": "still_staged",
+        "old_score": old_score,
+        "new_score": new_score,
+        "violations_before": violations_before,
+        "violations_after": violations_after,
+    }

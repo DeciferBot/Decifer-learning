@@ -16,6 +16,7 @@ Phase 11A endpoints (pipeline/admin only — not child-facing):
   POST /pipeline/regenerate-flagged re-run pipeline for flagged questions (max 20)
   POST /pipeline/oak-daily-update   ingest new Oak NA lessons + top-up thin topics (async)
   POST /pipeline/autopilot-daily    rebuild work queue + run autopilot (async, nightly)
+  POST /pipeline/fix-staged-all     LLM-polish staged questions (score>=80) to published (async)
 """
 
 import json
@@ -830,6 +831,72 @@ def autopilot_daily(background_tasks: BackgroundTasks) -> dict:
     """Nightly cron: rebuild work queue and run the autopilot to top-up thin topics."""
     background_tasks.add_task(_run_autopilot_daily)
     return {"status": "started", "message": "Autopilot daily run queued in background"}
+
+
+# ── /pipeline/fix-staged-all ──────────────────────────────────────────────────
+#
+# LLM polish pass for staged questions scoring >= 80.
+# Fixes constitutional violations in-place and promotes to published if the
+# re-score hits the threshold. Processes up to `cap` questions per run.
+
+@app.post("/pipeline/fix-staged-all")
+def fix_staged_all(background_tasks: BackgroundTasks, cap: int = 200) -> dict:
+    """LLM-polish staged questions (score>=80) and promote to published."""
+    background_tasks.add_task(_run_fix_staged_all, cap)
+    return {"status": "started", "message": f"fix-staged-all running in background (cap={cap})"}
+
+
+def _run_fix_staged_all(cap: int = 200):
+    import psycopg2
+    import psycopg2.extras
+    import pipeline as pl
+    import config
+
+    log.info(f"[fix-staged-all] starting, cap={cap}")
+
+    conn = psycopg2.connect(config.DATABASE_URL)
+    try:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            # Prioritise maths questions at exactly 85 (threshold=85, so 0 violations = publish)
+            # then other types ≥80. Maths at 85 are the highest-yield batch.
+            cur.execute(
+                """
+                SELECT qq.id FROM quiz_questions qq
+                JOIN topics t ON t.id = qq.topic_id
+                JOIN subjects s ON s.id = t.subject_id
+                WHERE qq.status = 'staged' AND qq.confidence_score >= 80
+                ORDER BY
+                  CASE WHEN s.name = 'Maths' AND qq.confidence_score = 85 THEN 0 ELSE 1 END,
+                  qq.confidence_score DESC
+                LIMIT %s
+                """,
+                (cap,),
+            )
+            rows = cur.fetchall()
+    finally:
+        conn.close()
+
+    question_ids = [str(r["id"]) for r in rows]
+    log.info(f"[fix-staged-all] {len(question_ids)} questions to process")
+
+    published = 0
+    still_staged = 0
+    errors = 0
+
+    for qid in question_ids:
+        try:
+            result = pl.fix_staged_question(qid)
+            if result["outcome"] == "published":
+                published += 1
+            elif result["outcome"] == "still_staged":
+                still_staged += 1
+            else:
+                errors += 1
+        except Exception as exc:
+            log.error(f"[fix-staged-all] unhandled error for {qid}: {exc}")
+            errors += 1
+
+    log.info(f"[fix-staged-all] done: published={published} still_staged={still_staged} errors={errors}")
 
 
 def _run_autopilot_daily():
