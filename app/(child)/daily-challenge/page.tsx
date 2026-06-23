@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic'
 
 import { useEffect, useState } from 'react'
 import { Star, Target, Zap, Lightbulb, Clock } from '@/components/ui/icons'
+import MathText from '@/components/ui/MathText'
 
 interface Question {
   id: string
@@ -188,13 +189,15 @@ export default function DailyChallengePageInner() {
 
       {/* Question card */}
       <div className="rounded-2xl border border-black/5 bg-surface p-5 shadow-sm">
-        <p className="text-base font-semibold text-ink leading-snug">{q.question_text}</p>
+        <p className="text-base font-semibold text-ink leading-snug">
+          <MathText text={q.question_text} />
+        </p>
 
         {q.hint_1 && (
           <div className="mt-3">
             {showHint ? (
               <p className="flex items-start gap-1.5 rounded-xl bg-points-gold/10 px-3 py-2 text-sm text-points-gold-700">
-                <Lightbulb className="w-4 h-4 flex-none mt-0.5" aria-hidden /> {q.hint_1}
+                <Lightbulb className="w-4 h-4 flex-none mt-0.5" aria-hidden /> <MathText text={q.hint_1} />
               </p>
             ) : (
               <button
@@ -239,7 +242,7 @@ export default function DailyChallengePageInner() {
               aria-pressed={isSelected}
               disabled={selected !== null}
             >
-              {opt}
+              <MathText text={opt} />
             </button>
           )
         })}

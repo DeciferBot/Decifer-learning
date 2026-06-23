@@ -6,7 +6,19 @@
 export const dynamic = 'force-dynamic'
 
 import { NextResponse } from 'next/server'
+import { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
+
+// The daily-challenge UI renders only plain single-answer multiple choice.
+// It cannot present the multi-part question types the main QuizShell handles,
+// and "select all"-style prompts are multi-answer (no multi-select UI exists).
+// Keep this list in sync with MULTIPART_QTYPES in components/quiz/QuizShell.tsx.
+const MULTIPART_QTYPES = ['true_false_grid', 'ordered_list', 'source_analysis', 'explain_example', 'structured_answer']
+
+// Multi-answer ("select all/any") prompts can't be scored by the single-answer
+// daily UI. Mirrors _MULTISELECT_PROMPT_RE in services/content-pipeline/pipeline.py
+// (the pipeline gate now blocks new ones; this is the read-time safety net).
+const MULTISELECT_PROMPT_RE = '(select|choose|tick|mark|pick)\\s+(all|every|each|any)|all that apply'
 
 // Vercel Cron invokes the path with a GET request (and an Authorization: Bearer <CRON_SECRET>
 // header when CRON_SECRET is configured). POST stays exported for manual/local invocation.
@@ -25,15 +37,6 @@ async function handler(req: Request) {
     date.setUTCHours(0, 0, 0, 0)
 
     for (const yg of yearGroups) {
-      const count = await prisma.quizQuestion.count({
-        where: { status: 'published', topic: { year_group_id: yg.id } },
-      })
-
-      if (count < 3) {
-        results.push(`skip:${yg.label}:${date.toISOString().slice(0, 10)} (only ${count} questions)`)
-        continue
-      }
-
       // Check if already seeded
       const existing = await prisma.dailyChallenge.findFirst({
         where: { year_group_id: yg.id, date },
@@ -44,14 +47,28 @@ async function handler(req: Request) {
         continue
       }
 
-      const offset = Math.floor(Math.random() * Math.max(1, count - 3))
-      const questions = await prisma.quizQuestion.findMany({
-        where: { status: 'published', topic: { year_group_id: yg.id } },
-        select: { id: true },
-        skip: offset,
-        take: 3,
-        orderBy: { created_at: 'asc' },
-      })
+      // Pick 3 random questions the daily UI can actually render: plain
+      // single-answer multiple choice (exactly 3 distractors), excluding the
+      // multi-part types QuizShell special-cases and "select all"-style
+      // multi-answer prompts. distractors is guarded with jsonb_typeof because
+      // a few legacy rows store it as a non-array scalar.
+      const questions = await prisma.$queryRaw<{ id: string }[]>`
+        SELECT q.id
+        FROM quiz_questions q
+        JOIN topics t ON t.id = q.topic_id
+        WHERE q.status = 'published'
+          AND t.year_group_id = ${yg.id}::uuid
+          AND q.question_type NOT IN (${Prisma.join(MULTIPART_QTYPES)})
+          AND (CASE WHEN jsonb_typeof(q.distractors) = 'array'
+                    THEN jsonb_array_length(q.distractors) ELSE 0 END) = 3
+          AND q.question_text !~* ${MULTISELECT_PROMPT_RE}
+        ORDER BY random()
+        LIMIT 3`
+
+      if (questions.length < 3) {
+        results.push(`skip:${yg.label}:${date.toISOString().slice(0, 10)} (only ${questions.length} renderable questions)`)
+        continue
+      }
 
       await prisma.dailyChallenge.create({
         data: {
