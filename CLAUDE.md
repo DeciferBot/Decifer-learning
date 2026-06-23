@@ -22,6 +22,26 @@
 - **Teacher accounts / classroom** mode.
 - Full **Foundation Mode** audio-first UI (Year 1; some Y2 content exists, but not the picture-answer/audio-first child UI).
 
+### Product phases — the one true definition
+
+There are only **two** product phases. "Phase" here means a product stage, **not** the old numbered build steps in §14 (those were never product phases — they were the 13 steps used to build Phase 1, and they are all done). When anyone says "Phase 1" or "Phase 2", this is what it means:
+
+**Phase 1 — Build the product and launch it publicly. ✅ COMPLETE.**
+All of the following shipped and is live. It is one finished phase:
+- Sign-up / login, parent & child accounts, role choice, year-group choice, parent–child linking, onboarding.
+- The full child loop: Learn → Practise → Quiz, with points, hints, hearts/lives, streaks, badges, Discovery Cards, world map, Zone Guardians, daily challenge, spaced-repetition revisit.
+- Parent dashboard (weak areas, screen-time controls) and the admin/ops tools.
+- The automated content pipeline (generate → verify → publish) across Maths, English, Science, History, Geography.
+- Year groups from KS1 (Y2) through KS4 (Y10–11 / GCSE content).
+- Paid public product: Stripe subscriptions, public marketing/SEO pages, consent.
+- Reward Vault, Explore (Learning Aid Box), engagement/re-engagement emails, the retention/"stickiness" work, accessibility (WCAG 2.2), PWA + offline.
+- *(This folds in the old §14 build steps 0–12 and the separate 3-step "stickiness" sub-plan — all of it is Phase 1, and all of it is complete.)*
+
+**Phase 2 — Not started.** The features deliberately left for later (see the deferred list above and §11):
+live multiplayer / head-to-head, Fusion Challenges + Fusion Cards, A-level mode (Y12–13), full Foundation Mode (Y1 audio-first), teacher / classroom accounts, public community leaderboard, GCSE past-paper engine, Secret Bonus Room.
+
+> So: **Phase 1 is done. Anything not yet built is Phase 2.** That's the whole map.
+
 Everything in §4 (constraints), §5 (stack), §6 (env), §7 (schema), §8 (content rules), and §16 (operating rules) remains current and authoritative.
 
 ---
@@ -475,7 +495,7 @@ decifer-learning/
 
 ## 14. Build phases and gates
 
-> **All 12 phases below are COMPLETE and gate-passed (see §0).** This section is now a historical record of the build order, not a forward plan. The "one session = one phase" discipline applied during the MVP build; new work is feature-driven, not phase-driven.
+> **All 12 build steps below are COMPLETE and gate-passed (see §0).** These were the steps used to build **Product Phase 1** — they are *not* product phases themselves (the product has only two phases; see §0 → "Product phases"). This section is now a historical record of the build order, not a forward plan. New work is feature-driven, not step-by-step.
 
 **Discipline — non-negotiable:**
 - **One Claude Code session = one phase.**
