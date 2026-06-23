@@ -460,6 +460,37 @@ export default function Home({
           </div>
         </section>
 
+        {/* ── Decifer Blitz ────────────────────────────────────────────────── */}
+        <section className="py-16">
+          <div className="mx-auto max-w-5xl px-4">
+            <div className="overflow-hidden rounded-3xl border border-black/5 bg-ink px-6 py-10 text-center sm:px-12 sm:py-12">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-white">
+                <Zap size={14} aria-hidden /> Decifer Blitz
+              </span>
+              <h2 className="mx-auto mt-4 max-w-2xl font-heading text-2xl font-bold text-white md:text-3xl">
+                Live quiz battles for the classroom and the kitchen table.
+              </h2>
+              <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-white/70">
+                Host a real-time quiz in 30 seconds. Players join from any device with a code — no account needed. UK curriculum questions, checked answers, instant leaderboard.
+              </p>
+              <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
+                <Link
+                  href="/play"
+                  className="flex h-12 items-center justify-center rounded-xl bg-brand-600 px-7 font-semibold text-white transition-colors hover:bg-brand-700"
+                >
+                  Host a game
+                </Link>
+                <Link
+                  href="/blitz"
+                  className="flex h-12 items-center justify-center rounded-xl border border-white/20 bg-white/5 px-7 font-semibold text-white transition-colors hover:bg-white/10"
+                >
+                  How Blitz works
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* ── Final CTA ────────────────────────────────────────────────────── */}
         <section className="bg-brand-50 py-16">
           <div className="mx-auto max-w-md px-4 text-center">
@@ -498,6 +529,7 @@ export default function Home({
               <Link href="/curriculum" className="hover:text-ink">Curriculum</Link>
               <Link href="/subjects" className="hover:text-ink">Subjects</Link>
               <Link href="/how-it-works" className="hover:text-ink">How it works</Link>
+              <Link href="/blitz" className="hover:text-ink">Blitz</Link>
               <Link href="/pricing" className="hover:text-ink">Pricing</Link>
               <Link href="/help" className="hover:text-ink">Help</Link>
               <Link href="/help/faq" className="hover:text-ink">FAQ</Link>

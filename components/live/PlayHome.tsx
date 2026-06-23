@@ -25,6 +25,12 @@ type Mode = 'topic' | 'subject'
 const QUESTION_COUNTS = [5, 10, 15] as const
 const SECONDS = [10, 15, 20, 30] as const
 
+// DB year-group labels are slugs ("year-3"); show them as "Year 3".
+function prettyYear(label: string): string {
+  const n = label.replace(/\D/g, '')
+  return n ? `Year ${n}` : label
+}
+
 export function PlayHome({
   yearGroupOptions,
   yearGroupId,
@@ -202,7 +208,7 @@ function HostForm({
                     : 'bg-background text-ink hover:opacity-90'
                 }`}
               >
-                {yg.label}
+                {prettyYear(yg.label)}
               </button>
             ))}
           </div>

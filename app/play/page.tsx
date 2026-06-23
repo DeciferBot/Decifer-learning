@@ -44,6 +44,11 @@ export default async function PlayPage() {
     }),
   )
 
+  // Sort numerically by the year number ("year-2" before "year-10"), since the
+  // DB labels are slugs and a string sort would order 1,10,11,2,3…
+  const yearNum = (label: string) => parseInt(label.replace(/\D/g, ''), 10) || 0
+  yearGroupOptions.sort((a, b) => yearNum(a.label) - yearNum(b.label))
+
   // For logged-in users, pre-select their year group.
   let yearGroupId: string | null = null
   if (user) {
