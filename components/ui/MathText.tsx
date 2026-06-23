@@ -31,11 +31,12 @@ export default function MathText({ text, className }: Props) {
 type Part = { type: 'text' | 'math'; value: string }
 
 function splitMath(text: string): Part[] {
-  // Match $...$, \(...\), or {N}^\circ \text{C} style bare LaTeX
+  // Match $$...$$ (display delimiters), $...$, \(...\), or bare LaTeX
   const parts: Part[] = []
-  // Regex: $...$ (max 80 chars — prevents currency amounts being parsed as LaTeX)
-  // or \(...\) for explicit inline math
-  const re = /\$([^$\n]{1,80})\$|\\\((.+?)\\\)/g
+  // Regex order matters: $$...$$ MUST come before $...$ so double-dollar
+  // delimiters are consumed whole rather than leaving stray $ on each side.
+  // $...$ is capped at 80 chars to avoid currency amounts being parsed as LaTeX.
+  const re = /\$\$([^$]{1,120})\$\$|\$([^$\n]{1,80})\$|\\\((.+?)\\\)/g
   let last = 0
   let match: RegExpExecArray | null
   while ((match = re.exec(text)) !== null) {
@@ -43,7 +44,7 @@ function splitMath(text: string): Part[] {
       const raw = text.slice(last, match.index)
       parts.push(...detectBareLaTeX(raw))
     }
-    parts.push({ type: 'math', value: match[1] ?? match[2] })
+    parts.push({ type: 'math', value: match[1] ?? match[2] ?? match[3] })
     last = match.index + match[0].length
   }
   if (last < text.length) {
