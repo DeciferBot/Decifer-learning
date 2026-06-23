@@ -1702,8 +1702,11 @@ def _renderability_offenders(data: dict) -> list[str]:
 # a different correct option is graded wrong). The constitutional critic (Stage
 # 4) is asked to flag these, but an LLM is not a reliable gate, so this is a
 # deterministic hard stop in Stage 6, mirroring the renderability gate.
+# "any" is included ("Select any numbers which are factors of 11" is multi-answer)
+# but a negative lookahead spares the legit single-answer "choose any one …".
 _MULTISELECT_PROMPT_RE = re.compile(
-    r"\b(select|choose|tick|mark|pick)\s+(all|every|each)\b|\ball\s+that\s+apply\b",
+    r"\b(select|choose|tick|mark|pick)\s+(all|every|each|any)\b(?!\s+one\b)"
+    r"|\ball\s+that\s+apply\b",
     re.IGNORECASE,
 )
 
