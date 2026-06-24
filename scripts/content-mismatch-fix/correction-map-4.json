@@ -1,0 +1,11 @@
+{
+  "note": "Round 4 — safe cross-year re-source for no-Oak-source topics that DO have a clean Oak unit. Atomic, deterministic.",
+  "map": {
+    "2ca61eb1-636b-40bf-b0cd-02cb0311ec13": {"title": "Geo Y6 South America (was: empty)", "units": ["geography/ks2/year-5/south-america-why-does-the-amazon-matter"]},
+    "9095092b-5fd9-46f4-9d42-bb38c1ded642": {"title": "Geo Y3 Trade and Global Economy (was: climate zones)", "units": ["geography/ks2/year-6/global-trade-how-do-we-get-our-stuff"]},
+    "f73013b7-f373-446d-90a0-7e0d7c96a8df": {"title": "Geo Y6 Environmental Change and Human Impact (was: earthquakes)", "units": ["geography/ks2/year-5/sustainable-world-does-it-matter-how-we-live"]},
+    "4fea0ebc-3034-48a6-a98b-aebc6215b4eb": {"title": "Geo Y1 UK Countries/Capitals (was: local map-reading)", "units": ["geography/ks2/year-4/the-uk-who-are-we"]},
+    "427e1d43-ae6c-4c14-9d5d-1efebabaa4de": {"title": "Eng Y4 Grammar: Standard/Non-Standard (was: anglerfish)", "units": ["english/ks2/year-4/review-of-determiners-prepositions-and-fronted-adverbials"]},
+    "4f6133f0-c9c8-4d30-9c30-3087f8d4288e": {"title": "Eng Y7 Grammar: Sentence Types (was: oracy)", "units": ["english/ks2/year-6/using-five-sentence-types", "english/ks2/year-5/five-sentence-types"]}
+  }
+}
