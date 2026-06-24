@@ -16,10 +16,45 @@ export type OgCardConfig = {
   subtitle: string
   /** Up to four short pills along the bottom. */
   pills: string[]
+  /** Accent colour for the bar, second headline, brand mark and pills. Defaults to brand orange. */
+  accent?: string
+  /** Soft tint behind pills, paired with `accent`. Defaults to the orange tint. */
+  pillTint?: string
+  /** Word shown after the DECIFER mark (e.g. "Learning" or "Blitz"). */
+  brandWord?: string
+}
+
+// Decifer Blitz purple — matches the in-app Blitz button (#7C3AED).
+export const BLITZ_ACCENT = '#7C3AED'
+export const BLITZ_TINT = '#F3EEFC'
+
+/**
+ * The shared Blitz social card. Every Blitz surface (/blitz, /play, /join,
+ * /live/[gameId]) renders this so a shared game link previews as Blitz — not
+ * the home page card. Keep the copy here so all four stay identical.
+ */
+export function renderBlitzOgCard() {
+  return renderOgCard({
+    headlineTop: 'Join my',
+    headlineBottom: 'Decifer Blitz!',
+    subtitle: 'A live, Kahoot-style quiz battle. Tap the link, pick a nickname, play — no account needed.',
+    pills: ['Live quiz', 'No sign-up', 'Any device', 'UK curriculum'],
+    accent: BLITZ_ACCENT,
+    pillTint: BLITZ_TINT,
+    brandWord: 'Blitz',
+  })
 }
 
 export function renderOgCard(config: OgCardConfig) {
-  const { headlineTop, headlineBottom, subtitle, pills } = config
+  const {
+    headlineTop,
+    headlineBottom,
+    subtitle,
+    pills,
+    accent = '#F05A28',
+    pillTint = '#FEF0E8',
+    brandWord = 'Learning',
+  } = config
 
   return new ImageResponse(
     (
@@ -37,7 +72,7 @@ export function renderOgCard(config: OgCardConfig) {
           style={{
             width: 10,
             height: '100%',
-            background: '#F05A28',
+            background: accent,
             flexShrink: 0,
             display: 'flex',
           }}
@@ -57,7 +92,7 @@ export function renderOgCard(config: OgCardConfig) {
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div
               style={{
-                background: '#F05A28',
+                background: accent,
                 borderRadius: 8,
                 padding: '6px 14px',
                 color: '#fff',
@@ -78,7 +113,7 @@ export function renderOgCard(config: OgCardConfig) {
                 display: 'flex',
               }}
             >
-              Learning
+              {brandWord}
             </div>
           </div>
 
@@ -99,7 +134,7 @@ export function renderOgCard(config: OgCardConfig) {
               </span>
               <span
                 style={{
-                  color: '#F05A28',
+                  color: accent,
                   fontSize: 68,
                   fontWeight: 800,
                   lineHeight: 1.08,
@@ -130,11 +165,11 @@ export function renderOgCard(config: OgCardConfig) {
                 <div
                   key={label}
                   style={{
-                    background: '#FEF0E8',
-                    border: '1.5px solid rgba(240,90,40,0.25)',
+                    background: pillTint,
+                    border: `1.5px solid ${accent}40`,
                     borderRadius: 20,
                     padding: '8px 18px',
-                    color: '#CC4A21',
+                    color: accent,
                     fontSize: 17,
                     fontWeight: 600,
                     display: 'flex',

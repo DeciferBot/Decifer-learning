@@ -10,6 +10,10 @@ export const metadata: Metadata = {
     description: 'Real-time quiz battles aligned to the UK National Curriculum. No accounts needed.',
     url: 'https://deciferlearning.com/blitz',
   },
+  twitter: {
+    title: 'Decifer Blitz — Live quiz battles',
+    description: 'Real-time quiz battles aligned to the UK National Curriculum. No accounts needed.',
+  },
 }
 
 const HOW = [

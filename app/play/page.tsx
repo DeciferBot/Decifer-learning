@@ -1,8 +1,28 @@
 export const dynamic = 'force-dynamic'
 
+import type { Metadata } from 'next'
 import { getAuthUser } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import { PlayHome, type HostSubject, type YearGroupOption } from '@/components/live/PlayHome'
+
+// Own OG card (see app/play/opengraph-image.tsx) so a shared host link previews
+// as Decifer Blitz, not the home page.
+export const metadata: Metadata = {
+  title: 'Host a Decifer Blitz — Live quiz battle',
+  description:
+    'Start a live, Kahoot-style quiz battle in 30 seconds. UK curriculum questions, no accounts for players, works on any device.',
+  openGraph: {
+    title: 'Host a Decifer Blitz — Live quiz battle',
+    description:
+      'Start a live, Kahoot-style quiz battle in 30 seconds. No accounts for players, works on any device.',
+    url: 'https://www.deciferlearning.com/play',
+  },
+  twitter: {
+    title: 'Host a Decifer Blitz — Live quiz battle',
+    description:
+      'Start a live, Kahoot-style quiz battle in 30 seconds. No accounts for players, works on any device.',
+  },
+}
 
 // Decifer Blitz host entry — open to everyone, no account required.
 // Logged-in users get their year group pre-selected; guests pick one.
