@@ -1,9 +1,28 @@
 export const dynamic = 'force-dynamic'
 
+import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { resolvePlayer } from '@/lib/live/server'
 import { prisma } from '@/lib/prisma'
 import { LiveGameClient } from '@/components/live/LiveGameClient'
+
+// Own Blitz OG card (app/live/[gameId]/opengraph-image.tsx) so a shared game
+// link doesn't fall back to the home page preview.
+export const metadata: Metadata = {
+  title: 'Decifer Blitz — Live quiz battle',
+  description:
+    'A live, Kahoot-style quiz battle. Tap the link, pick a nickname, and play — no account needed.',
+  openGraph: {
+    title: 'Join my Decifer Blitz!',
+    description:
+      'A live, Kahoot-style quiz battle. Pick a nickname and play — no account needed.',
+  },
+  twitter: {
+    title: 'Join my Decifer Blitz!',
+    description:
+      'A live, Kahoot-style quiz battle. Pick a nickname and play — no account needed.',
+  },
+}
 
 // Public Decifer Live game view — works for logged-in players AND guests who
 // joined with just a nickname. Anyone who hasn't joined is sent to /join.
