@@ -1,0 +1,49 @@
+{
+  "note": "Round 2 — conflict-resolved assignments. Executed in ONE transaction (all deletes before all inserts) so cross-topic frees resolve atomically. Excludes Mult/Div Y3 (deferred: overlaps 'Multiplication Tables' topic, no distinct Y3 Oak unit).",
+  "map": {
+    "4effbb7f-cf49-4502-a579-bb4da158f1eb": {
+      "title": "History Y3 Roman Empire",
+      "units": ["history/ks2/year-4/the-romans-what-did-it-mean-to-be-a-roman"]
+    },
+    "ce6a9ba2-fbe7-4ec6-aae6-ec21a15ca6dd": {
+      "title": "History Y4 Early Islamic Civilisation",
+      "units": ["history/ks2/year-5/early-islamic-civilisation-how-did-baghdad-become-the-city-of-peace", "history/ks2/year-5/early-islamic-civilisation-what-connected-baghdad-to-the-wider-world"]
+    },
+    "e2292517-04f1-4a8a-aa71-19f698edde16": {
+      "title": "History Y7 Early Modern Britain 1509-1745",
+      "units": ["history/ks3/year-8/life-in-tudor-england-was-there-a-golden-age-for-the-poor", "history/ks3/year-8/elizabeth-i-why-has-elizabeth-been-represented-so-differently", "history/ks3/year-8/the-english-civil-war-what-can-pamphlets-tell-us-about-17th-century-politics", "history/ks3/year-8/glorious-revolution-why-did-whig-historians-call-it-glorious-and-bloodless"]
+    },
+    "64618197-4409-4d8f-abb6-50e0d71cb486": {
+      "title": "History Y8 World War One",
+      "units": ["history/ks3/year-9/world-war-one-how-total-was-it-for-people-in-the-british-empire"]
+    },
+    "c6caf8c2-6ec2-4f95-8c42-1fe58ed0adc2": {
+      "title": "History Y9 Contemporary World Issues (was: WW1)",
+      "units": ["history/ks3/year-9/interpreting-the-british-empire-how-has-it-been-commemorated-and-contested"]
+    },
+    "c3b7852b-9470-4af8-bd38-153a88c34299": {
+      "title": "History Y9 Britain Since 1945",
+      "units": ["history/ks3/year-9/post-war-britain-for-whom-did-the-united-kingdom-become-a-new-jerusalem"]
+    },
+    "a67bb009-2695-4f38-8a68-455d82fc4d16": {
+      "title": "History Y9 Civil Rights Movements (was: post-war Britain)",
+      "units": ["history/ks3/year-9/womens-suffrage-what-do-sources-tell-us-about-womens-struggle-for-equality", "history/ks3/year-9/widening-the-franchise-who-gained-the-right-to-vote"]
+    },
+    "67273054-8559-4950-be08-5000ce87e378": {
+      "title": "Science Y10 Organisation and the Digestive System",
+      "units": ["science/ks4/year-10/biological-molecules-and-enzymes", "science/ks4/year-10/transport-and-exchange-surfaces-in-humans"]
+    },
+    "89477326-755f-40d7-bd99-399ee6bd5e05": {
+      "title": "Science Y10 Quantitative Chemistry",
+      "units": ["science/ks4/year-10/calculations-involving-masses"]
+    },
+    "9425830d-597c-45ef-86fa-1e495a6f0a4a": {
+      "title": "Science Y11 Energy Changes in Chemistry",
+      "units": ["science/ks4/year-10/energy-changes-in-reactions"]
+    },
+    "4196c105-0445-4f52-8c2c-a8047db199a3": {
+      "title": "Science Y11 Space Physics",
+      "units": ["science/ks4/year-11/gravity-in-space"]
+    }
+  }
+}

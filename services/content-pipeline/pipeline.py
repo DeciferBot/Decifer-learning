@@ -883,7 +883,7 @@ def stage1_generate(topic: dict, tier: str, result: PipelineResult) -> Optional[
     result.log_stage("Stage 1: RAG generation")
     query_text = f"{topic['title']} {topic['year_group_label']} {topic['subject_name']}"
     query_embedding = embed_text(query_text) if config.EMBEDDINGS_ENABLED else None
-    chunks = db.retrieve_chunks(topic["subject_name"], topic["year_group_label"], query_embedding)
+    chunks = db.retrieve_chunks(topic["subject_name"], topic["year_group_label"], query_embedding, restrict_source=topic.get("restrict_source"))
     result.log_stage(f"  retrieved {len(chunks)} curriculum chunks for {topic['subject_name']}")
 
     # Pass published questions as a diversity hint for English AND Science topics.
@@ -1883,8 +1883,13 @@ def run_for_topic(
     tier: str,
     count: int,
     pipeline_run_id: Optional[str] = None,
+    restrict_source: Optional[str] = None,
 ) -> list[PipelineResult]:
     """Generate `count` questions for a topic at the given tier.
+
+    restrict_source: when set, RAG grounding is scoped to chunks with this
+    source_name only (for bespoke topics whose dedicated source would otherwise
+    be drowned by the shared subject+year chunk pool).
 
     Emits a structured summary via the pipeline.cost logger.
     """
@@ -1895,6 +1900,8 @@ def run_for_topic(
     topic = db.get_topic(topic_id)
     if topic is None:
         raise ValueError(f"Topic {topic_id!r} not found")
+    if restrict_source:
+        topic["restrict_source"] = restrict_source
 
     results: list[PipelineResult] = []
     for i in range(count):

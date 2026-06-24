@@ -168,6 +168,7 @@ def retrieve_chunks(
     year_group_label: str,
     query_embedding: Optional[np.ndarray],
     limit: int = 8,
+    restrict_source: Optional[str] = None,
 ) -> list[dict]:
     """Return top-N curriculum chunks for RAG generation.
 
@@ -175,37 +176,51 @@ def retrieve_chunks(
     bonus — they contain full lesson transcripts and quiz Q&As which produce
     significantly better generation quality than the thin NC programme docs.
 
+    restrict_source: when set, ONLY chunks whose source_name matches are eligible.
+    Used for bespoke topics that must ground on a single dedicated source (e.g. a
+    public-domain poem set) rather than the shared subject+year pool, which would
+    otherwise drown a small dedicated source in thousands of Oak chunks.
+
     If query_embedding is None (embeddings disabled) or no embedded chunks
     exist, returns up to `limit` chunks in insertion order, Oak rich first.
     """
     conn = get_connection()
     try:
         with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            src_clause = " AND source_name = %s" if restrict_source else ""
             if query_embedding is not None:
+                params = [subject, year_group_label]
+                if restrict_source:
+                    params.append(restrict_source)
+                params += [str(query_embedding.tolist()), limit]
                 cur.execute(
-                    """
+                    f"""
                     SELECT id, chunk_text, source_name, subject, year_group
                     FROM curriculum_chunks
                     WHERE subject = %s AND year_group = %s
-                      AND embedding IS NOT NULL
+                      AND embedding IS NOT NULL{src_clause}
                     ORDER BY
                       (embedding <=> %s::vector)
                       - (CASE WHEN source_name = 'Oak NA rich (OGL v3.0)' THEN 0.12 ELSE 0 END)
                     LIMIT %s
                     """,
-                    (subject, year_group_label, str(query_embedding.tolist()), limit),
+                    tuple(params),
                 )
             else:
+                params = [subject, year_group_label]
+                if restrict_source:
+                    params.append(restrict_source)
+                params.append(limit)
                 cur.execute(
-                    """
+                    f"""
                     SELECT id, chunk_text, source_name, subject, year_group
                     FROM curriculum_chunks
-                    WHERE subject = %s AND year_group = %s
+                    WHERE subject = %s AND year_group = %s{src_clause}
                     ORDER BY
                       CASE WHEN source_name = 'Oak NA rich (OGL v3.0)' THEN 0 ELSE 1 END
                     LIMIT %s
                     """,
-                    (subject, year_group_label, limit),
+                    tuple(params),
                 )
             return [dict(r) for r in cur.fetchall()]
     finally:
