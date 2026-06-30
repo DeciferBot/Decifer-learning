@@ -933,12 +933,6 @@ _CHEMISTRY_TYPES = {"science_chemistry_equation", "chemistry_element_fact", "bio
 _MULTIPART_TYPES = {"true_false_grid", "ordered_list", "source_analysis", "explain_example", "structured_answer"}
 _HUMANITIES_TYPES = {"history_factual", "geography_factual"}
 
-# Types whose answer is checked by a code verifier (SymPy / Pint / ChemPy /
-# periodic-table) against verification_expression — NOT against question_text.
-# For these, an LLM reword of the stem can silently divorce the question from its
-# verified computation, so fix_staged_question must freeze the stem and re-verify.
-_CODE_VERIFIED_TYPES = _MATHS_TYPES | _PHYSICS_TYPES | _CHEMISTRY_TYPES
-
 
 def _verify_multipart(question_data: dict) -> tuple[bool, str]:
     """Structural verifier for true_false_grid and ordered_list question types."""
@@ -1961,7 +1955,10 @@ _FIX_PROMPT_TEMPLATE = """You are a quality editor for a UK educational app for 
 The following {subject} question was rejected for these constitutional violations:
 {violations_text}
 
-Fix ONLY the issues listed above. Do not change the correct answer, the question type, or the overall topic being tested.
+Fix ONLY the issues listed above by improving the DISTRACTORS, HINTS, and EXPLANATION.
+Do NOT change the question text, the correct answer, the question type, or the topic being tested.
+Keep the question wording EXACTLY as given and make the distractors, hints, and explanation fully
+consistent with that unchanged question. (Any edit you make to the question text will be ignored.)
 
 Constitution (must satisfy all):
 {constitution}
@@ -2080,15 +2077,15 @@ def fix_staged_question(question_id: str) -> dict:
         log.error(f"[fix_staged] LLM fix failed for {question_id}: {exc}")
         return {"question_id": question_id, "outcome": "error", "error": str(exc)}
 
-    # Apply fixes — never change correct_answer or question_type. For code-verified
-    # types ALSO freeze question_text: the verifiers check verification_expression ↔
-    # correct_answer and never read the stem, so an LLM reword of the stem can
-    # silently divorce the question from its verified computation (observed: a
-    # "24÷6=4" division reworded into a history-fact question that kept answer 4).
-    # Only polish distractors/hints/explanation for these types.
-    is_code_verified = question_data.get("question_type", "") in _CODE_VERIFIED_TYPES
-    if not is_code_verified:
-        question_data["question_text"] = fixed.get("question_text", question_data["question_text"])
+    # Apply fixes — freeze question_text, correct_answer, and question_type for ALL
+    # types; the LLM polish may only improve distractors/hints/explanation. The stem
+    # can never be reworded, so neither a code-verified answer nor a factual claim can
+    # drift from what was validated at creation. (Verifiers check
+    # verification_expression ↔ correct_answer and never read the stem — and that
+    # expression isn't even persisted — so a frozen stem is the only sound guarantee.
+    # Observed before this freeze: a "24÷6=4" division reworded into a history-fact
+    # question that kept answer 4.) Questions that genuinely need a reworded stem stay
+    # staged for proper regeneration rather than being silently rewritten here.
     question_data["distractors"] = fixed.get("distractors", question_data["distractors"])
     question_data["hint_1"] = fixed.get("hint_1", question_data["hint_1"])
     question_data["hint_2"] = fixed.get("hint_2", question_data["hint_2"])
