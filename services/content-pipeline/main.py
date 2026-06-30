@@ -893,7 +893,7 @@ def _run_fix_staged_all(cap: int = 200):
                 published += 1
             elif outcome == "still_staged":
                 still_staged += 1
-            elif outcome in ("blocked_unrenderable", "blocked_verification"):
+            elif outcome in ("blocked_unrenderable", "blocked_distractor"):
                 blocked += 1
             elif outcome == "skipped":
                 skipped += 1

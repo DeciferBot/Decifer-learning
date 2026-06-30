@@ -1995,8 +1995,7 @@ def fix_staged_question(question_id: str) -> dict:
             cur.execute(
                 """
                 SELECT qq.id, qq.topic_id, qq.tier, qq.question_text, qq.question_type,
-                       qq.correct_answer, qq.verification_expression, qq.distractors,
-                       qq.hint_1, qq.hint_2, qq.hint_3,
+                       qq.correct_answer, qq.distractors, qq.hint_1, qq.hint_2, qq.hint_3,
                        qq.explanation, qq.confidence_score, qq.source_chunk_ids,
                        qq.technique_type, qq.technique_hint, qq.technique_note,
                        qq.source_text, qq.source_label, qq.source_type,
@@ -2028,7 +2027,6 @@ def fix_staged_question(question_id: str) -> dict:
         "question_text": row["question_text"],
         "question_type": row["question_type"],
         "correct_answer": row["correct_answer"],
-        "verification_expression": row.get("verification_expression"),
         "distractors": row["distractors"] if isinstance(row["distractors"], list) else json.loads(row["distractors"] or "[]"),
         "hint_1": row["hint_1"],
         "hint_2": row["hint_2"],
@@ -2133,25 +2131,25 @@ def fix_staged_question(question_id: str) -> dict:
             "violations_after": violations_after,
         }
 
-    # Code re-verification backstop — for code-verified types, re-run the verifier
-    # on the final question_data and refuse to promote if it no longer passes.
-    # With the stem frozen above this reproduces the original verification for sound
-    # rows; it fails closed for any row whose stored verification no longer holds.
-    # Honours CLAUDE.md: the canonical answer is verified by code, never the LLM.
-    if is_code_verified:
-        reverify_result = PipelineResult()
-        if not stage2_verify(question_data, reverify_result):
-            log.info(
-                f"[fix_staged] {question_id} blocked (code re-verification failed) "
-                f"→ left staged"
-            )
-            return {
-                "question_id": question_id,
-                "outcome": "blocked_verification",
-                "old_score": old_score,
-                "violations_before": violations_before,
-                "violations_after": violations_after,
-            }
+    # Distractor-collision guard — the LLM may rewrite distractors, so make sure
+    # none of them now equals the (frozen) correct_answer, which would create a
+    # second right answer. Code verification can't be re-run here: the maths/physics
+    # verifiers need verification_expression, which is computed at generation time
+    # and NOT persisted (not a column, not in question_metadata). The stem freeze
+    # above is what preserves answer-correctness for code-verified types; this guard
+    # protects the one field that does change. Fail closed (leave staged) on a hit.
+    _norm = lambda v: str(v).strip().casefold()
+    if any(_norm(d) == _norm(question_data["correct_answer"]) for d in question_data["distractors"]):
+        log.info(
+            f"[fix_staged] {question_id} blocked (a distractor equals the answer) → left staged"
+        )
+        return {
+            "question_id": question_id,
+            "outcome": "blocked_distractor",
+            "old_score": old_score,
+            "violations_before": violations_before,
+            "violations_after": violations_after,
+        }
 
     # Step 4: re-score directly — skip RAG chunk re-verification since the question
     # already passed that gate originally (source_chunk_ids are in DB but _retrieved_chunks
