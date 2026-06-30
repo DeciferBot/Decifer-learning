@@ -1859,18 +1859,26 @@ def regenerate_question(flagged_row: dict) -> "PipelineResult":
     # Step 2: fetch full topic metadata (same path as run_one)
     topic = db.get_topic(topic_id)
     if topic is None:
+        # Never leave the row orphaned in 'regenerating' (which has no consumer):
+        # move it to 'staged' for admin review even on this early-out.
+        db.mark_question_staged(question_id)
         result = PipelineResult()
         result.status = "failed"
         result.log_stage(f"Topic {topic_id!r} not found — cannot regenerate")
         return result
 
-    # Step 3: run the full 6-stage pipeline for one new question slot
-    result = run_one(topic, tier)
-
-    # Step 4: move original to staged regardless of outcome; the new question
-    # (if published) is already visible. If generation failed, leaving the
-    # original as 'staged' lets an admin review it rather than silently losing it.
-    db.mark_question_staged(question_id)
+    # Step 3: run the full 6-stage pipeline for one new question slot.
+    # Step 4: ALWAYS move the original out of 'regenerating' afterwards — even if
+    # run_one raises. 'regenerating' has NO consumer (get_flagged_questions selects
+    # only 'flagged'), so a row left there is invisible to children AND never
+    # retried: a permanent orphan. The try/finally guarantees the original lands in
+    # 'staged' (admin-reviewable) regardless of generation outcome. Without it, a
+    # single transient generation error (LLM timeout, rate limit) stranded the row
+    # forever — which is how ~516 humanities rows accumulated as stuck orphans.
+    try:
+        result = run_one(topic, tier)
+    finally:
+        db.mark_question_staged(question_id)
     log.info(
         f"regenerate_question: original {question_id} → staged; "
         f"new question status={result.status}"
