@@ -933,6 +933,12 @@ _CHEMISTRY_TYPES = {"science_chemistry_equation", "chemistry_element_fact", "bio
 _MULTIPART_TYPES = {"true_false_grid", "ordered_list", "source_analysis", "explain_example", "structured_answer"}
 _HUMANITIES_TYPES = {"history_factual", "geography_factual"}
 
+# Types whose answer is checked by a code verifier (SymPy / Pint / ChemPy /
+# periodic-table) against verification_expression — NOT against question_text.
+# For these, an LLM reword of the stem can silently divorce the question from its
+# verified computation, so fix_staged_question must freeze the stem and re-verify.
+_CODE_VERIFIED_TYPES = _MATHS_TYPES | _PHYSICS_TYPES | _CHEMISTRY_TYPES
+
 
 def _verify_multipart(question_data: dict) -> tuple[bool, str]:
     """Structural verifier for true_false_grid and ordered_list question types."""
@@ -1989,7 +1995,8 @@ def fix_staged_question(question_id: str) -> dict:
             cur.execute(
                 """
                 SELECT qq.id, qq.topic_id, qq.tier, qq.question_text, qq.question_type,
-                       qq.correct_answer, qq.distractors, qq.hint_1, qq.hint_2, qq.hint_3,
+                       qq.correct_answer, qq.verification_expression, qq.distractors,
+                       qq.hint_1, qq.hint_2, qq.hint_3,
                        qq.explanation, qq.confidence_score, qq.source_chunk_ids,
                        qq.technique_type, qq.technique_hint, qq.technique_note,
                        qq.source_text, qq.source_label, qq.source_type,
@@ -2021,6 +2028,7 @@ def fix_staged_question(question_id: str) -> dict:
         "question_text": row["question_text"],
         "question_type": row["question_type"],
         "correct_answer": row["correct_answer"],
+        "verification_expression": row.get("verification_expression"),
         "distractors": row["distractors"] if isinstance(row["distractors"], list) else json.loads(row["distractors"] or "[]"),
         "hint_1": row["hint_1"],
         "hint_2": row["hint_2"],
@@ -2074,8 +2082,15 @@ def fix_staged_question(question_id: str) -> dict:
         log.error(f"[fix_staged] LLM fix failed for {question_id}: {exc}")
         return {"question_id": question_id, "outcome": "error", "error": str(exc)}
 
-    # Apply fixes — never change correct_answer or question_type
-    question_data["question_text"] = fixed.get("question_text", question_data["question_text"])
+    # Apply fixes — never change correct_answer or question_type. For code-verified
+    # types ALSO freeze question_text: the verifiers check verification_expression ↔
+    # correct_answer and never read the stem, so an LLM reword of the stem can
+    # silently divorce the question from its verified computation (observed: a
+    # "24÷6=4" division reworded into a history-fact question that kept answer 4).
+    # Only polish distractors/hints/explanation for these types.
+    is_code_verified = question_data.get("question_type", "") in _CODE_VERIFIED_TYPES
+    if not is_code_verified:
+        question_data["question_text"] = fixed.get("question_text", question_data["question_text"])
     question_data["distractors"] = fixed.get("distractors", question_data["distractors"])
     question_data["hint_1"] = fixed.get("hint_1", question_data["hint_1"])
     question_data["hint_2"] = fixed.get("hint_2", question_data["hint_2"])
@@ -2117,6 +2132,26 @@ def fix_staged_question(question_id: str) -> dict:
             "violations_before": violations_before,
             "violations_after": violations_after,
         }
+
+    # Code re-verification backstop — for code-verified types, re-run the verifier
+    # on the final question_data and refuse to promote if it no longer passes.
+    # With the stem frozen above this reproduces the original verification for sound
+    # rows; it fails closed for any row whose stored verification no longer holds.
+    # Honours CLAUDE.md: the canonical answer is verified by code, never the LLM.
+    if is_code_verified:
+        reverify_result = PipelineResult()
+        if not stage2_verify(question_data, reverify_result):
+            log.info(
+                f"[fix_staged] {question_id} blocked (code re-verification failed) "
+                f"→ left staged"
+            )
+            return {
+                "question_id": question_id,
+                "outcome": "blocked_verification",
+                "old_score": old_score,
+                "violations_before": violations_before,
+                "violations_after": violations_after,
+            }
 
     # Step 4: re-score directly — skip RAG chunk re-verification since the question
     # already passed that gate originally (source_chunk_ids are in DB but _retrieved_chunks
