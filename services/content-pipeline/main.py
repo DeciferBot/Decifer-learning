@@ -881,22 +881,32 @@ def _run_fix_staged_all(cap: int = 200):
 
     published = 0
     still_staged = 0
+    blocked = 0
+    skipped = 0
     errors = 0
 
     for qid in question_ids:
         try:
             result = pl.fix_staged_question(qid)
-            if result["outcome"] == "published":
+            outcome = result["outcome"]
+            if outcome == "published":
                 published += 1
-            elif result["outcome"] == "still_staged":
+            elif outcome == "still_staged":
                 still_staged += 1
+            elif outcome == "blocked_unrenderable":
+                blocked += 1
+            elif outcome == "skipped":
+                skipped += 1
             else:
                 errors += 1
         except Exception as exc:
             log.error(f"[fix-staged-all] unhandled error for {qid}: {exc}")
             errors += 1
 
-    log.info(f"[fix-staged-all] done: published={published} still_staged={still_staged} errors={errors}")
+    log.info(
+        f"[fix-staged-all] done: published={published} still_staged={still_staged} "
+        f"blocked={blocked} skipped={skipped} errors={errors}"
+    )
 
 
 def _run_autopilot_daily():

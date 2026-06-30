@@ -2078,6 +2078,38 @@ def fix_staged_question(question_id: str) -> dict:
     recheck_result = PipelineResult()
     violations_after = stage4_constitutional(topic, tier, question_data, recheck_result)
 
+    # Renderability hard gate — stage6_score's renderability gate is NOT on this
+    # promotion path, so it must be enforced here too. The LLM polish above can
+    # leave (or reintroduce) a markdown table / raw HTML that the child UI renders
+    # as literal pipe-salad. Never promote such content; route the row to
+    # 'regenerating' so it gets properly rewritten and so fix-staged-all does not
+    # retry the same unrenderable row on every run.
+    offenders = _renderability_offenders(question_data)
+    if offenders:
+        conn_block = db.get_connection()
+        try:
+            with conn_block.cursor() as cur:
+                cur.execute(
+                    "UPDATE quiz_questions SET status='regenerating' "
+                    "WHERE id=%s AND status='staged'",
+                    (question_id,),
+                )
+            conn_block.commit()
+        finally:
+            conn_block.close()
+        log.info(
+            f"[fix_staged] {question_id} blocked (unrenderable: {', '.join(offenders)}) "
+            f"→ regenerating"
+        )
+        return {
+            "question_id": question_id,
+            "outcome": "blocked_unrenderable",
+            "old_score": old_score,
+            "offenders": offenders,
+            "violations_before": violations_before,
+            "violations_after": violations_after,
+        }
+
     # Step 4: re-score directly — skip RAG chunk re-verification since the question
     # already passed that gate originally (source_chunk_ids are in DB but _retrieved_chunks
     # is not available outside the generation pipeline).
