@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 import {
@@ -23,7 +22,6 @@ import {
 const ALWAYS_CONSENT_REQUIRED = true
 
 export function RegisterForm() {
-  const router = useRouter()
   const [role, setRole] = useState<SelfRegisterableRole>('child')
   // No default on purpose: a pre-selected year sent kids into the wrong year
   // group when they didn't notice the picker. They must choose explicitly.
@@ -109,8 +107,10 @@ export function RegisterForm() {
           )
           return
         }
-        router.refresh()
-        router.push('/dashboard')
+        // Hard navigation: a client-side router.push() here can leave the
+        // shared dashboard layout (and its TopBar) served from a Router
+        // Cache entry captured under a previous session's cookie.
+        window.location.href = '/dashboard'
       } catch {
         setError('Something went wrong. Please try again.')
       }
