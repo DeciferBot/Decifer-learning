@@ -8,7 +8,7 @@
 
 import { Resend } from 'resend'
 
-const FROM = 'Decifer Learning <hello@deciferlearning.com>'
+const FROM = 'Decifer Learning <hello@noreply.deciferlearning.com>'
 const OPERATOR = 'chopraa@gmail.com'
 
 export interface PipelineAlert {

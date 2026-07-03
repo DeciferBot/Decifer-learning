@@ -12,7 +12,7 @@ import { prisma } from '@/lib/prisma'
 import { getChildWeeklyDigestSummary, getChildWeakAreas } from '@/lib/parent-dashboard'
 import { buildParentActions } from '@/lib/parent-recommendations'
 
-const FROM = 'Decifer Learning <hello@deciferlearning.com>'
+const FROM = 'Decifer Learning <hello@noreply.deciferlearning.com>'
 
 // Vercel Cron invokes the path with a GET request (and an Authorization: Bearer <CRON_SECRET>
 // header when CRON_SECRET is configured). POST stays exported for manual/local invocation.
