@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { HintButton } from './HintButton'
 import type { QuizQuestion } from './QuizShell'
 import { Brain, Lightbulb, Check } from '@/components/ui/icons'
+import MathText from '@/components/ui/MathText'
 
 type Phase = 'attempt' | 'explanation' | 'done'
 
@@ -64,7 +65,7 @@ export function PreTestShell({ question, nextHref, nextLabel }: Props) {
               Have a go — don&apos;t worry if you&apos;re not sure yet!
             </p>
             <p className="mb-5 font-heading text-xl font-bold leading-snug text-ink">
-              {question.question_text}
+              <MathText text={question.question_text} />
             </p>
 
             <HintButton
@@ -82,7 +83,7 @@ export function PreTestShell({ question, nextHref, nextLabel }: Props) {
                   whileTap={{ scale: 0.97 }}
                   className="min-h-[56px] rounded-xl border-2 border-black/10 bg-background px-4 py-3 text-center font-heading font-bold text-ink transition-colors hover:border-explorer hover:bg-explorer/10"
                 >
-                  {choice}
+                  <MathText text={choice} />
                 </motion.button>
               ))}
             </div>
@@ -109,10 +110,10 @@ export function PreTestShell({ question, nextHref, nextLabel }: Props) {
               >
                 {isCorrect
                   ? <span className="flex items-center gap-1"><Check className="w-4 h-4" aria-hidden /> You got it! Great intuition.</span>
-                  : `Not quite — the answer is ${question.correct_answer}`}
+                  : <>Not quite — the answer is <MathText text={question.correct_answer} /></>}
               </p>
               {question.explanation && (
-                <p className="mt-2 text-sm text-muted">{question.explanation}</p>
+                <p className="mt-2 text-sm text-muted"><MathText text={question.explanation} /></p>
               )}
             </div>
 

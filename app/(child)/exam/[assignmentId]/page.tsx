@@ -440,7 +440,7 @@ export default function ExamSessionPage({
                       </p>
                     )}
                     {currentQuestion.explanation && (
-                      <p className="mt-0.5 text-xs text-muted">{currentQuestion.explanation}</p>
+                      <p className="mt-0.5 text-xs text-muted"><MathText text={currentQuestion.explanation} /></p>
                     )}
                   </div>
                 </motion.div>

@@ -1,3 +1,16 @@
 {
-  "extends": "next/core-web-vitals"
+  "extends": "next/core-web-vitals",
+  "rules": {
+    "no-restricted-syntax": [
+      "error",
+      {
+        "selector": "JSXElement > JSXExpressionContainer > MemberExpression[property.name=/^(question_text|correct_answer|explanation|fact_text|hint_1|hint_2|hint_3)$/]",
+        "message": "Question/card text fields can contain $$...$$ LaTeX. Render them with <MathText text={...} /> (components/ui/MathText.tsx) instead of interpolating directly, or the raw delimiters will leak through unrendered."
+      },
+      {
+        "selector": "JSXElement > JSXExpressionContainer TemplateLiteral > TemplateElement ~ MemberExpression[property.name=/^(question_text|correct_answer|explanation|fact_text|hint_1|hint_2|hint_3)$/]",
+        "message": "Question/card text fields can contain $$...$$ LaTeX. Do not interpolate them into a template literal for JSX text (including inside a ternary/conditional) — render them with <MathText text={...} /> instead."
+      }
+    ]
+  }
 }

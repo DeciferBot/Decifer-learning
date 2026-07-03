@@ -211,7 +211,7 @@ export default function ExamResultPage({
                   </div>
                 )}
                 {item.explanation && (
-                  <p className="text-xs text-muted">{item.explanation}</p>
+                  <p className="text-xs text-muted"><MathText text={item.explanation} /></p>
                 )}
               </div>
             </div>

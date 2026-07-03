@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { Zap, Target, RefreshCw, Clock } from '@/components/ui/icons'
+import MathText from '@/components/ui/MathText'
 
 export type SpeedRoundConfig = {
   title: string
@@ -178,7 +179,7 @@ export function SpeedRound({ config, topicId }: { config: SpeedRoundConfig; topi
           </div>
 
           <p className="mb-5 text-center font-heading text-xl font-bold text-ink leading-snug">
-            {q.question}
+            <MathText text={q.question} />
           </p>
 
           <div className="grid grid-cols-2 gap-3" role="group" aria-label="Answer choices">
@@ -206,7 +207,7 @@ export function SpeedRound({ config, topicId }: { config: SpeedRoundConfig; topi
                     cls,
                   ].join(' ')}
                 >
-                  {opt}
+                  <MathText text={opt} />
                 </button>
               )
             })}
@@ -220,7 +221,7 @@ export function SpeedRound({ config, topicId }: { config: SpeedRoundConfig; topi
                   animate={{ opacity: 1 }}
                   className="mt-3 text-center text-sm font-bold text-muted"
                 >
-                  <span className="flex items-center justify-center gap-1"><Clock className="w-4 h-4" aria-hidden /> Time&apos;s up! The answer was: {q.correct}</span>
+                  <span className="flex items-center justify-center gap-1"><Clock className="w-4 h-4" aria-hidden /> Time&apos;s up! The answer was: <MathText text={q.correct} /></span>
                 </motion.p>
               )}
             </AnimatePresence>

@@ -2,6 +2,7 @@
 
 import 'katex/dist/katex.min.css'
 import katex from 'katex'
+import { splitMath } from './mathParse'
 
 interface Props {
   text: string
@@ -11,6 +12,7 @@ interface Props {
 // Renders a string that may contain LaTeX delimited by $...$ or \(...\)
 // Falls back to plain text if KaTeX throws.
 export default function MathText({ text, className }: Props) {
+  if (!text) return null
   const parts = splitMath(text)
   return (
     <span className={className}>
@@ -26,42 +28,6 @@ export default function MathText({ text, className }: Props) {
       )}
     </span>
   )
-}
-
-type Part = { type: 'text' | 'math'; value: string }
-
-function splitMath(text: string): Part[] {
-  // Match $$...$$ (display delimiters), $...$, \(...\), or bare LaTeX
-  const parts: Part[] = []
-  // Regex order matters: $$...$$ MUST come before $...$ so double-dollar
-  // delimiters are consumed whole rather than leaving stray $ on each side.
-  // $...$ is capped at 80 chars to avoid currency amounts being parsed as LaTeX.
-  const re = /\$\$([^$]{1,120})\$\$|\$([^$\n]{1,80})\$|\\\((.+?)\\\)/g
-  let last = 0
-  let match: RegExpExecArray | null
-  while ((match = re.exec(text)) !== null) {
-    if (match.index > last) {
-      const raw = text.slice(last, match.index)
-      parts.push(...detectBareLaTeX(raw))
-    }
-    parts.push({ type: 'math', value: match[1] ?? match[2] ?? match[3] })
-    last = match.index + match[0].length
-  }
-  if (last < text.length) {
-    parts.push(...detectBareLaTeX(text.slice(last)))
-  }
-  return parts.length ? parts : [{ type: 'text', value: text }]
-}
-
-// Detect bare LaTeX patterns like {-5}^\circ \text{C} that aren't wrapped in $
-const BARE_LATEX = /(\{[^}]*\}\^\\circ\\s*\\text\{[^}]*\}|[-\d]+\^\\circ\\s*\\text\{[^}]*\}|\{[^}]*\})/
-
-function detectBareLaTeX(text: string): Part[] {
-  // If it contains \circ or \text or ^ with braces treat the whole segment as math
-  if (/\\circ|\\text\{|\\frac|\\times|\\div|\^\{/.test(text)) {
-    return [{ type: 'math', value: text.trim() }]
-  }
-  return [{ type: 'text', value: text }]
 }
 
 function renderMath(expr: string): string {

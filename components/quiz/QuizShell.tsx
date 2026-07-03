@@ -724,7 +724,7 @@ export function QuizShell({
           {prevQ.explanation && (
             <div className="rounded-xl bg-black/3 px-4 py-3 text-sm text-muted">
               <span className="font-bold text-ink">Explanation: </span>
-              {prevQ.explanation}
+              <MathText text={prevQ.explanation} />
             </div>
           )}
         </div>
@@ -1085,7 +1085,7 @@ export function QuizShell({
                         : <span className="flex items-center gap-1">
                             {/* aria-hidden on the ✗ symbol; the text carries the meaning */}
                             <span aria-hidden>✗</span>
-                            <span>Incorrect. The answer is <strong>{q.correct_answer}</strong></span>
+                            <span>Incorrect. The answer is <strong><MathText text={q.correct_answer} /></strong></span>
                           </span>}
                     </p>
                   )}
@@ -1093,7 +1093,7 @@ export function QuizShell({
                     <p className="mt-0.5 text-xs text-muted">No points this time — you&apos;ll get it next time!</p>
                   )}
                   {q.explanation && (
-                    <p className="mt-1 text-sm text-muted">{q.explanation}</p>
+                    <p className="mt-1 text-sm text-muted"><MathText text={q.explanation} /></p>
                   )}
                   {q.technique_note && (
                     <p className="mt-2 text-xs font-semibold text-maths border-t border-maths/20 pt-2">

@@ -2,6 +2,7 @@
 
 import { RARITY_COLOUR, RARITY_LABEL, type Rarity } from '@/lib/cards'
 import { Leaf, Compass, Star, Gem, Crown, Lock } from '@/components/ui/icons'
+import MathText from '@/components/ui/MathText'
 import type { ComponentType, SVGProps } from 'react'
 
 type IconType = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
@@ -91,7 +92,7 @@ export function DiscoveryCard({
         </div>
         <p className="font-heading text-sm font-bold leading-snug text-ink">{card.title}</p>
         {!compact && (
-          <p className="flex-1 text-xs leading-relaxed text-muted">{card.fact_text}</p>
+          <p className="flex-1 text-xs leading-relaxed text-muted"><MathText text={card.fact_text} /></p>
         )}
       </div>
     </div>

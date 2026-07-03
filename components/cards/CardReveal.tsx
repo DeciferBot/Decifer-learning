@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { RARITY_COLOUR, RARITY_LABEL, type Rarity } from '@/lib/cards'
 import { Leaf, Compass, Star, Gem, Crown, Sparkles } from '@/components/ui/icons'
+import MathText from '@/components/ui/MathText'
 import type { ComponentType, SVGProps } from 'react'
 import type { DroppedCard } from '@/app/api/quiz/submit/route'
 
@@ -200,7 +201,7 @@ export function CardReveal({
               className="mb-6 text-sm leading-relaxed"
               style={{ color: 'var(--text-secondary)', lineHeight: 'var(--lh-body-sm)' }}
             >
-              {card.fact_text}
+              <MathText text={card.fact_text} />
             </p>
 
             <button

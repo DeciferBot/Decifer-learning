@@ -7,6 +7,7 @@ import { requireAdmin } from '@/lib/auth/admin-guard'
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 import { BarChart, Check } from '@/components/ui/icons'
+import MathText from '@/components/ui/MathText'
 
 export const metadata = { title: 'Difficulty Calibration — Admin' }
 export const revalidate = 60
@@ -173,7 +174,7 @@ export default async function CalibrationPage() {
                   <TierBadge tier={q.tier} />
                   <FlagBadge flag={q.flag_type} wrongRate={q.wrong_rate} />
                 </div>
-                <p className="text-sm text-ink leading-snug">{q.question_text}</p>
+                <p className="text-sm text-ink leading-snug"><MathText text={q.question_text} /></p>
               </div>
             ))}
           </div>
