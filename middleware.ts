@@ -23,7 +23,8 @@ const PUBLIC_EXACT = new Set<string>([
   // can host a game with just an email, so no auth redirect here.
   '/play',
 ])
-// Auth callback must be public so the middleware never redirects the token exchange request.
+// All /auth/* routes (callback + confirm) must be public so the middleware never
+// redirects the email-link token exchange before the session cookie is set.
 // Help pages are public so unauthenticated visitors can read guides linked from the homepage.
 // Vercel Cron routes carry no session cookie — they self-authenticate via the CRON_SECRET
 // bearer header inside each handler, so the middleware must NOT redirect them to /login.
@@ -36,7 +37,7 @@ const PUBLIC_EXACT = new Set<string>([
 // nickname, so the join page, the public game view, and the Live API must be
 // reachable without a session. Host-only actions (create/start/next) still
 // enforce auth inside their own route handlers.
-const PUBLIC_PREFIX = ['/auth/callback', '/_next/', '/help', '/curriculum', '/sitemap', '/robots', '/legal/', '/api/cron/', '/api/parent-verification/', '/join', '/live/', '/api/live/', '/blitz']
+const PUBLIC_PREFIX = ['/auth/', '/_next/', '/help', '/curriculum', '/sitemap', '/robots', '/legal/', '/api/cron/', '/api/parent-verification/', '/join', '/live/', '/api/live/', '/blitz']
 // Next.js metadata image routes (opengraph-image / twitter-image) live at any
 // depth — e.g. /opengraph-image AND /pricing/opengraph-image. Social crawlers
 // (WhatsApp, Facebook, etc.) fetch these with no session cookie, so every one

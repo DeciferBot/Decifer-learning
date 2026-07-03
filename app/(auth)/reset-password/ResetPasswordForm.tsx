@@ -1,11 +1,15 @@
 'use client'
 
 import { useEffect, useState, useTransition } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
+
+const EXPIRED_MESSAGE =
+  'This link has expired or is invalid. Please request a new password reset.'
 
 export function ResetPasswordForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -13,17 +17,43 @@ export function ResetPasswordForm() {
   const [sessionReady, setSessionReady] = useState(false)
 
   useEffect(() => {
-    // createBrowserClient auto-detects access_token from the URL hash and
-    // stores the session, so getSession() resolves it without a network call.
+    // /auth/confirm bounced us here after a failed/expired link — no session is
+    // coming, so show the message immediately instead of waiting.
+    if (searchParams.get('error')) {
+      setError(EXPIRED_MESSAGE)
+      return
+    }
+
+    // The /auth/confirm route already ran verifyOtp and set the recovery session
+    // cookie server-side before redirecting here, so getSession() resolves it
+    // locally. We ALSO subscribe to onAuthStateChange to close any hydration
+    // timing gap, and fall back to the expired message if nothing arrives.
     const supabase = createSupabaseBrowserClient()
+    let resolved = false
+
+    const markReady = () => {
+      if (resolved) return
+      resolved = true
+      setSessionReady(true)
+    }
+
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        setSessionReady(true)
-      } else {
-        setError('This link has expired or is invalid. Please request a new password reset.')
-      }
+      if (session) markReady()
     })
-  }, [])
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) markReady()
+    })
+
+    const timer = setTimeout(() => {
+      if (!resolved) setError(EXPIRED_MESSAGE)
+    }, 3000)
+
+    return () => {
+      subscription.unsubscribe()
+      clearTimeout(timer)
+    }
+  }, [searchParams])
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
