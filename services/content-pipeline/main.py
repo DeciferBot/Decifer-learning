@@ -835,6 +835,12 @@ def autopilot_daily(background_tasks: BackgroundTasks) -> dict:
 
 # ── /pipeline/fix-staged-all ──────────────────────────────────────────────────
 #
+# Triggered by Vercel cron at 03:30 UTC (after regenerate-flagged at 03:00, before
+# oak-refresh at 04:00) — see app/api/cron/fix-staged-all/route.ts. Without this,
+# rows in 'staged' (including regenerate_question's superseded originals — see the
+# comment on regenerate_question in pipeline.py) accumulate forever with no
+# automatic path back to 'published', since nothing else re-reads 'staged' rows.
+#
 # LLM polish pass for staged questions scoring >= 80.
 # Fixes constitutional violations in-place and promotes to published if the
 # re-score hits the threshold. Processes up to `cap` questions per run.
