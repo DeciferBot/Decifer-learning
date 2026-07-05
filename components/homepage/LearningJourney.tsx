@@ -40,9 +40,9 @@ const STEPS: {
   {
     step: 4,
     label: 'Progress',
-    color: '#FB5A24',
+    color: 'var(--brand)',
     colorBg: 'rgba(240,90,40,0.08)',
-    textColor: '#FB5A24',
+    textColor: 'var(--brand)',
     Icon: BarChart,
     body: 'Scores, XP, streaks, and topic completion tracked automatically. Parents see results the same day.',
   },
@@ -56,7 +56,7 @@ export function LearningJourney() {
         className="absolute left-[calc(12.5%+1rem)] right-[calc(12.5%+1rem)] top-[2.6rem] hidden h-px lg:block"
         style={{
           background:
-            'linear-gradient(to right, #6C9EFF 0%, #52D9A0 33%, #FFD43B 66%, #FB5A24 100%)',
+            'linear-gradient(to right, #6C9EFF 0%, #52D9A0 33%, #FFD43B 66%, var(--brand) 100%)',
           opacity: 0.25,
         }}
         aria-hidden
