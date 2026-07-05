@@ -4,7 +4,7 @@
 
 import { Resend } from 'resend'
 
-const FROM = 'Decifer Learning <hello@noreply.deciferlearning.com>'
+const FROM = 'Decifer Learning <hello@deciferlearning.com>'
 
 // Stop nagging after this many reminders (initial email not counted).
 export const MAX_VERIFY_REMINDERS = 3
