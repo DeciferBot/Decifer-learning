@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { DeciferLogo } from '@/components/ui/DeciferLogo'
+import { DarkModeToggle } from '@/components/ui/DarkModeToggle'
 import { UpgradeButton } from '@/components/ui/UpgradeButton'
 
 export const metadata: Metadata = {
@@ -45,6 +46,7 @@ export default function PricingPage() {
         <div className="mx-auto flex h-14 max-w-4xl items-center justify-between px-4">
           <DeciferLogo size="sm" product="Learning" />
           <div className="flex items-center gap-2">
+            <DarkModeToggle />
             <Link
               href="/login"
               className="h-9 rounded-lg px-3 text-sm font-semibold text-ink hover:bg-black/5"

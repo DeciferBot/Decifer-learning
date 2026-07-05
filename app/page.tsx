@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import { RecoveryRedirect } from './RecoveryRedirect'
 import { DeciferLogo } from '@/components/ui/DeciferLogo'
 import { DecipherText } from '@/components/ui/DecipherText'
+import { DarkModeToggle } from '@/components/ui/DarkModeToggle'
 import { GuideCard } from '@/components/ui/GuideCard'
 import { LearningJourney } from '@/components/homepage/LearningJourney'
 import { QualityPipeline } from '@/components/homepage/QualityPipeline'
@@ -49,6 +50,7 @@ export default function Home({
           <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
             <DeciferLogo size="sm" product="Learning" />
             <div className="flex items-center gap-2">
+              <DarkModeToggle />
               <Link
                 href="/play"
                 className="flex h-9 items-center gap-1.5 rounded-lg bg-[#7C3AED] px-3 text-sm font-semibold text-white transition-colors hover:bg-[#6D28D9] sm:px-4"
