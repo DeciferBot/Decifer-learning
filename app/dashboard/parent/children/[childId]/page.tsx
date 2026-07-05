@@ -33,7 +33,7 @@ import { ChildDetailTabs } from '@/components/parent/ChildDetailTabs'
 import { ChildSwitcher } from '@/components/parent/ChildSwitcher'
 import { Star, Flame, Medal, Layers, Check, ChevronRight } from '@/components/ui/icons'
 
-export const metadata = { title: 'Child report — Decifer Learning' }
+export const metadata = { title: 'Child report' }
 
 const RARITY_ORDER = ['legendary', 'epic', 'rare', 'uncommon', 'common']
 const RARITY_LABEL: Record<string, string> = {
@@ -372,7 +372,7 @@ export default async function ChildDetailPage({
                             </div>
                             <p className="mt-1.5 text-xs text-muted">
                               {t.repetitions >= 2
-                                ? `Repeated successfully across ${t.repetitions + 1} review attempts — last score ${Math.round(t.lastScore * 100)}%.`
+                                ? `Repeated successfully across ${t.repetitions + 1} review attempts, last score ${Math.round(t.lastScore * 100)}%.`
                                 : `Completed with ${Math.round(t.lastScore * 100)}% on the last attempt.`}
                               {t.completedAt ? ` ${formatDate(t.completedAt)}.` : ''}
                             </p>
@@ -433,7 +433,7 @@ export default async function ChildDetailPage({
                       </ul>
                       <p className="mt-3 text-xs text-muted">
                         Patterns are based on quiz results, lesson activity, and progress data. They may suggest
-                        a direction — they do not diagnose or predict.
+                        a direction. They do not diagnose or predict.
                       </p>
                     </div>
                   )}
@@ -558,7 +558,7 @@ export default async function ChildDetailPage({
                 {reflections.length > 0 && (
                   <Card title={`What ${childProfile.display_name} figured out`}>
                     <p className="mb-3 text-xs text-muted">
-                      {childProfile.display_name}&apos;s own words — written at the end of passing quizzes.
+                      {childProfile.display_name}&apos;s own words, written at the end of passing quizzes.
                     </p>
                     <ul className="space-y-3">
                       {reflections.map((r) => (
@@ -683,7 +683,7 @@ function CurriculumTracker({
           {yearGroupLabel} Curriculum tracker
         </h2>
         <p className="mt-0.5 text-xs text-muted">
-          UK National Curriculum — every topic {childName} is working through
+          UK National Curriculum: every topic {childName} is working through
         </p>
       </div>
 

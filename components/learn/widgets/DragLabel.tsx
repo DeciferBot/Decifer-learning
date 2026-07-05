@@ -121,7 +121,7 @@ export function DragLabel({ widget }: Props) {
               key={item.id}
               onClick={() => handleHotspotTap(item.id)}
               disabled={completed}
-              aria-label={placedLabelId ? `${item.label} placed — tap to remove` : `Hotspot for ${item.label}`}
+              aria-label={placedLabelId ? `${item.label} placed, tap to remove` : `Hotspot for ${item.label}`}
               animate={isShaking ? { x: [0, -6, 6, -4, 4, 0] } : {}}
               transition={{ duration: 0.5 }}
               className={[

@@ -172,7 +172,7 @@ export function DeliveryAddressForm({ childId, initialAddress }: Props) {
               })
               if (!res.ok) {
                 const body = await res.json()
-                setError(body.error ?? 'Could not save — please try again')
+                setError(body.error ?? 'Could not save, please try again')
                 return
               }
               setEditing(false)

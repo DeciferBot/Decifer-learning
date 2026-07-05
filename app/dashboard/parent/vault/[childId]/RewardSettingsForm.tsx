@@ -37,7 +37,7 @@ export function RewardSettingsForm({ childId, initialOptions }: Props) {
   return (
     <div className="mt-3 space-y-3 border-t border-black/5 pt-3">
       {options.length === 0 && (
-        <p className="text-xs text-muted">No ideas yet — add one below.</p>
+        <p className="text-xs text-muted">No ideas yet. Add one below.</p>
       )}
       {options.length > 0 && (
         <ul className="space-y-1.5">
@@ -107,7 +107,7 @@ export function RewardSettingsForm({ childId, initialOptions }: Props) {
               })
               if (!res.ok) {
                 const body = await res.json()
-                setError(body.error ?? 'Could not save — please try again')
+                setError(body.error ?? 'Could not save, please try again')
                 return
               }
               setEditing(false)

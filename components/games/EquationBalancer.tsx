@@ -126,7 +126,7 @@ function QuestionView({
               <p className="font-bold" style={{ color: correct ? '#40C057' : '#FF6B6B' }}>
                 {correct
                   ? '✓ Balanced! The scale is level.'
-                  : `Not quite — ${question.rhs_label} = ${question.answer}${question.unit ?? ''}`}
+                  : `Not quite. ${question.rhs_label} = ${question.answer}${question.unit ?? ''}`}
               </p>
             </motion.div>
           )}

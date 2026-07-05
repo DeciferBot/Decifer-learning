@@ -29,7 +29,7 @@ export function RegenerateButton() {
       setSummary(
         triggered === 0
           ? 'No flagged questions to regenerate.'
-          : `Triggered ${triggered} — ${published} published, ${failed} failed.`,
+          : `Triggered ${triggered}: ${published} published, ${failed} failed.`,
       )
       setState('done')
       router.refresh()  // background — summary already displayed

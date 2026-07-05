@@ -37,7 +37,7 @@ export function renderBlitzOgCard() {
   return renderOgCard({
     headlineTop: 'Join my',
     headlineBottom: 'Decifer Blitz!',
-    subtitle: 'A live, Kahoot-style quiz battle. Tap the link, pick a nickname, play — no account needed.',
+    subtitle: 'A live, Kahoot-style quiz battle. Tap the link, pick a nickname, play. No account needed.',
     pills: ['Live quiz', 'No sign-up', 'Any device', 'UK curriculum'],
     accent: BLITZ_ACCENT,
     pillTint: BLITZ_TINT,

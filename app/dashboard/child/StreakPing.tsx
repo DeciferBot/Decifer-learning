@@ -45,10 +45,10 @@ export function StreakPing() {
             </p>
             <p className="text-xs text-muted">
               {milestone
-                ? 'Amazing milestone — keep the run going!'
+                ? 'Amazing milestone, keep the run going!'
                 : celebrate === 1
                   ? 'Come back tomorrow to keep it going.'
-                  : 'You showed up again today — brilliant.'}
+                  : 'You showed up again today. Brilliant.'}
             </p>
           </div>
         </motion.div>

@@ -28,7 +28,7 @@ const STATE_CONFIG = {
     badgeClass: 'bg-[#6C9EFF]/15 text-[#6C9EFF] border-[#6C9EFF]/40',
     borderColor: '#6C9EFF',
     temp: 25,
-    fact: "Particles are held tightly in a fixed arrangement — that's why solids keep their shape!",
+    fact: "Particles are held tightly in a fixed arrangement, and that's why solids keep their shape!",
   },
   liquid: {
     color: '#52D9A0',
@@ -38,7 +38,7 @@ const STATE_CONFIG = {
     badgeClass: 'bg-[#52D9A0]/15 text-[#52D9A0] border-[#52D9A0]/40',
     borderColor: '#52D9A0',
     temp: 55,
-    fact: "Particles can flow past each other — that's why liquids take the shape of their container.",
+    fact: "Particles can flow past each other, and that's why liquids take the shape of their container.",
   },
   gas: {
     color: '#FF8FAB',
@@ -48,7 +48,7 @@ const STATE_CONFIG = {
     badgeClass: 'bg-[#FF8FAB]/15 text-[#FF8FAB] border-[#FF8FAB]/40',
     borderColor: '#FF8FAB',
     temp: 85,
-    fact: "Particles move freely and fast in all directions — that's why gases spread to fill any space.",
+    fact: "Particles move freely and fast in all directions, and that's why gases spread to fill any space.",
   },
 } as const
 
@@ -396,7 +396,7 @@ export function ParticleModel({ widget }: Props) {
             whileTap={{ scale: 0.94 }}
             onClick={handleCool}
             disabled={currentState === 'solid' || transitioning}
-            aria-label="Cool down — decrease temperature"
+            aria-label="Cool down, decrease temperature"
             className={[
               'flex-1 min-h-[52px] rounded-xl border-2 font-bold text-sm',
               'flex items-center justify-center gap-2',
@@ -415,7 +415,7 @@ export function ParticleModel({ widget }: Props) {
             whileTap={{ scale: 0.94 }}
             onClick={handleHeat}
             disabled={currentState === 'gas' || transitioning}
-            aria-label="Heat up — increase temperature"
+            aria-label="Heat up, increase temperature"
             className={[
               'flex-1 min-h-[52px] rounded-xl border-2 font-bold text-sm',
               'flex items-center justify-center gap-2',

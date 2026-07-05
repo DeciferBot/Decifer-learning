@@ -44,7 +44,7 @@ export function WorkedExample({ example }: Props) {
                 ))}
               </div>
               <p className="mt-3 text-xs text-muted">
-                Now try the question yourself — your question uses different numbers.
+                Now try the question yourself. Your question uses different numbers.
               </p>
             </div>
           </motion.div>

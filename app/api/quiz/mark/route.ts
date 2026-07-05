@@ -134,7 +134,7 @@ Return ONLY valid JSON:
     }
   } catch (err) {
     console.error('[quiz/mark] Claude marking failed:', err)
-    return NextResponse.json({ error: 'Marking failed — please try again' }, { status: 502 })
+    return NextResponse.json({ error: 'Marking failed, please try again' }, { status: 502 })
   }
 
   return NextResponse.json(markingResult)

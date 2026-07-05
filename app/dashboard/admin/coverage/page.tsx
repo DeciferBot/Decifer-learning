@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic'
 
 import { createSupabaseAdminClient } from '@/lib/supabase/admin'
 
-export const metadata = { title: 'Content Coverage — Decifer Admin' }
+export const metadata = { title: 'Content Coverage · Admin' }
 
 type TopicRow = {
   id: string
@@ -172,7 +172,7 @@ export default async function CoverageDashboardPage() {
       <div>
         <h1 className="font-heading text-2xl font-bold text-text-primary">Content Coverage</h1>
         <p className="mt-1 text-sm text-text-muted">
-          Phase 11A — Year 3 English and Science pipeline status
+          Phase 11A: Year 3 English and Science pipeline status
         </p>
       </div>
 

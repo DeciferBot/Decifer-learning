@@ -5,7 +5,7 @@ import { loadExplorer } from '@/lib/explore/load'
 import type { BodyExplorer } from '@/lib/explore/types'
 import { HumanBodyExperience } from '@/components/explore/HumanBodyExperience'
 
-export const metadata = { title: 'Human Body — Decifer Learning' }
+export const metadata = { title: 'Human Body' }
 
 export default async function HumanBodyPage() {
   const user = await getAuthUser()

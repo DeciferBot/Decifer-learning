@@ -149,7 +149,7 @@ function HostForm({
       if (!res.ok) {
         setError(
           data.error === 'not_enough_questions'
-            ? 'Not enough questions here yet — try another topic or a mixed blast.'
+            ? 'Not enough questions here yet. Try another topic or a mixed blast.'
             : data.error === 'valid_email_required'
               ? 'Enter a valid email address to host.'
               : 'Could not start the game. Try again.',
@@ -191,7 +191,7 @@ function HostForm({
             placeholder="you@example.com"
             className="w-full rounded-xl border border-black/10 bg-background px-4 py-3 text-base text-ink placeholder:text-muted/50"
           />
-          <p className="mt-1.5 text-xs text-muted">No account needed — we just need your email.</p>
+          <p className="mt-1.5 text-xs text-muted">No account needed, we just need your email.</p>
         </Field>
       )}
 

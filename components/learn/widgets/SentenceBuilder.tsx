@@ -137,7 +137,7 @@ function Slot({
       transition={{ duration: 0.5 }}
       aria-label={
         placedTile
-          ? `Slot: ${placedTile.text} — tap to remove`
+          ? `Slot: ${placedTile.text}, tap to remove`
           : `Empty slot for ${slot.placeholder}`
       }
       className={[
@@ -374,7 +374,7 @@ export function SentenceBuilder({ widget }: Props) {
             exit={{ opacity: 0 }}
             className="mt-3 text-center text-xs font-semibold text-[#FF6B6B]"
           >
-            Some words are in the wrong place — tap a red box to swap it out.
+            Some words are in the wrong place. Tap a red box to swap it out.
           </motion.p>
         )}
       </AnimatePresence>

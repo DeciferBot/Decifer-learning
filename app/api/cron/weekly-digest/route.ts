@@ -91,7 +91,7 @@ async function handler(req: Request) {
         subject:
           children.length === 1
             ? `${children[0].display_name}'s weekly report card`
-            : `Weekly report cards — ${children.map((c) => c.display_name).join(', ')}`,
+            : `Weekly report cards: ${children.map((c) => c.display_name).join(', ')}`,
         html,
         text,
       })
@@ -145,7 +145,7 @@ function buildEmailHtml(parentName: string, summaries: ChildSummary[]): string {
             </td>
             <td width="8"></td>
             <td align="center" style="padding:8px;background:#f8f9ff;border-radius:8px">
-              <div style="font-size:20px;font-weight:bold;color:${(digest.passRate ?? 0) >= 70 ? '#40C057' : '#FF6B6B'}">${digest.passRate !== null ? `${digest.passRate}%` : '—'}</div>
+              <div style="font-size:20px;font-weight:bold;color:${(digest.passRate ?? 0) >= 70 ? '#40C057' : '#FF6B6B'}">${digest.passRate !== null ? `${digest.passRate}%` : '–'}</div>
               <div style="font-size:11px;color:#718096">pass rate</div>
             </td>
             <td width="8"></td>
@@ -169,7 +169,7 @@ function buildEmailHtml(parentName: string, summaries: ChildSummary[]): string {
       <span style="font-size:22px;font-weight:700;color:#2D3748"> Learning</span>
     </td></tr>
     <tr><td>
-      <h1 style="margin:0 0 8px;font-size:20px;color:#2D3748">Hi ${parentName} — this week's report card</h1>
+      <h1 style="margin:0 0 8px;font-size:20px;color:#2D3748">Hi ${parentName}, here's this week's report card</h1>
       <p style="margin:0 0 16px;font-size:14px;color:#718096">How your child${summaries.length > 1 ? 'ren are' : ' is'} getting on this week, and what you can do to help.</p>
     </td></tr>
     ${childBlocks}

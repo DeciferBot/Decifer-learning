@@ -5,7 +5,7 @@ import { getAuthUser } from '@/lib/supabase/server'
 import { getChildYearGroupLabel } from '@/lib/child-gate'
 import { getPublishedSubjects } from '@/lib/lesson-store'
 
-export const metadata = { title: 'Learn — Decifer Learning' }
+export const metadata = { title: 'Learn' }
 
 export default async function LearnIndexPage() {
   const user = await getAuthUser()

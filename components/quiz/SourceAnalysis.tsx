@@ -171,7 +171,7 @@ export default function SourceAnalysis({
               className="space-y-2"
             >
               <p className={`text-sm font-semibold ${states[current] === 'correct' ? 'text-correct' : 'text-incorrect'}`}>
-                {states[current] === 'correct' ? 'Correct — well spotted!' : `The answer was: ${q.options[q.correct]}`}
+                {states[current] === 'correct' ? 'Correct, well spotted!' : `The answer was: ${q.options[q.correct]}`}
               </p>
               {current < subQuestions.length - 1 && (
                 <button
@@ -194,7 +194,7 @@ export default function SourceAnalysis({
           className="rounded-xl bg-surface border border-ink/10 p-3 text-xs text-muted"
         >
           {states.every((s) => s === 'correct')
-            ? '✓ Strong source work — you used the evidence correctly.'
+            ? '✓ Strong source work. You used the evidence correctly.'
             : 'Tip: always look for specific words in the source that directly answer the question.'}
         </motion.div>
       )}

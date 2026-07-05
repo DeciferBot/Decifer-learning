@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { RegisterForm } from './RegisterForm'
 
 export const metadata = {
-  title: 'Create account — Decifer Learning',
+  title: 'Create account',
   robots: { index: false, follow: false },
 }
 

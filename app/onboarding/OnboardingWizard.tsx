@@ -208,7 +208,7 @@ export function OnboardingWizard({
       )}
 
       {stepName === 'subject' && (
-        <Step title="What do you like best?" subtitle="Pick your favourite — we'll suggest where to start.">
+        <Step title="What do you like best?" subtitle="Pick your favourite, and we'll suggest where to start.">
           <div className="grid grid-cols-2 gap-2">
             {FAVOURITE_SUBJECTS.map((s) => (
               <ChoiceCard
@@ -224,7 +224,7 @@ export function OnboardingWizard({
       )}
 
       {stepName === 'interests' && (
-        <Step title="What are you into?" subtitle="Pick as many as you like — we'll use these in questions and cards.">
+        <Step title="What are you into?" subtitle="Pick as many as you like, and we'll use these in questions and cards.">
           <div className="grid grid-cols-3 gap-2">
             {INTERESTS.map((i) => (
               <ChoiceCard

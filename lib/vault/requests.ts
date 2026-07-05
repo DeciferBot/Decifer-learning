@@ -63,7 +63,7 @@ export async function createRewardRequest(
   if (!child) throw new Error(`Profile ${childProfileId} not found`)
 
   if ((child.vault_status?.credit_balance ?? 0) < 1) {
-    throw new VaultError('INSUFFICIENT_CREDITS', 'No credits available — earn a new milestone to get more')
+    throw new VaultError('INSUFFICIENT_CREDITS', 'No credits available. Earn a new milestone to get more')
   }
 
   if (child.family_as_child.length === 0) {

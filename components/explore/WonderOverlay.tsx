@@ -24,8 +24,8 @@ export const WONDER_LABELS: Record<WonderType, string> = {
 // Temperature
 // ---------------------------------------------------------------------------
 const TEMP_DATA: Record<string, { day: number; night: number | null; caption: string }> = {
-  Mercury: { day: 430,  night: -180, caption: 'A 610°C swing between day and night — the most extreme temperature range in the Solar System.' },
-  Venus:   { day: 465,  night: null, caption: 'A constant 465°C — hotter than Mercury despite being twice as far from the Sun.' },
+  Mercury: { day: 430,  night: -180, caption: 'A 610°C swing between day and night, the most extreme temperature range in the Solar System.' },
+  Venus:   { day: 465,  night: null, caption: 'A constant 465°C, hotter than Mercury despite being twice as far from the Sun.' },
 }
 
 function TemperatureViz({ planetName }: { planetName: string }) {
@@ -141,7 +141,7 @@ function SpeedOfLightViz() {
       </div>
 
       <p className="text-sm text-white/60 text-center leading-relaxed max-w-xs">
-        Even at 300,000 km per second — the fastest speed in the universe — light takes 8 minutes and 20 seconds to reach us.
+        Even at 300,000 km per second (the fastest speed in the universe), light takes 8 minutes and 20 seconds to reach us.
       </p>
     </div>
   )
@@ -152,7 +152,7 @@ function SpeedOfLightViz() {
 // ---------------------------------------------------------------------------
 const SIZE_DATA: Record<string, { ratio: number; diameter: string; caption: string; color: string; glow: string }> = {
   Mars:   { ratio: 0.532, diameter: '6,779 km',  caption: 'Mars is just over half the diameter of Earth.', color: '#c1440e', glow: '#c1440e' },
-  Uranus: { ratio: 4.007, diameter: '50,724 km', caption: 'Uranus is 4 times wider than Earth — an ice giant that dwarfs our world.', color: '#7de8e8', glow: '#7de8e8' },
+  Uranus: { ratio: 4.007, diameter: '50,724 km', caption: 'Uranus is 4 times wider than Earth, an ice giant that dwarfs our world.', color: '#7de8e8', glow: '#7de8e8' },
 }
 const EARTH_SIZE = 72
 
@@ -301,7 +301,7 @@ function SaturnRingsViz() {
         </motion.g>
       </motion.svg>
       <p className="text-sm text-white/60 text-center leading-relaxed max-w-xs">
-        The rings span 282,000 km — yet are only about 10 metres thick. Earth (top right) shows the true scale.
+        The rings span 282,000 km, yet are only about 10 metres thick. Earth (top right) shows the true scale.
       </p>
     </div>
   )
@@ -355,7 +355,7 @@ function GravityViz({ planetName }: { planetName: string }) {
         })}
       </div>
       <p className="text-sm text-white/60 text-center leading-relaxed max-w-xs mt-2">
-        On Jupiter you&apos;d weigh 2.5× more. On Mars or Mercury, you&apos;d weigh less than half — and jump over twice as high.
+        On Jupiter you&apos;d weigh 2.5× more. On Mars or Mercury, you&apos;d weigh less than half, and jump over twice as high.
       </p>
     </div>
   )

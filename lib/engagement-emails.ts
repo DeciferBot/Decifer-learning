@@ -77,7 +77,7 @@ function copy(flow: EngagementFlow, audience: Audience, rawName: string) {
       heading: `Help ${rawName} get started`,
       bodyText:
         `${rawName}'s Decifer Learning account is ready, but they haven't completed a quiz yet. ` +
-        `A quick 10-minute session together is the easiest way to get the ball rolling — they'll ` +
+        `A quick 10-minute session together is the easiest way to get the ball rolling, and they'll ` +
         `earn their first Discovery Card for finishing one quiz.`,
       cta: `Open ${rawName}'s dashboard →`,
       url: parentUrl,
@@ -88,7 +88,7 @@ function copy(flow: EngagementFlow, audience: Audience, rawName: string) {
     heading: `${rawName} hasn't practised in a while`,
     bodyText:
       `${rawName} was doing well on Decifer Learning but hasn't done a quiz in over a week. ` +
-      `A gentle nudge — or doing a session together — is often all it takes to get back into the habit.`,
+      `A gentle nudge, or doing a session together, is often all it takes to get back into the habit.`,
     cta: `See ${rawName}'s progress →`,
     url: parentUrl,
   }

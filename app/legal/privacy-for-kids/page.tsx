@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { Lock, Check } from '@/components/ui/icons'
 
 export const metadata: Metadata = {
-  title: 'Your Privacy — Decifer Learning',
+  title: 'Your Privacy',
   description: 'What Decifer Learning knows about you, and how we keep it safe.',
 }
 
@@ -23,7 +23,7 @@ export default function PrivacyForKidsPage() {
       <h1 className="font-heading text-2xl font-bold text-ink flex items-center gap-2">
         <Lock className="w-6 h-6" aria-hidden /> Your Privacy on Decifer Learning
       </h1>
-      <p className="mt-1 text-sm text-muted">Written for you — not just for grown-ups!</p>
+      <p className="mt-1 text-sm text-muted">Written for you, not just for grown-ups!</p>
 
       <div className="mt-6 space-y-5">
         <Section title="What do we know about you?">
@@ -45,7 +45,7 @@ export default function PrivacyForKidsPage() {
           <p>
             We save your progress so the app remembers where you left off and can show
             you questions that match what you&apos;re learning. Your parent can see your
-            progress too — that&apos;s how they know how you&apos;re getting on.
+            progress too. That&apos;s how they know how you&apos;re getting on.
           </p>
         </Section>
 
@@ -53,7 +53,7 @@ export default function PrivacyForKidsPage() {
           <ul className="mt-2 space-y-1 text-sm">
             <Item>You can see your own scores, cards, and badges</Item>
             <Item>Your parent or carer can see your progress and quiz results</Item>
-            <Item>Nobody else — we don&apos;t share your information with other companies</Item>
+            <Item>Nobody else. We don&apos;t share your information with other companies</Item>
           </ul>
         </Section>
 
@@ -61,7 +61,7 @@ export default function PrivacyForKidsPage() {
           <p>
             No. Decifer Learning doesn&apos;t follow you around the internet or show
             you adverts. When you&apos;re signed in to your account we only use Vercel
-            Analytics — a simple counter that tells us how many people visited the app.
+            Analytics, a simple counter that tells us how many people visited the app.
             It doesn&apos;t know who you are. We do <strong>not</strong> use Google
             Analytics or any advertising trackers on children&apos;s accounts.
           </p>
@@ -79,7 +79,7 @@ export default function PrivacyForKidsPage() {
 
         <Section title="What if something feels wrong?">
           <p>
-            Tell a trusted adult — a parent, carer, or teacher. You can also visit{' '}
+            Tell a trusted adult: a parent, carer, or teacher. You can also visit{' '}
             <a
               href="https://www.childline.org.uk"
               target="_blank"

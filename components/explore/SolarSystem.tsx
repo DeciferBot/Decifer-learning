@@ -459,7 +459,7 @@ function InfoPanel({ planet, wide, onClose, onAskDecifer, onOpenWonder, muted, o
                   style={{ background: 'rgba(108,158,255,0.15)', border: '1px solid rgba(108,158,255,0.3)', minHeight: '48px' }}
                 >
                   <motion.span animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 1.2, repeat: Infinity }}>🔭</motion.span>
-                  Go deeper — Explorer view
+                  Go deeper: Explorer view
                 </motion.button>
               )}
             </AnimatePresence>

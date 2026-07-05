@@ -145,7 +145,7 @@ export function FillBlank({ config, topicId }: { config: Config; topicId: string
                     ? <span className="flex items-center justify-center gap-1"><Check className="w-4 h-4" aria-hidden /> Correct!</span>
                     : <span>
                         <span aria-hidden>✗ </span>
-                        Incorrect. The answer is {q.answer} — moving on…
+                        Incorrect. The answer is {q.answer}. Moving on…
                       </span>}
                 </motion.p>
               )}

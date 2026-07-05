@@ -267,7 +267,7 @@ export function SyllabusHeatmap({ subjects, childName, childProfileId, yearGroup
                           padding:     '6px 7px',
                         }}
                         title={topic.title}
-                        aria-label={`${topic.title} — ${topic.progressStatus.replace('_', ' ')}`}
+                        aria-label={`${topic.title}: ${topic.progressStatus.replace('_', ' ')}`}
                       >
                         {/* Assigned pin */}
                         {isAssigned && (

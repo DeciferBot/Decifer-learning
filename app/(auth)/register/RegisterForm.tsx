@@ -156,7 +156,7 @@ export function RegisterForm() {
         <fieldset>
           <legend className="text-sm font-medium">Year group</legend>
           <p className="mt-0.5 text-xs text-muted">
-            Pick the school year you&apos;re in now — it decides which topics you see.
+            Pick the school year you&apos;re in now. It decides which topics you see.
           </p>
           <div className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-4">
             {MVP_YEAR_GROUPS.map((y) => {
@@ -277,7 +277,7 @@ export function RegisterForm() {
       {needsConsent ? (
         <div className="rounded-lg border border-black/10 bg-amber-50 p-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">
-            Parent or guardian — please read
+            Parent or guardian: please read
           </p>
           <p className="mt-1 text-sm leading-relaxed text-ink">
             Decifer Learning collects limited personal data (name, email, learning progress) to

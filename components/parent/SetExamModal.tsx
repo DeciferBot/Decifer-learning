@@ -65,7 +65,7 @@ export function SetExamModal({ childProfileId, childName, onClose, onSuccess }: 
   )
 
   const defaultTitle = selectedSubject
-    ? `${selectedSubject.name} revision${options?.yearGroupLabel ? ` — ${options.yearGroupLabel}` : ''}`
+    ? `${selectedSubject.name} revision${options?.yearGroupLabel ? `: ${options.yearGroupLabel}` : ''}`
     : 'Revision exam'
 
   // Reset picked topics when the subject changes
@@ -214,7 +214,7 @@ export function SetExamModal({ childProfileId, childName, onClose, onSuccess }: 
             {noLearntContent ? (
               <p className="rounded-xl bg-lightning/20 px-3 py-2 text-xs text-ink">
                 {childName} hasn&apos;t learnt any {selectedSubject?.name} topics yet. Exams can
-                only cover topics they have already learnt — try another subject, or come back
+                only cover topics they have already learnt. Try another subject, or come back
                 once they&apos;ve completed a lesson or quiz.
               </p>
             ) : (
@@ -329,7 +329,7 @@ export function SetExamModal({ childProfileId, childName, onClose, onSuccess }: 
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-semibold text-ink">Allow hints</p>
-                    <p className="text-xs text-muted">Off by default — matches real exam conditions</p>
+                    <p className="text-xs text-muted">Off by default, matches real exam conditions</p>
                   </div>
                   <button
                     type="button"

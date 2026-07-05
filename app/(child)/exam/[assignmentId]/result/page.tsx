@@ -121,7 +121,7 @@ export default function ExamResultPage({
         </p>
         {timedOut && (
           <p className="mt-2 rounded-full bg-incorrect/20 px-4 py-1 text-xs font-bold text-incorrect inline-block">
-            Time ran out — some questions marked unanswered
+            Time ran out. Some questions marked unanswered
           </p>
         )}
         {data.attempt.timeTakenSeconds != null && (

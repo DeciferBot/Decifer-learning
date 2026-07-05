@@ -12,7 +12,7 @@ import { RunAnomalyButton } from './RunAnomalyButton'
 import { Flag, AlertTriangle } from '@/components/ui/icons'
 import MathText from '@/components/ui/MathText'
 
-export const metadata = { title: 'Monitoring — Admin' }
+export const metadata = { title: 'Monitoring | Admin' }
 export const revalidate = 30
 
 export default async function MonitoringPage() {
@@ -184,8 +184,8 @@ export default async function MonitoringPage() {
           <div className="space-y-2">
             {flaggedQuestions.map((q) => {
               const distractors = Array.isArray(q.distractors) ? q.distractors as string[] : []
-              const tier = q.tier ?? '—'
-              const confidence = q.confidence_score != null ? `${Math.round(q.confidence_score)}%` : '—'
+              const tier = q.tier ?? '–'
+              const confidence = q.confidence_score != null ? `${Math.round(q.confidence_score)}%` : '–'
               const stats = statsMap[q.id]
               const flagReasons: string[] = []
               if (stats) {
@@ -196,7 +196,7 @@ export default async function MonitoringPage() {
                 if (flagReasons.length === 0 && stats.total > 0)
                   flagReasons.push(`${Math.round((stats.errorRate ?? 0) * 100)}% error rate · ${Math.round((stats.hint3Rate ?? 0) * 100)}% hint-3 rate (${stats.total} attempts)`)
               }
-              if (flagReasons.length === 0) flagReasons.push('No attempt data yet — flagged manually or via pipeline')
+              if (flagReasons.length === 0) flagReasons.push('No attempt data yet, flagged manually or via pipeline')
               return (
                 <details key={q.id} className="rounded-2xl border border-incorrect/20 bg-incorrect/5 shadow-sm group">
                   <summary className="flex items-start gap-3 p-4 cursor-pointer list-none select-none">

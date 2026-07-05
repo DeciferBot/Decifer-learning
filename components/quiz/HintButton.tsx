@@ -42,7 +42,7 @@ export function HintButton({ hints, revealed, onReveal, disabled, countdown }: P
         <p className="flex items-center gap-1.5 text-xs text-muted">
           <Lightbulb size={14} className="flex-none" aria-hidden />
           Hint unlocks in{' '}
-          <span className="tabular-nums font-bold">{countdown}s</span> — give it a try first!
+          <span className="tabular-nums font-bold">{countdown}s</span>. Give it a try first!
         </p>
       )}
 
@@ -60,7 +60,7 @@ export function HintButton({ hints, revealed, onReveal, disabled, countdown }: P
       {/* All hints used — tell the child why the button is gone */}
       {!disabled && !isLocked && remaining === 0 && revealed.length > 0 && (
         <p className="text-xs font-semibold text-ink-2">
-          That&apos;s all the hints for this one — you&apos;ve got this!
+          That&apos;s all the hints for this one. You&apos;ve got this!
         </p>
       )}
     </div>

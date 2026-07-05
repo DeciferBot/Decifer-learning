@@ -52,7 +52,7 @@ export function SubscriptionStatus({ plan, status, periodEnd }: Props) {
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className={`text-xs font-bold uppercase tracking-wide ${isPastDue ? 'text-incorrect' : 'text-correct'}`}>
-            Family plan {isPastDue ? '— Payment failed' : '— Active'}
+            Family plan {isPastDue ? '· Payment failed' : '· Active'}
           </p>
           <p className="mt-1 text-sm text-muted">
             All subjects · Year 1–11 · Unlimited children

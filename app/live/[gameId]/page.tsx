@@ -9,18 +9,18 @@ import { LiveGameClient } from '@/components/live/LiveGameClient'
 // Own Blitz OG card (app/live/[gameId]/opengraph-image.tsx) so a shared game
 // link doesn't fall back to the home page preview.
 export const metadata: Metadata = {
-  title: 'Decifer Blitz — Live quiz battle',
+  title: 'Decifer Blitz | Live quiz battle',
   description:
-    'A live, Kahoot-style quiz battle. Tap the link, pick a nickname, and play — no account needed.',
+    'A live, Kahoot-style quiz battle. Tap the link, pick a nickname, and play. No account needed.',
   openGraph: {
     title: 'Join my Decifer Blitz!',
     description:
-      'A live, Kahoot-style quiz battle. Pick a nickname and play — no account needed.',
+      'A live, Kahoot-style quiz battle. Pick a nickname and play. No account needed.',
   },
   twitter: {
     title: 'Join my Decifer Blitz!',
     description:
-      'A live, Kahoot-style quiz battle. Pick a nickname and play — no account needed.',
+      'A live, Kahoot-style quiz battle. Pick a nickname and play. No account needed.',
   },
 }
 

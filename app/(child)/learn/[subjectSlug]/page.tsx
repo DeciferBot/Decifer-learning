@@ -7,7 +7,7 @@ import { getPublishedTopicsForSubject } from '@/lib/lesson-store'
 type Props = { params: { subjectSlug: string } }
 
 export async function generateMetadata({ params }: Props) {
-  return { title: `${params.subjectSlug} — Learn — Decifer Learning` }
+  return { title: `${params.subjectSlug} · Learn` }
 }
 
 export default async function SubjectPage({ params }: Props) {

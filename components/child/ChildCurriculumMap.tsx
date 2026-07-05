@@ -95,7 +95,7 @@ function TopicCard({
       {/* score */}
       {topic.progressStatus === 'completed' && (
         <p className={`text-xs font-bold flex items-center gap-0.5 ${st.badge.split(' ')[1]}`}>
-          {Math.round(score * 100)}% {excelled ? <Star className="w-3 h-3" aria-hidden /> : score >= 0.70 ? <Check className="w-3 h-3" aria-hidden /> : '— try again'}
+          {Math.round(score * 100)}% {excelled ? <Star className="w-3 h-3" aria-hidden /> : score >= 0.70 ? <Check className="w-3 h-3" aria-hidden /> : 'try again'}
         </p>
       )}
 

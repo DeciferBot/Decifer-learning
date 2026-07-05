@@ -3,7 +3,7 @@ import { Suspense } from 'react'
 import { ResetPasswordForm } from './ResetPasswordForm'
 
 export const metadata = {
-  title: 'Set new password — Decifer Learning',
+  title: 'Set new password',
   robots: { index: false, follow: false },
 }
 

@@ -38,13 +38,13 @@ export function buildParentActions(
   if (digest && digest.activeDays === 0) {
     actions.push({
       label: 'Encourage a session',
-      text: `${childName} hasn't been active this week. Even a 10-minute session keeps momentum going — the Daily Challenge is a good low-pressure starting point.`,
+      text: `${childName} hasn't been active this week. Even a 10-minute session keeps momentum going, and the Daily Challenge is a good low-pressure starting point.`,
       urgency: 'medium',
     })
   } else if (digest && digest.activeDays === 1 && digest.quizAttempts <= 1) {
     actions.push({
       label: 'Boost engagement',
-      text: `${childName} had a light week — just ${digest.quizAttempts} quiz${digest.quizAttempts === 1 ? '' : 'zes'}. Checking in about their favourite topic can help rebuild momentum.`,
+      text: `${childName} had a light week, just ${digest.quizAttempts} quiz${digest.quizAttempts === 1 ? '' : 'zes'}. Checking in about their favourite topic can help rebuild momentum.`,
       urgency: 'low',
     })
   }
@@ -53,7 +53,7 @@ export function buildParentActions(
   if (streakDays >= 3 && (digest?.activeDays ?? 1) === 0) {
     actions.push({
       label: 'Protect streak',
-      text: `${childName}'s ${streakDays}-day streak is at risk — they haven't logged in this week. A quick reminder today keeps it alive.`,
+      text: `${childName}'s ${streakDays}-day streak is at risk, and they haven't logged in this week. A quick reminder today keeps it alive.`,
       urgency: 'high',
     })
   }
@@ -71,7 +71,7 @@ export function buildParentActions(
   if (digest && digest.passRate !== null && digest.passRate >= 80 && digest.quizAttempts >= 3) {
     actions.push({
       label: 'Great week!',
-      text: `${childName} had a strong week — ${digest.passRate}% pass rate across ${digest.quizAttempts} quizzes. Worth a mention at dinner!`,
+      text: `${childName} had a strong week, with ${digest.passRate}% pass rate across ${digest.quizAttempts} quizzes. Worth a mention at dinner!`,
       urgency: 'low',
     })
   }

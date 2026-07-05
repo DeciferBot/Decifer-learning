@@ -13,7 +13,7 @@ import { YearGroupEditor } from '@/components/profile/YearGroupEditor'
 import { DEFAULT_AVATAR_CONFIG } from '@/lib/avatar-catalogue'
 import type { AvatarConfig } from '@/lib/avatar-catalogue'
 
-export const metadata = { title: 'My Profile — Decifer Learning' }
+export const metadata = { title: 'My Profile' }
 export const dynamic = 'force-dynamic'
 
 const RARITY_TOKEN: Record<string, { bg: string; text: string; border: string; label: string }> = {
@@ -251,7 +251,7 @@ export default async function ProfilePage() {
                   borderRadius: 'var(--radius-chip)',
                   boxShadow: 'var(--shadow-card)',
                 }}
-                title={`${badge.description} — earned ${new Date(awarded_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`}
+                title={`${badge.description}, earned ${new Date(awarded_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`}
               >
                 {badge.icon_url ? <img src={badge.icon_url} className="w-5 h-5" alt="" /> : <Medal className="w-5 h-5" aria-hidden />}
                 <span

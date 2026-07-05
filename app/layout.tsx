@@ -96,7 +96,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: TITLE,
     description:
-      'Years 1 to 11 across five subjects, with thousands of quality-checked questions — and a learning map that finally shows you where your child stands. Built for British-curriculum families.',
+      'Years 1 to 11 across five subjects, with thousands of quality-checked questions, and a learning map that finally shows you where your child stands. Built for British-curriculum families.',
     url: 'https://www.deciferlearning.com',
     siteName: 'Decifer Learning',
     type: 'website',
@@ -106,7 +106,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: TITLE,
     description:
-      'Years 1 to 11 across five subjects, with thousands of quality-checked questions — and a learning map that finally shows you where your child stands. Built for British-curriculum families.',
+      'Years 1 to 11 across five subjects, with thousands of quality-checked questions, and a learning map that finally shows you where your child stands. Built for British-curriculum families.',
   },
   robots: {
     index: true,

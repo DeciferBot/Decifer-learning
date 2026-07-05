@@ -40,7 +40,7 @@ export function DifficultyPicker({
             key={opt.value}
             whileTap={{ scale: 0.96 }}
             onClick={() => onPick(opt.value)}
-            aria-label={`${opt.label} — ${opt.desc}`}
+            aria-label={`${opt.label}: ${opt.desc}`}
             className="flex min-h-[96px] flex-col items-start gap-1 rounded-2xl border-2 border-black/8 bg-surface p-4 text-left transition-colors hover:border-opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
             style={{ '--hover-border': opt.color } as React.CSSProperties}
             onMouseEnter={(e) =>

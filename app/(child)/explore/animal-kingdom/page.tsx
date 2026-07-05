@@ -5,7 +5,7 @@ import { loadExplorer } from '@/lib/explore/load'
 import type { AnimalExplorer } from '@/lib/explore/types'
 import { AnimalKingdomExperience } from '@/components/explore/AnimalKingdomExperience'
 
-export const metadata = { title: 'Animal Kingdom — Decifer Learning' }
+export const metadata = { title: 'Animal Kingdom' }
 
 export default async function AnimalKingdomPage() {
   const user = await getAuthUser()

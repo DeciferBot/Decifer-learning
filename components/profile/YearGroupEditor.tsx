@@ -70,7 +70,7 @@ export function YearGroupEditor({ current }: { current: YearGroupLabel }) {
   return (
     <div className="mt-1 space-y-2">
       <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-        In the wrong year? Pick the school year you&apos;re in now — your world map and quizzes
+        In the wrong year? Pick the school year you&apos;re in now, and your world map and quizzes
         will switch to match.
       </p>
       <div className="flex flex-wrap items-center gap-2">

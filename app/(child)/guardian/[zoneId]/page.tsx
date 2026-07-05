@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: { params: { zoneId: string } 
     select: { name: true },
   })
   return {
-    title: zone ? `${zone.name} Guardian — Decifer Learning` : 'Guardian — Decifer Learning',
+    title: zone ? `${zone.name} Guardian` : 'Guardian',
   }
 }
 

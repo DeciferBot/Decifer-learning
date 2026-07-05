@@ -9,7 +9,7 @@ import { prisma } from '@/lib/prisma'
 import type { LearningProfile } from '@/lib/onboarding-config'
 import { OnboardingWizard } from './OnboardingWizard'
 
-export const metadata = { title: 'Welcome — Decifer Learning' }
+export const metadata = { title: 'Welcome' }
 export const dynamic = 'force-dynamic'
 
 export default async function OnboardingPage() {

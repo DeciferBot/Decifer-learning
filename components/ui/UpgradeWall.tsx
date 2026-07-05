@@ -18,7 +18,7 @@ export function UpgradeWall({ topicTitle, subjectName }: Props) {
       <p className="mt-3 max-w-sm text-sm leading-relaxed text-muted">
         {subjectName
           ? `${subjectName} topics are included in the Family plan. Free accounts include 3 Maths topics.`
-          : 'The Family plan unlocks all five subjects and every year group — Maths, English, Science, History and Geography from Year 1 to Year 11.'}
+          : 'The Family plan unlocks all five subjects and every year group: Maths, English, Science, History and Geography from Year 1 to Year 11.'}
       </p>
 
       <div className="mt-8 w-full max-w-xs space-y-3">
@@ -26,7 +26,7 @@ export function UpgradeWall({ topicTitle, subjectName }: Props) {
           href="/pricing"
           className="flex h-12 w-full items-center justify-center rounded-xl bg-maths font-semibold text-white transition active:scale-[0.98]"
         >
-          See plans — from AED 350/mo
+          See plans, from AED 350/mo
         </Link>
         <Link
           href="/dashboard/child"

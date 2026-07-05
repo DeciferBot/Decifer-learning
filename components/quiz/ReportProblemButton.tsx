@@ -31,14 +31,14 @@ export function ReportProblemButton({ questionId }: Props) {
       throw new Error('unexpected')
     } catch {
       setState('open')
-      setError('Something went wrong — please try again.')
+      setError('Something went wrong, please try again.')
     }
   }
 
   if (state === 'done') {
     return (
       <p className="mt-3 text-center text-xs text-correct flex items-center justify-center gap-1">
-        <Check className="w-3.5 h-3.5" aria-hidden /> Report received — our team will review it.
+        <Check className="w-3.5 h-3.5" aria-hidden /> Report received. Our team will review it.
       </p>
     )
   }

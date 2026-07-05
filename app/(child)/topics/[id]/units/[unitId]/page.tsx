@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: { params: { id: string; unitI
     where: { id: params.unitId },
     select: { title: true },
   })
-  return { title: unit ? `${unit.title} — Decifer Learning` : 'Chapter — Decifer Learning' }
+  return { title: unit ? `${unit.title}` : 'Chapter' }
 }
 
 export default async function ChapterPage({
@@ -83,7 +83,7 @@ export default async function ChapterPage({
 
       {lessons.length === 0 && (
         <div className="rounded-2xl border border-black/5 bg-surface p-8 text-center">
-          <p className="text-muted text-sm">Lesson content for this chapter is on its way — try the quiz, or check back soon.</p>
+          <p className="text-muted text-sm">Lesson content for this chapter is on its way. Try the quiz, or check back soon.</p>
         </div>
       )}
 
@@ -151,7 +151,7 @@ export default async function ChapterPage({
             Study guide written by Decifer Learning
             {content?.canonicalUrl && (
               <>
-                {' '}— lesson sequence from{' '}
+                {', '}lesson sequence from{' '}
                 <a href={content.canonicalUrl} className="underline" target="_blank" rel="noopener noreferrer">
                   Oak National Academy
                 </a>

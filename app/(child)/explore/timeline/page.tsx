@@ -5,7 +5,7 @@ import { loadExplorer } from '@/lib/explore/load'
 import type { TimelineExplorer } from '@/lib/explore/types'
 import { HistoryTimelineExperience } from '@/components/explore/HistoryTimelineExperience'
 
-export const metadata = { title: 'History Timeline — Decifer Learning' }
+export const metadata = { title: 'History Timeline' }
 
 export default async function TimelinePage() {
   const user = await getAuthUser()

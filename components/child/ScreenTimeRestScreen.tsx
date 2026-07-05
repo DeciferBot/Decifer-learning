@@ -17,7 +17,7 @@ export function ScreenTimeRestScreen({ learnHref }: { learnHref?: string }) {
         Great work today!
       </h1>
       <p className="mt-3 text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>
-        You&apos;ve hit your learning time for today — a brilliant place to stop. Your streak
+        You&apos;ve hit your learning time for today, a brilliant place to stop. Your streak
         and points are safe. Come back tomorrow for more.
       </p>
       <p className="mt-2 text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>

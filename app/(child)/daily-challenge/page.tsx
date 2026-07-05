@@ -230,8 +230,8 @@ export default function DailyChallengePageInner() {
           }
           const stateLabel = selected !== null
             ? isSelected
-              ? isCorrect ? `${opt} — correct` : `${opt} — incorrect`
-              : !isSelected && isCorrect ? `${opt} — correct answer` : opt
+              ? isCorrect ? `${opt}, correct` : `${opt}, incorrect`
+              : !isSelected && isCorrect ? `${opt}, correct answer` : opt
             : opt
           return (
             <button

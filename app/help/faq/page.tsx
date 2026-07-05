@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { jsonLd } from '@/lib/json-ld'
 
 export const metadata = {
-  title: 'FAQ — Decifer Learning',
+  title: 'FAQ',
   description:
     'Answers to common questions from parents and students about Decifer Learning: linking accounts, content safety, year groups, subjects, quizzes, hints, streaks, and how questions are quality-checked.',
   alternates: { canonical: '/help/faq' },

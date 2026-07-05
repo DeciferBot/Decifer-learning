@@ -65,7 +65,7 @@ const APP_URL =
 
 function buildShareText(zoneName: string, score: number, total: number) {
   const pct = Math.round((score / total) * 100)
-  return `I just defeated the ${zoneName} Guardian on Decifer Learning! 🏆 ${score}/${total} (${pct}%) — can you beat me? ${APP_URL}`
+  return `I just defeated the ${zoneName} Guardian on Decifer Learning! 🏆 ${score}/${total} (${pct}%). Can you beat me? ${APP_URL}`
 }
 
 async function shareOrCopy(text: string, onCopied: () => void) {
@@ -282,7 +282,7 @@ export function GuardianVictoryScreen({
             </div>
 
             {droppedCard && (
-              <p className="text-center text-xs text-muted">Your Legendary card is waiting — tap to reveal it!</p>
+              <p className="text-center text-xs text-muted">Your Legendary card is waiting. Tap to reveal it!</p>
             )}
           </motion.div>
         )}

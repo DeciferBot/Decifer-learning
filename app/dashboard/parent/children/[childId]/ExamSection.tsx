@@ -73,7 +73,7 @@ export function ExamSection({
         </div>
 
         <p className="text-xs text-muted">
-          Assign timed revision exams to {childName}. Each exam is one-shot — {childName} must ask
+          Assign timed revision exams to {childName}. Each exam is one-shot. {childName} must ask
           you to set a new one for a retry.
         </p>
 

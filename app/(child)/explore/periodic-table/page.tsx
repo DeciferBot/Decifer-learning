@@ -5,7 +5,7 @@ import { loadExplorer } from '@/lib/explore/load'
 import type { PeriodicExplorer } from '@/lib/explore/types'
 import { PeriodicTableExperience } from '@/components/explore/PeriodicTableExperience'
 
-export const metadata = { title: 'Periodic Table — Decifer Learning' }
+export const metadata = { title: 'Periodic Table' }
 
 export default async function PeriodicTablePage() {
   const user = await getAuthUser()

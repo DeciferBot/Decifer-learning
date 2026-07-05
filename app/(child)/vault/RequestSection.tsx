@@ -28,7 +28,7 @@ const STATUS_COPY: Record<string, { label: string; description: string; colour: 
   },
   deferred: {
     label: 'Saved for later',
-    description: 'Your parent has seen your request and will get back to you soon — hang tight!',
+    description: 'Your parent has seen your request and will get back to you soon. Hang tight!',
     colour: 'text-muted',
     Icon: Clock,
   },
@@ -40,7 +40,7 @@ const STATUS_COPY: Record<string, { label: string; description: string; colour: 
   },
   approved: {
     label: 'Your reward is approved!',
-    description: 'Amazing work — your parent has approved your reward. Ask them about it when you next see them!',
+    description: 'Amazing work! Your parent has approved your reward. Ask them about it when you next see them!',
     colour: 'text-correct',
     Icon: Sparkles,
   },
@@ -65,7 +65,7 @@ export function RequestSection({ hasCredits, hasPendingRequest, pendingRequest, 
       })
       if (!res.ok) {
         const body = await res.json()
-        setError(body.error ?? 'Something went wrong — please try again.')
+        setError(body.error ?? 'Something went wrong, please try again.')
         return
       }
       setDone(true)

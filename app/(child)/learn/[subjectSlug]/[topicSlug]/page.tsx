@@ -7,7 +7,7 @@ import { getPublishedLessonsForTopic } from '@/lib/lesson-store'
 type Props = { params: { subjectSlug: string; topicSlug: string } }
 
 export async function generateMetadata({ params }: Props) {
-  return { title: `${params.topicSlug} — Learn — Decifer Learning` }
+  return { title: `${params.topicSlug} · Learn` }
 }
 
 const LANE_LABEL: Record<string, string> = {

@@ -463,7 +463,7 @@ function QuestionView({
             )}
           </motion.div>
         ) : locked ? (
-          <p className="mt-5 text-center text-sm font-semibold text-muted">Locked in — waiting for others…</p>
+          <p className="mt-5 text-center text-sm font-semibold text-muted">Locked in, waiting for others…</p>
         ) : null}
       </AnimatePresence>
 

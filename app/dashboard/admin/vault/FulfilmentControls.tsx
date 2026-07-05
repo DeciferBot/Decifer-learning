@@ -37,14 +37,14 @@ export function FulfilmentControls({ requestId, currentStatus }: Props) {
       })
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
-        setError(data.error ?? 'Could not update — please try again')
+        setError(data.error ?? 'Could not update, please try again')
         return
       }
       setShowTracking(false)
       setTrackingInput('')
       router.refresh()
     } catch {
-      setError('Network error — please try again')
+      setError('Network error, please try again')
     } finally {
       setSaving(false)
     }

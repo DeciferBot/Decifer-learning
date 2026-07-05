@@ -226,7 +226,7 @@ function CreateChildForm({ onCreated }: { onCreated: () => void }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
       <p className="text-sm text-muted">
-        No email needed — set a name and a PIN. Your child logs in with their name and PIN.
+        No email needed. Set a name and a PIN. Your child logs in with their name and PIN.
         You can change the PIN any time from their settings.
       </p>
 

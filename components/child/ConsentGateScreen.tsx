@@ -16,7 +16,7 @@ export function ConsentGateScreen({ learnHref }: { learnHref?: string }) {
       </h1>
       <p className="mt-3 text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>
         We emailed your parent or guardian to confirm your account, and we haven&apos;t heard
-        back yet. Ask them to check their email (and the spam folder!) — quizzes unlock the
+        back yet. Ask them to check their email (and the spam folder!). Quizzes unlock the
         moment they confirm.
       </p>
       <p className="mt-2 text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>

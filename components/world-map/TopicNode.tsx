@@ -91,7 +91,7 @@ export function TopicNode({ title, state, href, subjectColor, xPct, yPx, quizOpt
       <div style={positionStyle}>
         {circle}
         {label}
-        <span className="sr-only">{title} — locked</span>
+        <span className="sr-only">{title}, locked</span>
       </div>
     )
   }
@@ -99,7 +99,7 @@ export function TopicNode({ title, state, href, subjectColor, xPct, yPx, quizOpt
   const linked = (
     <Link
       href={href}
-      aria-label={`${title}${state === 'completed' ? ' — completed' : ''}`}
+      aria-label={`${title}${state === 'completed' ? ', completed' : ''}`}
       className="block rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
     >
       {circle}

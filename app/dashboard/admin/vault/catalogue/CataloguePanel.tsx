@@ -163,7 +163,7 @@ export function CataloguePanel({ items: initialItems }: Props) {
 
       {/* ── Item list ── */}
       {localItems.length === 0 ? (
-        <p className="text-sm text-muted">No prizes yet — add one above.</p>
+        <p className="text-sm text-muted">No prizes yet. Add one above.</p>
       ) : (
         Object.entries(grouped).map(([cat, catItems]) => (
           <div key={cat} className="space-y-2">

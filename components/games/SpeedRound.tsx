@@ -140,7 +140,7 @@ export function SpeedRound({ config, topicId }: { config: SpeedRoundConfig; topi
       <div
         className="h-2 overflow-hidden rounded-full bg-black/8"
         role="timer"
-        aria-label={`${timeLeft} seconds remaining — ${timerLabel}`}
+        aria-label={`${timeLeft} seconds remaining, ${timerLabel}`}
         aria-live="off"
       >
         <motion.div
@@ -193,8 +193,8 @@ export function SpeedRound({ config, topicId }: { config: SpeedRoundConfig; topi
               }
               let ariaLabel = opt
               if (answerState !== 'unanswered') {
-                if (isCorrectOpt) ariaLabel = `${opt} — correct answer`
-                else if (isWrongPick) ariaLabel = `${opt} — incorrect`
+                if (isCorrectOpt) ariaLabel = `${opt}, correct answer`
+                else if (isWrongPick) ariaLabel = `${opt}, incorrect`
               }
               return (
                 <button
