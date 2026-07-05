@@ -61,9 +61,30 @@ export function LoginForm() {
         const supabase = createSupabaseBrowserClient()
         const { error: otpError } = await supabase.auth.signInWithOtp({
           email: email.trim(),
-          options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+          options: {
+            // Land on /auth/confirm (token_hash + verifyOtp) so the link opens
+            // in any browser or in-app webview — see lib/auth/verify-email-link.
+            emailRedirectTo: `${window.location.origin}/auth/confirm?next=/dashboard`,
+            // The login page is for EXISTING users; sign-ups go through /register
+            // (which supplies the year_group metadata the DB trigger requires).
+            // Without this, an OTP for an unknown email tries to create a user and
+            // hard-500s on `handle_new_auth_user: … must include year_group`.
+            shouldCreateUser: false,
+          },
         })
-        if (otpError) { setError(otpError.message); return }
+        if (otpError) {
+          if (otpError.status === 429) {
+            setError('Please wait a moment before requesting another link.')
+            return
+          }
+          // A 400 here means the email isn't registered (shouldCreateUser:false).
+          // Stay neutral rather than confirm which emails exist — the sent screen
+          // below is shown either way.
+          if (otpError.status !== 400) {
+            setError(otpError.message)
+            return
+          }
+        }
         setSent(true)
       } catch {
         setError('Something went wrong. Please try again.')
@@ -81,9 +102,10 @@ export function LoginForm() {
         const { error: resetError } = await supabase.auth.resetPasswordForEmail(
           email.trim(),
           {
-            // After Supabase verifies the link the callback exchanges the PKCE
-            // code and forwards the user to /reset-password to set a new password.
-            redirectTo: `${window.location.origin}/auth/callback?next=/reset-password`,
+            // Land on /auth/confirm (token_hash + verifyOtp), which forwards to
+            // /reset-password with a recovery session already set. Cookie-
+            // independent, so the link works from any browser or in-app webview.
+            redirectTo: `${window.location.origin}/auth/confirm?next=/reset-password`,
           }
         )
         if (resetError) { setError(resetError.message); return }
@@ -100,10 +122,13 @@ export function LoginForm() {
       <div className="mt-5 rounded-md bg-correct/10 px-3 py-4 text-sm text-correct text-center">
         <p className="font-semibold">Check your email ✓</p>
         <p className="mt-1">
-          {mode === 'forgot'
-            ? `We sent a password reset link to `
-            : `We sent a sign-in link to `}
-          <strong>{email}</strong>.
+          {mode === 'forgot' ? (
+            <>We sent a password reset link to <strong>{email}</strong>.</>
+          ) : (
+            // Neutral wording — a magic link is only sent to registered emails,
+            // and we don't reveal which addresses have an account.
+            <>If an account exists for <strong>{email}</strong>, we&apos;ve sent a sign-in link.</>
+          )}
         </p>
         <button
           onClick={() => switchMode('password')}
