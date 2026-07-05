@@ -34,7 +34,7 @@ export default async function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-background">
-      <TopBar displayName={getUserDisplayName(user)} showAdminLink={isAdmin} />
+      <TopBar displayName={getUserDisplayName(user)} showAdminLink={isAdmin} showThemeToggle />
       {consentGate.state !== 'verified' ? (
         <ConsentBanner
           state={consentGate.state}

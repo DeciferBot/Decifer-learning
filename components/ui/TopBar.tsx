@@ -1,13 +1,18 @@
 import Link from 'next/link'
 import { DeciferLogo } from './DeciferLogo'
 import { SignOutButton } from './SignOutButton'
+import { DarkModeToggle } from './DarkModeToggle'
 
 export function TopBar({
   displayName,
   showAdminLink = false,
+  // Adults (parent / admin) get the light/dark toggle. The child app has its
+  // own theme picker and is insulated from the global toggle, so it stays off there.
+  showThemeToggle = false,
 }: {
   displayName: string
   showAdminLink?: boolean
+  showThemeToggle?: boolean
 }) {
   return (
     <header className="sticky top-0 z-10 border-b border-black/5 bg-surface/90 backdrop-blur">
@@ -16,6 +21,7 @@ export function TopBar({
           <DeciferLogo size="sm" product="Learning" />
         </Link>
         <div className="flex items-center gap-3">
+          {showThemeToggle && <DarkModeToggle />}
           {showAdminLink && (
             <Link
               href="/dashboard/admin"
