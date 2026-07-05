@@ -8,75 +8,73 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // ── BACKGROUNDS ────────────────────────────────────────────
-        background: '#FDF8F2',   // warm paper (Learning adaptation)
-        surface: '#FFFFFF',
+        // Every colour resolves from the CSS-variable channels defined in
+        // styles/tokens.css (--tw-*). Change a value there once and every
+        // surface that uses these classes updates, and dark mode can override
+        // the channels under a theme scope. The rgb(var(--x) / <alpha-value>)
+        // form keeps opacity utilities (e.g. bg-brand/10, border-maths/20) working.
+        // Values are identical to the previous hex, so light mode is unchanged.
+        background: 'rgb(var(--tw-background) / <alpha-value>)',
+        surface: 'rgb(var(--tw-surface) / <alpha-value>)',
 
-        // ── MASTER BRAND — EMBER (never changes across verticals) ──
-        ember: '#FB5A24',
-        'ember-bright': '#FF7A4D',  // hover
-        'ember-deep': '#D63F11',    // pressed
-        // brand is an alias kept for backwards-compat in existing classes
-        brand: '#FB5A24',
-        'brand-50': 'rgba(251,90,36,0.08)',
-        'brand-600': '#D63F11',    // accessible dark shade for small text
-        'brand-700': '#B83300',
-        mark: '#FB5A24',           // mark is always Ember
+        // Master brand — Ember
+        ember: 'rgb(var(--tw-ember) / <alpha-value>)',
+        'ember-bright': 'rgb(var(--tw-ember-bright) / <alpha-value>)',
+        'ember-deep': 'rgb(var(--tw-ember-deep) / <alpha-value>)',
+        brand: 'rgb(var(--tw-ember) / <alpha-value>)',           // alias of ember
+        'brand-50': 'rgb(var(--tw-ember) / 0.08)',
+        'brand-600': 'rgb(var(--tw-ember-deep) / <alpha-value>)',
+        'brand-700': 'rgb(var(--tw-brand-700) / <alpha-value>)',
+        mark: 'rgb(var(--tw-ember) / <alpha-value>)',            // mark is always Ember
 
-        // ── LEARNING ADAPTATION PALETTE ────────────────────────────
-        fig: '#FDD868',            // streaks · badges · highlights
-        'fig-deep': '#E6BC2A',
-        teal: '#2EC4A0',           // progress bars · mastery
-        'teal-light': 'rgba(46,196,160,0.12)',
-        rose: '#F97DA8',           // encouragement · wrong answer feedback (never red for kids)
+        // Learning adaptation palette
+        fig: 'rgb(var(--tw-fig) / <alpha-value>)',
+        'fig-deep': 'rgb(var(--tw-fig-deep) / <alpha-value>)',
+        teal: 'rgb(var(--tw-teal) / <alpha-value>)',
+        'teal-light': 'rgb(var(--tw-teal) / 0.12)',
+        rose: 'rgb(var(--tw-rose) / <alpha-value>)',
+        'rose-700': 'rgb(var(--tw-rose-700) / <alpha-value>)',
 
-        // ── SUBJECT COLOURS ─────────────────────────────────────────
-        maths: '#6C9EFF',
-        english: '#FF8FAB',
-        science: '#52D9A0',
+        // Subject colours
+        maths: 'rgb(var(--tw-maths) / <alpha-value>)',
+        english: 'rgb(var(--tw-english) / <alpha-value>)',
+        science: 'rgb(var(--tw-science) / <alpha-value>)',
 
-        // ── SEMANTIC (master brand — domain-adaptive) ───────────────
-        // For child-facing copy, use `rose` instead of `incorrect`
-        correct: '#29D17C',        // mastered / positive
-        'points-gold': '#F5A524',  // caution / in progress
-        incorrect: '#F05452',      // data/analytics views only — use `rose` for child copy
-        // -700 shades pass 4.5:1 on white/paper — use for small text; base shades
-        // are for fills, borders, and large icons only
-        'correct-700': '#1B7D45',
-        'incorrect-700': '#C03A38',
-        'points-gold-700': '#8F6400',
-        'rose-700': '#C2185B',     // wrong-answer text for child copy (rose, never harsh red)
+        // Semantic
+        correct: 'rgb(var(--tw-correct) / <alpha-value>)',
+        'points-gold': 'rgb(var(--tw-points-gold) / <alpha-value>)',
+        incorrect: 'rgb(var(--tw-incorrect) / <alpha-value>)',
+        'correct-700': 'rgb(var(--tw-correct-700) / <alpha-value>)',
+        'incorrect-700': 'rgb(var(--tw-incorrect-700) / <alpha-value>)',
+        'points-gold-700': 'rgb(var(--tw-points-gold-700) / <alpha-value>)',
 
-        // ── RARITY / DIFFICULTY TIERS ───────────────────────────────
-        sprout: '#A8E6CF',
-        explorer: '#74C0FC',
-        lightning: '#FFD43B',
+        // Rarity / difficulty tiers
+        sprout: 'rgb(var(--tw-sprout) / <alpha-value>)',
+        explorer: 'rgb(var(--tw-explorer) / <alpha-value>)',
+        lightning: 'rgb(var(--tw-lightning) / <alpha-value>)',
 
-        // ── SECONDARY / TERTIARY BRAND (identity system) ───────────
-        // Ember leads, Indigo anchors (focus, data, the dark ground),
-        // Green grows (progress, mastery, success). None collide with the
-        // subject colours (maths blue / english pink / science green).
-        indigo: '#2C3160',
-        'indigo-deep': '#131734',   // dark-mode ground
-        'indigo-soft': '#ECEDF6',   // light tinted panels
-        green: '#1FA971',           // progress · mastery · success
-        'green-deep': '#15855A',    // -deep passes 4.5:1 on paper for small text
-        'green-soft': '#E3F5EC',
+        // Secondary / tertiary brand (Ember leads, Indigo anchors, Green grows)
+        indigo: 'rgb(var(--tw-indigo) / <alpha-value>)',
+        'indigo-deep': 'rgb(var(--tw-indigo-deep) / <alpha-value>)',
+        'indigo-soft': 'rgb(var(--tw-indigo-soft) / <alpha-value>)',
+        green: 'rgb(var(--tw-green) / <alpha-value>)',
+        'green-deep': 'rgb(var(--tw-green-deep) / <alpha-value>)',
+        'green-soft': 'rgb(var(--tw-green-soft) / <alpha-value>)',
 
-        // ── MASTER BRAND ACCENTS ────────────────────────────────────
-        azure: '#3E8EFF',
-        violet: '#9B7CFF',
+        // Master brand accents
+        azure: 'rgb(var(--tw-azure) / <alpha-value>)',
+        violet: 'rgb(var(--tw-violet) / <alpha-value>)',
 
-        // ── TYPOGRAPHY ──────────────────────────────────────────────
-        ink: '#1F1A14',            // Learning adaptation ink (warm dark)
-        'ink-2': '#5C5147',
-        muted: '#796C5F',          // ink-3 — 4.8:1 on paper, 5.1:1 on white (AA small text)
+        // Typography
+        ink: 'rgb(var(--tw-ink) / <alpha-value>)',
+        'ink-2': 'rgb(var(--tw-ink-2) / <alpha-value>)',
+        muted: 'rgb(var(--tw-muted) / <alpha-value>)',
 
-        // ── STATE ────────────────────────────────────────────────────
-        success: '#29D17C',
-        warning: '#F5A524',
-        error: '#F05452',
-        info: '#3E8EFF',
+        // State (aliases)
+        success: 'rgb(var(--tw-correct) / <alpha-value>)',
+        warning: 'rgb(var(--tw-points-gold) / <alpha-value>)',
+        error: 'rgb(var(--tw-incorrect) / <alpha-value>)',
+        info: 'rgb(var(--tw-azure) / <alpha-value>)',
       },
       borderRadius: {
         sm: '0.5rem',      // 8px

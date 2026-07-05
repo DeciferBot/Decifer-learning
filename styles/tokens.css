@@ -30,6 +30,50 @@
 
 :root {
 
+  /* ══════════════════════════════════════════════════════════
+     TOKEN SOURCE OF TRUTH — colour channels, "R G B"
+     Tailwind reads these in tailwind.config.ts as
+     rgb(var(--tw-x) / <alpha-value>), so every colour utility class
+     resolves from here. Change a value once and every surface that
+     uses a colour class updates. Dark mode overrides these channels
+     under a theme scope (see [data-theme]). Values equal the previous
+     hex exactly, so light mode is unchanged.
+     ══════════════════════════════════════════════════════════ */
+  --tw-background:      253 248 242;   /* #FDF8F2 */
+  --tw-surface:         255 255 255;   /* #FFFFFF */
+  --tw-ember:           251 90 36;     /* #FB5A24 */
+  --tw-ember-bright:    255 122 77;    /* #FF7A4D */
+  --tw-ember-deep:      214 63 17;     /* #D63F11 */
+  --tw-brand-700:       184 51 0;      /* #B83300 */
+  --tw-fig:             253 216 104;   /* #FDD868 */
+  --tw-fig-deep:        230 188 42;    /* #E6BC2A */
+  --tw-teal:            46 196 160;    /* #2EC4A0 */
+  --tw-rose:            249 125 168;   /* #F97DA8 */
+  --tw-rose-700:        194 24 91;     /* #C2185B */
+  --tw-maths:           108 158 255;   /* #6C9EFF */
+  --tw-english:         255 143 171;   /* #FF8FAB */
+  --tw-science:         82 217 160;    /* #52D9A0 */
+  --tw-correct:         41 209 124;    /* #29D17C */
+  --tw-points-gold:     245 165 36;    /* #F5A524 */
+  --tw-incorrect:       240 84 82;     /* #F05452 */
+  --tw-correct-700:     27 125 69;     /* #1B7D45 */
+  --tw-incorrect-700:   192 58 56;     /* #C03A38 */
+  --tw-points-gold-700: 143 100 0;     /* #8F6400 */
+  --tw-sprout:          168 230 207;   /* #A8E6CF */
+  --tw-explorer:        116 192 252;   /* #74C0FC */
+  --tw-lightning:       255 212 59;    /* #FFD43B */
+  --tw-indigo:          44 49 96;      /* #2C3160 */
+  --tw-indigo-deep:     19 23 52;      /* #131734 */
+  --tw-indigo-soft:     236 237 246;   /* #ECEDF6 */
+  --tw-green:           31 169 113;    /* #1FA971 */
+  --tw-green-deep:      21 133 90;      /* #15855A */
+  --tw-green-soft:      227 245 236;   /* #E3F5EC */
+  --tw-azure:           62 142 255;    /* #3E8EFF */
+  --tw-violet:          155 124 255;   /* #9B7CFF */
+  --tw-ink:             31 26 20;      /* #1F1A14 */
+  --tw-ink-2:           92 81 71;      /* #5C5147 */
+  --tw-muted:           121 108 95;    /* #796C5F */
+
   /* ─────────────────────────────────────────────────────────
      1. EXISTING BRAND COLOURS (non-negotiable)
      ───────────────────────────────────────────────────────── */
