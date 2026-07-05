@@ -60,8 +60,10 @@ export default function PrivacyForKidsPage() {
         <Section title="Do we track you around the internet?">
           <p>
             No. Decifer Learning doesn&apos;t follow you around the internet or show
-            you adverts. We only use Vercel Analytics — a simple counter that tells us
-            how many people visited the app today. It doesn&apos;t know who you are.
+            you adverts. When you&apos;re signed in to your account we only use Vercel
+            Analytics — a simple counter that tells us how many people visited the app.
+            It doesn&apos;t know who you are. We do <strong>not</strong> use Google
+            Analytics or any advertising trackers on children&apos;s accounts.
           </p>
         </Section>
 
