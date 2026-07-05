@@ -138,8 +138,15 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en-GB" className={`${GeistSans.variable} ${GeistMono.variable} ${instrumentSerif.variable}`}>
+    <html lang="en-GB" suppressHydrationWarning className={`${GeistSans.variable} ${GeistMono.variable} ${instrumentSerif.variable}`}>
       <body className="font-body bg-background text-ink min-h-screen">
+        {/* Set the colour mode before paint, so there is no flash of the wrong theme. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{var m=localStorage.getItem('decifer-mode');if(m==='dark'||(!m&&window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')}catch(e){}",
+          }}
+        />
         <OfflineBanner />
         <CookieConsent />
         {children}

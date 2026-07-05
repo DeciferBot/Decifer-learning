@@ -652,6 +652,63 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════
+   DARK MODE — global toggle (html.dark)
+   Overrides the neutral channels and the direct-use vars to the warm
+   indigo dark palette, so public and adult surfaces flip from one place.
+   The child app sets data-theme (below), which re-asserts its own
+   channels, so a child's chosen theme is never overridden by the toggle.
+   ═══════════════════════════════════════════════════════════════════ */
+html.dark {
+  --tw-background: 19 23 52;     /* deep indigo ground */
+  --tw-surface:    30 34 68;
+  --tw-ink:        236 230 220;  /* warm off-white */
+  --tw-ink-2:      183 176 198;
+  --tw-muted:      147 139 166;
+  --tw-ember:      255 122 77;   /* lifted so ember reads on dark */
+  --tw-ember-deep: 255 146 104;  /* keeps text-brand-600 legible on dark */
+  --tw-green:      53 201 140;
+
+  /* direct-use vars for var() consumers */
+  --background: #131734; --surface: #1E2244;
+  --surface-raised: #1E2244; --surface-sunken: #0E1226;
+  --ink: #ECE6DC; --ink-2: #B7B0C6; --ink-3: #938BA6;
+  --text-primary: #ECE6DC; --text-heading: #ECE6DC; --text-body: #ECE6DC;
+  --text-secondary: #B7B0C6; --text-muted: #938BA6; --text-placeholder: #5A5578;
+  --brand: #FF7A4D;
+  --border-default: rgba(236,230,220,.10);
+  --border-strong:  rgba(236,230,220,.18);
+  --border-focus:   #FF7A4D;
+  --divider:        rgba(236,230,220,.10);
+  color-scheme: dark;
+}
+
+/* Child themes re-assert their own neutral channels, so the global dark
+   toggle never darkens a child who has chosen a light theme. */
+[data-theme="default"],
+[data-theme="maths"],
+[data-theme="english"],
+[data-theme="science"] {
+  --tw-background: 253 248 242;
+  --tw-surface:    255 255 255;
+  --tw-ink:        31 26 20;
+  --tw-ink-2:      92 81 71;
+  --tw-muted:      121 108 95;
+  --tw-ember:      251 90 36;
+  --tw-ember-deep: 214 63 17;
+  --tw-green:      31 169 113;
+}
+[data-theme="night"] {
+  --tw-background: 19 23 52;
+  --tw-surface:    30 34 68;
+  --tw-ink:        236 230 220;
+  --tw-ink-2:      183 176 198;
+  --tw-muted:      147 139 166;
+  --tw-ember:      255 122 77;
+  --tw-ember-deep: 255 146 104;
+  --tw-green:      53 201 140;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
    GLOBAL BASE STYLES
    (Opt-in by importing this file — not scoped, applies globally)
    ═══════════════════════════════════════════════════════════════════ */

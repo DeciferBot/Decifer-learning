@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { DeciferLogo } from '@/components/ui/DeciferLogo'
+import { DarkModeToggle } from '@/components/ui/DarkModeToggle'
 
 export const metadata: Metadata = {
   title: 'How it works',
@@ -103,6 +104,7 @@ export default function HowItWorksPage() {
         <div className="mx-auto flex h-14 max-w-4xl items-center justify-between px-4">
           <DeciferLogo size="sm" product="Learning" />
           <div className="flex items-center gap-3">
+            <DarkModeToggle />
             <Link href="/pricing" className="text-sm font-semibold text-maths hover:underline">Pricing</Link>
             <Link href="/register" className="flex h-9 items-center rounded-lg bg-maths px-4 text-sm font-semibold text-white">
               Start free
