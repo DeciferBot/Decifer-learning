@@ -8,7 +8,7 @@ import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
 import { prisma } from '@/lib/prisma'
 
-const FROM = 'Decifer Learning <hello@noreply.deciferlearning.com>'
+const FROM = 'Decifer Learning <hello@deciferlearning.com>'
 
 export type BigMoment =
   | { kind: 'first_win' }
