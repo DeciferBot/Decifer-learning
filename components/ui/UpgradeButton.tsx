@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { trackEvent } from '@/lib/analytics'
 
 type Props = {
   className?: string
@@ -23,6 +24,8 @@ export function UpgradeButton({ className, children, plan = 'family' }: Props) {
       })
       const data = await res.json()
       if (data.url) {
+        // GA4 conversion: parent is heading to Stripe checkout.
+        trackEvent('begin_checkout', { plan, currency: 'AED' })
         window.location.href = data.url
       } else {
         setError(data.error ?? 'Something went wrong')

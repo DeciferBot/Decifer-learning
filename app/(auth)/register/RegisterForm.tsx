@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
+import { trackEvent } from '@/lib/analytics'
 import {
   MVP_YEAR_GROUPS,
   SELF_REGISTERABLE_ROLES,
@@ -88,6 +89,10 @@ export function RegisterForm() {
           },
         })
         if (signUpError) { setError(signUpError.message); return }
+
+        // GA4 conversion: account created (fires for both email-confirm and
+        // instant-session paths). method distinguishes parent vs child sign-ups.
+        trackEvent('sign_up', { method: 'email', role })
 
         // Kick off the parent/guardian verification email. Best-effort — the
         // daily parent-verify cron retries any child who never got one.

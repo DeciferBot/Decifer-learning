@@ -23,6 +23,7 @@ import {
 import { LinkChildForm } from '@/components/parent/LinkChildForm'
 import { CurriculumMap } from '@/components/parent/CurriculumMap'
 import { SubscriptionStatus } from '@/components/parent/SubscriptionStatus'
+import { PurchaseTracker } from '@/components/analytics/PurchaseTracker'
 import { Star, Flame, Gift, BarChart, Target, MapPin, CalendarDays, Check, CircleCheck, ClipboardList, Clock } from '@/components/ui/icons'
 import type { ComponentType, SVGProps } from 'react'
 
@@ -97,6 +98,8 @@ export default async function ParentDashboardPage() {
 
   return (
     <section className="space-y-6">
+      {/* Fires GA4 `purchase` once when returning from Stripe checkout */}
+      <PurchaseTracker />
       {/* Header */}
       <div>
         <h1 className="font-heading text-2xl font-bold text-ink">Hi {displayName}</h1>

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { submitAnswer } from '@/lib/offline'
+import { trackEvent } from '@/lib/analytics'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { HintButton } from './HintButton'
@@ -419,6 +420,14 @@ export function QuizShell({
       .then((data: SubmitResult | null) => {
         if (data) {
           setSubmitResult(data)
+          // GA4 conversion: quiz finished (server-authoritative score/pass).
+          trackEvent('quiz_complete', {
+            topic_id: topicId ?? undefined,
+            is_guardian: isGuardian,
+            passed: data.passed,
+            score: data.score,
+            points: data.points,
+          })
           if (data.passed && data.droppedCard) setShowCard(true)
           else if (data.newBadges?.length) setBadgeQueue(data.newBadges)
           else if (data.passed) setShowReflection(true)
