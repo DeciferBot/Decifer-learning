@@ -6,12 +6,12 @@ import { UpgradeButton } from '@/components/ui/UpgradeButton'
 export const metadata: Metadata = {
   title: 'Pricing — DECIFER Learning',
   description:
-    'Start free with 3 Maths topics. Upgrade for unlimited access to all five subjects — Maths, English, Science, History and Geography — across Years 1 to 11. Simple AED pricing.',
+    'Start free with 3 Maths topics. Upgrade for unlimited access to all five subjects: Maths, English, Science, History and Geography, across Years 1 to 11. Simple AED pricing.',
   alternates: { canonical: '/pricing' },
 }
 
 const FREE_FEATURES = [
-  '3 Maths topics — free forever',
+  '3 Maths topics, free forever',
   'Full quiz engine with hints and lives',
   'Discovery Cards and badges',
   'Progress tracking',
@@ -19,7 +19,7 @@ const FREE_FEATURES = [
 
 const PER_CHILD_FEATURES = [
   'All five subjects: Maths, English, Science, History & Geography',
-  'All year groups — Year 1 to Year 11',
+  'All year groups, Year 1 to Year 11',
   'Unlimited topics and quizzes',
   'Learning map showing strengths and where to focus',
   'Screen-time controls',
@@ -28,7 +28,7 @@ const PER_CHILD_FEATURES = [
 
 const FAMILY_FEATURES = [
   'All five subjects: Maths, English, Science, History & Geography',
-  'All year groups — Year 1 to Year 11',
+  'All year groups, Year 1 to Year 11',
   'Unlimited topics and quizzes',
   'Learning map showing strengths and where to focus',
   'Screen-time controls',
@@ -124,7 +124,7 @@ export default function PricingPage() {
           {/* Family plan */}
           <div className="relative rounded-2xl border-2 border-maths bg-surface p-6">
             <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-maths px-3 py-0.5 text-xs font-bold text-white">
-              Best value — 2+ children
+              Best value for 2+ children
             </div>
             <p className="text-sm font-semibold uppercase tracking-wide text-maths">Family</p>
             <div className="mt-2 flex items-baseline gap-1">
@@ -132,7 +132,7 @@ export default function PricingPage() {
               <span className="text-muted">/month</span>
             </div>
             <p className="mt-2 text-sm text-muted">
-              One subscription covers your whole family — unlimited children.
+              One subscription covers your whole family, with unlimited children.
             </p>
             <ul className="mt-6 space-y-3">
               {FAMILY_FEATURES.map((f) => (
@@ -157,12 +157,12 @@ export default function PricingPage() {
           <div className="mt-6 divide-y divide-black/5">
             {[
               {
-                q: 'Per Child or Family — which should I pick?',
-                a: 'Per Child (AED 350/child/month) is billed for each child account you link. Family (AED 500/month) covers unlimited children for one flat price — it works out cheaper from the second child onwards.',
+                q: 'Per Child or Family: which should I pick?',
+                a: 'Per Child (AED 350/child/month) is billed for each child account you link. Family (AED 500/month) covers unlimited children for one flat price, and works out cheaper from the second child onwards.',
               },
               {
                 q: 'What year groups are covered?',
-                a: 'Year 1 through Year 11 — KS1, KS2, KS3, and KS4 (GCSE). Year 10 and 11 content is aligned to AQA and Edexcel.',
+                a: 'Year 1 through Year 11: KS1, KS2, KS3, and KS4 (GCSE). Year 10 and 11 content is aligned to AQA and Edexcel.',
               },
               {
                 q: 'What happens to my data if I cancel?',

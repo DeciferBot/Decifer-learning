@@ -110,7 +110,7 @@ const PARENT_FAQS = [
   },
   {
     q: 'What year groups does Decifer cover?',
-    a: 'Every year group from Year 1 to Year 11 — KS1, KS2, KS3 and KS4 (GCSE). Maths, English and Science run the full range through GCSE; History and Geography cover Years 1 to 9.',
+    a: 'Every year group from Year 1 to Year 11: KS1, KS2, KS3 and KS4 (GCSE). Maths, English and Science run the full range through GCSE; History and Geography cover Years 1 to 9.',
   },
   {
     q: 'What subjects are available?',
@@ -122,11 +122,11 @@ const PARENT_FAQS = [
   },
   {
     q: 'Can my children play and compete together?',
-    a: 'Yes. Decifer Blitz is a live, Kahoot-style quiz battle. Host a game from your account, share a one-tap join link, and children play from any device using curriculum-aligned questions — no extra accounts needed for players.',
+    a: 'Yes. Decifer Blitz is a live, Kahoot-style quiz battle. Host a game from your account, share a one-tap join link, and children play from any device using curriculum-aligned questions, with no extra accounts needed for players.',
   },
   {
     q: 'We follow the British curriculum but live outside the UK. Can we use Decifer?',
-    a: 'Absolutely. Decifer follows the England National Curriculum — the same British curriculum taught in British schools across the UAE, the Gulf and internationally. You can use it from anywhere, and subscriptions are billed in AED.',
+    a: 'Absolutely. Decifer follows the England National Curriculum, the same British curriculum taught in British schools across the UAE, the Gulf and internationally. You can use it from anywhere, and subscriptions are billed in AED.',
   },
 ]
 
