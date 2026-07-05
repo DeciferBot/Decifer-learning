@@ -67,7 +67,7 @@ export function HeroMockup() {
             <p className="font-heading text-sm font-bold text-ink">Aaina&apos;s progress</p>
             <p className="text-xs text-muted">Year 7 · Maths</p>
           </div>
-          <ProgressRing percent={ringPercent} size={44} color="#F05A28">
+          <ProgressRing percent={ringPercent} size={44} color="#FB5A24">
             <span className="text-[10px] font-bold text-ink">{ringPercent}%</span>
           </ProgressRing>
         </div>

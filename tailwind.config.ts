@@ -52,6 +52,17 @@ const config: Config = {
         explorer: '#74C0FC',
         lightning: '#FFD43B',
 
+        // ── SECONDARY / TERTIARY BRAND (identity system) ───────────
+        // Ember leads, Indigo anchors (focus, data, the dark ground),
+        // Green grows (progress, mastery, success). None collide with the
+        // subject colours (maths blue / english pink / science green).
+        indigo: '#2C3160',
+        'indigo-deep': '#131734',   // dark-mode ground
+        'indigo-soft': '#ECEDF6',   // light tinted panels
+        green: '#1FA971',           // progress · mastery · success
+        'green-deep': '#15855A',    // -deep passes 4.5:1 on paper for small text
+        'green-soft': '#E3F5EC',
+
         // ── MASTER BRAND ACCENTS ────────────────────────────────────
         azure: '#3E8EFF',
         violet: '#9B7CFF',

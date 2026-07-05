@@ -116,7 +116,7 @@ export function ConsentBanner({ state, daysLeft, hasParentEmail, userId }: Props
               type="submit"
               disabled={busy}
               className="min-h-[48px] rounded-xl px-5 text-sm font-bold text-white disabled:opacity-50"
-              style={{ background: 'var(--brand, #F05A28)' }}
+              style={{ background: 'var(--brand, #FB5A24)' }}
             >
               {busy ? 'Sending…' : 'Send confirmation'}
             </button>
@@ -128,7 +128,7 @@ export function ConsentBanner({ state, daysLeft, hasParentEmail, userId }: Props
               onClick={resend}
               disabled={busy}
               className="min-h-[48px] rounded-xl px-5 text-sm font-bold text-white disabled:opacity-50"
-              style={{ background: 'var(--brand, #F05A28)' }}
+              style={{ background: 'var(--brand, #FB5A24)' }}
             >
               {busy ? 'Sending…' : 'Send the email again'}
             </button>

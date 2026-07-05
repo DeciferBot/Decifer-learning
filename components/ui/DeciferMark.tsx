@@ -56,7 +56,7 @@ export function DeciferMark({
   )
 
   if (standalone) {
-    return <span aria-label="DECIFER Learning">{svg}</span>
+    return <span aria-label="Decifer Learning">{svg}</span>
   }
   return svg
 }

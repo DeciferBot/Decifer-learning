@@ -120,7 +120,7 @@ export async function sendEngagementEmail(opts: {
   <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:32px 16px">
   <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%">
     <tr><td style="padding-bottom:24px">
-      <span style="font-size:22px;font-weight:700;color:#F05A28">DECIFER</span>
+      <span style="font-size:22px;font-weight:700;color:#FB5A24">DECIFER</span>
       <span style="font-size:22px;font-weight:700;color:#2D3748"> Learning</span>
     </td></tr>
     <tr><td>
@@ -128,7 +128,7 @@ export async function sendEngagementEmail(opts: {
       <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#2D3748">${body}</p>
     </td></tr>
     <tr><td style="padding:8px 0 24px">
-      <a href="${c.url}" style="display:inline-block;background:#F05A28;color:#fff;padding:14px 28px;border-radius:10px;font-weight:600;text-decoration:none;font-size:15px">${cta}</a>
+      <a href="${c.url}" style="display:inline-block;background:#FB5A24;color:#fff;padding:14px 28px;border-radius:10px;font-weight:600;text-decoration:none;font-size:15px">${cta}</a>
     </td></tr>
     <tr><td style="padding:24px 0 0;font-size:11px;color:#a0aec0;border-top:1px solid #eee">
       ${footer} · <a href="${appUrl()}/legal/privacy" style="color:#a0aec0">Privacy policy</a>
