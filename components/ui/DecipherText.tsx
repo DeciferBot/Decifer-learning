@@ -8,6 +8,10 @@ import { useEffect, useRef } from 'react'
 // text with no JS), then decodes on the client after mount. Respects
 // prefers-reduced-motion by leaving the final text in place.
 //
+// Robustness: the text is GUARANTEED to end on the final string. A safety timer
+// force-settles it even if requestAnimationFrame is throttled (e.g. a
+// backgrounded tab), so a visitor can never be left looking at gibberish.
+//
 // The brand mark is a locked SVG (DeciferMark) and must never be built from
 // text characters. This component is only for words, never for the mark.
 
@@ -69,10 +73,26 @@ export function DecipherText({ text, className, as = 'span', perChar }: Decipher
     const locked = new Array(cells.length).fill(false)
 
     let raf = 0
+    let safety = 0
     let start: number | null = null
     let lastSwap = 0
+    let done = false
+
+    // Snap every cell to its final character. Idempotent and always safe.
+    function settle() {
+      if (done) return
+      done = true
+      cancelAnimationFrame(raf)
+      window.clearTimeout(safety)
+      for (const c of cells) {
+        c.el.textContent = c.ch
+        c.el.style.transition = 'color .22s ease'
+        c.el.style.color = ''
+      }
+    }
 
     function frame(t: number) {
+      if (done) return
       if (start === null) {
         start = t
         lastSwap = t - cycle
@@ -99,15 +119,23 @@ export function DecipherText({ text, className, as = 'span', perChar }: Decipher
           }
         }
       }
-      if (allLocked) return
+      if (allLocked) {
+        settle()
+        return
+      }
       raf = requestAnimationFrame(frame)
+    }
+
+    const totalMs = 120 + cells.length * per + 500
+    const play = () => {
+      if (done) return
+      raf = requestAnimationFrame(frame)
+      // Guarantee resolution even if rAF is throttled (backgrounded tab, etc.).
+      safety = window.setTimeout(settle, totalMs + 400)
     }
 
     // Play once, when the text scrolls into view.
     let io: IntersectionObserver | null = null
-    const play = () => {
-      raf = requestAnimationFrame(frame)
-    }
     if ('IntersectionObserver' in window) {
       io = new IntersectionObserver(
         (entries, obs) => {
@@ -128,8 +156,9 @@ export function DecipherText({ text, className, as = 'span', perChar }: Decipher
 
     return () => {
       cancelAnimationFrame(raf)
+      window.clearTimeout(safety)
       io?.disconnect()
-      // Restore the clean final text if we unmount mid-animation.
+      // Always leave the clean final text if we unmount mid-animation.
       host.textContent = text
     }
   }, [text, perChar])
