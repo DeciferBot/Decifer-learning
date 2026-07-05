@@ -82,7 +82,7 @@ export default function HowDeciferWorksPage() {
         <h2 className="font-heading text-xl font-bold text-ink">The emotional principle</h2>
         <div className="rounded-2xl bg-brand-50 p-5 text-sm text-muted space-y-2">
           <p className="font-heading font-bold text-ink text-base">I tried → I improved → I can see progress → I want to continue.</p>
-          <p>That loop is what Decifer is designed to create. Not a loop of rewards and compulsion, but a loop of genuine progress and growing confidence.</p>
+          <p>That loop is what Decifer is designed to create: genuine progress and growing confidence that make a child want to continue.</p>
           <p>Mistakes are normal. Hints are there to help. Retrying is always allowed. There is no shame state in Decifer.</p>
         </div>
       </section>

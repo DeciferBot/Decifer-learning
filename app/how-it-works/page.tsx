@@ -32,7 +32,7 @@ const PARENT_STEPS = [
   {
     number: '5',
     title: 'Get a suggested next step',
-    body: 'Every insight includes something specific to do. Not a vague recommendation. Something actionable based on what your child\'s data actually shows.',
+    body: 'Every insight includes something specific and actionable to do, based on what your child\'s data actually shows.',
   },
 ]
 

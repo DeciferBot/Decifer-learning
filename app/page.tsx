@@ -307,7 +307,7 @@ export default function Home({
               Most learning feels like something that happens to you. Decifer makes it something worth coming back to.
             </p>
             <p className="mb-10 text-center text-xs text-muted">
-              Every correct answer earns points. Every topic completed is a win. Leaderboards, streaks, and Discovery Cards are earned through real learning activity. Not purchased. Not used to pressure children.
+              Every correct answer earns points. Every topic completed is a win. Leaderboards, streaks, and Discovery Cards are earned only through real learning activity. Children cannot buy them, and we never use them to apply pressure.
             </p>
             <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
               {GAMIFICATION_ITEMS.map((item, i) => (
