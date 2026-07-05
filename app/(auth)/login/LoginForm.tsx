@@ -8,7 +8,12 @@ type Mode = 'password' | 'magic' | 'forgot' | 'pin'
 
 export function LoginForm() {
   const searchParams = useSearchParams()
-  const redirectTo = searchParams.get('redirectTo') ?? '/dashboard'
+  // Only accept a same-origin relative path as the post-login destination.
+  // Reject absolute URLs and protocol-relative values (`//host`, `/\host`) so a
+  // crafted `?redirectTo=https://evil.com` can't turn sign-in into an open
+  // redirect once we hard-navigate to it via window.location.href.
+  const rawRedirect = searchParams.get('redirectTo')
+  const redirectTo = rawRedirect && /^\/(?![/\\])/.test(rawRedirect) ? rawRedirect : '/dashboard'
 
   const [mode, setMode] = useState<Mode>('password')
   const [email, setEmail] = useState('')
