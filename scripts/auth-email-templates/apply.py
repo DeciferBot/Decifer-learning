@@ -19,6 +19,11 @@ import urllib.request
 DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_REF = os.environ.get("SUPABASE_PROJECT_REF", "dgghipmzvqipssavdvbq")  # Decifer Learning (prod)
 
+# api.supabase.com sits behind Cloudflare bot management, which blocks the
+# default "Python-urllib/x.y" user-agent with HTTP 403 (error 1010). Send a
+# curl-style UA so the request is allowed through.
+USER_AGENT = "curl/8.4.0"
+
 # (template file, subject field, content field, subject line)
 TEMPLATES = [
     ("recovery.html",     "mailer_subjects_recovery",     "mailer_templates_recovery_content",     "Reset your Decifer Learning password"),
@@ -68,6 +73,7 @@ def main() -> None:
         headers={
             "Authorization": f"Bearer {token}",
             "Content-Type": "application/json",
+            "User-Agent": USER_AGENT,
         },
     )
 
