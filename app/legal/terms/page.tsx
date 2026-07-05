@@ -96,7 +96,7 @@ export default function TermsOfServicePage() {
         <div className="mt-3 space-y-3 text-sm leading-relaxed text-muted">
           <p>DECIFER Learning provides:</p>
           <ul className="list-disc space-y-2 pl-5">
-            <li>Guided lessons aligned to the UK National Curriculum for Year 3 and Year 7</li>
+            <li>Guided lessons aligned to the UK National Curriculum, from Year 1 to Year 11 (KS1 to KS4/GCSE), across Maths, English, Science, History and Geography</li>
             <li>Practice exercises with up to three progressive hint levels and immediate feedback</li>
             <li>Quiz assessments with scoring, accuracy analysis, and mistake review</li>
             <li>A progress dashboard visible to the linked parent or guardian account</li>

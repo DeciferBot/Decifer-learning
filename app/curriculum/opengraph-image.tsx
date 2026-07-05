@@ -9,7 +9,7 @@ export default async function Image() {
     headlineTop: 'Every topic,',
     headlineBottom: 'mapped to the curriculum.',
     subtitle:
-      'Browse all Maths, English and Science topics across the UK National Curriculum, Year 1 to Year 11.',
-    pills: ['Maths', 'English', 'Science', 'KS1–KS4'],
+      'Browse every topic across five subjects and the full UK National Curriculum, Year 1 to Year 11.',
+    pills: ['5 subjects', 'Years 1–11', 'KS1–GCSE'],
   })
 }

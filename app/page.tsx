@@ -16,11 +16,12 @@ import {
   ClipboardList, Telescope, Target, CircleCheck, Bell,
   Backpack, GraduationCap, Shield,
 } from '@/components/ui/icons'
+import { TAGLINE, TITLE } from '@/lib/brand'
 
 type Icon = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
 
 export const metadata = {
-  title: 'DECIFER Learning — UK National Curriculum for families',
+  title: TITLE,
   description:
     'Your child learns. You finally know where they stand. Decifer gives parents a clear picture of their child\'s learning. What the curriculum covers. What they know. What to do next. UK National Curriculum, Years 1 to 11.',
 }
@@ -385,10 +386,10 @@ export default function Home({
                 What is available today
               </p>
               <h2 className="mb-4 font-heading text-xl font-bold text-ink md:text-2xl">
-                Five subjects. Years 1 to 11. Live now.
+                Five subjects. 300+ topics. Years 1 to 11.
               </h2>
               <p className="mx-auto mb-6 max-w-lg text-sm leading-relaxed text-muted">
-                Maths, English, Science, History, and Geography are fully available from Year 1 to Year 11. Every topic has passed the six-stage quality process. Your child will only ever see content that is verified and ready.
+                Maths, English and Science run all the way from Year 1 to GCSE (Year 11). History and Geography cover Year 1 to Year 9. Every one of our 6,900+ questions has passed the six-stage quality process — your child only ever sees content that is verified and ready.
               </p>
               <div className="flex flex-wrap justify-center gap-3 text-sm">
                 <span className="flex items-center gap-1.5 rounded-full bg-maths/10 px-4 py-1.5 font-semibold text-ink">
@@ -401,10 +402,10 @@ export default function Home({
                   <Check className="w-4 h-4" aria-hidden /> Science: Years 1 to 11
                 </span>
                 <span className="flex items-center gap-1.5 rounded-full bg-surface border border-gray-200 px-4 py-1.5 font-semibold text-ink">
-                  <Check className="w-4 h-4" aria-hidden /> History: Years 1 to 11
+                  <Check className="w-4 h-4" aria-hidden /> History: Years 1 to 9
                 </span>
                 <span className="flex items-center gap-1.5 rounded-full bg-surface border border-gray-200 px-4 py-1.5 font-semibold text-ink">
-                  <Check className="w-4 h-4" aria-hidden /> Geography: Years 1 to 11
+                  <Check className="w-4 h-4" aria-hidden /> Geography: Years 1 to 9
                 </span>
               </div>
             </div>
@@ -531,7 +532,7 @@ export default function Home({
         <footer className="border-t border-black/5 bg-surface py-8">
           <div className="mx-auto flex max-w-5xl flex-col items-center gap-4 px-4 text-center sm:flex-row sm:justify-between">
             <DeciferLogo size="xs" product="Learning" />
-            <p className="text-xs text-muted">UK National Curriculum. For families.</p>
+            <p className="text-xs text-muted">{TAGLINE}</p>
             <nav className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs text-muted sm:justify-start" aria-label="Footer navigation">
               <Link href="/curriculum" className="hover:text-ink">Curriculum</Link>
               <Link href="/subjects" className="hover:text-ink">Subjects</Link>

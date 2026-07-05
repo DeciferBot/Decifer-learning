@@ -5,7 +5,7 @@ import { DeciferLogo } from '@/components/ui/DeciferLogo'
 export const metadata: Metadata = {
   title: 'What we cover — DECIFER Learning',
   description:
-    'Maths, English, and Science from Year 1 to Year 11. UK National Curriculum across all key stages, KS1 to KS4.',
+    'The British curriculum across five subjects. Maths, English and Science from Year 1 to GCSE (KS1–KS4), plus History and Geography to Year 9. UK National Curriculum, quality-checked.',
   alternates: { canonical: '/subjects' },
 }
 
@@ -43,6 +43,26 @@ const SUBJECTS = [
       { label: 'Year 10–11', stage: 'KS4 (GCSE)', topics: 'Cell biology, genetics, chemical changes, electricity, space physics — AQA & Edexcel' },
     ],
   },
+  {
+    name: 'History',
+    colour: 'text-ink border-black/10 bg-black/[0.02]',
+    badge: 'bg-ink text-white',
+    years: [
+      { label: 'Year 1–2', stage: 'KS1', topics: 'Changes within living memory, significant people and events, homes and toys of the past' },
+      { label: 'Year 3–6', stage: 'KS2', topics: 'Ancient civilisations, the Romans, Anglo-Saxons and Vikings, and British history since 1066' },
+      { label: 'Year 7–9', stage: 'KS3', topics: 'Medieval realms, the Tudors, empire and industry, and the twentieth-century world wars' },
+    ],
+  },
+  {
+    name: 'Geography',
+    colour: 'text-ink border-black/10 bg-black/[0.02]',
+    badge: 'bg-ink text-white',
+    years: [
+      { label: 'Year 1–2', stage: 'KS1', topics: 'Local geography, the countries of the UK, continents, oceans and seasonal weather' },
+      { label: 'Year 3–6', stage: 'KS2', topics: 'Maps and compasses, rivers and mountains, climate zones, human and physical geography' },
+      { label: 'Year 7–9', stage: 'KS3', topics: 'Population and urbanisation, ecosystems, tectonics, and global development' },
+    ],
+  },
 ]
 
 export default function SubjectsPage() {
@@ -64,7 +84,7 @@ export default function SubjectsPage() {
         <div className="text-center">
           <h1 className="font-heading text-4xl font-bold text-ink">What we cover</h1>
           <p className="mt-3 text-lg text-muted">
-            UK National Curriculum — Year 1 to Year 11. Three core subjects, all key stages.
+            The British curriculum, five subjects. Maths, English and Science from Year 1 to GCSE, with History and Geography to Year 9.
           </p>
           <Link
             href="/curriculum"

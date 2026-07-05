@@ -5,8 +5,8 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: '*',
-        allow: ['/', '/help/', '/curriculum', '/subjects', '/how-it-works', '/pricing'],
-        disallow: ['/dashboard/', '/learn/', '/collection', '/vault', '/world-map', '/guardian/', '/api/'],
+        allow: ['/', '/help/', '/curriculum', '/subjects', '/how-it-works', '/pricing', '/blitz'],
+        disallow: ['/dashboard/', '/learn/', '/collection', '/vault', '/world-map', '/guardian/', '/api/', '/play', '/live/', '/join'],
       },
     ],
     sitemap: 'https://www.deciferlearning.com/sitemap.xml',

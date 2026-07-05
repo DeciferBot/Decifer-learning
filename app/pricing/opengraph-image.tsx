@@ -8,7 +8,7 @@ export default async function Image() {
   return renderOgCard({
     headlineTop: 'Simple pricing',
     headlineBottom: 'for families.',
-    subtitle: 'Start free with 3 Maths topics. Upgrade for unlimited Maths, English and Science.',
+    subtitle: 'Start free with 3 Maths topics. Upgrade for unlimited access to all five subjects.',
     pills: ['Free start', 'Family plan', 'Cancel anytime'],
   })
 }

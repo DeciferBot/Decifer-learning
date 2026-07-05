@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { DeciferLogo } from '@/components/ui/DeciferLogo'
+import { TAGLINE } from '@/lib/brand'
 
 // Auth layout: centred card on mobile, split panel on desktop.
 // Left panel shows brand identity and learning journey context.
@@ -22,7 +23,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
               <span className="text-brand">talks back.</span>
             </h1>
             <p className="mt-4 text-muted">
-              AI-assisted feedback, game-like motivation, and quality-checked curriculum content, one topic at a time.
+              {TAGLINE} Quality-checked British curriculum, Years 1 to 11.
             </p>
           </div>
 

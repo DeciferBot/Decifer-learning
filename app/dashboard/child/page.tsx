@@ -532,7 +532,7 @@ export default async function ChildDashboardPage() {
         <EmptyState
           icon={<BookOpen className="w-10 h-10 text-muted" aria-hidden />}
           heading="Your first topics are being prepared"
-          body="Maths content is the most complete right now. Topics appear here once they pass all quality checks."
+          body="Topics appear here once they pass all quality checks. New content is added across all five subjects as it clears the pipeline."
           action={
             <Link
               href="/help/how-decifer-works"

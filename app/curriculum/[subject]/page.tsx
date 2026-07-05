@@ -135,7 +135,7 @@ export default async function SubjectCurriculumPage({ params }: Props) {
             Start learning {detail.name}
           </h2>
           <p className="mt-2 text-muted">
-            Free for the first 3 Maths topics. Upgrade for unlimited Maths, English and Science.
+            Free for the first 3 Maths topics. Upgrade for unlimited access to all five subjects.
           </p>
           <Link
             href="/register"
