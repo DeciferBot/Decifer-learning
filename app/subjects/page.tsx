@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { DeciferLogo } from '@/components/ui/DeciferLogo'
 
 export const metadata: Metadata = {
-  title: 'What we cover — DECIFER Learning',
+  title: 'What we cover — Decifer Learning',
   description:
     'The British curriculum across five subjects. Maths, English and Science from Year 1 to GCSE (KS1–KS4), plus History and Geography to Year 9. UK National Curriculum, quality-checked.',
   alternates: { canonical: '/subjects' },

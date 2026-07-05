@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { DeciferLogo } from '@/components/ui/DeciferLogo'
 
 export const metadata = {
-  title: 'Help — DECIFER Learning',
+  title: 'Help — Decifer Learning',
 }
 
 export default function HelpLayout({ children }: { children: React.ReactNode }) {

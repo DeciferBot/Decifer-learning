@@ -9,7 +9,7 @@ export const revalidate = 86400 // rebuild at most once a day — content change
 export const metadata: Metadata = {
   title: 'Curriculum — every topic we cover',
   description:
-    'Browse the full DECIFER Learning curriculum: every topic across five subjects (Maths, English, Science, History and Geography) mapped to the UK National Curriculum from Year 1 to Year 11 (KS1–KS4/GCSE).',
+    'Browse the full Decifer Learning curriculum: every topic across five subjects (Maths, English, Science, History and Geography) mapped to the UK National Curriculum from Year 1 to Year 11 (KS1–KS4/GCSE).',
   alternates: { canonical: '/curriculum' },
 }
 
@@ -21,7 +21,7 @@ export default async function CurriculumIndexPage() {
   const itemListJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
-    name: 'DECIFER Learning curriculum',
+    name: 'Decifer Learning curriculum',
     description: 'Maths, English, Science, History and Geography topics across the UK National Curriculum.',
     itemListElement: subjects.map((s, i) => ({
       '@type': 'ListItem',
@@ -69,7 +69,7 @@ export default async function CurriculumIndexPage() {
         <header>
           <h1 className="font-heading text-4xl font-bold text-ink">Our curriculum</h1>
           <p className="mt-3 max-w-2xl text-lg text-muted">
-            Every topic in DECIFER Learning is mapped to the UK National Curriculum. Browse what we
+            Every topic in Decifer Learning is mapped to the UK National Curriculum. Browse what we
             cover, by subject and year group, from Year 1 through to Year 11.
           </p>
         </header>

@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og'
 
-// Shared Open Graph card renderer for DECIFER Learning.
+// Shared Open Graph card renderer for Decifer Learning.
 // Every page that wants its own WhatsApp / social preview re-uses this so the
 // brand design stays identical and only the copy changes.
 
@@ -98,11 +98,11 @@ export function renderOgCard(config: OgCardConfig) {
                 color: '#fff',
                 fontSize: 22,
                 fontWeight: 800,
-                letterSpacing: '0.06em',
+                letterSpacing: '-0.01em',
                 display: 'flex',
               }}
             >
-              DECIFER
+              Decifer
             </div>
             <div
               style={{

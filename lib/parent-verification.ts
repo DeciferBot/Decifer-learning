@@ -59,7 +59,7 @@ export async function sendParentVerificationEmail(opts: {
   <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:32px 16px">
   <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%">
     <tr><td style="padding-bottom:24px">
-      <span style="font-size:22px;font-weight:700;color:#FB5A24">DECIFER</span>
+      <span style="font-size:22px;font-weight:700;color:#FB5A24">Decifer</span>
       <span style="font-size:22px;font-weight:700;color:#2D3748"> Learning</span>
     </td></tr>
     <tr><td>

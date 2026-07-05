@@ -35,7 +35,7 @@ export default function LegalLayout({ children }: { children: React.ReactNode })
 
       {/* ── Footer ──────────────────────────────────────────────────── */}
       <footer className="border-t border-black/5 bg-surface py-6 text-center text-xs text-muted">
-        <Link href="/" className="hover:text-ink">DECIFER Learning</Link>
+        <Link href="/" className="hover:text-ink">Decifer Learning</Link>
         {' · '}
         <Link href="/legal/privacy" className="hover:text-ink">Privacy</Link>
         {' · '}
