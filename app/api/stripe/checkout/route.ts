@@ -68,12 +68,18 @@ export async function POST(req: Request) {
 
   const origin = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
 
+  // Monthly AED value for the GA4 `purchase` event on return (see PurchaseTracker).
+  // Family: AED 500 flat. Per Child: AED 350 × linked children.
+  const value = plan === 'per_child' ? 350 * quantity : 500
+
   const session = await stripe.checkout.sessions.create({
     customer: stripeCustomerId,
     mode: 'subscription',
     line_items: [{ price: priceId, quantity }],
     allow_promotion_codes: true,
-    success_url: `${origin}/dashboard?upgraded=1`,
+    // Land on the parent home (the /dashboard gateway drops query params on
+    // redirect). {CHECKOUT_SESSION_ID} is substituted by Stripe.
+    success_url: `${origin}/dashboard/parent?upgraded=1&plan=${plan}&value=${value}&session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${origin}/pricing`,
     metadata: { user_id: user.id, plan },
   })
