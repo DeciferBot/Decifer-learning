@@ -1,6 +1,6 @@
 import { ogContentType, ogSize, renderOgCard } from '@/lib/og'
 
-export const alt = 'DECIFER Learning — Every topic, mapped to the curriculum'
+export const alt = 'Decifer Learning — Every topic, mapped to the curriculum'
 export const size = ogSize
 export const contentType = ogContentType
 

@@ -28,7 +28,7 @@ const organizationJsonLd = {
     {
       '@type': 'EducationalOrganization',
       '@id': 'https://www.deciferlearning.com/#organization',
-      name: 'DECIFER Learning',
+      name: 'Decifer Learning',
       url: 'https://www.deciferlearning.com',
       logo: 'https://www.deciferlearning.com/brand/decifer-app-icon.svg',
       parentOrganization: { '@id': 'https://www.decifer.io/#organization' },
@@ -54,7 +54,7 @@ const organizationJsonLd = {
       '@type': 'WebSite',
       '@id': 'https://www.deciferlearning.com/#website',
       url: 'https://www.deciferlearning.com',
-      name: 'DECIFER Learning',
+      name: 'Decifer Learning',
       publisher: { '@id': 'https://www.deciferlearning.com/#organization' },
     },
   ],
@@ -63,7 +63,7 @@ const organizationJsonLd = {
 export const metadata: Metadata = {
   title: {
     default: TITLE,
-    template: '%s | DECIFER Learning',
+    template: '%s | Decifer Learning',
   },
   description:
     'British curriculum learning for Years 1 to 11, from KS1 to GCSE. Quality-checked Maths, English, Science, History and Geography, plus a parent dashboard that shows exactly where your child stands.',
@@ -81,7 +81,7 @@ export const metadata: Metadata = {
     'parent learning dashboard',
   ],
   metadataBase: new URL('https://www.deciferlearning.com'),
-  applicationName: 'DECIFER Learning',
+  applicationName: 'Decifer Learning',
   manifest: '/manifest.json',
   icons: {
     icon: [{ url: '/brand/decifer-favicon.svg', type: 'image/svg+xml' }],
@@ -90,7 +90,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'DECIFER Learning',
+    title: 'Decifer Learning',
   },
   formatDetection: { telephone: false },
   openGraph: {
@@ -98,7 +98,7 @@ export const metadata: Metadata = {
     description:
       'Years 1 to 11 across five subjects, with thousands of quality-checked questions — and a learning map that finally shows you where your child stands. Built for British-curriculum families.',
     url: 'https://www.deciferlearning.com',
-    siteName: 'DECIFER Learning',
+    siteName: 'Decifer Learning',
     type: 'website',
     locale: 'en_GB',
   },

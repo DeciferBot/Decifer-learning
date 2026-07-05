@@ -4,7 +4,7 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Privacy Policy',
   description:
-    'How DECIFER Learning collects, uses, and protects your personal data under UAE Federal Decree-Law No. 45 of 2021.',
+    'How Decifer Learning collects, uses, and protects your personal data under UAE Federal Decree-Law No. 45 of 2021.',
 }
 
 export default function PrivacyPolicyPage() {
@@ -26,7 +26,7 @@ export default function PrivacyPolicyPage() {
           <p>Governing framework: UAE Federal Decree-Law No. 45 of 2021 on the Protection of Personal Data (UAE PDPL)</p>
         </div>
         <p className="mt-4 text-sm leading-relaxed text-muted">
-          DECIFER Learning is operated by DECIFER, based in Dubai, United Arab Emirates.
+          Decifer Learning is operated by DECIFER, based in Dubai, United Arab Emirates.
           This policy explains what personal data we collect when you use{' '}
           <span className="font-medium text-ink">www.deciferlearning.com</span>, why
           we collect it, who we share it with, and the rights you have under UAE law.
@@ -53,7 +53,7 @@ export default function PrivacyPolicyPage() {
           </p>
           <p>
             <span className="font-semibold text-ink">Product:</span>{' '}
-            DECIFER Learning (www.deciferlearning.com)
+            Decifer Learning (www.deciferlearning.com)
           </p>
           <p>
             <span className="font-semibold text-ink">Registered location:</span>{' '}
@@ -194,7 +194,7 @@ export default function PrivacyPolicyPage() {
         <h2 id="s4" className="font-heading text-lg font-bold text-ink">4. Children&apos;s Privacy</h2>
         <div className="mt-3 space-y-3 text-sm leading-relaxed text-muted">
           <p>
-            DECIFER Learning is designed for children aged 7 to 13 studying the UK
+            Decifer Learning is designed for children aged 7 to 13 studying the UK
             National Curriculum at Year 3 or Year 7 level. Children do not register
             directly. Parents and guardians create the parent account, then enrol their
             child by creating a linked child profile.
@@ -202,7 +202,7 @@ export default function PrivacyPolicyPage() {
           <p>
             Under Article 8 of the UAE PDPL, processing personal data relating to a
             person under 18 years of age requires the consent of a parent or legal
-            guardian. By creating a child profile on DECIFER Learning, you confirm that
+            guardian. By creating a child profile on Decifer Learning, you confirm that
             you are the parent or legal guardian of that child and you give your explicit
             consent to the collection and use of that child&apos;s data as described in
             this policy.
@@ -274,7 +274,7 @@ export default function PrivacyPolicyPage() {
             <div className="rounded-xl border border-black/5 bg-surface p-4">
               <p className="font-semibold text-ink">Vercel (web hosting and delivery)</p>
               <p className="mt-1 text-xs text-muted">
-                Vercel, Inc. serves the DECIFER Learning web application globally.
+                Vercel, Inc. serves the Decifer Learning web application globally.
                 Vercel may process technical request data (IP address, browser
                 information) as part of normal web hosting operations and DDoS protection.
               </p>
@@ -324,7 +324,7 @@ export default function PrivacyPolicyPage() {
           </p>
           <ul className="list-disc space-y-1 pl-5">
             <li>Data processing agreements with our processors that incorporate appropriate contractual safeguards</li>
-            <li>Your informed consent, provided when you register for DECIFER Learning and accept this policy</li>
+            <li>Your informed consent, provided when you register for Decifer Learning and accept this policy</li>
           </ul>
           <p>
             If you would like more detail about the safeguards in place for a specific
@@ -462,7 +462,7 @@ export default function PrivacyPolicyPage() {
             when the policy was most recently updated.
           </p>
           <p>
-            Continued use of DECIFER Learning after the effective date of any updated
+            Continued use of Decifer Learning after the effective date of any updated
             policy constitutes your acceptance of the revised terms.
           </p>
         </div>

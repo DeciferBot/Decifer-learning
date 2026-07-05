@@ -4,7 +4,7 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Terms of Service',
   description:
-    'The terms and conditions governing your use of DECIFER Learning, governed by the laws of the United Arab Emirates.',
+    'The terms and conditions governing your use of Decifer Learning, governed by the laws of the United Arab Emirates.',
 }
 
 export default function TermsOfServicePage() {
@@ -26,10 +26,10 @@ export default function TermsOfServicePage() {
           <p>Jurisdiction: Courts of Dubai, UAE</p>
         </div>
         <p className="mt-4 text-sm leading-relaxed text-muted">
-          These Terms of Service govern your use of DECIFER Learning, operated by
+          These Terms of Service govern your use of Decifer Learning, operated by
           DECIFER from Dubai, United Arab Emirates. By creating an account or using
           the service, you agree to these terms in full. If you do not agree, do not
-          register or use DECIFER Learning.
+          register or use Decifer Learning.
         </p>
         <p className="mt-3 rounded-xl border border-brand/20 bg-brand-50 px-4 py-3 text-sm text-muted">
           Questions? Contact us at{' '}
@@ -45,10 +45,10 @@ export default function TermsOfServicePage() {
 
       {/* ── Section 1 ───────────────────────────────────────────────── */}
       <section aria-labelledby="t1">
-        <h2 id="t1" className="font-heading text-lg font-bold text-ink">1. Who Can Use DECIFER Learning</h2>
+        <h2 id="t1" className="font-heading text-lg font-bold text-ink">1. Who Can Use Decifer Learning</h2>
         <div className="mt-3 space-y-3 text-sm leading-relaxed text-muted">
           <p>
-            DECIFER Learning is an educational platform designed for children aged 7
+            Decifer Learning is an educational platform designed for children aged 7
             to 13 who are studying the UK National Curriculum at Year 3 or Year 7 level.
           </p>
           <p>
@@ -94,7 +94,7 @@ export default function TermsOfServicePage() {
       <section aria-labelledby="t3">
         <h2 id="t3" className="font-heading text-lg font-bold text-ink">3. What the Service Provides</h2>
         <div className="mt-3 space-y-3 text-sm leading-relaxed text-muted">
-          <p>DECIFER Learning provides:</p>
+          <p>Decifer Learning provides:</p>
           <ul className="list-disc space-y-2 pl-5">
             <li>Guided lessons aligned to the UK National Curriculum, from Year 1 to Year 11 (KS1 to KS4/GCSE), across Maths, English, Science, History and Geography</li>
             <li>Practice exercises with up to three progressive hint levels and immediate feedback</li>
@@ -113,13 +113,13 @@ export default function TermsOfServicePage() {
 
       {/* ── Section 4 ───────────────────────────────────────────────── */}
       <section aria-labelledby="t4">
-        <h2 id="t4" className="font-heading text-lg font-bold text-ink">4. What DECIFER Learning Is Not</h2>
+        <h2 id="t4" className="font-heading text-lg font-bold text-ink">4. What Decifer Learning Is Not</h2>
         <div className="mt-3 space-y-3 text-sm leading-relaxed text-muted">
           <p className="rounded-xl border border-black/10 bg-surface px-4 py-3 font-medium text-ink">
             Please read this section carefully before enrolling your child.
           </p>
           <p>
-            DECIFER Learning is a learning support tool. It is not a school, an
+            Decifer Learning is a learning support tool. It is not a school, an
             accredited educational institution, or a substitute for a qualified teacher
             or tutor.
           </p>
@@ -144,7 +144,7 @@ export default function TermsOfServicePage() {
             and we will review it promptly.
           </p>
           <p>
-            DECIFER Learning is not a medical, therapeutic, diagnostic, or psychological
+            Decifer Learning is not a medical, therapeutic, diagnostic, or psychological
             service. It does not assess, identify, screen, or treat any learning
             difficulty, developmental condition, or disability.
           </p>
@@ -192,7 +192,7 @@ export default function TermsOfServicePage() {
         <h2 id="t7" className="font-heading text-lg font-bold text-ink">7. Intellectual Property</h2>
         <div className="mt-3 space-y-3 text-sm leading-relaxed text-muted">
           <p>
-            All content on DECIFER Learning, including but not limited to lessons,
+            All content on Decifer Learning, including but not limited to lessons,
             questions, explanations, worked examples, visual assets, brand marks, logos,
             software code, and the platform interface, is owned by DECIFER or licensed
             to DECIFER. All rights are reserved.
@@ -218,7 +218,7 @@ export default function TermsOfServicePage() {
         <h2 id="t8" className="font-heading text-lg font-bold text-ink">8. Content Generated by AI</h2>
         <div className="mt-3 space-y-3 text-sm leading-relaxed text-muted">
           <p>
-            Educational content on DECIFER Learning is generated by AI and verified
+            Educational content on Decifer Learning is generated by AI and verified
             through our six-stage automated quality pipeline, which includes
             mathematical verification by code, independent consensus checks, and
             constitutional review for age-appropriateness.
@@ -241,7 +241,7 @@ export default function TermsOfServicePage() {
         <h2 id="t9" className="font-heading text-lg font-bold text-ink">9. Fees and Access</h2>
         <div className="mt-3 space-y-3 text-sm leading-relaxed text-muted">
           <p>
-            DECIFER Learning is currently available to approved users at no charge
+            Decifer Learning is currently available to approved users at no charge
             during the beta period. We may introduce paid subscription plans in the
             future. Before any charge applies to your account, we will give you clear
             advance notice and the opportunity to choose whether to continue or cancel
@@ -260,7 +260,7 @@ export default function TermsOfServicePage() {
         <h2 id="t10" className="font-heading text-lg font-bold text-ink">10. Service Availability</h2>
         <div className="mt-3 space-y-3 text-sm leading-relaxed text-muted">
           <p>
-            We aim to keep DECIFER Learning available continuously, but we do not
+            We aim to keep Decifer Learning available continuously, but we do not
             guarantee uninterrupted access. The service may be temporarily unavailable
             due to scheduled maintenance, unplanned outages, or circumstances outside
             our control (including failures of third-party infrastructure providers).
@@ -300,7 +300,7 @@ export default function TermsOfServicePage() {
         <div className="mt-3 space-y-3 text-sm leading-relaxed text-muted">
           <p>
             To the fullest extent permitted by UAE Federal Law No. 15 of 2020 on
-            Consumer Protection and other applicable UAE law, DECIFER Learning is
+            Consumer Protection and other applicable UAE law, Decifer Learning is
             provided on an &quot;as available&quot; basis. We do not warrant that:
           </p>
           <ul className="list-disc space-y-1 pl-5">
@@ -351,7 +351,7 @@ export default function TermsOfServicePage() {
           <p>
             These terms are governed by the federal laws of the United Arab Emirates,
             as applicable in the Emirate of Dubai. Any dispute arising out of or in
-            connection with these terms or your use of DECIFER Learning that cannot
+            connection with these terms or your use of Decifer Learning that cannot
             be resolved by direct negotiation with us shall be submitted to the
             exclusive jurisdiction of the competent courts of Dubai, UAE.
           </p>
@@ -387,7 +387,7 @@ export default function TermsOfServicePage() {
           <p>
             We may update these terms from time to time. When we make a material change,
             we will notify you by email or by a notice on the platform at least 14 days
-            before the change takes effect. Your continued use of DECIFER Learning after
+            before the change takes effect. Your continued use of Decifer Learning after
             that date means you accept the revised terms.
           </p>
           <p>

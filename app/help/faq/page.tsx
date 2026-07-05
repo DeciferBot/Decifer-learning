@@ -4,7 +4,7 @@ import { jsonLd } from '@/lib/json-ld'
 export const metadata = {
   title: 'FAQ — Decifer Learning',
   description:
-    'Answers to common questions from parents and students about DECIFER Learning: linking accounts, content safety, year groups, subjects, quizzes, hints, streaks, and how questions are quality-checked.',
+    'Answers to common questions from parents and students about Decifer Learning: linking accounts, content safety, year groups, subjects, quizzes, hints, streaks, and how questions are quality-checked.',
   alternates: { canonical: '/help/faq' },
 }
 
