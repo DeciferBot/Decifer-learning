@@ -13,7 +13,7 @@ const STAGES = [
   {
     n: 2,
     name: 'Verified by code',
-    desc: 'Maths and science answers are checked by a code verifier — SymPy, Pint, or ChemPy. Not by AI.',
+    desc: 'Maths and science answers are checked by a code verifier such as SymPy, Pint, or ChemPy, and never by AI alone.',
     detail: 'Code verification',
   },
   {
