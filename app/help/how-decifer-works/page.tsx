@@ -7,6 +7,9 @@ type IconComp = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
 
 export const metadata = {
   title: 'How Decifer works — Decifer Learning',
+  description:
+    'The thinking behind Decifer: the three-stage Learn, Practise, Quiz loop, adaptive difficulty, spaced repetition, and how content maps to the UK National Curriculum from Year 1 to GCSE.',
+  alternates: { canonical: '/help/how-decifer-works' },
 }
 
 export default function HowDeciferWorksPage() {
@@ -69,8 +72,8 @@ export default function HowDeciferWorksPage() {
       <section className="space-y-4">
         <h2 className="font-heading text-xl font-bold text-ink">Curriculum structure</h2>
         <div className="text-sm text-muted space-y-2">
-          <p>All content follows the <strong className="text-ink">UK National Curriculum</strong>. Currently, Decifer covers Year 3 (KS2) and Year 7 (KS3). Subjects covered are Maths, English, and Science.</p>
-          <p>Maths content is the most complete. English and Science content is progressively expanding as more topics pass the quality pipeline and are published.</p>
+          <p>All content follows the <strong className="text-ink">UK National Curriculum</strong>, from Year 1 to Year 11. Five subjects are covered: Maths, English, Science, History and Geography. Maths, English and Science run all the way through to GCSE (Year 11); History and Geography cover Years 1 to 9.</p>
+          <p>Every topic is published only once it has passed the full quality pipeline, and new topics are added continuously as they clear all checks.</p>
           <p>Topics are grouped into zones. Each zone has a theme and a Zone Guardian boss. Complete all the topics in a zone to unlock the Guardian challenge and earn a chance at a Legendary Discovery Card.</p>
         </div>
       </section>

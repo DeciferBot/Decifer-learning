@@ -2,6 +2,9 @@ import Link from 'next/link'
 
 export const metadata = {
   title: 'Content quality — Decifer Learning',
+  description:
+    'How every Decifer question and lesson is verified before your child sees it: a six-stage pipeline with code-checked answers, independent AI review, age-appropriateness checks, and nightly monitoring.',
+  alternates: { canonical: '/help/content-quality' },
 }
 
 export default function ContentQualityPage() {
@@ -69,8 +72,8 @@ export default function ContentQualityPage() {
       <section className="space-y-4">
         <h2 className="font-heading text-xl font-bold text-ink">What is currently available</h2>
         <div className="text-sm text-muted space-y-2">
-          <p>Maths content for Year 3 and Year 7 is the most complete. English and Science content is progressively expanding: topics are published only once they have passed the full pipeline. Your child will only ever see content that is ready.</p>
-          <p>New topics and subjects are added as they clear all quality checks. The pipeline runs continuously, so the range of available topics grows over time without any code changes.</p>
+          <p>More than 6,900 questions across 300+ topics are published and live today, spanning five subjects. Maths, English and Science run from Year 1 to GCSE (Year 11); History and Geography cover Years 1 to 9. Every topic is published only once it has passed the full pipeline, so your child only ever sees content that is ready.</p>
+          <p>New topics are added as they clear all quality checks. The pipeline runs continuously, so the range of available content grows over time without any code changes.</p>
         </div>
       </section>
 
@@ -110,6 +113,7 @@ const VERIFIERS = [
   { subject: 'Chemistry', tool: 'ChemPy + local periodic table: element facts are checked against a fixed reference, not generated.' },
   { subject: 'English grammar', tool: 'LanguageTool (en-GB): grammar rule enforcement.' },
   { subject: 'English comprehension', tool: 'Source grounding: answers must cite curriculum source chunks.' },
+  { subject: 'History & Geography', tool: 'Source grounding: factual answers must cite verified curriculum source material.' },
 ]
 
 const STATUSES = [

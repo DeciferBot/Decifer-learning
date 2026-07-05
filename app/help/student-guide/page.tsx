@@ -5,6 +5,9 @@ type IconComp = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
 
 export const metadata = {
   title: 'Student guide — Decifer Learning',
+  description:
+    'How to get the most from Decifer: the Learn, Practise, Quiz loop, hints and hearts, earning XP, keeping a streak, and collecting Discovery Cards on the World Map.',
+  alternates: { canonical: '/help/student-guide' },
 }
 
 export default function StudentGuidePage() {

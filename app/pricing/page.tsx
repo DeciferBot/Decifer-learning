@@ -6,7 +6,7 @@ import { UpgradeButton } from '@/components/ui/UpgradeButton'
 export const metadata: Metadata = {
   title: 'Pricing — DECIFER Learning',
   description:
-    'Start free with 3 Maths topics. Upgrade to Family for unlimited access across Maths, English and Science.',
+    'Start free with 3 Maths topics. Upgrade for unlimited access to all five subjects — Maths, English, Science, History and Geography — across Years 1 to 11. Simple AED pricing.',
   alternates: { canonical: '/pricing' },
 }
 
@@ -18,7 +18,7 @@ const FREE_FEATURES = [
 ]
 
 const PER_CHILD_FEATURES = [
-  'All subjects: Maths, English, Science',
+  'All five subjects: Maths, English, Science, History & Geography',
   'All year groups — Year 1 to Year 11',
   'Unlimited topics and quizzes',
   'Learning map showing strengths and where to focus',
@@ -27,7 +27,7 @@ const PER_CHILD_FEATURES = [
 ]
 
 const FAMILY_FEATURES = [
-  'All subjects: Maths, English, Science',
+  'All five subjects: Maths, English, Science, History & Geography',
   'All year groups — Year 1 to Year 11',
   'Unlimited topics and quizzes',
   'Learning map showing strengths and where to focus',
@@ -59,7 +59,7 @@ export default function PricingPage() {
         <div className="text-center">
           <h1 className="font-heading text-4xl font-bold text-ink">Simple, honest pricing</h1>
           <p className="mt-3 text-lg text-muted">
-            Start free. Upgrade when you need all three subjects.
+            Start free. Upgrade when you want every subject and year.
           </p>
         </div>
 

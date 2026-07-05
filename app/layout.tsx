@@ -11,6 +11,7 @@ import { Instrument_Serif } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { jsonLd } from '@/lib/json-ld'
+import { TITLE } from '@/lib/brand'
 import { OfflineBanner } from '@/components/ui/OfflineBanner'
 import { CookieConsent } from '@/components/ui/CookieConsent'
 import './globals.css'
@@ -37,7 +38,22 @@ const organizationJsonLd = {
       logo: 'https://www.deciferlearning.com/brand/decifer-app-icon.svg',
       parentOrganization: { '@id': 'https://www.decifer.io/#organization' },
       description:
-        'AI-assisted learning for the UK National Curriculum, Year 1 to Year 11. Game-like motivation and quality-checked Maths, English and Science content for families.',
+        'British curriculum learning for Years 1 to 11 (KS1 to KS4/GCSE). Quality-checked Maths, English, Science, History and Geography, with a parent learning map that shows exactly where each child stands. Built for British-curriculum families in the UAE, the Gulf and worldwide.',
+      areaServed: ['AE', 'GB', 'Worldwide'],
+      audience: { '@type': 'EducationalAudience', educationalRole: 'parent' },
+      knowsAbout: [
+        'UK National Curriculum',
+        'British curriculum',
+        'Key Stage 1',
+        'Key Stage 2',
+        'Key Stage 3',
+        'GCSE',
+        'Maths',
+        'English',
+        'Science',
+        'History',
+        'Geography',
+      ],
     },
     {
       '@type': 'WebSite',
@@ -51,11 +67,24 @@ const organizationJsonLd = {
 
 export const metadata: Metadata = {
   title: {
-    default: 'DECIFER Learning — UK National Curriculum for Families',
+    default: TITLE,
     template: '%s | DECIFER Learning',
   },
   description:
-    'AI-assisted feedback, game-like motivation, and quality-checked curriculum content for Year 3 and Year 7. Parents can see progress, confidence, and where support is needed.',
+    'British curriculum learning for Years 1 to 11, from KS1 to GCSE. Quality-checked Maths, English, Science, History and Geography, plus a parent dashboard that shows exactly where your child stands.',
+  keywords: [
+    'British curriculum',
+    'UK National Curriculum',
+    'British curriculum Dubai',
+    'British curriculum UAE',
+    'online learning UAE',
+    'KS1', 'KS2', 'KS3', 'KS4',
+    'GCSE revision',
+    'maths English science',
+    'Year 1 to Year 11',
+    'kids learning app',
+    'parent learning dashboard',
+  ],
   metadataBase: new URL('https://www.deciferlearning.com'),
   applicationName: 'DECIFER Learning',
   manifest: '/manifest.json',
@@ -70,9 +99,9 @@ export const metadata: Metadata = {
   },
   formatDetection: { telephone: false },
   openGraph: {
-    title: 'DECIFER Learning — UK National Curriculum for Families',
+    title: TITLE,
     description:
-      'AI-assisted feedback, game-like motivation, and quality-checked curriculum content for Year 3 and Year 7.',
+      'Years 1 to 11 across five subjects, with thousands of quality-checked questions — and a learning map that finally shows you where your child stands. Built for British-curriculum families.',
     url: 'https://www.deciferlearning.com',
     siteName: 'DECIFER Learning',
     type: 'website',
@@ -80,9 +109,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'DECIFER Learning — UK National Curriculum for Families',
+    title: TITLE,
     description:
-      'AI-assisted feedback, game-like motivation, and quality-checked curriculum content for Year 3 and Year 7.',
+      'Years 1 to 11 across five subjects, with thousands of quality-checked questions — and a learning map that finally shows you where your child stands. Built for British-curriculum families.',
   },
   robots: {
     index: true,

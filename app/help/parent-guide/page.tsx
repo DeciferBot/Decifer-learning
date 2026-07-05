@@ -5,6 +5,9 @@ type IconComp = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
 
 export const metadata = {
   title: 'Parent guide — Decifer Learning',
+  description:
+    'Set up your child\'s account, link it to yours, and read the learning map. How to see strengths, areas to strengthen, and next steps across the UK National Curriculum, Years 1 to 11.',
+  alternates: { canonical: '/help/parent-guide' },
 }
 
 export default function ParentGuidePage() {
@@ -26,7 +29,7 @@ export default function ParentGuidePage() {
       <Section title="Getting started">
         <Steps items={[
           { n: 1, title: 'Create your parent account', body: 'Register on Decifer and choose "Parent" when asked for your role. Your account and your child\'s account are separate.' },
-          { n: 2, title: 'Your child registers separately', body: 'Your child creates their own Decifer account. They choose "Student", select their year group (Year 3 or Year 7), and pick a display name.' },
+          { n: 2, title: 'Your child registers separately', body: 'Your child creates their own Decifer account. They choose "Student", select their year group (any year from Year 1 to Year 11), and pick a display name.' },
           { n: 3, title: 'Link the accounts', body: 'In your parent dashboard, enter your child\'s registered email address to link the accounts. You\'ll then be able to see their progress.' },
           { n: 4, title: 'Your child logs in and starts learning', body: 'From their account, they can see their topics, begin lessons, and work through practice and quizzes.' },
         ]} />
@@ -57,7 +60,7 @@ export default function ParentGuidePage() {
 
       <Section title="How content is structured">
         <Prose>
-          <p>Decifer follows the UK National Curriculum. Year 3 content covers Key Stage 2 and Year 7 covers Key Stage 3. Subjects covered are Maths, English, and Science.</p>
+          <p>Decifer follows the UK National Curriculum from Year 1 to Year 11, across KS1, KS2, KS3 and KS4 (GCSE). Five subjects are covered: Maths, English, Science, History and Geography — with Maths, English and Science running through to GCSE and History and Geography covering Years 1 to 9.</p>
           <p>Every topic has three stages: <strong>Learn</strong> (read the explanation), <strong>Practise</strong> (guided exercises), and <strong>Quiz</strong> (test understanding). Children must complete Learn before Practise, and Practise before Quiz, though they can revisit any stage at any time.</p>
         </Prose>
       </Section>

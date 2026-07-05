@@ -1,7 +1,7 @@
 {
   "name": "DECIFER Learning",
   "short_name": "DECIFER",
-  "description": "UK National Curriculum learning adventure.",
+  "description": "British curriculum learning for Years 1 to 11 — Maths, English, Science, History and Geography, quality-checked.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

@@ -110,15 +110,23 @@ const PARENT_FAQS = [
   },
   {
     q: 'What year groups does Decifer cover?',
-    a: 'Currently Year 3 (KS2) and Year 7 (KS3). More year groups are planned for future releases.',
+    a: 'Every year group from Year 1 to Year 11 — KS1, KS2, KS3 and KS4 (GCSE). Maths, English and Science run the full range through GCSE; History and Geography cover Years 1 to 9.',
   },
   {
     q: 'What subjects are available?',
-    a: 'Maths, English, and Science. Maths is the most complete: topics are published as soon as they pass the full quality pipeline, so the range of available content grows over time. Your child will only see topics that are ready.',
+    a: 'Five subjects: Maths, English, Science, History and Geography. Maths, English and Science run from Year 1 to GCSE; History and Geography cover Years 1 to 9. Every topic is published only once it has passed the full quality pipeline, so your child only ever sees content that is ready.',
   },
   {
     q: 'How do screen-time controls work?',
-    a: 'Daily time limits and allowed hours are coming soon. Once live, you\'ll be able to set a per-child daily cap and restrict the hours Decifer can be used.',
+    a: 'Screen-time controls are built in. From your parent dashboard you can set a daily time limit for each child and restrict the hours Decifer can be used. Learn pages stay available so reading is never blocked; the limit applies to quizzes.',
+  },
+  {
+    q: 'Can my children play and compete together?',
+    a: 'Yes. Decifer Blitz is a live, Kahoot-style quiz battle. Host a game from your account, share a one-tap join link, and children play from any device using curriculum-aligned questions — no extra accounts needed for players.',
+  },
+  {
+    q: 'We follow the British curriculum but live outside the UK. Can we use Decifer?',
+    a: 'Absolutely. Decifer follows the England National Curriculum — the same British curriculum taught in British schools across the UAE, the Gulf and internationally. You can use it from anywhere, and subscriptions are billed in AED.',
   },
 ]
 

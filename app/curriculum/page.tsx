@@ -9,7 +9,7 @@ export const revalidate = 86400 // rebuild at most once a day — content change
 export const metadata: Metadata = {
   title: 'Curriculum — every topic we cover',
   description:
-    'Browse the full DECIFER Learning curriculum: every Maths, English, and Science topic across the UK National Curriculum, from Year 1 to Year 11 (KS1–KS4).',
+    'Browse the full DECIFER Learning curriculum: every topic across five subjects — Maths, English, Science, History and Geography — mapped to the UK National Curriculum from Year 1 to Year 11 (KS1–KS4/GCSE).',
   alternates: { canonical: '/curriculum' },
 }
 
@@ -22,7 +22,7 @@ export default async function CurriculumIndexPage() {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
     name: 'DECIFER Learning curriculum',
-    description: 'Maths, English and Science topics across the UK National Curriculum.',
+    description: 'Maths, English, Science, History and Geography topics across the UK National Curriculum.',
     itemListElement: subjects.map((s, i) => ({
       '@type': 'ListItem',
       position: i + 1,

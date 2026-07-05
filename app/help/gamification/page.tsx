@@ -3,6 +3,9 @@ import { Star, Medal, Flame, Shield, Layers, Target, CircleX, Check } from '@/co
 
 export const metadata = {
   title: 'Gamification explained — Decifer Learning',
+  description:
+    'How XP, badges, streaks, Streak Shields and Discovery Cards work in Decifer — rewards tied to real learning effort and progress, never spending or pressure.',
+  alternates: { canonical: '/help/gamification' },
 }
 
 export default function GamificationPage() {
