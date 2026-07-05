@@ -141,7 +141,7 @@ export function RegisterForm() {
                 className={`h-12 rounded-lg border text-sm font-semibold capitalize transition ${
                   active
                     ? 'border-maths bg-maths/10 text-maths'
-                    : 'border-black/10 bg-white text-ink'
+                    : 'border-black/10 bg-surface text-ink'
                 }`}
               >
                 {r}
@@ -170,7 +170,7 @@ export function RegisterForm() {
                   className={`h-12 rounded-lg border text-sm font-semibold transition ${
                     active
                       ? 'border-maths bg-maths/10 text-maths'
-                      : 'border-black/10 bg-white text-ink'
+                      : 'border-black/10 bg-surface text-ink'
                   }`}
                 >
                   {y.display}
@@ -203,7 +203,7 @@ export function RegisterForm() {
                   className={`h-12 rounded-lg border text-sm font-semibold transition ${
                     active
                       ? 'border-maths bg-maths/10 text-maths'
-                      : 'border-black/10 bg-white text-ink'
+                      : 'border-black/10 bg-surface text-ink'
                   }`}
                 >
                   {b}
@@ -225,7 +225,7 @@ export function RegisterForm() {
           required
           value={displayName}
           onChange={(e) => setDisplayName(e.target.value)}
-          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-white px-3 text-base outline-none focus:border-maths focus:ring-2 focus:ring-maths/30"
+          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base outline-none focus:border-maths focus:ring-2 focus:ring-maths/30"
         />
       </label>
 
@@ -237,7 +237,7 @@ export function RegisterForm() {
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-white px-3 text-base outline-none focus:border-maths focus:ring-2 focus:ring-maths/30"
+          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base outline-none focus:border-maths focus:ring-2 focus:ring-maths/30"
         />
       </label>
 
@@ -251,7 +251,7 @@ export function RegisterForm() {
             required
             value={parentEmail}
             onChange={(e) => setParentEmail(e.target.value)}
-            className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-white px-3 text-base outline-none focus:border-maths focus:ring-2 focus:ring-maths/30"
+            className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base outline-none focus:border-maths focus:ring-2 focus:ring-maths/30"
           />
           <span className="mt-1 block text-xs text-muted">
             We&apos;ll send them one email to confirm it&apos;s OK for you to use Decifer Learning.
@@ -268,7 +268,7 @@ export function RegisterForm() {
           minLength={8}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-white px-3 text-base outline-none focus:border-maths focus:ring-2 focus:ring-maths/30"
+          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base outline-none focus:border-maths focus:ring-2 focus:ring-maths/30"
         />
         <span className="mt-1 block text-xs text-muted">At least 8 characters.</span>
       </label>

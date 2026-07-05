@@ -30,7 +30,7 @@ export default function ParentDashboardError({
         </button>
         <Link
           href="/dashboard"
-          className="rounded-xl border border-black/10 bg-white px-5 py-2.5 text-sm font-semibold text-ink transition hover:bg-black/5 min-h-[44px] inline-flex items-center"
+          className="rounded-xl border border-black/10 bg-surface px-5 py-2.5 text-sm font-semibold text-ink transition hover:bg-black/5 min-h-[44px] inline-flex items-center"
         >
           Go to dashboard
         </Link>

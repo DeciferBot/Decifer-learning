@@ -125,7 +125,7 @@ export function RespondButtons({
               onClick={() => setApproveTab('family')}
               className={`flex-1 rounded-lg py-1.5 text-xs font-bold transition-colors ${
                 approveTab === 'family'
-                  ? 'bg-white text-ink shadow-sm'
+                  ? 'bg-surface text-ink shadow-sm'
                   : 'text-muted hover:text-ink'
               }`}
             >
@@ -135,7 +135,7 @@ export function RespondButtons({
               onClick={() => setApproveTab('physical')}
               className={`flex-1 rounded-lg py-1.5 text-xs font-bold transition-colors ${
                 approveTab === 'physical'
-                  ? 'bg-white text-ink shadow-sm'
+                  ? 'bg-surface text-ink shadow-sm'
                   : 'text-muted hover:text-ink'
               }`}
             >
@@ -151,7 +151,7 @@ export function RespondButtons({
               type="text"
               maxLength={120}
               placeholder="What's the reward? (e.g. Movie night at home)"
-              className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-brand focus:outline-none"
+              className="w-full rounded-xl border border-black/10 bg-surface px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-brand focus:outline-none"
               value={rewardLabel}
               onChange={(e) => setRewardLabel(e.target.value)}
             />
@@ -159,7 +159,7 @@ export function RespondButtons({
               type="text"
               maxLength={280}
               placeholder="Note to your child (optional)"
-              className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-brand focus:outline-none"
+              className="w-full rounded-xl border border-black/10 bg-surface px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-brand focus:outline-none"
               value={note}
               onChange={(e) => setNote(e.target.value)}
             />
@@ -175,7 +175,7 @@ export function RespondButtons({
                 className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 cursor-pointer transition-colors ${
                   selectedItemId === item.id
                     ? 'border-correct/40 bg-correct/5'
-                    : 'border-black/10 bg-white hover:border-black/20'
+                    : 'border-black/10 bg-surface hover:border-black/20'
                 }`}
               >
                 <input
@@ -223,7 +223,7 @@ export function RespondButtons({
           type="text"
           maxLength={280}
           placeholder="Your suggestion (e.g. Trip to the park)"
-          className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-brand focus:outline-none"
+          className="w-full rounded-xl border border-black/10 bg-surface px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-brand focus:outline-none"
           value={rewardLabel}
           onChange={(e) => setRewardLabel(e.target.value)}
         />
@@ -250,7 +250,7 @@ export function RespondButtons({
           type="text"
           maxLength={280}
           placeholder="Note to your child (optional)"
-          className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-brand focus:outline-none"
+          className="w-full rounded-xl border border-black/10 bg-surface px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-brand focus:outline-none"
           value={note}
           onChange={(e) => setNote(e.target.value)}
         />

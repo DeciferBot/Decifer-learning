@@ -186,7 +186,7 @@ export function SpeedRound({ config, topicId }: { config: SpeedRoundConfig; topi
             {options[index].map((opt) => {
               const isCorrectOpt = opt === q.correct
               const isWrongPick = opt !== q.correct && answerState === 'incorrect'
-              let cls = 'border-black/15 bg-white text-ink hover:border-maths focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink'
+              let cls = 'border-black/15 bg-surface text-ink hover:border-maths focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink'
               if (answerState !== 'unanswered') {
                 if (isCorrectOpt) cls = 'border-correct bg-correct/10 text-correct font-bold'
                 else if (isWrongPick) cls = 'border-incorrect/40 bg-incorrect/5 text-muted'

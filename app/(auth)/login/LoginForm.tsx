@@ -155,7 +155,7 @@ export function LoginForm() {
             type="button"
             onClick={() => switchMode('password')}
             className={`flex-1 rounded-md py-2 text-sm font-medium transition ${
-              mode === 'password' ? 'bg-white shadow-sm text-ink' : 'text-muted hover:text-ink'
+              mode === 'password' ? 'bg-surface shadow-sm text-ink' : 'text-muted hover:text-ink'
             }`}
           >
             Password
@@ -164,7 +164,7 @@ export function LoginForm() {
             type="button"
             onClick={() => switchMode('magic')}
             className={`flex-1 rounded-md py-2 text-sm font-medium transition ${
-              mode === 'magic' ? 'bg-white shadow-sm text-ink' : 'text-muted hover:text-ink'
+              mode === 'magic' ? 'bg-surface shadow-sm text-ink' : 'text-muted hover:text-ink'
             }`}
           >
             Magic link
@@ -173,7 +173,7 @@ export function LoginForm() {
             type="button"
             onClick={() => switchMode('pin')}
             className={`flex-1 rounded-md py-2 text-sm font-medium transition ${
-              mode === 'pin' ? 'bg-white shadow-sm text-ink' : 'text-muted hover:text-ink'
+              mode === 'pin' ? 'bg-surface shadow-sm text-ink' : 'text-muted hover:text-ink'
             }`}
           >
             Child PIN
@@ -192,7 +192,7 @@ export function LoginForm() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-white px-3 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/30"
+              className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/30"
             />
           </label>
           <label className="block">
@@ -204,7 +204,7 @@ export function LoginForm() {
               minLength={8}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-white px-3 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/30"
+              className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/30"
             />
           </label>
           {successMessage ? (
@@ -248,7 +248,7 @@ export function LoginForm() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-white px-3 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/30"
+              className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/30"
             />
           </label>
           {error ? (
@@ -283,7 +283,7 @@ export function LoginForm() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-white px-3 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/30"
+              className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/30"
             />
           </label>
           {error ? (
@@ -372,7 +372,7 @@ function PinLoginForm({ redirectTo }: { redirectTo: string }) {
           onChange={(e) => setChildName(e.target.value)}
           placeholder="e.g. Aaina"
           autoComplete="off"
-          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-white px-3 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/30"
+          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/30"
         />
       </label>
       <label className="block">
@@ -385,7 +385,7 @@ function PinLoginForm({ redirectTo }: { redirectTo: string }) {
           onChange={(e) => setPin(e.target.value)}
           placeholder="••••"
           autoComplete="current-password"
-          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-white px-3 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/30"
+          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/30"
         />
       </label>
       {error && (

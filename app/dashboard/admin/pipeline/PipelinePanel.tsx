@@ -133,7 +133,7 @@ export function PipelinePanel({
               <select
                 value={topicId}
                 onChange={(e) => setTopicId(e.target.value)}
-                className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-white px-3 text-base"
+                className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base"
               >
                 {topics.map((t) => (
                   <option key={t.id} value={t.id}>
@@ -153,7 +153,7 @@ export function PipelinePanel({
                     e.target.value as 'sprout' | 'explorer' | 'lightning',
                   )
                 }
-                className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-white px-3 text-base"
+                className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base"
               >
                 <option value="sprout">sprout</option>
                 <option value="explorer">explorer</option>
@@ -173,7 +173,7 @@ export function PipelinePanel({
                 onChange={(e) =>
                   setCount(Math.min(10, Math.max(1, Number(e.target.value))))
                 }
-                className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-white px-3 text-base"
+                className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base"
               />
             </label>
 

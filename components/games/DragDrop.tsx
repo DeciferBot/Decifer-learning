@@ -191,7 +191,7 @@ export function DragDrop({ config, topicId }: { config: DragDropConfig; topicId:
                   ? 'border-maths bg-maths/5 border-dashed cursor-pointer'
                   : dragging
                   ? 'border-maths bg-maths/5 border-dashed'
-                  : 'border-dashed border-black/20 bg-white/50 text-muted',
+                  : 'border-dashed border-black/20 bg-surface/50 text-muted',
               ].join(' ')}
               onDragOver={(e) => e.preventDefault()}
               onDrop={() => { if (dragging) placeInSlot(dragging, i) }}

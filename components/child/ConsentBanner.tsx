@@ -110,7 +110,7 @@ export function ConsentBanner({ state, daysLeft, hasParentEmail, userId }: Props
               onChange={(e) => setParentEmail(e.target.value)}
               placeholder="Parent or guardian's email"
               aria-label="Parent or guardian's email"
-              className="min-h-[48px] flex-1 rounded-xl border border-black/10 bg-white px-3 text-sm outline-none focus:border-maths"
+              className="min-h-[48px] flex-1 rounded-xl border border-black/10 bg-surface px-3 text-sm outline-none focus:border-maths"
             />
             <button
               type="submit"
@@ -135,7 +135,7 @@ export function ConsentBanner({ state, daysLeft, hasParentEmail, userId }: Props
             <button
               type="button"
               onClick={() => { setShowEmailForm(true); setNote(null) }}
-              className="min-h-[48px] rounded-xl border border-black/10 bg-white px-4 text-sm font-semibold"
+              className="min-h-[48px] rounded-xl border border-black/10 bg-surface px-4 text-sm font-semibold"
               style={{ color: 'var(--text-primary, #2D3748)' }}
             >
               Wrong email? Fix it

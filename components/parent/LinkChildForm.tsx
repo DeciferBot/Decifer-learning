@@ -19,7 +19,7 @@ export function LinkChildForm() {
           type="button"
           onClick={() => setTab('existing')}
           className={`h-9 rounded-lg text-sm font-semibold transition ${
-            tab === 'existing' ? 'bg-white text-ink shadow-sm' : 'text-muted'
+            tab === 'existing' ? 'bg-surface text-ink shadow-sm' : 'text-muted'
           }`}
         >
           They have an account
@@ -28,7 +28,7 @@ export function LinkChildForm() {
           type="button"
           onClick={() => setTab('create')}
           className={`h-9 rounded-lg text-sm font-semibold transition ${
-            tab === 'create' ? 'bg-white text-ink shadow-sm' : 'text-muted'
+            tab === 'create' ? 'bg-surface text-ink shadow-sm' : 'text-muted'
           }`}
         >
           Create one for them
@@ -149,7 +149,7 @@ function LinkByEmailForm({ onLinked }: { onLinked: () => void }) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="child@example.com"
-          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-white px-3 text-base outline-none focus:border-maths focus:ring-2 focus:ring-maths/30"
+          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base outline-none focus:border-maths focus:ring-2 focus:ring-maths/30"
         />
       </label>
 
@@ -239,7 +239,7 @@ function CreateChildForm({ onCreated }: { onCreated: () => void }) {
           onChange={(e) => setDisplayName(e.target.value)}
           placeholder="e.g. Aaina"
           autoComplete="off"
-          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-white px-3 text-base outline-none focus:border-maths focus:ring-2 focus:ring-maths/30"
+          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base outline-none focus:border-maths focus:ring-2 focus:ring-maths/30"
         />
       </label>
 
@@ -257,7 +257,7 @@ function CreateChildForm({ onCreated }: { onCreated: () => void }) {
                 className={`h-12 rounded-lg border text-sm font-semibold transition ${
                   active
                     ? 'border-maths bg-maths/10 text-maths'
-                    : 'border-black/10 bg-white text-ink'
+                    : 'border-black/10 bg-surface text-ink'
                 }`}
               >
                 {y.display}
@@ -279,7 +279,7 @@ function CreateChildForm({ onCreated }: { onCreated: () => void }) {
           onChange={(e) => setPin(e.target.value)}
           placeholder="••••"
           autoComplete="new-password"
-          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-white px-3 text-base outline-none focus:border-maths focus:ring-2 focus:ring-maths/30"
+          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base outline-none focus:border-maths focus:ring-2 focus:ring-maths/30"
         />
       </label>
 
@@ -294,7 +294,7 @@ function CreateChildForm({ onCreated }: { onCreated: () => void }) {
           onChange={(e) => setConfirmPin(e.target.value)}
           placeholder="••••"
           autoComplete="new-password"
-          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-white px-3 text-base outline-none focus:border-maths focus:ring-2 focus:ring-maths/30"
+          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base outline-none focus:border-maths focus:ring-2 focus:ring-maths/30"
         />
       </label>
 

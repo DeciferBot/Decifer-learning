@@ -195,7 +195,7 @@ function SummaryBar({ subjects, streak, points }: { subjects: CurriculumSubject[
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
       {stats.map((s) => (
-        <div key={s.label} className="bg-white rounded-2xl border border-gray-100 shadow-sm px-4 py-3 flex flex-col gap-0.5">
+        <div key={s.label} className="bg-surface rounded-2xl border border-gray-100 shadow-sm px-4 py-3 flex flex-col gap-0.5">
           <p className="text-[11px] text-gray-400 font-semibold uppercase tracking-wide">{s.label}</p>
           <p className={`text-2xl font-extrabold leading-none ${s.colour}`}>{s.value}</p>
           <p className="text-[11px] text-gray-400">{s.sub}</p>
@@ -267,8 +267,8 @@ export function ChildCurriculumMap({
           {totalDone === 0 ? `Let's get started, ${displayName}!` : `Keep going, ${displayName}!`}
         </h2>
         <div className="flex items-center gap-3">
-          <div className="flex-1 h-2 bg-white/30 rounded-full overflow-hidden">
-            <div className="h-full bg-white rounded-full transition-all" style={{ width: `${pct}%` }} />
+          <div className="flex-1 h-2 bg-surface/30 rounded-full overflow-hidden">
+            <div className="h-full bg-surface rounded-full transition-all" style={{ width: `${pct}%` }} />
           </div>
           <span className="text-sm font-bold tabular-nums">{totalDone}/{totalTopics} topics</span>
         </div>

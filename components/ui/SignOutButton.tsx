@@ -22,7 +22,7 @@ export function SignOutButton() {
       type="button"
       onClick={handleSignOut}
       disabled={isPending}
-      className="h-12 min-w-[48px] rounded-lg border border-black/10 bg-white px-3 text-sm font-semibold text-ink transition active:scale-[0.98] disabled:opacity-60"
+      className="h-12 min-w-[48px] rounded-lg border border-black/10 bg-surface px-3 text-sm font-semibold text-ink transition active:scale-[0.98] disabled:opacity-60"
     >
       {isPending ? 'Signing out…' : 'Sign out'}
     </button>

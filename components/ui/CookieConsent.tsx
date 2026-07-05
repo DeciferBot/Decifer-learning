@@ -43,7 +43,7 @@ export function CookieConsent() {
       <div className="mt-3 flex gap-2">
         <button
           onClick={() => choose('declined')}
-          className="flex h-10 flex-1 items-center justify-center rounded-lg border border-black/15 bg-white text-sm font-semibold text-ink transition active:scale-[0.98]"
+          className="flex h-10 flex-1 items-center justify-center rounded-lg border border-black/15 bg-surface text-sm font-semibold text-ink transition active:scale-[0.98]"
         >
           Decline analytics
         </button>

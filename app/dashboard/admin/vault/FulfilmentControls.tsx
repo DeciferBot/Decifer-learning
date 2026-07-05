@@ -61,7 +61,7 @@ export function FulfilmentControls({ requestId, currentStatus }: Props) {
               value={trackingInput}
               onChange={(e) => setTrackingInput(e.target.value)}
               maxLength={80}
-              className="flex-1 rounded-lg border border-black/10 bg-white px-2.5 py-1 text-xs text-ink placeholder:text-muted focus:border-brand focus:outline-none"
+              className="flex-1 rounded-lg border border-black/10 bg-surface px-2.5 py-1 text-xs text-ink placeholder:text-muted focus:border-brand focus:outline-none"
             />
           ) : (
             <button
