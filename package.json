@@ -5,9 +5,11 @@
   "description": "Decifer Learning — UK National Curriculum PWA. See CLAUDE.md.",
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/check-brand-hex.mjs",
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
+    "lint:brand": "node scripts/check-brand-hex.mjs",
     "typecheck": "tsc --noEmit",
     "prisma:generate": "prisma generate",
     "prisma:validate": "prisma validate",
