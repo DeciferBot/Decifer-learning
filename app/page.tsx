@@ -83,8 +83,8 @@ export default function Home({
               </span>
 
               <h1 className="mt-4 font-heading text-3xl font-black leading-tight text-ink sm:text-4xl lg:text-5xl">
-                You know your child is working.{' '}
-                <span className="text-brand">You have no idea if they are learning.</span>
+                See your child build confidence,{' '}
+                <span className="text-brand">one topic at a time.</span>
               </h1>
 
               <p className="mt-4 text-base leading-relaxed text-muted">
@@ -92,7 +92,7 @@ export default function Home({
               </p>
 
               <p className="mt-3 text-sm leading-relaxed text-muted">
-                Not a school replacement. Not just another quiz app. Decifer is built for parents, not just for children.
+                Decifer works alongside school and is built for parents as much as children, so you can see exactly where yours stands.
               </p>
 
               {/* Trust chips */}
