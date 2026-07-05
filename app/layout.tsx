@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
 import { Instrument_Serif } from 'next/font/google'
-import { GoogleAnalytics } from '@next/third-parties/google'
+import { ConsentedAnalytics } from '@/components/analytics/ConsentedAnalytics'
 import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { jsonLd } from '@/lib/json-ld'
@@ -147,9 +147,8 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: jsonLd(organizationJsonLd) }}
         />
-        {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
-          <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
-        )}
+        {/* Google Analytics — loads only after explicit analytics consent (see ConsentedAnalytics) */}
+        <ConsentedAnalytics />
         {/* Vercel Analytics: first-party, no cookies, no cross-site tracking */}
         <Analytics />
         <SpeedInsights />
