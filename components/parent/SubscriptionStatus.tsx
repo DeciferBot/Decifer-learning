@@ -67,7 +67,7 @@ export function SubscriptionStatus({ plan, status, periodEnd }: Props) {
         <button
           onClick={openPortal}
           disabled={loading}
-          className="shrink-0 rounded-lg border border-black/10 bg-white px-4 py-2 text-sm font-semibold text-ink transition hover:bg-black/5 disabled:opacity-60"
+          className="shrink-0 rounded-lg border border-black/10 bg-surface px-4 py-2 text-sm font-semibold text-ink transition hover:bg-black/5 disabled:opacity-60"
         >
           {loading ? 'Loading…' : 'Manage'}
         </button>

@@ -79,7 +79,7 @@ export function YearGroupEditor({ current }: { current: YearGroupLabel }) {
           onChange={(e) => { setYearGroup(e.target.value as YearGroupLabel); setExamBoard('') }}
           disabled={busy}
           aria-label="School year"
-          className="min-h-[44px] rounded-xl border border-black/10 bg-white px-3 text-sm text-ink focus:outline-none"
+          className="min-h-[44px] rounded-xl border border-black/10 bg-surface px-3 text-sm text-ink focus:outline-none"
         >
           {MVP_YEAR_GROUPS.map((y) => (
             <option key={y.label} value={y.label}>{y.display} ({y.keyStage})</option>
@@ -91,7 +91,7 @@ export function YearGroupEditor({ current }: { current: YearGroupLabel }) {
             onChange={(e) => setExamBoard(e.target.value as ExamBoard | '')}
             disabled={busy}
             aria-label="Exam board"
-            className="min-h-[44px] rounded-xl border border-black/10 bg-white px-3 text-sm text-ink focus:outline-none"
+            className="min-h-[44px] rounded-xl border border-black/10 bg-surface px-3 text-sm text-ink focus:outline-none"
           >
             <option value="">Exam board…</option>
             {EXAM_BOARDS.map((b) => (

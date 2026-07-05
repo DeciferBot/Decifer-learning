@@ -223,7 +223,7 @@ export default async function ChildDashboardPage() {
               <li key={m.id}>
                 <Link
                   href={`/topics/${m.topic.id}/learn`}
-                  className="flex items-center justify-between gap-3 rounded-xl bg-white/60 px-3 py-2.5 hover:bg-white transition-colors"
+                  className="flex items-center justify-between gap-3 rounded-xl bg-surface/60 px-3 py-2.5 hover:bg-surface transition-colors"
                 >
                   <div className="flex items-center gap-2 min-w-0">
                     <span
@@ -350,7 +350,7 @@ export default async function ChildDashboardPage() {
               <li key={t.id}>
                 <Link
                   href={`/topics/${t.id}/quiz`}
-                  className="flex items-center justify-between gap-3 rounded-xl bg-white/60 px-3 py-2.5 transition-colors hover:bg-white"
+                  className="flex items-center justify-between gap-3 rounded-xl bg-surface/60 px-3 py-2.5 transition-colors hover:bg-surface"
                 >
                   <div className="flex min-w-0 items-center gap-2">
                     <span className="h-2.5 w-2.5 flex-none rounded-full" style={{ backgroundColor: t.colour }} />
@@ -371,7 +371,7 @@ export default async function ChildDashboardPage() {
         className="flex items-center gap-4 rounded-2xl px-5 py-4 transition-transform active:scale-[0.98]"
         style={{ background: 'linear-gradient(135deg, #FFE3A3 0%, #FFD43B 100%)' }}
       >
-        <div className="flex-none flex h-11 w-11 items-center justify-center rounded-xl bg-white/40">
+        <div className="flex-none flex h-11 w-11 items-center justify-center rounded-xl bg-surface/40">
           <Star className="w-6 h-6" style={{ color: '#7a5b00' }} aria-hidden />
         </div>
         <div className="min-w-0 flex-1">
@@ -381,7 +381,7 @@ export default async function ChildDashboardPage() {
           </p>
           <p className="mt-0.5 text-xs" style={{ color: '#7a5b00' }}>3 fresh questions · earn bonus points</p>
         </div>
-        <div className="flex-none flex h-9 w-9 items-center justify-center rounded-full bg-white/50 font-bold" style={{ color: '#3d2e00' }}>
+        <div className="flex-none flex h-9 w-9 items-center justify-center rounded-full bg-surface/50 font-bold" style={{ color: '#3d2e00' }}>
           →
         </div>
       </Link>
@@ -416,7 +416,7 @@ export default async function ChildDashboardPage() {
             { top: '40%', left: '85%' }, { top: '20%', left: '90%' },
             { top: '80%', left: '55%' }, { top: '55%', left: '92%' },
           ].map((pos, i) => (
-            <div key={i} className="absolute w-1 h-1 rounded-full bg-white/40" style={pos} />
+            <div key={i} className="absolute w-1 h-1 rounded-full bg-surface/40" style={pos} />
           ))}
         </div>
         <div className="relative flex items-center justify-between gap-3">

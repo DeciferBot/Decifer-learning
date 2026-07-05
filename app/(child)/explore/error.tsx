@@ -47,7 +47,7 @@ export default function ExploreError({
         >
           Try again
         </button>
-        <Link href="/explore" className="rounded-full bg-white/10 px-5 py-2 text-sm font-semibold text-white/70" style={{ minHeight: 40 }}>
+        <Link href="/explore" className="rounded-full bg-surface/10 px-5 py-2 text-sm font-semibold text-white/70" style={{ minHeight: 40 }}>
           ← Back to Explore
         </Link>
       </div>

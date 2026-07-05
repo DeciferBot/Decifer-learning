@@ -74,7 +74,7 @@ export function DeliveryAddressForm({ childId, initialAddress }: Props) {
           maxLength={60}
           value={form.firstName}
           onChange={field('firstName')}
-          className="rounded-xl border border-black/10 bg-white px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-brand focus:outline-none"
+          className="rounded-xl border border-black/10 bg-surface px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-brand focus:outline-none"
         />
         <input
           type="text"
@@ -82,7 +82,7 @@ export function DeliveryAddressForm({ childId, initialAddress }: Props) {
           maxLength={60}
           value={form.lastName}
           onChange={field('lastName')}
-          className="rounded-xl border border-black/10 bg-white px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-brand focus:outline-none"
+          className="rounded-xl border border-black/10 bg-surface px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-brand focus:outline-none"
         />
       </div>
       <input
@@ -91,7 +91,7 @@ export function DeliveryAddressForm({ childId, initialAddress }: Props) {
         maxLength={120}
         value={form.address1}
         onChange={field('address1')}
-        className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-brand focus:outline-none"
+        className="w-full rounded-xl border border-black/10 bg-surface px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-brand focus:outline-none"
       />
       <input
         type="text"
@@ -99,7 +99,7 @@ export function DeliveryAddressForm({ childId, initialAddress }: Props) {
         maxLength={120}
         value={form.address2 ?? ''}
         onChange={field('address2')}
-        className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-brand focus:outline-none"
+        className="w-full rounded-xl border border-black/10 bg-surface px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-brand focus:outline-none"
       />
       <div className="grid grid-cols-2 gap-2">
         <input
@@ -108,7 +108,7 @@ export function DeliveryAddressForm({ childId, initialAddress }: Props) {
           maxLength={60}
           value={form.city}
           onChange={field('city')}
-          className="rounded-xl border border-black/10 bg-white px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-brand focus:outline-none"
+          className="rounded-xl border border-black/10 bg-surface px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-brand focus:outline-none"
         />
         <input
           type="text"
@@ -116,13 +116,13 @@ export function DeliveryAddressForm({ childId, initialAddress }: Props) {
           maxLength={10}
           value={form.postcode}
           onChange={field('postcode')}
-          className="rounded-xl border border-black/10 bg-white px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-brand focus:outline-none"
+          className="rounded-xl border border-black/10 bg-surface px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-brand focus:outline-none"
         />
       </div>
       <select
         value={form.country}
         onChange={field('country')}
-        className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 text-sm text-ink focus:border-brand focus:outline-none"
+        className="w-full rounded-xl border border-black/10 bg-surface px-3 py-2 text-sm text-ink focus:border-brand focus:outline-none"
       >
         <option value="GB">United Kingdom</option>
         <option value="IE">Ireland</option>

@@ -103,7 +103,7 @@ export function CataloguePanel({ items: initialItems }: Props) {
             placeholder="Name *"
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
-            className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-brand focus:outline-none"
+            className="w-full rounded-xl border border-black/10 bg-surface px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-brand focus:outline-none"
           />
           <input
             type="text"
@@ -111,7 +111,7 @@ export function CataloguePanel({ items: initialItems }: Props) {
             placeholder="Description (optional)"
             value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
-            className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-brand focus:outline-none"
+            className="w-full rounded-xl border border-black/10 bg-surface px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-brand focus:outline-none"
           />
           <div className="grid grid-cols-2 gap-3">
             <input
@@ -120,12 +120,12 @@ export function CataloguePanel({ items: initialItems }: Props) {
               placeholder="Category (optional)"
               value={form.category}
               onChange={(e) => setForm({ ...form, category: e.target.value })}
-              className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-brand focus:outline-none"
+              className="w-full rounded-xl border border-black/10 bg-surface px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-brand focus:outline-none"
             />
             <select
               value={form.min_milestone}
               onChange={(e) => setForm({ ...form, min_milestone: e.target.value })}
-              className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 text-sm text-ink focus:border-brand focus:outline-none"
+              className="w-full rounded-xl border border-black/10 bg-surface px-3 py-2 text-sm text-ink focus:border-brand focus:outline-none"
             >
               <option value="">Any milestone</option>
               <option value="bronze">Bronze+</option>
@@ -140,7 +140,7 @@ export function CataloguePanel({ items: initialItems }: Props) {
             placeholder="Price in pence (0 = free / manual)"
             value={form.price_pence}
             onChange={(e) => setForm({ ...form, price_pence: e.target.value })}
-            className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-brand focus:outline-none"
+            className="w-full rounded-xl border border-black/10 bg-surface px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-brand focus:outline-none"
           />
           {error && <p className="text-sm text-incorrect">{error}</p>}
           <div className="flex gap-2">

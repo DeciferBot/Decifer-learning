@@ -84,7 +84,7 @@ export default function PricingPage() {
             </ul>
             <Link
               href="/register"
-              className="mt-8 flex h-11 items-center justify-center rounded-xl border border-black/15 bg-white text-sm font-semibold text-ink transition hover:bg-black/5"
+              className="mt-8 flex h-11 items-center justify-center rounded-xl border border-black/15 bg-surface text-sm font-semibold text-ink transition hover:bg-black/5"
             >
               Get started free
             </Link>
@@ -111,7 +111,7 @@ export default function PricingPage() {
             <div className="mt-8">
               <UpgradeButton
                 plan="per_child"
-                className="flex h-12 w-full items-center justify-center rounded-xl border-2 border-science bg-white font-semibold text-ink transition active:scale-[0.98] disabled:opacity-60"
+                className="flex h-12 w-full items-center justify-center rounded-xl border-2 border-science bg-surface font-semibold text-ink transition active:scale-[0.98] disabled:opacity-60"
               >
                 Choose Per Child
               </UpgradeButton>

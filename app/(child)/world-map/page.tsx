@@ -85,7 +85,7 @@ export default async function WorldMapPage() {
         href="/play"
         className="flex items-center gap-4 rounded-2xl bg-gradient-to-r from-brand to-ember-bright px-5 py-4 text-white shadow-sm transition hover:opacity-95"
       >
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/20">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-surface/20">
           <Swords className="h-6 w-6" aria-hidden />
         </div>
         <div className="flex-1">

@@ -30,7 +30,7 @@ export function UpgradeWall({ topicTitle, subjectName }: Props) {
         </Link>
         <Link
           href="/dashboard/child"
-          className="flex h-11 w-full items-center justify-center rounded-xl border border-black/10 bg-white text-sm font-semibold text-ink transition hover:bg-black/5"
+          className="flex h-11 w-full items-center justify-center rounded-xl border border-black/10 bg-surface text-sm font-semibold text-ink transition hover:bg-black/5"
         >
           Back to home
         </Link>

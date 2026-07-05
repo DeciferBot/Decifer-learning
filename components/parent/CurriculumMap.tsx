@@ -162,7 +162,7 @@ function WeakAreasPanel({ subjects, childProfileId }: { subjects: CurriculumSubj
           const assigned = assignedIds.has(t.topicId)
           const loading = loadingId === t.topicId
           return (
-            <div key={t.topicId} className="flex items-center gap-3 bg-white rounded-xl px-3 py-2.5 border border-[#FF6B6B]/15">
+            <div key={t.topicId} className="flex items-center gap-3 bg-surface rounded-xl px-3 py-2.5 border border-[#FF6B6B]/15">
               <span className={`w-2 h-2 rounded-full flex-shrink-0 ${c.bg}`} />
               <div className="flex-1 min-w-0">
                 <p className="text-[12px] font-semibold text-[#2D3748] truncate">{t.title}</p>
@@ -177,7 +177,7 @@ function WeakAreasPanel({ subjects, childProfileId }: { subjects: CurriculumSubj
                   className={`min-w-[48px] min-h-[48px] flex items-center justify-center rounded-xl border text-sm font-bold transition-colors ${
                     assigned
                       ? 'border-[#FF9F43] bg-[#FF9F43]/15 text-[#FF9F43]'
-                      : 'border-black/10 bg-white text-muted hover:bg-[#FF9F43]/10 hover:border-[#FF9F43] hover:text-[#FF9F43]'
+                      : 'border-black/10 bg-surface text-muted hover:bg-[#FF9F43]/10 hover:border-[#FF9F43] hover:text-[#FF9F43]'
                   } ${loading ? 'opacity-50' : ''}`}
                 >
                   {loading ? '…' : assigned ? <MapPin className="w-4 h-4" aria-hidden /> : '＋'}

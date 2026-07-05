@@ -191,7 +191,7 @@ export default async function CoverageDashboardPage() {
                 <th className="px-4 py-2 text-right font-medium text-text-muted">Verified</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 bg-white">
+            <tbody className="divide-y divide-gray-100 bg-surface">
               {outcomeStats.length === 0 && (
                 <tr>
                   <td colSpan={6} className="px-4 py-4 text-center text-text-muted">
@@ -232,7 +232,7 @@ export default async function CoverageDashboardPage() {
                     <th className="px-4 py-2 text-right font-medium text-text-muted">Flagged</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100 bg-white">
+                <tbody className="divide-y divide-gray-100 bg-surface">
                   {subjectTopics.length === 0 && (
                     <tr>
                       <td colSpan={6} className="px-4 py-4 text-center text-text-muted">
@@ -291,7 +291,7 @@ export default async function CoverageDashboardPage() {
                   <th className="px-4 py-2 text-left font-medium text-text-muted">Started</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100 bg-white">
+              <tbody className="divide-y divide-gray-100 bg-surface">
                 {runs.map((run) => (
                   <tr key={run.id}>
                     <td className="px-4 py-2">{run.subject}</td>

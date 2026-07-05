@@ -43,7 +43,7 @@ export function StaticDiagram({ widget }: Props) {
             >
               <span className="flex items-center gap-1">
                 <span className="block h-2 w-2 shrink-0 rounded-full bg-maths ring-2 ring-white" aria-hidden />
-                <span className="whitespace-nowrap rounded-md border border-black/5 bg-white/90 px-1.5 py-0.5 text-[11px] font-semibold leading-tight text-ink shadow-sm">
+                <span className="whitespace-nowrap rounded-md border border-black/5 bg-surface/90 px-1.5 py-0.5 text-[11px] font-semibold leading-tight text-ink shadow-sm">
                   {label.text}
                 </span>
               </span>

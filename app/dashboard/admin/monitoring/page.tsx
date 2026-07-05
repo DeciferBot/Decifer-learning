@@ -220,7 +220,7 @@ export default async function MonitoringPage() {
                           <div className="mt-2 flex flex-wrap gap-3">
                             {(q.foundation_images as {url:string;alt?:string}[]).map((img, i) => (
                               // eslint-disable-next-line @next/next/no-img-element
-                              <img key={i} src={img.url} alt={img.alt ?? `Image ${i+1}`} className="max-h-48 rounded-lg border border-black/10 object-contain bg-white" />
+                              <img key={i} src={img.url} alt={img.alt ?? `Image ${i+1}`} className="max-h-48 rounded-lg border border-black/10 object-contain bg-surface" />
                             ))}
                           </div>
                         </div>

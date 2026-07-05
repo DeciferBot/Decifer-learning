@@ -19,7 +19,7 @@ export default async function WorldAtlasPage() {
         <p className="text-4xl">🌍</p>
         <p className="text-white/80 font-semibold">This explorer is being prepared.</p>
         <p className="text-white/40 text-sm">Check back soon — the world is loading.</p>
-        <Link href="/explore" className="mt-2 rounded-full bg-white/10 px-5 py-2 text-sm font-semibold text-white/80">← Back to Explore</Link>
+        <Link href="/explore" className="mt-2 rounded-full bg-surface/10 px-5 py-2 text-sm font-semibold text-white/80">← Back to Explore</Link>
       </div>
     )
   }

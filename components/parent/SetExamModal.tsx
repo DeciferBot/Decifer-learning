@@ -341,7 +341,7 @@ export function SetExamModal({ childProfileId, childName, onClose, onSuccess }: 
                     }`}
                   >
                     <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                      className={`inline-block h-4 w-4 transform rounded-full bg-surface shadow transition-transform ${
                         hintsAllowed ? 'translate-x-6' : 'translate-x-1'
                       }`}
                     />

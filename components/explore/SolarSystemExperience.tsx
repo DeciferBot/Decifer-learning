@@ -45,7 +45,7 @@ export function SolarSystemExperience({ explorer }: { explorer: ExplorerData }) 
     <div className="fixed inset-0 z-10" style={{ top: 0, bottom: 0, left: 0, right: 0 }}>
       <Link
         href="/explore"
-        className="absolute top-4 left-4 z-30 flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-sm font-semibold text-white/80 backdrop-blur hover:bg-white/20 transition-colors"
+        className="absolute top-4 left-4 z-30 flex items-center gap-1.5 rounded-full bg-surface/10 px-3 py-1.5 text-sm font-semibold text-white/80 backdrop-blur hover:bg-surface/20 transition-colors"
         style={{ minHeight: 40 }}
       >
         ← Back

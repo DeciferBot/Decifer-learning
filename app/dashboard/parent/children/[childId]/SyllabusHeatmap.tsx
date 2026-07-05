@@ -137,14 +137,14 @@ export function SyllabusHeatmap({ subjects, childName, childProfileId, yearGroup
             </div>
 
             {/* Zoom controls */}
-            <div className="flex items-center gap-1 bg-white/10 rounded-xl p-1">
+            <div className="flex items-center gap-1 bg-surface/10 rounded-xl p-1">
               {ZOOM_SIZES.map((z, i) => (
                 <button
                   key={i}
                   onClick={() => setZoom(i)}
                   className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition-all ${
                     zoom === i
-                      ? 'bg-white text-ink shadow-sm'
+                      ? 'bg-surface text-ink shadow-sm'
                       : 'text-white/60 hover:text-white'
                   }`}
                   aria-label={`Zoom: ${z.label}`}
@@ -166,7 +166,7 @@ export function SyllabusHeatmap({ subjects, childName, childProfileId, yearGroup
               <span className="text-xs text-white/70">{inProgressCount} in progress</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <div className="h-2 w-2 rounded-full bg-white/20" />
+              <div className="h-2 w-2 rounded-full bg-surface/20" />
               <span className="text-xs text-white/70">{totalTopics - completedCount - inProgressCount} not started</span>
             </div>
             <div className="ml-auto flex items-center gap-1.5">
@@ -176,7 +176,7 @@ export function SyllabusHeatmap({ subjects, childName, childProfileId, yearGroup
           </div>
 
           {/* Overall progress bar */}
-          <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-white/10">
+          <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-surface/10">
             <div
               className="h-full rounded-full bg-correct transition-all duration-700"
               style={{ width: `${pct}%` }}

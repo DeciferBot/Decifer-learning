@@ -58,7 +58,7 @@ export function PhysicalRewardsToggle({ childId, initialEnabled }: Props) {
           }`}
         >
           <span
-            className={`absolute h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200 ${
+            className={`absolute h-5 w-5 rounded-full bg-surface shadow-sm transition-transform duration-200 ${
               enabled ? 'translate-x-6' : 'translate-x-1'
             }`}
           />

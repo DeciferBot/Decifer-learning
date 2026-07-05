@@ -172,7 +172,7 @@ export function AskDecifer({ aid, initialContext, yearGroup, onAskCountChange }:
               </div>
               <button
                 onClick={() => setOpen(false)}
-                className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center text-white/50 hover:bg-white/20"
+                className="h-8 w-8 rounded-full bg-surface/10 flex items-center justify-center text-white/50 hover:bg-surface/20"
               >
                 ✕
               </button>

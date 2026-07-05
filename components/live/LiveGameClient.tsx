@@ -163,7 +163,7 @@ function Lobby({
           className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full opacity-20 blur-2xl"
           style={{ background: 'radial-gradient(circle, var(--brand), transparent 70%)' }}
         />
-        <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-widest text-white/80">
+        <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-surface/10 px-3 py-1 text-xs font-bold uppercase tracking-widest text-white/80">
           <span className="relative flex h-2 w-2">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand opacity-75" />
             <span className="relative inline-flex h-2 w-2 rounded-full bg-brand" />
@@ -175,7 +175,7 @@ function Lobby({
         </p>
 
         {scopeLabel ? (
-          <p className="mt-3 inline-block rounded-full bg-white/10 px-3 py-1 text-sm font-bold text-white">
+          <p className="mt-3 inline-block rounded-full bg-surface/10 px-3 py-1 text-sm font-bold text-white">
             {scopeLabel}
           </p>
         ) : null}

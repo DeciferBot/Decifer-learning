@@ -375,14 +375,14 @@ export function ParticleModel({ widget }: Props) {
         >
           {/* White overlay masks the unfilled portion */}
           <motion.div
-            className="absolute top-0 bottom-0 bg-white/55 rounded-r-full"
+            className="absolute top-0 bottom-0 bg-surface/55 rounded-r-full"
             animate={{ left: `${temperature}%` }}
             transition={{ duration: 0.7, ease: 'easeInOut' }}
             style={{ right: 0 }}
           />
           {/* Thumb indicator */}
           <motion.div
-            className="absolute top-0.5 bottom-0.5 w-4 bg-white rounded-full shadow-md"
+            className="absolute top-0.5 bottom-0.5 w-4 bg-surface rounded-full shadow-md"
             animate={{ left: `calc(${temperature}% - 8px)` }}
             transition={{ duration: 0.7, ease: 'easeInOut' }}
           />

@@ -71,7 +71,7 @@ export function AnswerTiles({
             </span>
             <span className="flex-1 leading-snug">{choice}</span>
             {isCorrect ? (
-              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-white/90">
+              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-surface/90">
                 <Check className="h-5 w-5" style={{ color: tile.lip }} />
               </span>
             ) : revealed && isMine ? (

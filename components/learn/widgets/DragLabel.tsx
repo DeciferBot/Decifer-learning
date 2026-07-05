@@ -136,7 +136,7 @@ export function DragLabel({ widget }: Props) {
                   ? 'border-[#FF6B6B] bg-[#FF6B6B]/15 text-[#FF6B6B]'
                   : isSelectedHotspot
                   ? 'border-[#6C9EFF] bg-[#6C9EFF]/10 border-dashed animate-pulse text-[#718096]'
-                  : 'border-dashed border-[#6C9EFF]/50 bg-white/70 text-[#718096]',
+                  : 'border-dashed border-[#6C9EFF]/50 bg-surface/70 text-[#718096]',
               ].join(' ')}
               style={{
                 left: `${item.hotspot.x}%`,
@@ -199,7 +199,7 @@ export function DragLabel({ widget }: Props) {
                 'focus:outline-none focus-visible:ring-2 focus-visible:ring-[#6C9EFF] focus-visible:ring-offset-1',
                 selected
                   ? 'border-[#6C9EFF] bg-[#6C9EFF]/10 text-[#2D3748] ring-2 ring-[#6C9EFF]'
-                  : 'border-[#6C9EFF]/40 bg-white text-[#2D3748] hover:border-[#6C9EFF] hover:bg-[#6C9EFF]/5',
+                  : 'border-[#6C9EFF]/40 bg-surface text-[#2D3748] hover:border-[#6C9EFF] hover:bg-[#6C9EFF]/5',
               ].join(' ')}
             >
               {item.label}
