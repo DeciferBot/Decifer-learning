@@ -3,6 +3,7 @@ import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
 import { RecoveryRedirect } from './RecoveryRedirect'
 import { DeciferLogo } from '@/components/ui/DeciferLogo'
+import { DecipherText } from '@/components/ui/DecipherText'
 import { GuideCard } from '@/components/ui/GuideCard'
 import { LearningJourney } from '@/components/homepage/LearningJourney'
 import { QualityPipeline } from '@/components/homepage/QualityPipeline'
@@ -84,7 +85,7 @@ export default function Home({
 
               <h1 className="mt-4 font-heading text-3xl font-black leading-tight text-ink sm:text-4xl lg:text-5xl">
                 See your child build confidence,{' '}
-                <span className="text-brand">one topic at a time.</span>
+                <DecipherText as="span" className="text-brand" text="one topic at a time." />
               </h1>
 
               <p className="mt-4 text-base leading-relaxed text-muted">
