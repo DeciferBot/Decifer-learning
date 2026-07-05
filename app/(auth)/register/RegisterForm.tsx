@@ -90,9 +90,11 @@ export function RegisterForm() {
         })
         if (signUpError) { setError(signUpError.message); return }
 
-        // GA4 conversion: account created (fires for both email-confirm and
-        // instant-session paths). method distinguishes parent vs child sign-ups.
-        trackEvent('sign_up', { method: 'email', role })
+        // GA4 conversion: parent account created only. Child sign-ups are never
+        // sent to GA — children's data stays out of analytics (see lib/analytics.ts).
+        if (role === 'parent') {
+          trackEvent('sign_up', { method: 'email' })
+        }
 
         // Kick off the parent/guardian verification email. Best-effort — the
         // daily parent-verify cron retries any child who never got one.
