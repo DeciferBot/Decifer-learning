@@ -18,7 +18,7 @@ const SUBJECTS = [
       { label: 'Year 1–2', stage: 'KS1', topics: 'Numbers, shapes, measures, time' },
       { label: 'Year 3–6', stage: 'KS2', topics: 'Multiplication, fractions, decimals, geometry, statistics' },
       { label: 'Year 7–9', stage: 'KS3', topics: 'Algebra, ratio, probability, trigonometry' },
-      { label: 'Year 10–11', stage: 'KS4 (GCSE)', topics: 'Quadratics, circle theorems, vectors, simultaneous equations — AQA & Edexcel' },
+      { label: 'Year 10–11', stage: 'KS4 (GCSE)', topics: 'Quadratics, circle theorems, vectors, simultaneous equations (AQA and Edexcel)' },
     ],
   },
   {
@@ -29,7 +29,7 @@ const SUBJECTS = [
       { label: 'Year 1–2', stage: 'KS1', topics: 'Phonics, reading comprehension, simple writing' },
       { label: 'Year 3–6', stage: 'KS2', topics: 'Grammar, punctuation, poetry, narrative writing' },
       { label: 'Year 7–9', stage: 'KS3', topics: 'Analytical writing, Shakespeare, comparing texts' },
-      { label: 'Year 10–11', stage: 'KS4 (GCSE)', topics: 'Macbeth, An Inspector Calls, language analysis, exam technique — AQA & Edexcel' },
+      { label: 'Year 10–11', stage: 'KS4 (GCSE)', topics: 'Macbeth, An Inspector Calls, language analysis, exam technique (AQA and Edexcel)' },
     ],
   },
   {
@@ -40,7 +40,7 @@ const SUBJECTS = [
       { label: 'Year 1–2', stage: 'KS1', topics: 'Living things, materials, seasonal change' },
       { label: 'Year 3–6', stage: 'KS2', topics: 'Forces, light, plants, rocks, electricity' },
       { label: 'Year 7–9', stage: 'KS3', topics: 'Cells, atoms, energy, waves, evolution' },
-      { label: 'Year 10–11', stage: 'KS4 (GCSE)', topics: 'Cell biology, genetics, chemical changes, electricity, space physics — AQA & Edexcel' },
+      { label: 'Year 10–11', stage: 'KS4 (GCSE)', topics: 'Cell biology, genetics, chemical changes, electricity, space physics (AQA and Edexcel)' },
     ],
   },
   {

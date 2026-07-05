@@ -390,7 +390,7 @@ export default function Home({
                 Five subjects. 300+ topics. Years 1 to 11.
               </h2>
               <p className="mx-auto mb-6 max-w-lg text-sm leading-relaxed text-muted">
-                Maths, English and Science run all the way from Year 1 to GCSE (Year 11). History and Geography cover Year 1 to Year 9. Every one of our 6,900+ questions has passed the six-stage quality process — your child only ever sees content that is verified and ready.
+                Maths, English and Science run all the way from Year 1 to GCSE (Year 11). History and Geography cover Year 1 to Year 9. Every one of our 6,900+ questions has passed the six-stage quality process, so your child only ever sees content that is verified and ready.
               </p>
               <div className="flex flex-wrap justify-center gap-3 text-sm">
                 <span className="flex items-center gap-1.5 rounded-full bg-maths/10 px-4 py-1.5 font-semibold text-ink">
@@ -480,7 +480,7 @@ export default function Home({
                 Live quiz battles for the classroom and the kitchen table.
               </h2>
               <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-white/70">
-                Host a real-time quiz in 30 seconds. Players join from any device with a code — no account needed. UK curriculum questions, checked answers, instant leaderboard.
+                Host a real-time quiz in 30 seconds. Players join from any device with a code, no account needed. UK curriculum questions, checked answers, instant leaderboard.
               </p>
               <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
                 <Link

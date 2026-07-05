@@ -9,7 +9,7 @@ export const revalidate = 86400 // rebuild at most once a day — content change
 export const metadata: Metadata = {
   title: 'Curriculum — every topic we cover',
   description:
-    'Browse the full DECIFER Learning curriculum: every topic across five subjects — Maths, English, Science, History and Geography — mapped to the UK National Curriculum from Year 1 to Year 11 (KS1–KS4/GCSE).',
+    'Browse the full DECIFER Learning curriculum: every topic across five subjects (Maths, English, Science, History and Geography) mapped to the UK National Curriculum from Year 1 to Year 11 (KS1–KS4/GCSE).',
   alternates: { canonical: '/curriculum' },
 }
 

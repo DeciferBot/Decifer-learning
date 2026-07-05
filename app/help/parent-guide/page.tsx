@@ -60,7 +60,7 @@ export default function ParentGuidePage() {
 
       <Section title="How content is structured">
         <Prose>
-          <p>Decifer follows the UK National Curriculum from Year 1 to Year 11, across KS1, KS2, KS3 and KS4 (GCSE). Five subjects are covered: Maths, English, Science, History and Geography — with Maths, English and Science running through to GCSE and History and Geography covering Years 1 to 9.</p>
+          <p>Decifer follows the UK National Curriculum from Year 1 to Year 11, across KS1, KS2, KS3 and KS4 (GCSE). Five subjects are covered: Maths, English, Science, History and Geography. Maths, English and Science run through to GCSE, and History and Geography cover Years 1 to 9.</p>
           <p>Every topic has three stages: <strong>Learn</strong> (read the explanation), <strong>Practise</strong> (guided exercises), and <strong>Quiz</strong> (test understanding). Children must complete Learn before Practise, and Practise before Quiz, though they can revisit any stage at any time.</p>
         </Prose>
       </Section>

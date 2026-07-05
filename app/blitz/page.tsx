@@ -25,7 +25,7 @@ const HOW = [
   {
     step: '2',
     heading: 'Share the link',
-    body: 'One tap sends a join link via WhatsApp or iMessage. Players land with the code pre-filled — no typing.',
+    body: 'One tap sends a join link via WhatsApp or iMessage. Players land with the code pre-filled, no typing.',
   },
   {
     step: '3',
@@ -36,7 +36,7 @@ const HOW = [
 
 const FEATURES = [
   { icon: '⚡', heading: 'No accounts for players', body: 'Anyone can join with a nickname. Only the host needs a Decifer account.' },
-  { icon: '📚', heading: 'Curriculum-aligned', body: 'Every question is verified against the UK National Curriculum — not random trivia.' },
+  { icon: '📚', heading: 'Curriculum-aligned', body: 'Every question is verified against the UK National Curriculum, not random trivia.' },
   { icon: '📱', heading: 'Works on any device', body: 'Phone, tablet, laptop. Safari, Chrome, anywhere. No app download.' },
   { icon: '🏆', heading: 'Live leaderboard', body: 'Scores update in real-time. A podium reveal at the end.' },
   { icon: '🎯', heading: 'Pick your level', body: 'Year 2 through to Year 11. Maths, English, Science, History, Geography.' },
@@ -80,7 +80,7 @@ export default function BlitzPage() {
           <span className="text-[#6C9EFF]">Curriculum-aligned.</span>
         </h1>
         <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-muted md:text-lg">
-          Run a live quiz battle in 30 seconds — no logins, no IT setup, no random trivia.
+          Run a live quiz battle in 30 seconds. No logins, no IT setup, no random trivia.
           Every question comes straight from the UK National Curriculum.
         </p>
         <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
@@ -88,7 +88,7 @@ export default function BlitzPage() {
             href="/play"
             className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#6C9EFF] px-8 py-4 font-heading text-base font-extrabold text-white shadow-sm transition hover:opacity-90 sm:w-auto"
           >
-            ⚡ Host a game — it&apos;s free
+            ⚡ Host a game, it&apos;s free
           </Link>
           <Link
             href="/join"
@@ -107,7 +107,7 @@ export default function BlitzPage() {
         <div className="overflow-hidden rounded-3xl bg-surface shadow-md ring-1 ring-black/8">
           <div className="bg-[#2D3748] px-5 py-3 text-center">
             <p className="font-mono text-2xl font-extrabold tracking-[0.3em] text-white">4 8 2 9 1 7</p>
-            <p className="mt-0.5 text-xs text-white/60">Game code — share to join</p>
+            <p className="mt-0.5 text-xs text-white/60">Game code, share to join</p>
           </div>
           <div className="px-5 py-4">
             <p className="mb-3 text-center text-xs font-bold uppercase tracking-wide text-muted">Question 3 of 10</p>
@@ -168,7 +168,7 @@ export default function BlitzPage() {
             <h3 className="mb-2 font-heading text-lg font-extrabold text-ink">For teachers</h3>
             <p className="text-sm leading-relaxed text-muted">
               End-of-lesson revision in 30 seconds. No IT request, no student logins, no setup.
-              Show the code on your projector — every student joins from their phone.
+              Show the code on your projector, and every student joins from their phone.
               Questions are curriculum-verified, not random trivia.
             </p>
           </div>
