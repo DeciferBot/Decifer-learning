@@ -1,19 +1,19 @@
 'use client'
 
 import { useTransition } from 'react'
-import { useRouter } from 'next/navigation'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 
 export function SignOutButton() {
-  const router = useRouter()
   const [isPending, startTransition] = useTransition()
 
   function handleSignOut(): void {
     startTransition(async () => {
       const supabase = createSupabaseBrowserClient()
       await supabase.auth.signOut()
-      router.refresh()
-      router.push('/login')
+      // Hard navigation: a client-side router.push() can leave the shared
+      // dashboard layout (and its TopBar) served from a Router Cache entry
+      // captured under the outgoing session's cookie.
+      window.location.href = '/login'
     })
   }
 

@@ -1,15 +1,19 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 
 type Mode = 'password' | 'magic' | 'forgot' | 'pin'
 
 export function LoginForm() {
-  const router = useRouter()
   const searchParams = useSearchParams()
-  const redirectTo = searchParams.get('redirectTo') ?? '/dashboard'
+  // Only accept a same-origin relative path as the post-login destination.
+  // Reject absolute URLs and protocol-relative values (`//host`, `/\host`) so a
+  // crafted `?redirectTo=https://evil.com` can't turn sign-in into an open
+  // redirect once we hard-navigate to it via window.location.href.
+  const rawRedirect = searchParams.get('redirectTo')
+  const redirectTo = rawRedirect && /^\/(?![/\\])/.test(rawRedirect) ? rawRedirect : '/dashboard'
 
   const [mode, setMode] = useState<Mode>('password')
   const [email, setEmail] = useState('')
@@ -44,8 +48,10 @@ export function LoginForm() {
           password,
         })
         if (signInError) { setError(signInError.message); return }
-        router.refresh()
-        router.push(redirectTo)
+        // Hard navigation: a client-side router.push() here can leave the
+        // shared dashboard layout (and its TopBar) served from the Router
+        // Cache entry captured under the previous session's cookie.
+        window.location.href = redirectTo
       } catch {
         setError('Something went wrong. Please try again.')
       }
@@ -312,7 +318,6 @@ export function LoginForm() {
 }
 
 function PinLoginForm({ redirectTo }: { redirectTo: string }) {
-  const router = useRouter()
   const supabase = createSupabaseBrowserClient()
   const [childName, setChildName] = useState('')
   const [pin, setPin] = useState('')
@@ -345,8 +350,8 @@ function PinLoginForm({ redirectTo }: { redirectTo: string }) {
           setError('Incorrect PIN. Please try again.')
           return
         }
-        router.refresh()
-        router.push(redirectTo)
+        // Hard navigation: see note in handlePasswordSubmit above.
+        window.location.href = redirectTo
       } catch {
         setError('Something went wrong. Please try again.')
       }
