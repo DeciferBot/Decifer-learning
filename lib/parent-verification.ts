@@ -59,7 +59,7 @@ export async function sendParentVerificationEmail(opts: {
   <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:32px 16px">
   <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%">
     <tr><td style="padding-bottom:24px">
-      <span style="font-size:22px;font-weight:700;color:#F05A28">DECIFER</span>
+      <span style="font-size:22px;font-weight:700;color:#FB5A24">DECIFER</span>
       <span style="font-size:22px;font-weight:700;color:#2D3748"> Learning</span>
     </td></tr>
     <tr><td>
@@ -71,7 +71,7 @@ export async function sendParentVerificationEmail(opts: {
       </p>
     </td></tr>
     <tr><td style="padding:8px 0 24px">
-      <a href="${url}" style="display:inline-block;background:#F05A28;color:#fff;padding:14px 28px;border-radius:10px;font-weight:600;text-decoration:none;font-size:15px">Confirm ${childName}'s account →</a>
+      <a href="${url}" style="display:inline-block;background:#FB5A24;color:#fff;padding:14px 28px;border-radius:10px;font-weight:600;text-decoration:none;font-size:15px">Confirm ${childName}'s account →</a>
     </td></tr>
     <tr><td>
       <p style="margin:0 0 8px;font-size:13px;line-height:1.6;color:#718096">

@@ -44,7 +44,7 @@ function Shell({ children }: { children: React.ReactNode }) {
     <main className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-md rounded-2xl border border-black/5 bg-surface p-6 shadow-sm">
         <p className="text-lg font-bold">
-          <span style={{ color: '#F05A28' }}>DECIFER</span>{' '}
+          <span style={{ color: '#FB5A24' }}>DECIFER</span>{' '}
           <span className="text-ink">Learning</span>
         </p>
         {children}

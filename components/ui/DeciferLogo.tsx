@@ -36,7 +36,7 @@ interface DeciferLogoProps {
 }
 
 export function DeciferLogo({ size = 'md', product, className = '' }: DeciferLogoProps) {
-  const label = product ? `DECIFER ${product}` : 'DECIFER'
+  const label = product ? `Decifer ${product}` : 'Decifer'
   return (
     <span
       className={`inline-flex items-center ${GAP[size]} ${className}`}
@@ -49,7 +49,7 @@ export function DeciferLogo({ size = 'md', product, className = '' }: DeciferLog
           className={`font-sans font-bold text-ink ${WORDMARK_CLASS[size]}`}
           style={{ letterSpacing: '-0.02em' }}
         >
-          DECIFER
+          Decifer
         </span>
         {/* Descriptor: Geist Mono 600, uppercase, 0.18em, ink-3 */}
         {product && (

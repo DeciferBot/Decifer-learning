@@ -156,7 +156,7 @@ function buildEmailHtml(parentName: string, summaries: ChildSummary[]): string {
           </tr>
         </table>
         ${passNote ? `<p style="margin:4px 0;font-size:13px;color:#718096">${passNote}${digest.topicsCompleted > 0 ? ` · ${digest.topicsCompleted} topic${digest.topicsCompleted > 1 ? 's' : ''} completed` : ''}</p>` : ''}
-        ${actionsHtml ? `<p style="margin:10px 0 4px;font-size:13px;font-weight:600;color:#F05A28">What to do this week:</p>${actionsHtml}` : ''}
+        ${actionsHtml ? `<p style="margin:10px 0 4px;font-size:13px;font-weight:600;color:#FB5A24">What to do this week:</p>${actionsHtml}` : ''}
       </td></tr>`
     })
     .join('')
@@ -165,7 +165,7 @@ function buildEmailHtml(parentName: string, summaries: ChildSummary[]): string {
   <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:32px 16px">
   <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%">
     <tr><td style="padding-bottom:24px">
-      <span style="font-size:22px;font-weight:700;color:#F05A28">DECIFER</span>
+      <span style="font-size:22px;font-weight:700;color:#FB5A24">DECIFER</span>
       <span style="font-size:22px;font-weight:700;color:#2D3748"> Learning</span>
     </td></tr>
     <tr><td>
@@ -174,7 +174,7 @@ function buildEmailHtml(parentName: string, summaries: ChildSummary[]): string {
     </td></tr>
     ${childBlocks}
     <tr><td style="padding:24px 0 0">
-      <a href="https://www.deciferlearning.com/dashboard/parent" style="display:inline-block;background:#F05A28;color:#fff;padding:12px 24px;border-radius:10px;font-weight:600;text-decoration:none;font-size:14px">View full dashboard →</a>
+      <a href="https://www.deciferlearning.com/dashboard/parent" style="display:inline-block;background:#FB5A24;color:#fff;padding:12px 24px;border-radius:10px;font-weight:600;text-decoration:none;font-size:14px">View full dashboard →</a>
     </td></tr>
     <tr><td style="padding:24px 0 0;font-size:11px;color:#a0aec0;border-top:1px solid #eee;margin-top:24px">
       You're receiving this because you're a Decifer Learning parent.

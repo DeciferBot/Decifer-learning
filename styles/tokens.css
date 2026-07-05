@@ -460,6 +460,17 @@
   --brand-border:    rgba(251,90,36,.22);  /* badge / chip borders                 */
   --brand-shadow:    rgba(251,90,36,.28);  /* CTA button drop shadow               */
 
+  /* ── SECONDARY / TERTIARY BRAND ───────────────────────────
+     Ember leads, Indigo anchors, Green grows. Kept clear of the
+     subject colours (maths / english / science).
+     ───────────────────────────────────────────────────────── */
+  --indigo:        #2C3160;   /* secondary — focus, data                         */
+  --indigo-deep:   #131734;   /* dark-mode ground                                */
+  --indigo-soft:   #ECEDF6;   /* light tinted panels                             */
+  --green:         #1FA971;   /* tertiary — progress, mastery, success           */
+  --green-deep:    #15855A;
+  --green-soft:    #E3F5EC;
+
 
   /* ─────────────────────────────────────────────────────────
      V1 BACKWARD-COMPAT ALIASES
@@ -564,27 +575,33 @@
   --surface3:     #C4FFE5;
 }
 
+/* Night is Decifer's dark dialect: a deep, warm indigo ground rather than a
+   cold slate, with warm off-white text so the warmth carries into the dark.
+   Ember lifts to Ember Bright so it stays crisp and does not glow. */
 [data-theme="night"] {
-  --background:   #0F111A;
-  --surface:      #1A1D2E;
-  --surface2:     #222640;
-  --surface3:     #2A2F52;
-  --surface-raised:  #222640;
-  --surface-sunken:  #0C0E16;
-  --text-primary:    #E8E6F0;
-  --text-heading:    #E8E6F0;
-  --text-body:       #E8E6F0;
-  --text-secondary:  #A8A4BC;
-  --text-muted:      #6B6680;
-  --text-placeholder:#4A4560;
-  --text-disabled:   #3A3550;
-  --border-default:  rgba(232,230,240,.08);
-  --border-strong:   rgba(232,230,240,.15);
-  --ink:             #E8E6F0;
-  --ink-2:           #A8A4BC;
-  --ink-3:           #6B6680;
-  --ink-4:           #4A4560;
-  --divider:         rgba(232,230,240,.08);
+  --background:   #131734;   /* deep indigo, the secondary colour as the room */
+  --surface:      #1E2244;
+  --surface2:     #262E52;
+  --surface3:     #2E376A;
+  --surface-raised:  #1E2244;
+  --surface-sunken:  #0E1226;
+  --text-primary:    #ECE6DC;
+  --text-heading:    #ECE6DC;
+  --text-body:       #ECE6DC;
+  --text-secondary:  #B7B0C6;
+  --text-muted:      #938BA6;
+  --text-placeholder:#5A5578;
+  --text-disabled:   #46426A;
+  --border-default:  rgba(236,230,220,.10);
+  --border-strong:   rgba(236,230,220,.18);
+  --border-focus:    #FF7A4D;
+  --ink:             #ECE6DC;
+  --ink-2:           #B7B0C6;
+  --ink-3:           #938BA6;
+  --ink-4:           #5A5578;
+  --divider:         rgba(236,230,220,.10);
+  --indigo-soft:     rgba(138,143,224,.16);
+  --green:           #35C98C;   /* lifted so success reads on the dark ground */
   --shadow-card:     0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
   --shadow-hover:    0 4px 12px rgba(0,0,0,0.5), 0 2px 4px rgba(0,0,0,0.4);
   color-scheme: dark;

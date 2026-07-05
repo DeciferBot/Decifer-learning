@@ -51,7 +51,7 @@ export function renderOgCard(config: OgCardConfig) {
     headlineBottom,
     subtitle,
     pills,
-    accent = '#F05A28',
+    accent = '#FB5A24',
     pillTint = '#FEF0E8',
     brandWord = 'Learning',
   } = config

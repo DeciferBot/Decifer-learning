@@ -1,6 +1,6 @@
 # Decifer Learning — Brand Guidelines
 
-> Version 1.0 — Phase 10C: Product Experience and Brand System
+> Version 2.0 — Identity system: Ember / Indigo / Green palette, locked mark, mixed-case Decifer wordmark, warm Night dark theme, and voice rules.
 > This document defines the master brand, visual language, and tone of voice for Decifer Learning.
 > It supersedes any prior informal decisions and is the reference for all product design and content decisions.
 
@@ -49,6 +49,7 @@ Decifer is:
 ### Naming rules
 
 - Always capital D, lowercase ecifer: **Decifer**, never DECIFER or decifer.
+- The parent company and legal entity is styled **DECIFER** (all caps) on decifer.io and in legal documents. That is deliberate. Inside the Learning product UI and marketing, the wordmark is **Decifer**.
 - Do not use "Sproutlearn", "EduPlatform", or any deprecated name anywhere.
 - "Learning" can be dropped in product UI when context is clear, but never in marketing or help content.
 
@@ -82,9 +83,10 @@ Together they form the Decifer mark.
 
 ### Usage rules
 
-- The symbol always appears with brand orange (`#F97316`) applied to both brackets.
-- The wordmark "Decifer" appears to the right of the symbol in `ink` (`#2D3748`).
-- On coloured backgrounds, the wordmark may be white.
+- The symbol always appears in Ember (`#FB5A24`) applied to both brackets.
+- **The mark is a single locked SVG** (`components/ui/DeciferMark.tsx`), with the vertical offset baked into the path coordinates. Never re-create it by typing the `<` and `>` characters and nudging them with CSS. Always render the component, so the offset can never drift or go flat.
+- The wordmark is **Decifer** (mixed case, never DECIFER), to the right of the mark in `ink` (`#1F1A14`).
+- On coloured or dark backgrounds, the wordmark may be white or warm off-white.
 - Do not use the symbol without the wordmark in contexts where users are unfamiliar with the brand.
 - Do not use the symbol in ways that imply less-than or greater-than mathematical operators.
 
@@ -92,13 +94,33 @@ Together they form the Decifer mark.
 
 ## 6. Colour system
 
-### Brand accent
+### Brand colours
+
+Ember leads, Indigo anchors, Green grows. Ember is the one constant across light and dark, and across every DECIFER product.
 
 | Token | Hex | Use |
 |---|---|---|
-| `brand` | `#F97316` | Primary CTAs, links, active states, the brand mark, key highlights |
-| `brand-50` | `#FFF7ED` | Warm background tints, parent section backgrounds, callout panels |
-| `brand-600` | `#EA580C` | Hover states on brand-coloured buttons |
+| `ember` / `brand` | `#FB5A24` | Primary CTAs, links, active states, the mark, key highlights |
+| `ember-bright` | `#FF7A4D` | Hover, and the lifted Ember used on dark (Night) grounds |
+| `ember-deep` / `brand-600` | `#D63F11` | Pressed states, and small Ember text that needs AA contrast |
+
+**Indigo — secondary.** Focus, data and charts, and the dark-mode ground. Reads clearly darker than the Maths cobalt, so the two never get confused.
+
+| Token | Hex | Use |
+|---|---|---|
+| `indigo` | `#2C3160` | Secondary buttons, section headers, data |
+| `indigo-deep` | `#131734` | The Night (dark) ground |
+| `indigo-soft` | `#ECEDF6` | Light tinted panels |
+
+**Green — tertiary.** Progress, mastery and success. Green means one thing across the app, so it also carries the correct and mastered states.
+
+| Token | Hex | Use |
+|---|---|---|
+| `green` | `#1FA971` | Progress, mastery, success, correct |
+| `green-deep` | `#15855A` | Small green text that needs AA contrast |
+| `green-soft` | `#E3F5EC` | Light success tints |
+
+**Light and Night.** Light mode is warm paper (`#FDF8F2`). Night is deep indigo (`#131734`) with warm off-white text, not a cold slate. Ember stays the same idea in both, lifting to `#FF7A4D` on Night so it reads crisp.
 
 ### Subject colours
 
@@ -151,16 +173,16 @@ Subject colours are **fixed identifiers**, not decorative choices. Never swap th
 
 | Role | Font | Weight | Class |
 |---|---|---|---|
-| Display / hero headings | Nunito | Black (900) | `font-heading font-black` |
-| Section headings | Nunito | Bold (700) | `font-heading font-bold` |
-| Card titles | Nunito | Semibold (600) | `font-heading font-semibold` |
-| Body text | Inter | Regular (400) | `font-body` |
-| Labels / tags | Inter | Semibold (600) | `font-semibold uppercase tracking-wide` |
-| Captions / meta | Inter | Regular (400) | `text-xs text-muted` |
+| Display / hero headings | Geist Sans | Black (800–900) | `font-heading font-black` |
+| Section headings | Geist Sans | Bold (700) | `font-heading font-bold` |
+| Card titles | Geist Sans | Semibold (600) | `font-heading font-semibold` |
+| Body text | Geist Sans | Regular (400) | `font-body` |
+| Labels / eyebrows / data | Geist Mono | Semibold (600) | `font-mono uppercase tracking-wide` |
+| Human-insight accents | Instrument Serif (italic) | Regular (400) | `font-serif italic` |
 
 ### Rules
 
-- Nunito is the heading font. Inter is the body font. Do not introduce new fonts.
+- Geist Sans is the interface and heading font, Geist Mono is for labels, eyebrows and data, and Instrument Serif italic is reserved for occasional human-insight lines. The display face is under review as part of the identity work. Do not add other fonts without a decision.
 - Minimum body text size: `text-sm` (14px) for all reading text.
 - Minimum label text size: `text-xs` (12px) for short labels only — never for reading text.
 - Line length: `max-w-prose` or similar for reading passages. Never let text span the full screen width.
@@ -222,6 +244,14 @@ Do not mix radius scales within the same card.
 ---
 
 ## 12. Tone of voice
+
+### Writing style — hard rules
+
+- Plain, human English. Short, natural sentences that sound like a person wrote them.
+- No em dashes. Use commas, colons, or full stops instead.
+- Do not use the "not this, but this" construction.
+- No formulaic three-part lists, and no clipped one-word fragments for effect.
+- Say the thing directly. Specific beats clever. These rules apply to product copy and marketing alike.
 
 ### Core voice qualities
 

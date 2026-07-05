@@ -11,7 +11,7 @@ type IconType = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
 const BADGE_ICON: Record<string, { Icon: IconType; color: string }> = {
   'Topic Star':       { Icon: Star,    color: '#FFD43B' },
   'Perfect Score':    { Icon: Trophy,  color: '#FFC107' },
-  'Subject Champion': { Icon: Trophy,  color: '#F05A28' },
+  'Subject Champion': { Icon: Trophy,  color: '#FB5A24' },
   'Streak 7':         { Icon: Flame,   color: '#FF6B6B' },
   'Guardian Slayer':  { Icon: Swords,  color: '#6C9EFF' },
 }

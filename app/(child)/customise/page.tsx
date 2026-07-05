@@ -27,7 +27,7 @@ const THEMES = [
   { id: 'maths',   label: 'Maths',      bg: '#EFF4FF', accent: '#6C9EFF' },
   { id: 'english', label: 'English',    bg: '#FFF0F5', accent: '#FF8FAB' },
   { id: 'science', label: 'Science',    bg: '#EDFFF7', accent: '#52D9A0' },
-  { id: 'night',   label: 'Night',      bg: '#0F111A', accent: '#9B59B6' },
+  { id: 'night',   label: 'Night',      bg: '#131734', accent: '#FF7A4D' },
 ] as const
 
 // ── Page ─────────────────────────────────────────────────────────────────────
@@ -339,7 +339,7 @@ export default function CustomisePage() {
                   selected ? 'border-brand shadow-sm' : 'border-black/10 hover:border-brand/40'
                 }`}
                 style={{
-                  backgroundColor: isNight ? '#1A1D2E'
+                  backgroundColor: isNight ? '#1E2244'
                     : selected ? 'rgba(251,90,36,0.08)'
                     : 'rgba(0,0,0,0.02)',
                 }}
@@ -350,7 +350,7 @@ export default function CustomisePage() {
                 >
                   <div className="h-3 w-3 rounded-full" style={{ backgroundColor: t.accent }} />
                 </div>
-                <span className="text-[10px] font-semibold leading-tight" style={{ color: isNight ? '#A8A4BC' : undefined }}>
+                <span className="text-[10px] font-semibold leading-tight" style={{ color: isNight ? '#B7B0C6' : undefined }}>
                   {t.label}
                 </span>
               </button>
