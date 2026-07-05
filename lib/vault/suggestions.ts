@@ -105,7 +105,7 @@ export async function getRewardSuggestions(
     if (item) {
       addSuggestion(
         item,
-        `${subjectName ? subjectName + ' is' : 'This area is'} taking more effort — a reward can help sustain motivation.`,
+        `${subjectName ? subjectName + ' is' : 'This area is'} taking more effort, so a reward can help sustain motivation.`,
         'lower_accuracy',
       )
     }
@@ -128,7 +128,7 @@ export async function getRewardSuggestions(
         : 'Keeping up with'
       addSuggestion(
         item,
-        `${verb} ${subjectName || 'their learning'} — a reward to celebrate the effort.`,
+        `${verb} ${subjectName || 'their learning'}: a reward to celebrate the effort.`,
         sig.signalType === 'persistence' ? 'persistence' : 'interest',
       )
     }

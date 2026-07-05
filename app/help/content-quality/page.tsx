@@ -1,7 +1,7 @@
 import Link from 'next/link'
 
 export const metadata = {
-  title: 'Content quality — Decifer Learning',
+  title: 'Content quality',
   description:
     'How every Decifer question and lesson is verified before your child sees it: a six-stage pipeline with code-checked answers, independent AI review, age-appropriateness checks, and nightly monitoring.',
   alternates: { canonical: '/help/content-quality' },

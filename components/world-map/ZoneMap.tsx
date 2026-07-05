@@ -144,7 +144,7 @@ export function ZoneMap({ zoneId, zoneName, subjectName, theme, subjectColor, no
           <p className="flex items-center gap-2 font-heading font-bold text-ink">
             <FlagCheckered size={18} style={{ color: subjectColor }} /> Zone Checkpoint!
           </p>
-          <p className="mt-1 text-sm text-muted">Great progress — 3 quick questions to check you&apos;re on track.</p>
+          <p className="mt-1 text-sm text-muted">Great progress! 3 quick questions to check you&apos;re on track.</p>
           <Link
             href={`/topics/${checkpointTopicId}/checkpoint`}
             className="mt-3 inline-flex min-h-[48px] items-center justify-center rounded-xl bg-brand-600 px-6 py-2 font-heading font-bold text-white transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
@@ -160,7 +160,7 @@ export function ZoneMap({ zoneId, zoneName, subjectName, theme, subjectColor, no
           <p className="flex items-center justify-center gap-2 font-heading font-bold text-ink">
             <Swords size={18} className="text-points-gold-700" /> Zone Guardian Awakens!
           </p>
-          <p className="mt-1 text-sm text-muted">All topics complete — face the guardian!</p>
+          <p className="mt-1 text-sm text-muted">All topics complete. Face the guardian!</p>
           <Link
             href={`/guardian/${zoneId}`}
             className="mt-3 inline-flex min-h-[48px] items-center justify-center rounded-xl bg-brand-600 px-6 py-2 font-heading font-bold text-white transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"

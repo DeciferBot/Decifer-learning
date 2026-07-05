@@ -91,7 +91,7 @@ const particleWidget: ParticleModelWidget = {
   type: 'particle_model',
   position: 'end',
   config: {
-    title: 'States of matter — water',
+    title: 'States of matter: water',
     substance: 'water',
     start_state: 'solid',
     interactive: true,
@@ -104,27 +104,27 @@ export default function TestWidgetsPage() {
       <h1 className="font-heading text-2xl font-bold text-ink">Widget Test Page</h1>
 
       <section>
-        <h2 className="font-heading text-lg font-bold mb-2">DragLabel — Plant</h2>
+        <h2 className="font-heading text-lg font-bold mb-2">DragLabel: Plant</h2>
         <DragLabel widget={plantWidget} />
       </section>
 
       <section>
-        <h2 className="font-heading text-lg font-bold mb-2">DragLabel — Circle</h2>
+        <h2 className="font-heading text-lg font-bold mb-2">DragLabel: Circle</h2>
         <DragLabel widget={circleWidget} />
       </section>
 
       <section>
-        <h2 className="font-heading text-lg font-bold mb-2">DragLabel — Animal Cell</h2>
+        <h2 className="font-heading text-lg font-bold mb-2">DragLabel: Animal Cell</h2>
         <DragLabel widget={cellWidget} />
       </section>
 
       <section>
-        <h2 className="font-heading text-lg font-bold mb-2">SentenceBuilder — Fronted Adverbial</h2>
+        <h2 className="font-heading text-lg font-bold mb-2">SentenceBuilder: Fronted Adverbial</h2>
         <SentenceBuilder widget={sentenceWidget} />
       </section>
 
       <section>
-        <h2 className="font-heading text-lg font-bold mb-2">ParticleModel — States of Matter</h2>
+        <h2 className="font-heading text-lg font-bold mb-2">ParticleModel: States of Matter</h2>
         <ParticleModel widget={particleWidget} />
       </section>
     </div>

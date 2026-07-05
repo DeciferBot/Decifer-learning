@@ -12,7 +12,7 @@ type Props = {
 }
 
 export async function generateMetadata({ params }: Props) {
-  return { title: 'Lesson — Decifer Learning' }
+  return { title: 'Lesson' }
 }
 
 // Safe copy for any state where a child-facing lesson cannot be shown.

@@ -33,7 +33,7 @@ function copy(rawName: string, moment: BigMoment): { subject: string; line: stri
     case 'first_win':
       return {
         subject: `🎉 ${rawName} completed their first topic on Decifer!`,
-        line: `${rawName} just passed their very first quiz and earned their first Discovery Card. A great first step — a word of encouragement from you goes a long way right now.`,
+        line: `${rawName} just passed their very first quiz and earned their first Discovery Card. A great first step, and a word of encouragement from you goes a long way right now.`,
       }
     case 'badge':
       return {
@@ -43,7 +43,7 @@ function copy(rawName: string, moment: BigMoment): { subject: string; line: stri
     case 'guardian_win':
       return {
         subject: `⚔️ ${rawName} defeated a Zone Guardian!`,
-        line: `${rawName} beat ${moment.zoneName ? `the ${moment.zoneName} Guardian` : 'a Zone Guardian'} — a 15-question boss across a whole zone — and won a Legendary card. A big milestone!`,
+        line: `${rawName} beat ${moment.zoneName ? `the ${moment.zoneName} Guardian` : 'a Zone Guardian'} (a 15-question boss across a whole zone) and won a Legendary card. A big milestone!`,
       }
   }
 }

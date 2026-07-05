@@ -46,7 +46,7 @@ export async function sendParentVerificationEmail(opts: {
   // Subject + plain-text use the raw name; only the HTML body uses the escaped one.
   const subject =
     opts.kind === 'initial'
-      ? `${rawName} joined Decifer Learning — please confirm`
+      ? `${rawName} joined Decifer Learning: please confirm`
       : `Reminder: please confirm ${rawName}'s Decifer Learning account`
 
   const introText =
@@ -79,7 +79,7 @@ export async function sendParentVerificationEmail(opts: {
         ${childName}'s progress, set screen-time limits, and get weekly updates.
       </p>
       <p style="margin:0 0 8px;font-size:13px;line-height:1.6;color:#718096">
-        If you don't recognise this, you can safely ignore this email — or reply and we'll remove the account.
+        If you don't recognise this, you can safely ignore this email, or reply and we'll remove the account.
       </p>
     </td></tr>
     <tr><td style="padding:24px 0 0;font-size:11px;color:#a0aec0;border-top:1px solid #eee">

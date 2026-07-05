@@ -8,7 +8,7 @@ import type { NodeState } from '@/components/world-map/TopicNode'
 import { MapFold, Swords, ArrowRight } from '@/components/ui/icons'
 import Link from 'next/link'
 
-export const metadata = { title: 'World Map — Decifer Learning' }
+export const metadata = { title: 'World Map' }
 
 export const revalidate = 60
 
@@ -99,7 +99,7 @@ export default async function WorldMapPage() {
         <div className="rounded-2xl border border-black/5 bg-surface px-5 py-10 text-center shadow-sm">
           <div className="flex justify-center"><MapFold className="w-8 h-8 text-muted" aria-hidden /></div>
           <p className="mt-3 font-heading text-base font-bold text-ink">Your world map is being built</p>
-          <p className="mt-1 text-sm text-muted">Check back soon — your zones will appear here.</p>
+          <p className="mt-1 text-sm text-muted">Check back soon. Your zones will appear here.</p>
         </div>
       )}
 

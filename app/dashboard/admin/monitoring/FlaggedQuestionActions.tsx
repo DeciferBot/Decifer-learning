@@ -44,7 +44,7 @@ export function FlaggedQuestionActions({ questionId }: Props) {
       <button
         disabled={busy}
         onClick={() => act('reinstate')}
-        title="Reinstate — mark as published again"
+        title="Reinstate: mark as published again"
         className="inline-flex items-center gap-1 rounded-xl border border-correct/30 bg-correct/10 px-2.5 py-1 text-xs font-medium text-correct hover:bg-correct/20 disabled:opacity-50 transition-colors"
       >
         <RefreshCw className="w-3 h-3" aria-hidden />

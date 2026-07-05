@@ -29,7 +29,7 @@ import type { ComponentType, SVGProps } from 'react'
 
 type IconComponent = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
 
-export const metadata = { title: 'Parent dashboard — Decifer Learning' }
+export const metadata = { title: 'Parent dashboard' }
 
 const VAULT_STATUS_LABELS: Record<string, { label: string; colour: string; bg: string }> = {
   pending:         { label: 'Waiting for parent', colour: 'text-points-gold-700', bg: 'bg-points-gold/20' },
@@ -234,7 +234,7 @@ export default async function ParentDashboardPage() {
               {/* Weak areas — count only, detail is in full report */}
               {weakAreas.length > 0 ? (
                 <p className="text-xs text-incorrect font-medium">
-                  ⚠ {weakAreas.length} area{weakAreas.length === 1 ? '' : 's'} to strengthen — see full report
+                  ⚠ {weakAreas.length} area{weakAreas.length === 1 ? '' : 's'} to strengthen, see full report
                 </p>
               ) : progress.quizAttempts > 0 ? (
                 <p className="text-xs text-science font-medium flex items-center gap-1">

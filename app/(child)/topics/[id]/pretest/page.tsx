@@ -8,7 +8,7 @@ import { PreTestShell } from '@/components/quiz/PreTestShell'
 import type { QuizQuestion } from '@/components/quiz/QuizShell'
 
 export async function generateMetadata() {
-  return { title: 'Try It First — Decifer Learning' }
+  return { title: 'Try It First' }
 }
 
 export default async function PreTestPage({ params }: { params: { id: string } }) {

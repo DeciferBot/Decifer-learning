@@ -28,13 +28,13 @@ export function PhysicalRewardsToggle({ childId, initialEnabled }: Props) {
       .then(async (res) => {
         if (!res.ok) {
           const body = await res.json()
-          setError(body.error ?? 'Could not update — please try again')
+          setError(body.error ?? 'Could not update, please try again')
           setEnabled(!next)  // roll back
         } else {
           router.refresh()
         }
       })
-      .catch(() => { setError('Network error — please try again'); setEnabled(!next) })
+      .catch(() => { setError('Network error, please try again'); setEnabled(!next) })
       .finally(() => setSaving(false))
   }
 

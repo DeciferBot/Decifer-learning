@@ -181,7 +181,7 @@ function QuestionView({
             className={`mt-4 rounded-xl p-3 text-center ${correct ? 'bg-correct/10' : 'bg-incorrect/10'}`}
           >
             <p className={`font-bold ${correct ? 'text-correct-700' : 'text-rose-700'}`}>
-              {correct ? <span className="flex items-center justify-center gap-1"><Check className="w-4 h-4" aria-hidden /> Correct!</span> : `Not quite — ${question.label} is ${question.target}`}
+              {correct ? <span className="flex items-center justify-center gap-1"><Check className="w-4 h-4" aria-hidden /> Correct!</span> : `Not quite. ${question.label} is ${question.target}`}
             </p>
           </motion.div>
         )}

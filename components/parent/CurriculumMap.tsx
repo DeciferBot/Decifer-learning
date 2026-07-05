@@ -154,7 +154,7 @@ function WeakAreasPanel({ subjects, childProfileId }: { subjects: CurriculumSubj
         <span className="ml-auto text-xs text-[#B91C1C]/70 bg-[#FF6B6B]/15 px-2 py-0.5 rounded-full font-semibold">{weak.length} topic{weak.length !== 1 ? 's' : ''}</span>
       </div>
       {childProfileId && (
-        <p className="mb-3 text-[11px] text-[#B91C1C]/70">Tap the pin icon to pin a topic for your child — it appears on their dashboard as a focus area.</p>
+        <p className="mb-3 text-[11px] text-[#B91C1C]/70">Tap the pin icon to pin a topic for your child, and it appears on their dashboard as a focus area.</p>
       )}
       <div className="flex flex-col gap-1.5">
         {weak.map((t) => {

@@ -2,7 +2,7 @@ import { GuideCard } from '@/components/ui/GuideCard'
 import { Users, CircleCheck, Backpack, Star, Search, BookOpen } from '@/components/ui/icons'
 
 export const metadata = {
-  title: 'Help — Decifer Learning',
+  title: 'Help',
   description:
     'Guides for parents and students: set up and link accounts, understand how Decifer works, learn the gamification system, and see how content is quality-checked.',
   alternates: { canonical: '/help' },

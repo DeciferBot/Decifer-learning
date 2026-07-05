@@ -106,7 +106,7 @@ export async function GET(_req: Request, { params }: Params) {
 }
 
 function buildSummary(name: string, attempts: number, days: number, topics: number, points: number): string {
-  if (attempts === 0) return `${name} hasn't done any quizzes this week — maybe check in with them about starting a topic.`
+  if (attempts === 0) return `${name} hasn't done any quizzes this week, so maybe check in with them about starting a topic.`
   const daysWord = days === 1 ? '1 day' : `${days} days`
   const topicNote = topics > 0 ? ` and completed ${topics} topic${topics > 1 ? 's' : ''}` : ''
   return `${name} was active on ${daysWord} this week${topicNote}, earning ${points.toLocaleString()} points.`

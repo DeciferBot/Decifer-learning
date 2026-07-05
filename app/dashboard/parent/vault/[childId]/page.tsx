@@ -18,7 +18,7 @@ import type { ComponentType, SVGProps } from 'react'
 
 type IconComponent = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
 
-export const metadata = { title: 'Reward Vault — Decifer Learning' }
+export const metadata = { title: 'Reward Vault' }
 
 const BAND_CONFIG: Record<string, { label: string; Icon: IconComponent }> = {
   none:     { label: 'No milestone yet', Icon: Lock   },
@@ -151,7 +151,7 @@ export default async function ParentVaultPage({ params }: Params) {
           </li>
           <li className="flex items-start gap-2 text-sm text-muted">
             <span className="flex-none font-bold text-ink">3.</span>
-            <span>You decide — approve, suggest something different, save for later, or decline.</span>
+            <span>You decide: approve, suggest something different, save for later, or decline.</span>
           </li>
           <li className="flex items-start gap-2 text-sm text-muted">
             <span className="flex-none font-bold text-ink">4.</span>
@@ -278,7 +278,7 @@ export default async function ParentVaultPage({ params }: Params) {
               ))}
             </ul>
           ) : (
-            <p className="text-sm text-muted">No reward ideas set yet — add some using &ldquo;Edit ideas&rdquo; above.</p>
+            <p className="text-sm text-muted">No reward ideas set yet. Add some using &ldquo;Edit ideas&rdquo; above.</p>
           )}
         </div>
 
@@ -336,7 +336,7 @@ export default async function ParentVaultPage({ params }: Params) {
                           {FULFILMENT_TEXT[r.fulfilment.status] ?? r.fulfilment.status}
                         </p>
                       ) : (
-                        <p className="text-xs text-muted">Physical prize — awaiting dispatch from your family catalogue.</p>
+                        <p className="text-xs text-muted">Physical prize: awaiting dispatch from your family catalogue.</p>
                       )}
                     </div>
                   )}

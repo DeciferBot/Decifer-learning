@@ -38,7 +38,7 @@ export default function ExploreError({
     <div className="fixed inset-0 z-10 flex flex-col items-center justify-center gap-4 px-6 text-center" style={{ background: '#04060f' }}>
       <p className="text-5xl">🔭</p>
       <p className="font-heading text-lg font-bold text-white">This explorer hit a snag</p>
-      <p className="max-w-xs text-sm text-white/50">It’s not you — let’s try loading it again.</p>
+      <p className="max-w-xs text-sm text-white/50">It’s not you. Let’s try loading it again.</p>
       <div className="mt-2 flex flex-col items-center gap-3">
         <button
           onClick={() => { setRecovering(true); reset() }}

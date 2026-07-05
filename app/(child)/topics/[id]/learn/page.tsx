@@ -61,7 +61,7 @@ function parseFigures(raw: unknown): LearnFigure[] {
 }
 
 export async function generateMetadata({ params }: { params: { id: string } }) {
-  return { title: 'Learn — Decifer Learning' }
+  return { title: 'Learn' }
 }
 
 export default async function LearnPage({
@@ -145,7 +145,7 @@ export default async function LearnPage({
         <div className="rounded-2xl border border-black/5 bg-surface p-8 text-center space-y-3">
           <div className="flex justify-center"><BookOpen className="w-8 h-8 text-muted" aria-hidden /></div>
           <h1 className="font-heading text-xl font-bold text-ink">{topic.title}</h1>
-          <p className="text-sm text-muted">This lesson is being prepared — check back soon.</p>
+          <p className="text-sm text-muted">This lesson is being prepared. Check back soon.</p>
           <a
             href="/dashboard/child"
             className="inline-flex min-h-[48px] items-center rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white"

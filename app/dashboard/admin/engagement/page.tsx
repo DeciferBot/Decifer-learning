@@ -8,7 +8,7 @@ import { requireAdmin } from '@/lib/auth/admin-guard'
 import { prisma } from '@/lib/prisma'
 import { Users, TrendingUp, AlertTriangle, Flame, Bell, Sparkles, ScrollText } from '@/components/ui/icons'
 
-export const metadata = { title: 'Engagement — Decifer Admin' }
+export const metadata = { title: 'Engagement · Admin' }
 export const revalidate = 30
 
 const DAY = 86_400_000
@@ -19,7 +19,7 @@ const STRUGGLE_SCORE = 0.55       // avg score below this (with enough attempts)
 type Status = 'active' | 'dormant' | 'struggling' | 'never'
 
 function yearLabel(label: string | null | undefined): string {
-  if (!label) return '—'
+  if (!label) return '–'
   return label.replace(/^year-/, 'Y')
 }
 
@@ -168,9 +168,9 @@ export default async function AdminEngagementPage() {
                     {r.name} <span className="text-muted text-xs">{r.year}</span>
                   </td>
                   <td className="py-2 px-1 text-ink">{r.attempts}</td>
-                  <td className="py-2 px-1 text-ink">{r.avgPct !== null ? `${r.avgPct}%` : '—'}</td>
+                  <td className="py-2 px-1 text-ink">{r.avgPct !== null ? `${r.avgPct}%` : '–'}</td>
                   <td className="py-2 px-1 text-ink">{r.topics}</td>
-                  <td className="py-2 px-1 text-ink">{r.streak > 0 ? r.streak : '—'}</td>
+                  <td className="py-2 px-1 text-ink">{r.streak > 0 ? r.streak : '–'}</td>
                   <td className="py-2 px-1">
                     {r.hasParent
                       ? <span className="text-correct text-xs">Linked</span>
@@ -190,13 +190,13 @@ export default async function AdminEngagementPage() {
         icon={<AlertTriangle className={`w-4 h-4 ${duplicates.length ? 'text-incorrect' : 'text-muted'}`} aria-hidden />}
       >
         {duplicates.length === 0 ? (
-          <p className="text-sm text-muted">No children share a name — nothing to merge.</p>
+          <p className="text-sm text-muted">No children share a name, so there is nothing to merge.</p>
         ) : (
           <ul className="space-y-1.5 text-sm text-ink">
             {duplicates.map((g, i) => (
               <li key={i} className="flex items-center gap-2">
                 <span className="font-medium">{g[0]}</span>
-                <span className="text-xs text-incorrect">×{g.length} accounts — review &amp; merge</span>
+                <span className="text-xs text-incorrect">×{g.length} accounts: review &amp; merge</span>
               </li>
             ))}
           </ul>
@@ -208,19 +208,19 @@ export default async function AdminEngagementPage() {
         <div className="space-y-2">
           <EmailRow
             icon={<Sparkles className="w-4 h-4 text-explorer" aria-hidden />}
-            title="Activation nudge — kids who never played"
+            title="Activation nudge: kids who never played"
             desc="Parent if linked, else the child · every 3 days, max 3"
             stat={`${neverPlayed} eligible · ${activationSent} sent`}
           />
           <EmailRow
             icon={<Bell className="w-4 h-4 text-lightning" aria-hidden />}
-            title="Come-back reminder — kids gone idle"
+            title="Come-back reminder: kids gone idle"
             desc="Parent if linked, else the child · after 7 days idle"
             stat={`${dormant} eligible · ${comebackSent} sent`}
           />
           <EmailRow
             icon={<ScrollText className="w-4 h-4 text-correct" aria-hidden />}
-            title="Parent report card — weekly progress"
+            title="Parent report card: weekly progress"
             desc="Every Monday · per-child stats, weak areas, next steps"
             stat={`${uniqueParents} parents`}
           />

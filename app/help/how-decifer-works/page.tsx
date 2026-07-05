@@ -6,7 +6,7 @@ import type { ComponentType, SVGProps } from 'react'
 type IconComp = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
 
 export const metadata = {
-  title: 'How Decifer works — Decifer Learning',
+  title: 'How Decifer works',
   description:
     'The thinking behind Decifer: the three-stage Learn, Practise, Quiz loop, adaptive difficulty, spaced repetition, and how content maps to the UK National Curriculum from Year 1 to GCSE.',
   alternates: { canonical: '/help/how-decifer-works' },

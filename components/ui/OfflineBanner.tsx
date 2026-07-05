@@ -44,7 +44,7 @@ export function OfflineBanner() {
       {syncing ? (
         <span>↻ Syncing results…</span>
       ) : (
-        <span>Offline — quizzes will sync when you reconnect</span>
+        <span>Offline: quizzes will sync when you reconnect</span>
       )}
     </div>
   )

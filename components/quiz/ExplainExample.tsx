@@ -19,8 +19,8 @@ type Props = {
 type PartState = 'unanswered' | 'correct' | 'wrong'
 
 const STEP_LABELS: Record<'example' | 'explain', { label: string; colour: string; icon: string }> = {
-  example: { label: 'Step 1 — Give an example', colour: 'border-maths/40 bg-maths/5', icon: '📌' },
-  explain: { label: 'Step 2 — Explain why', colour: 'border-science/40 bg-science/5', icon: '💡' },
+  example: { label: 'Step 1: Give an example', colour: 'border-maths/40 bg-maths/5', icon: '📌' },
+  explain: { label: 'Step 2: Explain why', colour: 'border-science/40 bg-science/5', icon: '💡' },
 }
 
 export default function ExplainExample({ parts, onAnswer, disabled }: Props) {
@@ -154,7 +154,7 @@ export default function ExplainExample({ parts, onAnswer, disabled }: Props) {
           className="rounded-xl bg-surface border border-ink/10 p-3 text-sm text-muted"
         >
           {states.every((s) => s === 'correct')
-            ? 'Both parts correct — great exam technique!'
+            ? 'Both parts correct. Great exam technique!'
             : `${states.filter((s) => s === 'correct').length} of ${parts.length} parts correct. Remember: a strong answer needs both a specific example AND an explanation.`}
         </motion.div>
       )}

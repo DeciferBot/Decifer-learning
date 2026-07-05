@@ -72,7 +72,7 @@ export function GuardianBattleHeader({ zoneName, questionCount }: Props) {
           style={{ color: 'var(--guardian-bdr)' }}
         >
           <Shield size={14} aria-hidden />
-          {questionCount} questions — defeat them all to claim a Legendary card
+          {questionCount} questions: defeat them all to claim a Legendary card
         </motion.p>
       </div>
     </div>

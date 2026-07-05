@@ -34,7 +34,7 @@ export function AskDecifer({ aid, initialContext, yearGroup, onAskCountChange }:
     setMessages(prev => {
       const greeting = prev.length === 0
         ? `Hi! I'm Decifer 👋 I can see you're looking at ${initialContext}. What would you like to know?`
-        : `Sure! Switching to ${initialContext} — what do you want to know?`
+        : `Sure! Switching to ${initialContext}. What do you want to know?`
       return [...prev, { role: 'assistant', content: greeting }]
     })
   }, [initialContext]) // eslint-disable-line react-hooks/exhaustive-deps

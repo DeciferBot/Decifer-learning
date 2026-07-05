@@ -3,7 +3,7 @@ import { Suspense } from 'react'
 import { LoginForm } from './LoginForm'
 
 export const metadata = {
-  title: 'Sign in — Decifer Learning',
+  title: 'Sign in',
   robots: { index: false, follow: false },
 }
 

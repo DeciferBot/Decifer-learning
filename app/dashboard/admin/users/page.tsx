@@ -12,7 +12,7 @@ import { MVP_YEAR_GROUPS } from '@/lib/auth/roles'
 import { Users, TrendingUp, Clock, GraduationCap } from '@/components/ui/icons'
 import { UsersTable, type UserRow } from './UsersTable'
 
-export const metadata = { title: 'Users & Activity — Admin' }
+export const metadata = { title: 'Users & Activity | Admin' }
 export const revalidate = 60
 
 const DAY = 86_400_000
@@ -30,7 +30,7 @@ const dayMonthFmt = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 's
 
 // "5m ago" / "3h ago" / "2d ago" / "—"
 function relativeTime(date: Date | null, now: number): string {
-  if (!date) return '—'
+  if (!date) return '–'
   const diff = now - date.getTime()
   if (diff < 60_000) return 'just now'
   if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}m ago`
@@ -135,7 +135,7 @@ export default async function AdminUsersPage() {
 
   // ── Rows for the table ──
   const rows: UserRow[] = profiles.map((p) => {
-    let relation = '—'
+    let relation = '–'
     if (p.role === 'child') {
       const parentName = p.family_as_child[0]?.parent?.display_name
       relation = parentName ? `Parent: ${parentName}` : 'No parent linked'

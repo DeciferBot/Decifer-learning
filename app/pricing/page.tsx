@@ -4,7 +4,7 @@ import { DeciferLogo } from '@/components/ui/DeciferLogo'
 import { UpgradeButton } from '@/components/ui/UpgradeButton'
 
 export const metadata: Metadata = {
-  title: 'Pricing — Decifer Learning',
+  title: 'Pricing',
   description:
     'Start free with 3 Maths topics. Upgrade for unlimited access to all five subjects: Maths, English, Science, History and Geography, across Years 1 to 11. Simple AED pricing.',
   alternates: { canonical: '/pricing' },

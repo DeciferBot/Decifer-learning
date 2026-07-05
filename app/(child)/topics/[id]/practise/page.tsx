@@ -37,7 +37,7 @@ type GameRow = {
 }
 
 export async function generateMetadata() {
-  return { title: 'Practise — Decifer Learning' }
+  return { title: 'Practise' }
 }
 
 export default async function PractisePage({ params }: { params: { id: string } }) {

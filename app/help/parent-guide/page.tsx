@@ -4,7 +4,7 @@ import type { ComponentType, SVGProps } from 'react'
 type IconComp = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
 
 export const metadata = {
-  title: 'Parent guide — Decifer Learning',
+  title: 'Parent guide',
   description:
     'Set up your child\'s account, link it to yours, and read the learning map. How to see strengths, areas to strengthen, and next steps across the UK National Curriculum, Years 1 to 11.',
   alternates: { canonical: '/help/parent-guide' },

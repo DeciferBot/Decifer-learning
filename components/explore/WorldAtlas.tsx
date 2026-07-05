@@ -221,7 +221,7 @@ const WONDER_CONTENT: Record<AtlasWonderType, { title: string; description: stri
       <div className="grid grid-cols-1 gap-2 mt-4">
         {[
           { name: 'Tropical', emoji: '🌴', desc: 'Hot & wet year-round. 40% of Earth\'s species live here.', color: '#059669' },
-          { name: 'Arid', emoji: '🏜️', desc: 'Hot & dry. Covers 30% of land — the Sahara, Arabian, Gobi.', color: '#D97706' },
+          { name: 'Arid', emoji: '🏜️', desc: 'Hot & dry. Covers 30% of land: the Sahara, Arabian, Gobi.', color: '#D97706' },
           { name: 'Temperate', emoji: '🌿', desc: 'Mild seasons. Where most of Europe and China sit.', color: '#2563EB' },
           { name: 'Continental', emoji: '❄️', desc: 'Extreme seasons. Canada, Russia, Scandinavia.', color: '#7C3AED' },
           { name: 'Polar', emoji: '🧊', desc: 'Frozen year-round. Barely 0.1% of humans live here.', color: '#94A3B8' },
@@ -274,7 +274,7 @@ const WONDER_CONTENT: Record<AtlasWonderType, { title: string; description: stri
   },
   language: {
     title: 'World\'s Languages',
-    description: 'Over 7,000 languages — half may disappear this century',
+    description: 'Over 7,000 languages, half may disappear this century',
     render: () => (
       <div className="space-y-2 mt-4">
         {[

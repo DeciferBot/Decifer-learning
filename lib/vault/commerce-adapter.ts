@@ -45,7 +45,7 @@ export class NullCommerceAdapter implements CommerceAdapter {
     return {
       externalOrderId: null,
       status: 'manual',
-      message: 'Manual fulfilment — no commerce adapter active',
+      message: 'Manual fulfilment, no commerce adapter active',
     }
   }
 

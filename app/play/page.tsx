@@ -8,17 +8,17 @@ import { PlayHome, type HostSubject, type YearGroupOption } from '@/components/l
 // Own OG card (see app/play/opengraph-image.tsx) so a shared host link previews
 // as Decifer Blitz, not the home page.
 export const metadata: Metadata = {
-  title: 'Host a Decifer Blitz — Live quiz battle',
+  title: 'Host a Decifer Blitz | Live quiz battle',
   description:
     'Start a live, Kahoot-style quiz battle in 30 seconds. UK curriculum questions, no accounts for players, works on any device.',
   openGraph: {
-    title: 'Host a Decifer Blitz — Live quiz battle',
+    title: 'Host a Decifer Blitz | Live quiz battle',
     description:
       'Start a live, Kahoot-style quiz battle in 30 seconds. No accounts for players, works on any device.',
     url: 'https://www.deciferlearning.com/play',
   },
   twitter: {
-    title: 'Host a Decifer Blitz — Live quiz battle',
+    title: 'Host a Decifer Blitz | Live quiz battle',
     description:
       'Start a live, Kahoot-style quiz battle in 30 seconds. No accounts for players, works on any device.',
   },

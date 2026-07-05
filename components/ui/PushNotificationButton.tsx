@@ -69,7 +69,7 @@ export function PushNotificationButton() {
   if (state === 'denied') {
     return (
       <p className="flex items-center gap-1.5 text-xs text-muted">
-        <Bell size={14} aria-hidden /> Notifications blocked — enable in browser settings
+        <Bell size={14} aria-hidden /> Notifications blocked. Enable in browser settings
       </p>
     )
   }

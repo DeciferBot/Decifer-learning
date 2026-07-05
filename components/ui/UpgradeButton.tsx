@@ -51,8 +51,8 @@ export function UpgradeButton({ className, children, plan = 'family' }: Props) {
           ? 'Redirecting to checkout…'
           : (children ??
             (plan === 'per_child'
-              ? 'Choose Per Child — AED 350/child/mo'
-              : 'Upgrade to Family — AED 500/mo'))}
+              ? 'Choose Per Child: AED 350/child/mo'
+              : 'Upgrade to Family: AED 500/mo'))}
       </button>
       {error ? <p className="mt-2 text-center text-sm text-incorrect">{error}</p> : null}
     </div>

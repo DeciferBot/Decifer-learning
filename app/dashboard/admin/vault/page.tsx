@@ -5,7 +5,7 @@ import { getAllRequests, getVaultStats } from '@/lib/vault/admin'
 import { FulfilmentControls } from './FulfilmentControls'
 import { Gift, Package, Truck } from '@/components/ui/icons'
 
-export const metadata = { title: 'Vault Admin — Decifer Learning' }
+export const metadata = { title: 'Vault Admin' }
 
 export default async function AdminVaultPage() {
   await requireAdmin()

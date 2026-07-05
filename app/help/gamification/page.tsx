@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { Star, Medal, Flame, Shield, Layers, Target, CircleX, Check } from '@/components/ui/icons'
 
 export const metadata = {
-  title: 'Gamification explained — Decifer Learning',
+  title: 'Gamification explained',
   description:
     'How XP, badges, streaks, Streak Shields and Discovery Cards work in Decifer: rewards tied to real learning effort and progress, never spending or pressure.',
   alternates: { canonical: '/help/gamification' },

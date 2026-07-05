@@ -1,6 +1,6 @@
 import { ogContentType, ogSize, renderBlitzOgCard } from '@/lib/og'
 
-export const alt = 'Decifer Blitz — live quiz battles'
+export const alt = 'Decifer Blitz · live quiz battles'
 export const size = ogSize
 export const contentType = ogContentType
 

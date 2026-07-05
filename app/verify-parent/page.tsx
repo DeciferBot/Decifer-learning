@@ -9,7 +9,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 
-export const metadata = { title: 'Confirm your child’s account — Decifer Learning' }
+export const metadata = { title: 'Confirm your child’s account' }
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
@@ -66,7 +66,7 @@ export default async function VerifyParentPage({
       <Shell>
         <h1 className="mt-4 font-heading text-xl font-bold text-ink">All confirmed ✓</h1>
         <p className="mt-2 text-sm leading-relaxed text-muted">
-          Thank you — we&apos;ve recorded your confirmation.
+          Thank you. We&apos;ve recorded your confirmation.
         </p>
         <p className="mt-3 text-sm leading-relaxed text-muted">
           Want to follow your child&apos;s progress, set screen-time limits, and get weekly
@@ -143,7 +143,7 @@ export default async function VerifyParentPage({
           type="submit"
           className="flex h-12 w-full items-center justify-center rounded-lg bg-maths font-semibold text-white transition active:scale-[0.98]"
         >
-          Confirm — I’m {childName}’s parent or guardian
+          Confirm: I’m {childName}’s parent or guardian
         </button>
       </form>
       <p className="mt-3 text-xs leading-relaxed text-muted">

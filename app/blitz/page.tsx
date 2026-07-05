@@ -2,16 +2,16 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Decifer Blitz — Live quiz battles for the classroom and home',
+  title: 'Decifer Blitz | Live quiz battles for the classroom and home',
   description:
     'Run a real-time quiz battle in 30 seconds. UK curriculum questions, no accounts needed, works on any device. Perfect for teachers and parents.',
   openGraph: {
-    title: 'Decifer Blitz — Live quiz battles',
+    title: 'Decifer Blitz | Live quiz battles',
     description: 'Real-time quiz battles aligned to the UK National Curriculum. No accounts needed.',
     url: 'https://deciferlearning.com/blitz',
   },
   twitter: {
-    title: 'Decifer Blitz — Live quiz battles',
+    title: 'Decifer Blitz | Live quiz battles',
     description: 'Real-time quiz battles aligned to the UK National Curriculum. No accounts needed.',
   },
 }

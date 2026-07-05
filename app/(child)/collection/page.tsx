@@ -4,7 +4,7 @@ import { createSupabaseServerClient, getAuthUser } from '@/lib/supabase/server'
 import { getCurrentProfile } from '@/lib/profile'
 import { CollectionGrid } from './CollectionGrid'
 
-export const metadata = { title: 'My Collection — Decifer Learning' }
+export const metadata = { title: 'My Collection' }
 
 export default async function CollectionPage() {
   const supabase = createSupabaseServerClient()

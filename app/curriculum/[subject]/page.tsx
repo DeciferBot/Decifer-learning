@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const keyStages = [...new Set(detail.years.map((y) => y.keyStage))].join(', ')
   return {
-    title: `${detail.name} curriculum — Year 1 to Year 11`,
+    title: `${detail.name} curriculum · Year 1 to Year 11`,
     description: `Every ${detail.name} topic in Decifer Learning: ${detail.topicCount} topics across the UK National Curriculum (${keyStages}). Quality-checked and mapped year by year.`,
     alternates: { canonical: `/curriculum/${detail.slug}` },
   }
@@ -37,7 +37,7 @@ export default async function SubjectCurriculumPage({ params }: Props) {
   const courseJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Course',
-    name: `${detail.name} — UK National Curriculum`,
+    name: `${detail.name}: UK National Curriculum`,
     description: `Quality-checked ${detail.name} covering ${detail.topicCount} topics from Year 1 to Year 11.`,
     url: `${BASE}/curriculum/${detail.slug}`,
     provider: { '@type': 'EducationalOrganization', name: 'Decifer Learning', url: BASE },

@@ -9,7 +9,7 @@ import Link from 'next/link'
 import { BarChart, Check } from '@/components/ui/icons'
 import MathText from '@/components/ui/MathText'
 
-export const metadata = { title: 'Difficulty Calibration — Admin' }
+export const metadata = { title: 'Difficulty Calibration | Admin' }
 export const revalidate = 60
 
 const MIN_ANSWERS = 20
@@ -151,7 +151,7 @@ export default async function CalibrationPage() {
         <div className="rounded-2xl border border-correct/20 bg-correct/5 px-6 py-8 text-center shadow-sm">
           <p className="font-heading text-base font-semibold text-correct flex items-center justify-center gap-1"><Check className="w-4 h-4" aria-hidden /> All calibrated</p>
           <p className="mt-1 text-sm text-muted">
-            {totalWithData} question{totalWithData === 1 ? '' : 's'} analysed — none outside the difficulty thresholds.
+            {totalWithData} question{totalWithData === 1 ? '' : 's'} analysed, none outside the difficulty thresholds.
           </p>
         </div>
       ) : (
@@ -205,7 +205,7 @@ function FlagBadge({ flag, wrongRate }: { flag: 'too_hard' | 'too_easy'; wrongRa
         isTooHard ? 'bg-incorrect/20 text-incorrect' : 'bg-lightning/30 text-ink'
       }`}
     >
-      {isTooHard ? 'Too hard' : 'Too easy'} — {Math.round(wrongRate * 100)}% wrong
+      {isTooHard ? 'Too hard' : 'Too easy'}: {Math.round(wrongRate * 100)}% wrong
     </span>
   )
 }

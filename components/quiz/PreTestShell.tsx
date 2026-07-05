@@ -62,7 +62,7 @@ export function PreTestShell({ question, nextHref, nextLabel }: Props) {
             className="rounded-2xl border border-black/5 bg-surface p-6 shadow-sm"
           >
             <p className="mb-2 text-sm font-bold text-muted">
-              Have a go — don&apos;t worry if you&apos;re not sure yet!
+              Have a go, don&apos;t worry if you&apos;re not sure yet!
             </p>
             <p className="mb-5 font-heading text-xl font-bold leading-snug text-ink">
               <MathText text={question.question_text} />
@@ -110,7 +110,7 @@ export function PreTestShell({ question, nextHref, nextLabel }: Props) {
               >
                 {isCorrect
                   ? <span className="flex items-center gap-1"><Check className="w-4 h-4" aria-hidden /> You got it! Great intuition.</span>
-                  : <>Not quite — the answer is <MathText text={question.correct_answer} /></>}
+                  : <>Not quite. The answer is <MathText text={question.correct_answer} /></>}
               </p>
               {question.explanation && (
                 <p className="mt-2 text-sm text-muted"><MathText text={question.explanation} /></p>
@@ -122,7 +122,7 @@ export function PreTestShell({ question, nextHref, nextLabel }: Props) {
               <p className="font-heading font-bold text-ink">
                 {isCorrect
                   ? 'You already have good instincts. Now see the full explanation:'
-                  : "Now let's understand why — read on and it'll make sense:"}
+                  : "Now let's understand why. Read on and it'll make sense:"}
               </p>
               <a
                 href={nextHref}

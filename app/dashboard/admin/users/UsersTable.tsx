@@ -266,7 +266,7 @@ export function UsersTable({ rows }: { rows: UserRow[] }) {
                         ))}
                       </select>
                     ) : (
-                      r.yearGroup ?? '—'
+                      r.yearGroup ?? '–'
                     )}
                   </td>
                   <td className="px-4 py-3 text-right font-mono text-ink">{r.points.toLocaleString()}</td>

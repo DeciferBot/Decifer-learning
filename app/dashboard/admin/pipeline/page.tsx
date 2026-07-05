@@ -8,7 +8,7 @@ import { getAuthUser } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import { PipelinePanel, type TopicOption } from './PipelinePanel'
 
-export const metadata = { title: 'Pipeline — Decifer Learning' }
+export const metadata = { title: 'Pipeline' }
 export const dynamic = 'force-dynamic'
 
 export default async function PipelineAdminPage() {

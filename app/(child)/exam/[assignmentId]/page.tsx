@@ -115,7 +115,7 @@ export default function ExamSessionPage({
       if (res.ok) {
         router.push(`/exam/${params.assignmentId}/result?attemptId=${attempt.attemptId}`)
       } else {
-        setErrorMsg('Could not submit exam. Your answers are saved — please try again.')
+        setErrorMsg('Could not submit exam. Your answers are saved, please try again.')
         setState('error')
       }
     },

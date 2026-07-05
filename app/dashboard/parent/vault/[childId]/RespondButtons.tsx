@@ -97,7 +97,7 @@ export function RespondButtons({
   if (done) {
     return (
       <div className="rounded-2xl border border-correct/20 bg-correct/5 p-4">
-        <p className="text-sm font-bold text-correct">Done — syncing…</p>
+        <p className="text-sm font-bold text-correct">Done: syncing…</p>
       </div>
     )
   }

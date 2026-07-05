@@ -147,7 +147,7 @@ export function DragDrop({ config, topicId }: { config: DragDropConfig; topicId:
               // Tap-to-select (pointer/keyboard alternative — WCAG 2.5.7)
               onClick={() => handleDefClick(def)}
               aria-pressed={selected === def}
-              aria-label={selected === def ? `${def} — selected, tap a slot to place` : def}
+              aria-label={selected === def ? `${def}, selected, tap a slot to place` : def}
               className={[
                 'rounded-xl border-2 px-3 py-2 text-sm font-medium select-none transition-colors',
                 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink',
@@ -198,7 +198,7 @@ export function DragDrop({ config, topicId }: { config: DragDropConfig; topicId:
               onClick={() => handleSlotClick(i)}
               aria-label={
                 slots[i]
-                  ? `${pair.term} matched with "${slots[i]}" — ${slotState[i] === 'correct' ? 'correct' : slotState[i] === 'incorrect' ? 'incorrect' : 'tap to remove'}`
+                  ? `${pair.term} matched with "${slots[i]}", ${slotState[i] === 'correct' ? 'correct' : slotState[i] === 'incorrect' ? 'incorrect' : 'tap to remove'}`
                   : selected
                   ? `Place "${selected}" here for ${pair.term}`
                   : `Empty slot for ${pair.term}`
@@ -229,7 +229,7 @@ export function DragDrop({ config, topicId }: { config: DragDropConfig; topicId:
             className="text-center text-sm text-muted"
             aria-live="polite"
           >
-            {score} correct — fix the highlighted ones and try again!
+            {score} correct. Fix the highlighted ones and try again!
           </motion.p>
         )}
       </AnimatePresence>

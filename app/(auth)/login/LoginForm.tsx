@@ -361,7 +361,7 @@ function PinLoginForm({ redirectTo }: { redirectTo: string }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4" noValidate>
       <p className="text-sm text-muted">
-        For children whose account was set up by a parent — enter your name and PIN.
+        For children whose account was set up by a parent: enter your name and PIN.
       </p>
       <label className="block">
         <span className="text-sm font-medium">Your name</span>

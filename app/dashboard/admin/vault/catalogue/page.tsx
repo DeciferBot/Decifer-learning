@@ -4,7 +4,7 @@ import { requireAdmin } from '@/lib/auth/admin-guard'
 import { getAllCatalogueItems } from '@/lib/vault/catalogue'
 import { CataloguePanel } from './CataloguePanel'
 
-export const metadata = { title: 'Prize Catalogue — Vault Admin — Decifer Learning' }
+export const metadata = { title: 'Prize Catalogue · Vault Admin' }
 
 export default async function AdminVaultCataloguePage() {
   await requireAdmin()
@@ -27,7 +27,7 @@ export default async function AdminVaultCataloguePage() {
 
       <div className="rounded-2xl border border-points-gold/20 bg-points-gold/5 p-4 text-sm text-muted">
         <strong className="text-ink">Admin note:</strong> Price information is for admin reference only and is never
-        shown to children or parents. Physical prizes require manual fulfilment — no automated ordering in Stage 2.
+        shown to children or parents. Physical prizes require manual fulfilment, with no automated ordering in Stage 2.
       </div>
 
       <CataloguePanel items={items} />

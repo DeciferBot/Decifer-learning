@@ -77,7 +77,7 @@ export default function StructuredAnswer({ criteria, questionId, onAnswer, disab
       {phase === 'writing' && (
         <div className="rounded-xl border border-ink/10 bg-surface p-3 space-y-1">
           <p className="text-xs font-bold text-muted uppercase tracking-wide">
-            {marksAvailable} mark{marksAvailable !== 1 ? 's' : ''} available — try to cover:
+            {marksAvailable} mark{marksAvailable !== 1 ? 's' : ''} available. Try to cover:
           </p>
           <ul className="space-y-1">
             {criteria.map((c, i) => (
@@ -155,7 +155,7 @@ export default function StructuredAnswer({ criteria, questionId, onAnswer, disab
             className="space-y-3 rounded-xl bg-incorrect/10 border border-incorrect/30 p-4"
           >
             <p className="text-sm font-semibold text-incorrect">
-              Couldn&apos;t mark this time — please try again.
+              Couldn&apos;t mark this time, please try again.
             </p>
             <button
               onClick={retry}

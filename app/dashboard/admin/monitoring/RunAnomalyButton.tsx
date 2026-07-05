@@ -47,14 +47,14 @@ export function RunAnomalyButton() {
       </button>
       {result !== null && (
         <span className="text-xs text-muted">
-          Done —{' '}
+          Done:{' '}
           {result.total === 0
             ? 'no new issues found ✓'
             : <>flagged <strong className="text-ink">{result.total}</strong> question{result.total !== 1 ? 's' : ''} ({result.flagged_high_error} error rate · {result.flagged_high_hint} hint rate · {result.flagged_missing_visual} missing visual)</>
           }
         </span>
       )}
-      {error && <span className="text-xs text-incorrect">Run failed — check server logs</span>}
+      {error && <span className="text-xs text-incorrect">Run failed, check server logs</span>}
     </div>
   )
 }

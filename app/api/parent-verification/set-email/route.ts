@@ -45,7 +45,7 @@ export async function POST(req: Request) {
   ) {
     return NextResponse.json(
       {
-        error: 'We emailed your parent or guardian recently — please wait a day before changing the address.',
+        error: 'We emailed your parent or guardian recently, so please wait a day before changing the address.',
         code: 'CHANGE_THROTTLED',
       },
       { status: 429 },

@@ -18,7 +18,7 @@ import { getVaultStatus } from '@/lib/vault/status'
 import { NewParentLinkNotice } from './NewParentLinkNotice'
 import { MapFold, Layers, Star, Target, Trophy, PencilLine, Microscope, BookOpen, Gift, Flame, Zap, MapPin, RefreshCw, Shield, Compass } from '@/components/ui/icons'
 
-export const metadata = { title: 'Dashboard — Decifer Learning' }
+export const metadata = { title: 'Dashboard' }
 
 // Re-render at most once per 60 s; stale data served instantly from cache.
 // Points/streak come from the profile row which updates on quiz submit, so

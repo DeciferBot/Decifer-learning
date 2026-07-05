@@ -7,7 +7,7 @@ import { getVaultStatus } from '@/lib/vault/status'
 import { RequestSection } from './RequestSection'
 import { BookOpen, Trophy, Gift, Lightbulb, Dragon, Lock, Medal, Star, Gem } from '@/components/ui/icons'
 
-export const metadata = { title: 'Reward Vault — Decifer Learning' }
+export const metadata = { title: 'Reward Vault' }
 
 const BAND_CONFIG = {
   none:     { label: 'No milestone yet', Icon: Lock,   colour: 'bg-black/5 text-muted' },
@@ -84,7 +84,7 @@ export default async function VaultPage() {
       <div>
         <h1 className="font-heading text-2xl font-bold text-ink">Reward Vault</h1>
         <p className="mt-1 text-sm text-muted">
-          Keep learning to reach milestones — then ask your parent for a reward.
+          Keep learning to reach milestones, then ask your parent for a reward.
         </p>
       </div>
 
@@ -111,7 +111,7 @@ export default async function VaultPage() {
               <Gift className="flex-none w-5 h-5 text-muted mt-0.5" aria-hidden />
               <div>
                 <p className="text-sm font-semibold text-ink">Ask your parent</p>
-                <p className="text-xs text-muted">Send a request and your parent will decide on the reward — together.</p>
+                <p className="text-xs text-muted">Send a request and your parent will decide on the reward, together.</p>
               </div>
             </li>
           </ol>

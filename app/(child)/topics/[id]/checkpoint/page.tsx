@@ -11,7 +11,7 @@ import { FlagCheckered } from '@/components/ui/icons'
 // (checkpoints are assessment gates, not reward moments).
 
 export async function generateMetadata() {
-  return { title: 'Zone Checkpoint — Decifer Learning' }
+  return { title: 'Zone Checkpoint' }
 }
 
 export default async function CheckpointPage({ params }: { params: { id: string } }) {
@@ -68,7 +68,7 @@ export default async function CheckpointPage({ params }: { params: { id: string 
         </div>
       </div>
 
-      <h1 className="font-heading text-2xl font-bold text-ink">{topic.title} — Checkpoint</h1>
+      <h1 className="font-heading text-2xl font-bold text-ink">{topic.title}: Checkpoint</h1>
 
       <QuizShell
         questions={questions}

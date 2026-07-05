@@ -3,7 +3,7 @@ import { createSupabaseServerClient, getAuthUser } from '@/lib/supabase/server'
 import { getCurrentProfile } from '@/lib/profile'
 import { redirect } from 'next/navigation'
 
-export const metadata = { title: 'Explore — Decifer Learning' }
+export const metadata = { title: 'Explore' }
 
 interface Aid {
   id: string
@@ -40,7 +40,7 @@ const AIDS: Aid[] = [
   {
     id: 'human-body',
     title: 'Human Body',
-    tagline: 'Journey inside — organs, systems, and how you work',
+    tagline: 'Journey inside: organs, systems, and how you work',
     emoji: '🫀',
     gradient: 'linear-gradient(135deg, #641220 0%, #85182a 50%, #a11d33 100%)',
     href: '/explore/human-body',

@@ -460,7 +460,7 @@ export function QuizShell({
       >
         <div className="flex justify-center mb-3"><HeartCrack className="w-12 h-12 text-incorrect" aria-hidden /></div>
         <h2 className="font-heading text-2xl font-bold text-ink">Out of hearts!</h2>
-        <p className="mt-2 text-muted">Don&apos;t worry — no score saved. Give it another go!</p>
+        <p className="mt-2 text-muted">Don&apos;t worry, no score saved. Give it another go!</p>
         <button
           onClick={restart}
           className="mt-6 min-h-[48px] w-full rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white transition-opacity hover:opacity-90"
@@ -536,7 +536,7 @@ export function QuizShell({
             <div className="flex justify-center mb-1"><Sparkles className="w-8 h-8 text-maths" aria-hidden /></div>
             <p className="mt-1 font-heading text-lg font-bold text-ink">You completed your first topic!</p>
             <p className="mt-1 text-sm text-muted">
-              You&apos;ve earned your first Discovery Card. Keep going — the world map is waiting!
+              You&apos;ve earned your first Discovery Card. Keep going, the world map is waiting!
             </p>
           </motion.div>
         )}
@@ -556,7 +556,7 @@ export function QuizShell({
             {questionsCorrect} / {activeQuestions.length}
           </p>
           <p className="mt-1 text-muted">
-            {pct}% — {passed ? winMessage : 'Try again to improve your score.'}
+            {pct}%. {passed ? winMessage : 'Try again to improve your score.'}
           </p>
 
           {/* Technique score — only shown when quiz had non-recall questions */}
@@ -580,7 +580,7 @@ export function QuizShell({
             </div>
           ) : submittedOffline ? (
             <p className="mt-4 text-sm text-muted">
-              Saved offline — your points will sync when you reconnect.
+              Saved offline. Your points will sync when you reconnect.
             </p>
           ) : (
             <div className="mt-4 space-y-1">
@@ -768,7 +768,7 @@ export function QuizShell({
             className="rounded-2xl bg-maths/15 px-5 py-3 text-center"
           >
             <p className="font-heading text-lg font-bold text-maths flex items-center justify-center gap-1.5">
-              <Target className="w-5 h-5" aria-hidden /> Halfway there — keep going!
+              <Target className="w-5 h-5" aria-hidden /> Halfway there, keep going!
             </p>
           </motion.div>
         )}
@@ -783,7 +783,7 @@ export function QuizShell({
               animate={shieldFlash ? { scale: [1, 1.4, 1], opacity: [1, 0.5, 1] } : {}}
               transition={{ duration: 0.4 }}
               className="flex items-center gap-0.5 text-sm font-bold text-ink-2"
-              aria-label={`${shields} streak shield${shields !== 1 ? 's' : ''} — each absorbs one heart loss`}
+              aria-label={`${shields} streak shield${shields !== 1 ? 's' : ''}, each absorbs one heart loss`}
             >
               <Shield className="w-4 h-4 text-explorer" aria-hidden /> <span aria-hidden>×{shields}</span>
             </motion.span>
@@ -876,7 +876,7 @@ export function QuizShell({
               animate={{ opacity: 1, y: 0 }}
               className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-lightning/25 px-3 py-1 text-xs font-bold text-points-gold-700"
             >
-              <Star className="w-3.5 h-3.5" aria-hidden /> Bonus Challenge — double points!
+              <Star className="w-3.5 h-3.5" aria-hidden /> Bonus Challenge: double points!
             </motion.div>
           )}
 
@@ -954,8 +954,8 @@ export function QuizShell({
                 className="mb-3 text-sm font-bold text-rose-700"
               >
                 {attempts === 1 && q.technique_hint
-                  ? "Not quite — read the tip above and try again!"
-                  : "Not quite — here's a hint. Try again!"}
+                  ? "Not quite. Read the tip above and try again!"
+                  : "Not quite. Here's a hint. Try again!"}
               </motion.p>
             )}
           </AnimatePresence>
@@ -1035,8 +1035,8 @@ export function QuizShell({
                 // Build an accessible label that includes the outcome state when answered
                 let ariaLabel = choice
                 if (questionDone) {
-                  if (isCorrectChoice) ariaLabel = `${choice} — correct answer`
-                  else if (isWrongPick) ariaLabel = `${choice} — your incorrect answer`
+                  if (isCorrectChoice) ariaLabel = `${choice}, correct answer`
+                  else if (isWrongPick) ariaLabel = `${choice}, your incorrect answer`
                 }
 
                 return (
@@ -1092,7 +1092,7 @@ export function QuizShell({
                     </p>
                   )}
                   {isExhausted && (
-                    <p className="mt-0.5 text-xs text-muted">No points this time — you&apos;ll get it next time!</p>
+                    <p className="mt-0.5 text-xs text-muted">No points this time, you&apos;ll get it next time!</p>
                   )}
                   {q.explanation && (
                     <p className="mt-1 text-sm text-muted"><MathText text={q.explanation} /></p>
