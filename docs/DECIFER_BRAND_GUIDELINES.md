@@ -122,6 +122,8 @@ Ember leads, Indigo anchors, Green grows. Ember is the one constant across light
 
 **Light and Night.** Light mode is warm paper (`#FDF8F2`). Night is deep indigo (`#131734`) with warm off-white text, not a cold slate. Ember stays the same idea in both, lifting to `#FF7A4D` on Night so it reads crisp.
 
+**How colours are wired (one source of truth).** The colour channels live as `--tw-*` variables in `styles/tokens.css`, and `tailwind.config.ts` reads them through `rgb(var(--tw-x) / <alpha-value>)`. So every `bg-`, `text-`, `border-` and `ring-` colour class, and every opacity variant like `bg-brand/10`, resolves from those variables. To change a colour you change the variable once and every surface updates, and dark mode overrides the channels under a theme scope. Do not hardcode a brand hex in a component. Use the colour class or the variable. Raw hex is only for illustrations, avatars, data-viz and emails, which cannot read the variables.
+
 ### Subject colours
 
 | Token | Hex | Subject |
