@@ -548,6 +548,8 @@ export default function Home({
               <Link href="/legal/terms" className="hover:text-ink">Terms</Link>
               <Link href="/login" className="hover:text-ink">Sign in</Link>
               <a href="https://www.decifer.io" className="hover:text-ink">Part of DECIFER</a>
+              <a href="https://decifertrading.com" className="hover:text-ink">Decifer Trading</a>
+              <a href="https://decifermarketing.com" className="hover:text-ink">Decifer Marketing</a>
             </nav>
           </div>
         </footer>

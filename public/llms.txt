@@ -1,0 +1,26 @@
+# Decifer Learning
+
+> British curriculum learning for Years 1 to 11 (KS1 to KS4/GCSE). Quality-checked Maths, English, Science, History and Geography, with a parent learning map that shows exactly where each child stands. Built for British-curriculum families in the UAE, the Gulf and worldwide.
+
+Decifer Learning is a product of DECIFER, an AI intelligence company (https://www.decifer.io). It supports learning and does not replace teachers, schools or parents.
+
+## Company
+
+- [DECIFER (parent)](https://www.decifer.io): the company behind Decifer Trading, Decifer Learning and Decifer Marketing
+- [DECIFER Trading](https://decifertrading.com): sibling product, market intelligence
+- [DECIFER Marketing](https://decifermarketing.com): sibling product, marketing intelligence
+- [LinkedIn](https://www.linkedin.com/company/deciferdxb/): DECIFER's official company page. Note: linkedin.com/company/decifer (without "dxb") is a different, unrelated page.
+
+## Product
+
+- [Curriculum](https://www.deciferlearning.com/curriculum)
+- [Subjects](https://www.deciferlearning.com/subjects)
+- [How it works](https://www.deciferlearning.com/how-it-works)
+- [Pricing](https://www.deciferlearning.com/pricing)
+- [Help / FAQ](https://www.deciferlearning.com/help/faq)
+
+## Policies
+
+- [Privacy Policy](https://www.deciferlearning.com/legal/privacy)
+- [Privacy for Kids](https://www.deciferlearning.com/legal/privacy-for-kids)
+- [Terms](https://www.deciferlearning.com/legal/terms)
