@@ -10,6 +10,7 @@ export const metadata: Metadata = {
   title: 'Join a Decifer Blitz | Live quiz battle',
   description:
     'Tap to join a live quiz battle. Enter the code, pick a nickname, and play. No account needed, works on any device.',
+  alternates: { canonical: '/join' },
   openGraph: {
     title: 'Join my Decifer Blitz!',
     description:

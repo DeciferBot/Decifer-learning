@@ -23,9 +23,10 @@ import { TAGLINE, TITLE } from '@/lib/brand'
 type Icon = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
 
 export const metadata = {
-  title: TITLE,
+  title: { absolute: TITLE },
   description:
-    'Your child learns. You finally know where they stand. Decifer gives parents a clear picture of their child\'s learning. What the curriculum covers. What they know. What to do next. UK National Curriculum, Years 1 to 11.',
+    'Decifer gives parents a clear picture of their child\'s learning: what the UK National Curriculum covers, what they know, and what to do next. Years 1 to 11.',
+  alternates: { canonical: '/' },
 }
 
 export default function Home({

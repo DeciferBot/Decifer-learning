@@ -66,7 +66,7 @@ export const metadata: Metadata = {
     template: '%s | Decifer Learning',
   },
   description:
-    'British curriculum learning for Years 1 to 11, from KS1 to GCSE. Quality-checked Maths, English, Science, History and Geography, plus a parent dashboard that shows exactly where your child stands.',
+    'British curriculum learning for Years 1 to 11 (KS1 to GCSE): quality-checked Maths, English, Science, History and Geography, plus a parent progress dashboard.',
   keywords: [
     'British curriculum',
     'UK National Curriculum',
