@@ -11,6 +11,7 @@ export const metadata: Metadata = {
   title: 'Host a Decifer Blitz | Live quiz battle',
   description:
     'Start a live, Kahoot-style quiz battle in 30 seconds. UK curriculum questions, no accounts for players, works on any device.',
+  alternates: { canonical: '/play' },
   openGraph: {
     title: 'Host a Decifer Blitz | Live quiz battle',
     description:

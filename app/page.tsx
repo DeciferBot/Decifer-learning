@@ -536,7 +536,15 @@ export default function Home({
         <footer className="border-t border-black/5 bg-surface py-8">
           <div className="mx-auto flex max-w-5xl flex-col items-center gap-4 px-4 text-center sm:flex-row sm:justify-between">
             <DeciferLogo size="xs" product="Learning" />
-            <p className="text-xs text-muted">{TAGLINE}</p>
+            <p className="flex items-center gap-2 text-xs text-muted">
+              {TAGLINE}
+              <Link
+                href="/legal/terms"
+                className="rounded-full border border-black/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide hover:text-ink"
+              >
+                Beta
+              </Link>
+            </p>
             <nav className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs text-muted sm:justify-start" aria-label="Footer navigation">
               <Link href="/curriculum" className="hover:text-ink">Curriculum</Link>
               <Link href="/subjects" className="hover:text-ink">Subjects</Link>
