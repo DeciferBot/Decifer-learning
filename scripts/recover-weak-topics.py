@@ -325,6 +325,7 @@ def _run_strategy_question(
     strategy: str,
     pipeline_run_id: str | None,
     existing_answers: list[str],
+    session_excludes: list[dict] | None = None,
 ) -> tuple[str, str]:
     """
     Run ONE question attempt with strategy-specific pre-reject between Stage 1 and Stage 2.
@@ -333,13 +334,24 @@ def _run_strategy_question(
       status  — "published" | "staged" | "pre_rejected" | "gen_failed" |
                 "verify_failed" | "dedup_failed" | "score_too_low"
       blocker — the specific failure reason for waste-threshold tracking
+
+    session_excludes: mutable list shared across the attempts of one tier. Every
+    generated question is appended, whether or not it survives, so later attempts
+    stop re-proposing the fact we just rejected. Sub-threshold questions are never
+    written to quiz_questions, so this in-memory list is the only record of them.
     """
     result = pl.PipelineResult()
 
     # Stage 1: RAG generation
-    question_data = pl.stage1_generate(topic, tier, result)
+    question_data = pl.stage1_generate(topic, tier, result, session_excludes=session_excludes)
     if question_data is None:
         return "gen_failed", "generation_none"
+
+    if session_excludes is not None:
+        session_excludes.append({
+            "question_text": question_data.get("question_text", ""),
+            "correct_answer": str(question_data.get("correct_answer", "")),
+        })
 
     qtype = question_data.get("question_type", "")
 
@@ -501,6 +513,11 @@ def _recover_topic(
 
     total_published = 0
     waste_blocked = False
+    # Topic-scoped, deliberately NOT reset per tier. A fact used for the sprout tier
+    # should not come back as the explorer question. Scoping this per tier let one
+    # run publish two near-identical East India Company tax questions in the same
+    # topic, one from each tier, because neither attempt could see the other.
+    session_excludes: list[dict] = []
 
     for tier in TIERS:
         current = count_published(tid)
@@ -550,6 +567,7 @@ def _recover_topic(
                 strategy=strategy,
                 pipeline_run_id=run_id,
                 existing_answers=existing_answers,
+                session_excludes=session_excludes,
             )
 
             if status == "published":

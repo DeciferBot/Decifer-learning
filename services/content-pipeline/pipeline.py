@@ -79,10 +79,12 @@ _TIER_DESCRIPTIONS = {
     "lightning": "Challenging problems with multiple steps, reasoning, or unfamiliar contexts.",
 }
 
+# Derived from config.YEAR_KEY_STAGE so every year group is covered. This used to
+# list only year-2/3/7, so a Year 5 prompt rendered "year-5 pupils (, UK National
+# Curriculum)" — no readable year, no key stage.
 _YEAR_GROUP_DISPLAY = {
-    "year-2": ("Year 2", "KS1"),
-    "year-3": ("Year 3", "KS2"),
-    "year-7": ("Year 7", "KS3"),
+    year: (f"Year {year.split('-')[1]}", key_stage)
+    for year, key_stage in config.YEAR_KEY_STAGE.items()
 }
 
 # ── Subject-aware prompt builders ─────────────────────────────────────────
@@ -878,18 +880,38 @@ def _extract_json(text: str) -> str:
 
 # ── Individual stages ─────────────────────────────────────────────────────
 
-def stage1_generate(topic: dict, tier: str, result: PipelineResult) -> Optional[dict]:
-    """Stage 1: RAG retrieval + Claude generation (subject-aware prompt)."""
+def stage1_generate(
+    topic: dict,
+    tier: str,
+    result: PipelineResult,
+    session_excludes: list[dict] | None = None,
+) -> Optional[dict]:
+    """Stage 1: RAG retrieval + Claude generation (subject-aware prompt).
+
+    session_excludes: questions attempted earlier in THIS run that were scored and
+    thrown away. Sub-threshold attempts are never written to quiz_questions, so
+    without this the next attempt cannot see them and the model settles on the same
+    fact over and over — a run on "Britain 1745-1901" spent all five attempts on the
+    same contested "first mass consumer society by 1815" claim, each one correctly
+    rejected by consensus, and the topic ended WASTE_BLOCKED having learned nothing.
+    """
     result.log_stage("Stage 1: RAG generation")
     query_text = f"{topic['title']} {topic['year_group_label']} {topic['subject_name']}"
     query_embedding = embed_text(query_text) if config.EMBEDDINGS_ENABLED else None
     chunks = db.retrieve_chunks(topic["subject_name"], topic["year_group_label"], query_embedding, restrict_source=topic.get("restrict_source"))
     result.log_stage(f"  retrieved {len(chunks)} curriculum chunks for {topic['subject_name']}")
 
-    # Pass published questions as a diversity hint for English AND Science topics.
-    # Pass existing questions for all subjects to prevent the LLM from regenerating
-    # identical questions in the dedup loop (similarity=1.000 exact copies).
-    existing_questions = db.get_published_questions_full(topic["id"])
+    # Diversity hint: everything we have already TRIED for this topic, including the
+    # attempts still sitting in staged/regenerating. Published-only was not enough —
+    # a topic whose questions kept landing in staged was generated against a
+    # forbidden-list that never mentioned them, so the model reworded the same few
+    # facts every night and every reword died on the Stage-5 dedup guard.
+    existing_questions = db.get_attempted_questions_full(topic["id"])
+    if session_excludes:
+        # Put this run's discarded attempts first: the prompt builders truncate the
+        # forbidden list, and the facts we just burned attempts on are the ones the
+        # model most needs steering away from.
+        existing_questions = list(session_excludes) + existing_questions
 
     prompt = _build_generation_prompt(topic, tier, chunks, existing_questions=existing_questions)
 
@@ -901,18 +923,17 @@ def stage1_generate(topic: dict, tier: str, result: PipelineResult) -> Optional[
                 messages=[{"role": "user", "content": prompt}],
             )
             result.add_tokens(msg)
-            text = msg.content[0].text.strip()
-            if text.startswith("```"):
-                text = "\n".join(
-                    line for line in text.splitlines()
-                    if not line.startswith("```")
-                )
-            data = json.loads(text)
+            # Use the shared extractor the later stages already use. Stage 1 used to
+            # json.loads() the raw reply after only stripping ``` fences, so the moment
+            # the model prefaced its JSON with a line of reasoning ("I need to generate
+            # a question based on the provided sources...") every attempt died at
+            # char 0, the topic logged generation_none, and waste-protection stopped it.
+            data = json.loads(_extract_json(msg.content[0].text))
             # Store chunks back for Stage 6 grounding check
             data["_retrieved_chunks"] = chunks
             result.log_stage(f"  generation OK (attempt {attempt+1})")
             return data
-        except (json.JSONDecodeError, IndexError) as exc:
+        except (json.JSONDecodeError, IndexError, ValueError) as exc:
             result.log_stage(f"  attempt {attempt+1} parse error: {exc}")
         except Exception as exc:
             result.log_stage(f"  attempt {attempt+1} API error: {exc}")
@@ -1550,10 +1571,17 @@ def stage6_score(
                 )
                 result.confidence_score = 0.0
                 return 0.0, "regenerating"
-            if year_group_label and chunk_year and year_group_label not in chunk_year and chunk_year not in year_group_label:
+            # Match on key stage, not exact year: our year assignment and Oak's
+            # disagree systematically (see config.YEAR_KEY_STAGE). Requiring an exact
+            # year match here made correctly-sourced questions unpublishable for every
+            # topic whose material Oak files a year later, which is most of the
+            # humanities backlog. Subject still has to match exactly, above.
+            topic_ks = config.key_stage_for(year_group_label)
+            chunk_ks = config.key_stage_for(chunk_year)
+            if topic_ks and chunk_ks and topic_ks != chunk_ks:
                 result.log_stage(
-                    f"  RAG grounding FAILED: chunk year_group {chunk_year!r} "
-                    f"does not match topic year_group {year_group_label!r}"
+                    f"  RAG grounding FAILED: chunk year_group {chunk_year!r} ({chunk_ks}) "
+                    f"is outside the topic's key stage {topic_ks} ({year_group_label!r})"
                 )
                 result.confidence_score = 0.0
                 return 0.0, "regenerating"
