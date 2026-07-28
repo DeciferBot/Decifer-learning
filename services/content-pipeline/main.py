@@ -954,4 +954,4 @@ def _run_autopilot_daily():
     except Exception as exc:
         log.error(f"[autopilot-daily] runner exception: {exc}")
 
-    log.info(f"oak-daily-update complete: {total_new_chunks} new chunks, {total_skipped} skipped (dedup), {topics_triggered} thin topics topped up")
+    log.info("[autopilot-daily] complete")
