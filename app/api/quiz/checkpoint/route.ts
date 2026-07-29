@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
+import { scoreQuizAttempt } from '@/lib/points'
 
 // Lightweight submit for zone checkpoints — records the attempt but does NOT:
 // - Award cards, badges, or points (checkpoints are assessment gates, not rewards)
@@ -46,8 +47,10 @@ export async function POST(req: Request) {
   ])
   if (!profile) return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
 
-  const correct = answers.filter((a) => a.wasCorrect).length
-  const score = correct / answers.length
+  // Scored per distinct question with credit falling by try, matching
+  // /api/quiz/submit. Dividing correct rows by total rows counted a wrong first
+  // try as an extra failed question, so retrying pushed the score down.
+  const { scoreFraction: score } = scoreQuizAttempt(answers)
   const passed = score >= 0.67 // 2/3 to pass a 3-question checkpoint
 
   // Record the attempt (type checkpoint distinguishes from regular quiz attempts in analytics)
@@ -75,8 +78,12 @@ export async function POST(req: Request) {
 
   return NextResponse.json({
     passed,
+    // `score` here has always been the 0–1 fraction, unlike /api/quiz/submit
+    // where it is a count. scoreFraction is the unambiguous field; both are sent
+    // so existing callers of either shape keep working.
     score,
-    totalQuestions: answers.length,
+    scoreFraction: score,
+    totalQuestions: new Set(answers.map((a) => a.questionId)).size,
     // Null values satisfy the QuizShell SubmitResult type
     points: null,
     totalPoints: null,

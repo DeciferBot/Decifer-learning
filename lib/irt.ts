@@ -30,6 +30,21 @@ export type Tier = 'sprout' | 'explorer' | 'lightning'
  *  Aligned with the §9 anomaly-detection threshold (≥20 attempts). */
 export const MIN_CALIBRATION_N = 20
 
+/**
+ * Minimum POOLED responses before a group prior is trusted.
+ *
+ * WHY GROUP PRIORS EXIST: item-level calibration needs 20 first-attempt
+ * responses per question. There are 6,971 published questions and 1,076 answers
+ * in the product's entire history, so not one item has ever calibrated and none
+ * will at this volume. Pooling by (question_type, tier) puts roughly 40 responses
+ * in each cell, which is enough for a usable difficulty prior. Items inherit
+ * their group's prior until they earn a calibration of their own.
+ *
+ * Higher than MIN_CALIBRATION_N because a pooled estimate is asked to stand in
+ * for many different items, so it should rest on more evidence, not less.
+ */
+export const MIN_PRIOR_N = 30
+
 /** Difficulty/ability are clamped to this logit range to stay numerically sane. */
 export const LOGIT_CLAMP = 4
 
@@ -69,9 +84,12 @@ export interface ItemStats {
  *   p = (correct + 0.5) / (total + 1)     ← Laplace smoothing
  *   b = logit(1 − p) = ln((1 − p) / p)    ← harder items (low p) get higher b
  */
-export function difficultyFromResponses({ correct, total }: ItemStats): number | null {
+export function difficultyFromResponses(
+  { correct, total }: ItemStats,
+  minSample: number = MIN_CALIBRATION_N,
+): number | null {
   if (!Number.isFinite(correct) || !Number.isFinite(total)) return null
-  if (total < MIN_CALIBRATION_N || correct < 0 || correct > total) return null
+  if (total < minSample || correct < 0 || correct > total) return null
   const p = (correct + 0.5) / (total + 1)
   return clamp(logit(1 - p))
 }

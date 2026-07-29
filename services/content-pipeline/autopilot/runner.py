@@ -45,6 +45,7 @@ from autopilot.safety import (
     PIPELINE_STOP,
     MAX_TOPICS_PER_RUN,
     check_no_trading_reference,
+    repo_root,
 )
 from autopilot.work_queue import (
     ContentJob,
@@ -58,8 +59,10 @@ from autopilot.work_queue import (
 
 log = logging.getLogger("autopilot.runner")
 
-# Path resolution
-_REPO_ROOT    = Path(__file__).resolve().parent.parent.parent.parent
+# Path resolution — shared with safety.py so the gate file and the scripts
+# directory always come from the same root. See safety.repo_root for why this is
+# not a plain four-parent walk.
+_REPO_ROOT    = repo_root()
 _SCRIPTS_DIR  = _REPO_ROOT / "scripts"
 _PYTHON       = sys.executable
 

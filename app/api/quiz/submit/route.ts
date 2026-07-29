@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import type { Badge } from '@prisma/client'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
-import { calcQuizPoints, scoreToSm2Quality } from '@/lib/points'
+import { calcQuizPoints, scoreToSm2Quality, scoreQuizAttempt } from '@/lib/points'
 import { sm2 } from '@/lib/sm2'
 import { pickRarity } from '@/lib/cards'
 import { checkAndUpdateMilestone } from '@/lib/vault/status'
@@ -130,12 +130,16 @@ export async function POST(req: Request) {
   }))
   // ── End server-side scoring ───────────────────────────────────────────────
 
-  const totalQuestions = scoredAnswers.length
-  const correctCount   = scoredAnswers.filter((a) => a.wasCorrect).length
-  const scoreFraction  = correctCount / totalQuestions
-  const passed         = scoreFraction >= 0.7
-  const hintsUsedCount = scoredAnswers.filter((a) => a.hintNumber > 0).length
-  const perfectScore   = correctCount === totalQuestions && hintsUsedCount === 0
+  // Scored per distinct question with credit falling by try, not per answer row.
+  // See scoreQuizAttempt in lib/points.ts for why.
+  const {
+    totalQuestions,
+    correctCount,
+    scoreFraction,
+    passed,
+    hintsUsedCount,
+    perfectScore,
+  } = scoreQuizAttempt(scoredAnswers)
 
   const points = calcQuizPoints(scoredAnswers)
 
@@ -218,6 +222,33 @@ export async function POST(req: Request) {
           sr_next_review: nextReview,
         },
       })
+    } else {
+      // A near miss used to record nothing at all: three attempts at 60% left the
+      // topic looking untouched on the dashboard and in the parent view. Bank the
+      // work as in-progress with the best score so far. SM-2 scheduling stays out
+      // of it, since nothing has been learnt well enough to schedule a review, and
+      // a topic already completed is never downgraded by a later weak retry.
+      const existing = await tx.topicProgress.findUnique({
+        where: { profile_id_topic_id: { profile_id: profile.id, topic_id: topicId } },
+        select: { status: true, last_score: true },
+      })
+
+      if (existing?.status !== 'completed') {
+        const bestScore = Math.max(scoreFraction, existing?.last_score ?? 0)
+        await tx.topicProgress.upsert({
+          where: { profile_id_topic_id: { profile_id: profile.id, topic_id: topicId } },
+          create: {
+            profile_id: profile.id,
+            topic_id: topicId,
+            status: 'in_progress',
+            last_score: bestScore,
+          },
+          update: {
+            status: 'in_progress',
+            last_score: bestScore,
+          },
+        })
+      }
     }
 
     // Update profile (points + streak + SM-2 in one write)
@@ -337,7 +368,12 @@ export async function POST(req: Request) {
   return NextResponse.json({
     points,
     passed,
+    // `score` is a COUNT of questions answered correctly, kept as-is for the
+    // existing callers. `scoreFraction` is the credit-weighted 0–1 value the
+    // pass decision is actually made on, exposed so the result screen never has
+    // to guess which of the two it is holding.
     score: correctCount,
+    scoreFraction,
     totalQuestions,
     totalPoints: result.newTotalPoints,
     streakDays,

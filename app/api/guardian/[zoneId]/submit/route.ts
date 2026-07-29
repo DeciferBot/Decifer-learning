@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
-import { calcQuizPoints } from '@/lib/points'
+import { calcQuizPoints, scoreQuizAttempt } from '@/lib/points'
 import { getConsentGate, CONSENT_GATE_RESPONSE } from '@/lib/parental-consent'
 import { notifyParentBigMoment } from '@/lib/parent-notify'
 import type { DroppedCard, EarnedBadge } from '@/app/api/quiz/submit/route'
@@ -58,17 +58,19 @@ export async function POST(req: Request, { params }: { params: { zoneId: string 
   })
   if (!zone) return NextResponse.json({ error: 'Zone not found' }, { status: 404 })
 
-  const totalQuestions = answers.length
-  const correctCount = answers.filter((a) => a.wasCorrect).length
-  const scoreFraction = correctCount / totalQuestions
-  const passed = scoreFraction >= 0.7
+  // Scored per distinct question with credit falling by try, matching
+  // /api/quiz/submit. Guardian quizzes carry the same 3-tries-per-question
+  // mechanic, so the old row-count scoring punished persistence here too.
+  const { totalQuestions, correctCount, scoreFraction, passed } = scoreQuizAttempt(answers)
   const points = passed ? calcQuizPoints(answers) : 0
 
   if (!passed) {
     return NextResponse.json({
       points: 0,
       passed: false,
+      // `score` is a COUNT; `scoreFraction` is the credit-weighted 0–1 value.
       score: correctCount,
+      scoreFraction,
       totalQuestions,
       totalPoints: profile.total_points,
       droppedCard: null,
@@ -174,7 +176,9 @@ export async function POST(req: Request, { params }: { params: { zoneId: string 
   return NextResponse.json({
     points,
     passed: true,
+    // `score` is a COUNT; `scoreFraction` is the credit-weighted 0–1 value.
     score: correctCount,
+    scoreFraction,
     totalQuestions,
     totalPoints: result.newTotalPoints,
     droppedCard: result.droppedCard,

@@ -17,11 +17,18 @@ export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server'
 import { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
-import { difficultyFromResponses, recommendTier, MIN_CALIBRATION_N } from '@/lib/irt'
+import { difficultyFromResponses, recommendTier, MIN_CALIBRATION_N, MIN_PRIOR_N } from '@/lib/irt'
 import { alertPipelineFailure } from '@/lib/pipeline-alert'
 
 interface AggRow {
   question_id: string
+  tier: string
+  correct: number
+  total: number
+}
+
+interface PriorAggRow {
+  question_type: string
   tier: string
   correct: number
   total: number
@@ -94,12 +101,82 @@ async function handler(req: Request) {
     }
   })
 
+  // ── Pooled group priors ───────────────────────────────────────────────────
+  //
+  // Item-level calibration above needs 20 first-attempt responses on a single
+  // question. With 6,971 published questions against roughly a thousand answers
+  // in total, that has never once fired. Pooling the same responses by
+  // (question_type, tier) puts enough evidence in each cell to be worth using,
+  // and every item in the group inherits the result until it earns its own.
+  //
+  // Same first-attempt definition as above, so the two agree.
+  let priorsWritten = 0
+  const priorRows: Array<{ key: string; b: number; n: number }> = []
+  try {
+    const agg = await prisma.$queryRaw<PriorAggRow[]>(Prisma.sql`
+      WITH first_answers AS (
+        SELECT DISTINCT ON (qa.question_id, qat.profile_id)
+               qa.question_id,
+               qa.was_correct
+        FROM quiz_answers qa
+        JOIN quiz_attempts qat ON qat.id = qa.attempt_id
+        ORDER BY qa.question_id, qat.profile_id, qat.created_at ASC
+      ),
+      typed AS (
+        SELECT q.question_type::text AS question_type,
+               q.tier::text          AS tier,
+               fa.was_correct
+        FROM quiz_questions q
+        JOIN first_answers fa ON fa.question_id = q.id
+        WHERE q.status = 'published'
+      )
+      SELECT question_type,
+             tier,
+             COUNT(*) FILTER (WHERE was_correct)::int AS correct,
+             COUNT(*)::int                            AS total
+      FROM typed
+      GROUP BY question_type, tier
+      UNION ALL
+      -- '*' is the coarser tier-only fallback for types with too little data.
+      SELECT '*' AS question_type,
+             tier,
+             COUNT(*) FILTER (WHERE was_correct)::int AS correct,
+             COUNT(*)::int                            AS total
+      FROM typed
+      GROUP BY tier
+    `)
+
+    for (const r of agg) {
+      const b = difficultyFromResponses(
+        { correct: Number(r.correct), total: Number(r.total) },
+        MIN_PRIOR_N,
+      )
+      if (b == null) continue
+      await prisma.$executeRaw(Prisma.sql`
+        INSERT INTO question_difficulty_priors (question_type, tier, difficulty_b, sample_n, updated_at)
+        VALUES (${r.question_type}, ${r.tier}, ${b}, ${Number(r.total)}, now())
+        ON CONFLICT (question_type, tier)
+        DO UPDATE SET difficulty_b = EXCLUDED.difficulty_b,
+                      sample_n     = EXCLUDED.sample_n,
+                      updated_at   = now()
+      `)
+      priorsWritten++
+      priorRows.push({ key: `${r.question_type}/${r.tier}`, b: Number(b.toFixed(3)), n: Number(r.total) })
+    }
+  } catch (err) {
+    // Non-fatal: item calibration above has already been written, and selection
+    // falls back to tier order when no prior exists.
+    console.error('[calibrate-difficulty] group priors failed (non-fatal)', err)
+  }
+
   const summary = {
     items_evaluated: rows.length,
     items_calibrated: calibrated,
     retier_suggestions: retierSuggestions.length,
     // Cap the detail payload so the log row stays small; full list derivable on demand.
     sample_retiers: retierSuggestions.slice(0, 20),
+    priors_written: priorsWritten,
+    sample_priors: priorRows.slice(0, 20),
   }
 
   // Persist for the admin monitoring page (same table as the other crons).
@@ -112,7 +189,11 @@ async function handler(req: Request) {
     console.error('[calibrate-difficulty] cron_run_log insert failed (non-fatal)', err)
   }
 
-  console.log('[calibrate-difficulty] run complete', { ...summary, sample_retiers: summary.sample_retiers.length })
+  console.log('[calibrate-difficulty] run complete', {
+    ...summary,
+    sample_retiers: summary.sample_retiers.length,
+    sample_priors: summary.sample_priors.length,
+  })
   return NextResponse.json(summary)
 }
 

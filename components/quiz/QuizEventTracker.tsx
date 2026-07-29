@@ -1,31 +1,20 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { postQuizEvent } from './quiz-events'
 
 interface QuizEventTrackerProps {
   topicId: string
   subjectId?: string | null
 }
 
-async function postEvent(body: Record<string, unknown>) {
-  try {
-    await fetch('/api/events/learning', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    })
-  } catch {
-    // Non-blocking
-  }
-}
-
 /**
  * Fires quiz_started on mount.
- * quiz_completed is recorded server-side in POST /api/quiz/submit.
  *
- * TODO (PLI v2): detect quiz_abandoned when user navigates away before submitting.
- * This requires tracking quiz start time client-side and comparing against submission
- * records. Needs reliable detection before implementing — not faked in v1.
+ * Note this counts page views, not attempts: a reload or a look at the
+ * difficulty picker both produce one. The events that say what the child
+ * actually did are quiz_first_answer and quiz_abandoned, both fired from
+ * QuizShell, and quiz_completed, recorded server-side in POST /api/quiz/submit.
  */
 export function QuizEventTracker({ topicId, subjectId }: QuizEventTrackerProps) {
   const firedRef = useRef(false)
@@ -33,7 +22,7 @@ export function QuizEventTracker({ topicId, subjectId }: QuizEventTrackerProps) 
   useEffect(() => {
     if (firedRef.current) return
     firedRef.current = true
-    void postEvent({
+    void postQuizEvent({
       eventType: 'quiz_started',
       topicId,
       subjectId: subjectId ?? null,

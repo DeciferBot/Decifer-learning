@@ -26,6 +26,7 @@ interface FakeDB {
   quiz_questions?: Row[]
   quiz_attempts?: Row[]
   quiz_answers?: Row[]
+  question_difficulty_priors?: Row[]
 }
 
 function makeSupabase(tables: FakeDB) {
@@ -188,6 +189,136 @@ describe('selectQuizQuestions — safety contract', () => {
     const seenSet = new Set(seenIds)
     const overlap = result.filter((r) => seenSet.has(r.id)).length
     expect(overlap).toBe(0)
+  })
+})
+
+// ── Confidence mix (a child's first attempt on a topic) ────────────────────
+//
+// Guards the fix for the measured problem: under the balanced 4/4/2 mix, 60 of
+// 99 completed attempts scored below the 70% pass mark. A first attempt must be
+// sprout-heavy, carry no lightning, and arrive easiest-first.
+
+const TIER_RANK = { sprout: 0, explorer: 1, lightning: 2 } as const
+
+describe('selectQuizQuestions — confidence mix', () => {
+  it('serves 8 sprout and 2 explorer, and no lightning at all', async () => {
+    const { client } = makeSupabase({ quiz_questions: bigPool() })
+    const result = await selectQuizQuestions(client, 'child-1', 'topic-1', {
+      count: 10,
+      mix: 'confidence',
+    })
+
+    expect(result.length).toBe(10)
+    expect(result.filter((r) => r.tier === 'sprout').length).toBe(8)
+    expect(result.filter((r) => r.tier === 'explorer').length).toBe(2)
+    expect(result.filter((r) => r.tier === 'lightning').length).toBe(0)
+  })
+
+  it('orders easiest first, so the child opens on questions they can get right', async () => {
+    const { client } = makeSupabase({ quiz_questions: bigPool() })
+    const result = await selectQuizQuestions(client, 'child-1', 'topic-1', {
+      count: 10,
+      mix: 'confidence',
+    })
+
+    const ranks = result.map((r) => TIER_RANK[r.tier])
+    expect(ranks).toEqual([...ranks].sort((a, b) => a - b))
+    expect(result[0].tier).toBe('sprout')
+  })
+
+  it('borrows explorer before lightning when a topic is thin on sprout', async () => {
+    // 3 sprout, 8 explorer, 8 lightning — the shortfall fill has to choose.
+    const pool: Row[] = []
+    for (let i = 0; i < 3; i++) pool.push(q('sprout'))
+    for (let i = 0; i < 8; i++) pool.push(q('explorer'))
+    for (let i = 0; i < 8; i++) pool.push(q('lightning'))
+
+    const { client } = makeSupabase({ quiz_questions: pool })
+    const result = await selectQuizQuestions(client, 'child-1', 'topic-1', {
+      count: 10,
+      mix: 'confidence',
+    })
+
+    expect(result.length).toBe(10)
+    expect(result.filter((r) => r.tier === 'sprout').length).toBe(3)
+    expect(result.filter((r) => r.tier === 'lightning').length).toBe(0)
+  })
+
+  it('still refuses non-published rows', async () => {
+    const pool = [
+      ...bigPool(),
+      q('sprout', 'staged'),
+      q('sprout', 'flagged'),
+    ]
+    const { client } = makeSupabase({ quiz_questions: pool })
+    const result = await selectQuizQuestions(client, 'child-1', 'topic-1', {
+      count: 10,
+      mix: 'confidence',
+    })
+
+    const publishedIds = new Set(pool.filter((r) => r.status === 'published').map((r) => r.id))
+    for (const item of result) expect(publishedIds.has(item.id)).toBe(true)
+  })
+
+  it('keeps the easiest-first order when the whole pool is smaller than the quiz', async () => {
+    const pool = [q('lightning'), q('explorer'), q('sprout')]
+    const { client } = makeSupabase({ quiz_questions: pool })
+    const result = await selectQuizQuestions(client, 'child-1', 'topic-1', {
+      count: 10,
+      mix: 'confidence',
+    })
+
+    expect(result.map((r) => r.tier)).toEqual(['sprout', 'explorer', 'lightning'])
+  })
+
+  it('leaves the default balanced mix untouched', async () => {
+    const { client } = makeSupabase({ quiz_questions: bigPool() })
+    const result = await selectQuizQuestions(client, 'child-1', 'topic-1', { count: 10 })
+
+    expect(result.length).toBe(10)
+    expect(result.filter((r) => r.tier === 'lightning').length).toBe(2)
+  })
+})
+
+// ── Pooled difficulty priors ───────────────────────────────────────────────
+//
+// Every published question has a null difficulty_b and always will at this data
+// volume, so selection reads pooled priors instead. The risk worth guarding is
+// not that ranking improves, it is that a missing or broken priors table must
+// never stop a child getting a quiz.
+
+describe('selectQuizQuestions — difficulty priors', () => {
+  it('still serves a full quiz when the priors table has rows', async () => {
+    const { client } = makeSupabase({
+      quiz_questions: bigPool(),
+      question_difficulty_priors: [
+        { question_type: 'maths_arithmetic', tier: 'sprout', difficulty_b: -1.2 },
+        { question_type: '*', tier: 'explorer', difficulty_b: 0.1 },
+      ],
+    })
+    const result = await selectQuizQuestions(client, 'child-1', 'topic-1', { count: 10 })
+    expect(result.length).toBe(10)
+  })
+
+  it('still serves a full quiz when the priors table is missing entirely', async () => {
+    // No question_difficulty_priors key at all, which is what a pre-migration
+    // database looks like.
+    const { client } = makeSupabase({ quiz_questions: bigPool() })
+    const result = await selectQuizQuestions(client, 'child-1', 'topic-1', { count: 10 })
+    expect(result.length).toBe(10)
+  })
+
+  it('does not overwrite a question difficulty_b with a group prior', async () => {
+    const { client } = makeSupabase({
+      quiz_questions: bigPool(),
+      question_difficulty_priors: [
+        { question_type: 'maths_arithmetic', tier: 'sprout', difficulty_b: -1.2 },
+      ],
+    })
+    const result = await selectQuizQuestions(client, 'child-1', 'topic-1', { count: 10 })
+    // The fixtures carry no difficulty_b, and the child must not be handed one
+    // that was really a pooled group estimate.
+    for (const item of result) expect(item.difficulty_b ?? null).toBe(null)
   })
 })
 

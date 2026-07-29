@@ -21,7 +21,22 @@ from pathlib import Path
 from typing import Optional
 
 # Paths
-_REPO_ROOT       = Path(__file__).resolve().parent.parent.parent.parent
+#
+# Walking four parents up from this file lands on the repo root in a checkout
+# (services/content-pipeline/autopilot/safety.py). Inside the pipeline container
+# the same walk lands on "/", because only services/content-pipeline is copied in
+# and it becomes /app. That silently pointed the gate at /.PIPELINE_STOP and the
+# scripts directory at /scripts, neither of which exists, so the containerised
+# nightly run had nothing to execute. DECIFER_REPO_ROOT names the repo-shaped
+# tree explicitly; the container sets it to the mounted /srv/decifer.
+def repo_root() -> Path:
+    override = os.environ.get("DECIFER_REPO_ROOT")
+    if override:
+        return Path(override).resolve()
+    return Path(__file__).resolve().parents[3]
+
+
+_REPO_ROOT       = repo_root()
 PIPELINE_STOP    = _REPO_ROOT / ".PIPELINE_STOP"
 LOCK_DIR         = Path("/tmp/decifer-pipeline-locks")
 

@@ -3,7 +3,10 @@
 import { motion } from 'framer-motion'
 import { Layers, Leaf, Search, Zap } from '@/components/ui/icons'
 
-export type DifficultyChoice = 'sprout' | 'explorer' | 'lightning' | 'mixed'
+// 'confidence' is never offered in the picker. It marks a quiz the server already
+// pitched for the child (their first attempt on a topic), so the picker is skipped
+// entirely. It exists so telemetry can tell those attempts apart.
+export type DifficultyChoice = 'sprout' | 'explorer' | 'lightning' | 'mixed' | 'confidence'
 
 const OPTIONS: {
   value: DifficultyChoice
