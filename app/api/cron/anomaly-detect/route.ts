@@ -13,7 +13,7 @@
 export const dynamic = 'force-dynamic'
 
 import { NextResponse } from 'next/server'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { createSupabaseAdminClient } from '@/lib/supabase/admin'
 import { prisma } from '@/lib/prisma'
 import { alertPipelineFailure } from '@/lib/pipeline-alert'
 
@@ -25,7 +25,10 @@ async function handler(req: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const supabase = createSupabaseServerClient()
+  // Service role, not the anon key: these RPCs write (they flag and publish
+  // questions). Running them as anon is what made them callable by anyone on
+  // the internet, so EXECUTE is revoked from anon and authenticated.
+  const supabase = createSupabaseAdminClient()
 
   const { data: highError,       error: e1 } = await supabase.rpc('flag_high_error_rate_questions')
   const { data: highHint,        error: e2 } = await supabase.rpc('flag_high_hint_rate_questions')
