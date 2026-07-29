@@ -28,6 +28,66 @@ export function calcQuizPoints(answers: AnswerRecord[]): number {
   return total
 }
 
+// ── Server-side answer verification ─────────────────────────────────────────
+//
+// The client sends wasCorrect with every answer, but a crafted POST can claim
+// anything. Every route that scores a submission must re-check the child's
+// answer against the stored correct_answer BEFORE it hands the log to
+// scoreQuizAttempt, because that function scores what it is given.
+//
+// Multi-part types are the one exception: their answer lives in answer_parts
+// rather than correct_answer, so a plain string comparison cannot judge them.
+// For those we take the client's verdict, but only when the child actually
+// supplied a non-empty answer, which stops a blank submission claiming a
+// perfect score.
+
+export const MULTIPART_TYPES = new Set([
+  'true_false_grid',
+  'ordered_list',
+  'source_analysis',
+  'explain_example',
+  'structured_answer',
+])
+
+export type SubmittedAnswer = {
+  questionId: string
+  childAnswer: string
+  wasCorrect: boolean
+  hintNumber: number
+  timeSeconds: number
+}
+
+// The answer key rows the caller loads from the database. The caller is
+// responsible for scoping that query (status='published', right topic or zone).
+// A question missing from the key is scored wrong, never correct.
+export type AnswerKeyRow = {
+  id: string
+  correct_answer: string
+  question_type: string
+}
+
+export function scoreAnswers(
+  answers: SubmittedAnswer[],
+  key: AnswerKeyRow[],
+): SubmittedAnswer[] {
+  const byId = new Map(key.map((q) => [q.id, q]))
+
+  return answers.map((a) => {
+    const question = byId.get(a.questionId)
+    const given = typeof a.childAnswer === 'string' ? a.childAnswer.trim() : ''
+
+    // Unknown, unpublished or out-of-scope question, or a blank answer → wrong.
+    if (!question || given.length === 0) return { ...a, wasCorrect: false }
+
+    return {
+      ...a,
+      wasCorrect: MULTIPART_TYPES.has(question.question_type)
+        ? Boolean(a.wasCorrect)
+        : question.correct_answer.trim().toLowerCase() === given.toLowerCase(),
+    }
+  })
+}
+
 // ── Quiz scoring ────────────────────────────────────────────────────────────
 //
 // A child gets up to 3 tries at a question and every try is logged. Scoring used

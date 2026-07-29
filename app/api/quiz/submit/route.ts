@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import type { Badge } from '@prisma/client'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
-import { calcQuizPoints, scoreToSm2Quality, scoreQuizAttempt } from '@/lib/points'
+import { calcQuizPoints, scoreAnswers, scoreToSm2Quality, scoreQuizAttempt } from '@/lib/points'
 import { sm2 } from '@/lib/sm2'
 import { pickRarity } from '@/lib/cards'
 import { checkAndUpdateMilestone } from '@/lib/vault/status'
@@ -114,21 +114,10 @@ export async function POST(req: Request) {
   if (consentGate.state === 'gated') {
     return NextResponse.json(CONSENT_GATE_RESPONSE, { status: 422 })
   }
-  const correctMap = new Map(correctAnswers.map((q) => [q.id, q.correct_answer]))
-  const typeMap    = new Map(correctAnswers.map((q) => [q.id, q.question_type]))
 
-  // Multi-part types cannot be verified by simple string comparison on the server.
-  // We trust the client's wasCorrect only when the child actually provided a non-empty answer,
-  // preventing fabricated perfect scores from blank submissions.
-  const MULTIPART_TYPES = new Set(['true_false_grid', 'ordered_list', 'source_analysis', 'explain_example', 'structured_answer'])
-
-  const scoredAnswers = answers.map((a) => ({
-    ...a,
-    wasCorrect: MULTIPART_TYPES.has(typeMap.get(a.questionId) ?? '')
-      ? Boolean(a.wasCorrect) && typeof a.childAnswer === 'string' && a.childAnswer.trim().length > 0
-      : correctMap.get(a.questionId)?.trim().toLowerCase() === a.childAnswer?.trim().toLowerCase(),
-  }))
-  // ── End server-side scoring ───────────────────────────────────────────────
+  // ── Server-side verification — never trust the client's wasCorrect ────────
+  const scoredAnswers = scoreAnswers(answers, correctAnswers)
+  // ── End server-side verification ──────────────────────────────────────────
 
   // Scored per distinct question with credit falling by try, not per answer row.
   // See scoreQuizAttempt in lib/points.ts for why.
