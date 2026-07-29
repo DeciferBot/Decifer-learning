@@ -1,6 +1,11 @@
 // POST /api/cron/streak-nudge
 // Vercel Cron — runs daily at 18:00 UTC.
-// Sends a push notification to children who have a streak ≥ 3 but haven't logged in today.
+// Sends a push notification to children who have a streak ≥ 1 but haven't logged in today.
+//
+// The threshold was 3. Nobody on this product has ever reached a streak of 5, so
+// a bar of 3 meant almost every at-risk streak was invisible to this job. Day 2
+// is exactly when a streak is most fragile and most worth saving.
+const MIN_STREAK_TO_NUDGE = 1
 
 export const dynamic = 'force-dynamic'
 
@@ -31,12 +36,12 @@ async function handler(req: Request) {
   const todayStart = new Date()
   todayStart.setHours(0, 0, 0, 0)
 
-  // Find children with streak ≥ 3 who haven't been active today
+  // Find children with a live streak who haven't been active today
   const { data: profiles } = await supabase
     .from('profiles')
     .select('id, display_name, streak_days, last_active')
     .eq('role', 'child')
-    .gte('streak_days', 3)
+    .gte('streak_days', MIN_STREAK_TO_NUDGE)
     .lt('last_active', todayStart.toISOString())
 
   if (!profiles?.length) return NextResponse.json({ sent: 0, reason: 'no at-risk streaks' })
@@ -61,7 +66,10 @@ async function handler(req: Request) {
         { endpoint: sub.endpoint, keys: sub.keys as { p256dh: string; auth: string } },
         JSON.stringify({
           title: `🔥 ${streak}-day streak at risk!`,
-          body: `${name}, log in before midnight to keep your streak alive.`,
+          // The ask has to match what the app now asks for. One round is about
+          // two minutes, and saying so is the difference between a nudge that
+          // sounds like homework and one that sounds doable before bed.
+          body: `${name}, one 2-minute round keeps your streak alive.`,
           icon: '/icon-192.png',
           url: '/dashboard/child',
           tag: 'streak-nudge',

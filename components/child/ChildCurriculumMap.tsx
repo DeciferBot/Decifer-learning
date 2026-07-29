@@ -10,7 +10,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import type { CurriculumSubject, CurriculumTopic } from '@/lib/parent-dashboard'
-import { Clock, Star, Check, AlertTriangle, MapPin, BookOpen, PencilLine, Zap, Flame } from '@/components/ui/icons'
+import { Clock, Star, Check, MapPin, BookOpen, Zap, Flame } from '@/components/ui/icons'
 
 // ─── canonical subject order ─────────────────────────────────────────────────
 const SUBJECT_ORDER = ['Maths', 'English', 'Science', 'Geography', 'History']
@@ -35,18 +35,45 @@ function c(name: string) { return COLS[name] ?? fallback }
 
 // ─── status ──────────────────────────────────────────────────────────────────
 
+// ─── path states ─────────────────────────────────────────────────────────────
+//
+// A child sees where they are on a path, never a mark. This screen used to show
+// every topic's percentage and put a red border, a red warning triangle and the
+// words "try again" on anything under 70%, which is a school report rendered in
+// pastel. Scores are still recorded and are still shown in full on the parent
+// dashboard, which is where they are actually useful.
+//
+// Four states, and none of them is a failure: not started, current, done,
+// mastered. A topic the child has started but not yet finished is "current", the
+// same state whether they scored 20% or 69%.
 function statusMeta(topic: CurriculumTopic, subjectName: string) {
   const col = c(subjectName)
   const score = topic.lastScore ?? 0
   if (topic.progressStatus === 'not_started')
     return { icon: null as React.ReactNode, label: 'Not started', ring: 'border border-gray-200/80', bg: col.light.replace('bg-[#', 'bg-[#').replace(']', ']/40'), badge: 'bg-gray-100 text-gray-400' }
   if (topic.progressStatus === 'in_progress')
-    return { icon: <Clock className="w-2.5 h-2.5" aria-hidden /> as React.ReactNode, label: 'In progress',  ring: 'border-solid', bg: '',          badge: 'bg-[#6C9EFF]/15 text-[#6C9EFF]' }
+    return { icon: <Clock className="w-2.5 h-2.5" aria-hidden /> as React.ReactNode, label: 'Carry on',  ring: 'border-solid', bg: '',          badge: 'bg-[#6C9EFF]/15 text-[#6C9EFF]' }
   if (score >= 0.95)
-    return { icon: <Star className="w-2.5 h-2.5" aria-hidden /> as React.ReactNode, label: 'Excelled!',    ring: 'border-solid border-[#FFC107]', bg: 'bg-[#FFFBEA]', badge: 'bg-[#FFC107]/20 text-[#B45309]' }
-  if (score >= 0.70)
-    return { icon: <Check className="w-2.5 h-2.5" aria-hidden /> as React.ReactNode, label: 'Passed',       ring: 'border-solid border-[#40C057]', bg: 'bg-[#F0FDF4]', badge: 'bg-[#40C057]/15 text-[#166534]' }
-  return   { icon: <AlertTriangle className="w-2.5 h-2.5" aria-hidden /> as React.ReactNode, label: 'Try again',    ring: 'border-solid border-[#FF6B6B]', bg: 'bg-[#FFF5F5]', badge: 'bg-[#FF6B6B]/15 text-[#B91C1C]' }
+    return { icon: <Star className="w-2.5 h-2.5" aria-hidden /> as React.ReactNode, label: 'Mastered',    ring: 'border-solid border-[#FFC107]', bg: 'bg-[#FFFBEA]', badge: 'bg-[#FFC107]/20 text-[#B45309]' }
+  return   { icon: <Check className="w-2.5 h-2.5" aria-hidden /> as React.ReactNode, label: 'Done',       ring: 'border-solid border-[#40C057]', bg: 'bg-[#F0FDF4]', badge: 'bg-[#40C057]/15 text-[#166534]' }
+}
+
+/**
+ * The one action this topic should offer.
+ *
+ * Learn / Practise / Quiz on every card asked a child to make a teacher's
+ * decision on every topic, forever. The app has the progress data, so it picks:
+ * a topic never started begins at Learn, one already under way goes to its quiz,
+ * and a finished one offers a replay.
+ */
+function primaryAction(topic: CurriculumTopic): { href: string; label: string; icon: React.ReactNode } {
+  if (topic.progressStatus === 'not_started') {
+    return { href: `/topics/${topic.topicId}/learn`, label: 'Start', icon: <BookOpen className="w-3 h-3" aria-hidden /> }
+  }
+  if (topic.progressStatus === 'in_progress') {
+    return { href: `/topics/${topic.topicId}/quiz`, label: 'Carry on', icon: <Zap className="w-3 h-3" aria-hidden /> }
+  }
+  return { href: `/topics/${topic.topicId}/quiz`, label: 'Play again', icon: <Zap className="w-3 h-3" aria-hidden /> }
 }
 
 // ─── Topic card ──────────────────────────────────────────────────────────────
@@ -54,16 +81,15 @@ function statusMeta(topic: CurriculumTopic, subjectName: string) {
 function TopicCard({
   topic,
   subjectName,
-  hasPractice,
 }: {
   topic: CurriculumTopic
   subjectName: string
-  hasPractice?: boolean
 }) {
   const col = c(subjectName)
   const st  = statusMeta(topic, subjectName)
   const score = topic.lastScore ?? 0
   const excelled = topic.progressStatus === 'completed' && score >= 0.95
+  const action = primaryAction(topic)
 
   return (
     <div className={`
@@ -84,18 +110,15 @@ function TopicCard({
         <p className="text-[13px] font-bold text-[#2D3748] leading-snug">{topic.title}</p>
       </div>
 
-      {/* progress bar for in-progress */}
-      {topic.progressStatus === 'in_progress' && (
-        <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
-          <div className={`h-full rounded-full ${col.bg} opacity-80`}
-            style={{ width: `${Math.max(10, Math.round((score || 0.2) * 100))}%` }} />
-        </div>
-      )}
+      {/* No progress bar here: its width was the child's last score, so a weak
+          attempt drew a nearly-empty bar, which reads as a mark by another name.
+          The "Carry on" badge says the same thing without ranking them. */}
 
-      {/* score */}
+      {/* state — a word, never a mark. Percentages live on the parent dashboard. */}
       {topic.progressStatus === 'completed' && (
-        <p className={`text-xs font-bold flex items-center gap-0.5 ${st.badge.split(' ')[1]}`}>
-          {Math.round(score * 100)}% {excelled ? <Star className="w-3 h-3" aria-hidden /> : score >= 0.70 ? <Check className="w-3 h-3" aria-hidden /> : 'try again'}
+        <p className={`text-xs font-bold flex items-center gap-1 ${st.badge.split(' ')[1]}`}>
+          {excelled ? <Star className="w-3 h-3" aria-hidden /> : <Check className="w-3 h-3" aria-hidden />}
+          {excelled ? 'Mastered' : 'Done'}
         </p>
       )}
 
@@ -104,28 +127,25 @@ function TopicCard({
         <span className="text-[10px] font-semibold text-[#FF9F43] flex items-center gap-0.5"><MapPin className="w-2.5 h-2.5" aria-hidden /> Focus topic</span>
       )}
 
-      {/* action buttons */}
-      <div className="flex gap-1.5 mt-auto">
+      {/* One primary action, chosen by where the child already is. The other two
+          routes stay reachable from the topic page itself. */}
+      <div className="flex items-center gap-1.5 mt-auto">
         <Link
-          href={`/topics/${topic.topicId}/learn`}
-          className={`flex-1 min-h-[36px] flex items-center justify-center gap-1 rounded-xl text-[11px] font-bold transition-colors ${col.btnBg}`}
+          href={action.href}
+          className={`flex-1 min-h-[44px] flex items-center justify-center gap-1.5 rounded-xl text-xs font-bold transition-colors ${col.btnBg}`}
         >
-          <BookOpen className="w-3 h-3" aria-hidden /> Learn
+          {action.icon} {action.label}
         </Link>
-        {hasPractice && (
+        {topic.progressStatus !== 'not_started' && (
           <Link
-            href={`/topics/${topic.topicId}/practise`}
-            className="flex-1 min-h-[36px] flex items-center justify-center gap-1 rounded-xl text-[11px] font-bold bg-[#52D9A0]/10 hover:bg-[#52D9A0]/20 text-[#52D9A0] transition-colors"
+            href={`/topics/${topic.topicId}/learn`}
+            aria-label={`Read the ${topic.title} lesson again`}
+            title="Read the lesson again"
+            className="flex-none min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
           >
-            <PencilLine className="w-3 h-3" aria-hidden /> Practise
+            <BookOpen className="w-3.5 h-3.5" aria-hidden />
           </Link>
         )}
-        <Link
-          href={`/topics/${topic.topicId}/quiz`}
-          className="flex-1 min-h-[36px] flex items-center justify-center gap-1 rounded-xl text-[11px] font-bold bg-[#FFD43B]/20 hover:bg-[#FFD43B]/35 text-[#92400E] transition-colors"
-        >
-          <Zap className="w-3 h-3" aria-hidden /> Quiz
-        </Link>
       </div>
     </div>
   )
@@ -133,13 +153,10 @@ function TopicCard({
 
 // ─── Subject lane ─────────────────────────────────────────────────────────────
 
-// topicPracticeMap: topicId → hasPractice
 function SubjectLane({
   subject,
-  practiceMap,
 }: {
   subject: CurriculumSubject
-  practiceMap: Map<string, boolean>
 }) {
   const col = c(subject.subjectName)
   const pct = subject.totalCount > 0 ? Math.round((subject.completedCount / subject.totalCount) * 100) : 0
@@ -161,7 +178,7 @@ function SubjectLane({
       <div className="flex gap-3 overflow-x-auto pb-2 pl-1 pr-4 scrollbar-thin scrollbar-thumb-gray-200 lg:hidden">
         {subject.topics.map((t) => (
           <div key={t.topicId} className="flex-shrink-0 w-52">
-            <TopicCard topic={t} subjectName={subject.subjectName} hasPractice={practiceMap.get(t.topicId)} />
+            <TopicCard topic={t} subjectName={subject.subjectName} />
           </div>
         ))}
       </div>
@@ -169,7 +186,7 @@ function SubjectLane({
       {/* desktop: 3-col grid */}
       <div className="hidden lg:grid lg:grid-cols-3 gap-3">
         {subject.topics.map((t) => (
-          <TopicCard key={t.topicId} topic={t} subjectName={subject.subjectName} hasPractice={practiceMap.get(t.topicId)} />
+          <TopicCard key={t.topicId} topic={t} subjectName={subject.subjectName} />
         ))}
       </div>
     </div>
@@ -187,9 +204,9 @@ function SummaryBar({ subjects, streak, points }: { subjects: CurriculumSubject[
 
   const stats = [
     { label: 'Topics done',   value: `${completed}/${total}`, sub: `${pct}% of your year`, colour: 'text-[#2D3748]' },
-    { label: 'In progress',   value: inProg,                  sub: 'keep going!',           colour: 'text-[#6C9EFF]' },
-    { label: 'Excelled',      value: excelled,                sub: '95%+ score',            colour: 'text-[#B45309]' },
-    { label: 'Streak',        value: streak,                  sub: 'days in a row',         colour: 'text-[#FF9F43]' },
+    { label: 'On the go',     value: inProg,                  sub: 'keep going!',          colour: 'text-[#6C9EFF]' },
+    { label: 'Mastered',      value: excelled,                sub: 'nailed it',            colour: 'text-[#B45309]' },
+    { label: 'Streak',        value: streak,                  sub: 'days in a row',        colour: 'text-[#FF9F43]' },
   ]
 
   return (
@@ -208,12 +225,12 @@ function SummaryBar({ subjects, streak, points }: { subjects: CurriculumSubject[
 // ─── Legend ──────────────────────────────────────────────────────────────────
 
 function Legend() {
+  // Four states, no failure state. See statusMeta above for why.
   const items: { icon: React.ReactNode; bg: string; text: string; label: string }[] = [
-    { icon: null,                                                              bg: 'bg-gray-100',      text: 'text-gray-400',   label: 'Not started' },
-    { icon: <Clock className="w-2.5 h-2.5" aria-hidden />,                   bg: 'bg-[#6C9EFF]/15', text: 'text-[#6C9EFF]', label: 'In progress' },
-    { icon: <Check className="w-2.5 h-2.5" aria-hidden />,                   bg: 'bg-[#40C057]/15', text: 'text-[#166534]', label: 'Passed' },
-    { icon: <Star className="w-2.5 h-2.5" aria-hidden />,                    bg: 'bg-[#FFC107]/20', text: 'text-[#B45309]', label: 'Excelled' },
-    { icon: <AlertTriangle className="w-2.5 h-2.5" aria-hidden />,           bg: 'bg-[#FF6B6B]/15', text: 'text-[#B91C1C]', label: 'Try again' },
+    { icon: null,                                          bg: 'bg-gray-100',      text: 'text-gray-400',  label: 'Not started' },
+    { icon: <Clock className="w-2.5 h-2.5" aria-hidden />, bg: 'bg-[#6C9EFF]/15', text: 'text-[#6C9EFF]', label: 'Carry on' },
+    { icon: <Check className="w-2.5 h-2.5" aria-hidden />, bg: 'bg-[#40C057]/15', text: 'text-[#166534]', label: 'Done' },
+    { icon: <Star className="w-2.5 h-2.5" aria-hidden />,  bg: 'bg-[#FFC107]/20', text: 'text-[#B45309]', label: 'Mastered' },
   ]
   return (
     <div className="flex flex-wrap gap-3 mb-6">
@@ -235,14 +252,12 @@ export function ChildCurriculumMap({
   yearLabel,
   streak = 0,
   points = 0,
-  practiceMap = new Map(),
 }: {
   subjects: CurriculumSubject[]
   displayName: string
   yearLabel: string
   streak?: number
   points?: number
-  practiceMap?: Map<string, boolean>
 }) {
   const sorted = sortSubjects(subjects)
   const totalTopics = sorted.reduce((n, s) => n + s.totalCount, 0)
@@ -284,7 +299,7 @@ export function ChildCurriculumMap({
 
       <div className="flex flex-col gap-8">
         {sorted.slice(0, visibleCount).map((s) => (
-          <SubjectLane key={s.subjectId} subject={s} practiceMap={practiceMap} />
+          <SubjectLane key={s.subjectId} subject={s} />
         ))}
       </div>
     </section>

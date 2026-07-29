@@ -20,6 +20,9 @@ import { ReflectionPrompt } from './ReflectionPrompt'
 import type { DroppedCard, EarnedBadge } from '@/app/api/quiz/submit/route'
 import { DifficultyPicker, type DifficultyChoice } from './DifficultyPicker'
 import { postQuizEvent, beaconQuizEvent } from './quiz-events'
+import { fireFeedback } from '@/lib/feedback'
+import { SoundToggle } from './SoundToggle'
+import { WinBurst } from './WinBurst'
 import MathText from '@/components/ui/MathText'
 import { GuardianVictoryScreen } from './GuardianVictoryScreen'
 import { HeartCrack, Swords, Sparkles, Trophy, Star, RefreshCw, Gift, Flame, Shield, Lightbulb, Target, Check } from '@/components/ui/icons'
@@ -32,6 +35,11 @@ const MAX_ATTEMPTS = 3
 const MAX_HEARTS = 3
 // Hearts are lost when a question is fully exhausted (all attempts wrong),
 // not on individual wrong answers. 3 exhausted questions = 1 heart lost.
+//
+// Hearts now apply to Zone Guardian battles only. Across the 99 topic-quiz
+// attempts on record not one ever ran out of them, so on an ordinary quiz they
+// were pure threat with no stake: they cost header room on a 375 px screen and
+// bought nothing. A boss fight is where losing is supposed to be possible.
 const EXHAUSTED_FOR_HEART_LOSS = 3
 
 export type QuizQuestion = {
@@ -79,6 +87,8 @@ type SubmitResult = {
   droppedCard: DroppedCard | null
   newBadges: EarnedBadge[]
   shieldAwarded: boolean
+  /** True when a freeze was spent to keep a streak that would have reset. */
+  streakSaved?: boolean
   isFirstWin: boolean
 }
 
@@ -112,7 +122,6 @@ export function QuizShell({
   questions,
   topicId,
   topicTitle = 'this topic',
-  initialShields = 0,
   submitUrl = '/api/quiz/submit',
   backHref = '/dashboard/child',
   backLabel = 'Back to Home',
@@ -125,7 +134,6 @@ export function QuizShell({
   questions: QuizQuestion[]
   topicId: string | null
   topicTitle?: string
-  initialShields?: number
   submitUrl?: string
   backHref?: string
   backLabel?: string
@@ -146,6 +154,9 @@ export function QuizShell({
   preselected?: boolean
 }) {
   const router = useRouter()
+
+  // Hearts are a boss-fight mechanic only. See EXHAUSTED_FOR_HEART_LOSS above.
+  const heartsEnabled = isGuardian
 
   // Difficulty selection — shown before quiz starts, unless preselected
   const [difficulty, setDifficulty] = useState<DifficultyChoice | null>(
@@ -186,13 +197,17 @@ export function QuizShell({
 
   // Hearts + streak shields
   const [hearts, setHearts] = useState(MAX_HEARTS)
-  const [shields, setShields] = useState(initialShields)
   const [exhaustedQuestions, setExhaustedQuestions] = useState(0)
   const [heartsDead, setHeartsDead] = useState(false)
-  const [shieldFlash, setShieldFlash] = useState(false)
 
   // Worked examples — shown on the first question of each question_type in the session.
   const shownWorkedExampleFor = useRef<Set<string>>(new Set())
+
+  // Fix-up round: after a miss, the child replays only the questions they did
+  // not get right, rather than being shown a fail screen and asked to redo the
+  // whole round. The replay submits as its own attempt, so clearing it is what
+  // completes the topic.
+  const [isFixUp, setIsFixUp] = useState(false)
 
   // Quiz completion + submission
   const [done, setDone] = useState(false)
@@ -331,6 +346,7 @@ export function QuizShell({
     })
 
     if (isCorrect) {
+      fireFeedback('correct')
       // Points: 3 for first attempt, 2 for second, 1 for third; 2× for bonus challenge
       const basePts = POINTS_BY_ATTEMPT[attempts] ?? 1
       const isBonus = qIndex === bonusIndex
@@ -357,6 +373,7 @@ export function QuizShell({
         setHintlessStreak(newStreak)
         if (newStreak === 3) {
           // Streak bonus: +5 pts on top
+          fireFeedback('combo')
           setTotalPoints((p) => p + 5)
           setShowStreakBonus(true)
           setTimeout(() => setShowStreakBonus(false), 2000)
@@ -373,24 +390,22 @@ export function QuizShell({
         setTimeout(() => setShowHalfway(false), 2200)
       }
     } else {
+      fireFeedback('incorrect')
       setAttempts(newAttempts)
       if (newAttempts >= MAX_ATTEMPTS) {
         // Exhausted all attempts
         setQuestionDone(true)
         setTimeout(() => feedbackRef.current?.focus(), 60)
+        if (!heartsEnabled) return
         const newExhausted = exhaustedQuestions + 1
         if (newExhausted >= EXHAUSTED_FOR_HEART_LOSS) {
-          if (shields > 0) {
-            setShields(shields - 1)
-            setShieldFlash(true)
-            setTimeout(() => setShieldFlash(false), 800)
-            fetch('/api/streak/shields/use', { method: 'POST' }).catch(() => null)
-          } else {
-            const newH = hearts - 1
-            heartsAtDoneRef.current = newH
-            setHearts(newH)
-            if (newH <= 0) setHeartsDead(true)
-          }
+          // Shields are no longer spent here. They are streak freezes now (see
+          // lib/streak.ts), which is what their name always promised; letting a
+          // boss fight eat them would take away the thing protecting the streak.
+          const newH = hearts - 1
+          heartsAtDoneRef.current = newH
+          setHearts(newH)
+          if (newH <= 0) setHeartsDead(true)
           setExhaustedQuestions(0)
         } else {
           setExhaustedQuestions(newExhausted)
@@ -425,6 +440,7 @@ export function QuizShell({
     const isBonus = qIndex === bonusIndex
     const basePts = allCorrect ? POINTS_BY_ATTEMPT[0] : Math.round(fraction * POINTS_BY_ATTEMPT[2])
     const pts = isBonus ? basePts * 2 : basePts
+    fireFeedback(allCorrect ? 'correct' : 'incorrect')
     if (pts > 0) {
       setTotalPoints((p) => p + pts)
       setPointsFlash(pts)
@@ -455,6 +471,7 @@ export function QuizShell({
 
     const nextIdx = qIndex + 1
     if (nextIdx >= activeQuestions.length) {
+      fireFeedback('roundComplete')
       heartsAtDoneRef.current = hearts
       setDone(true)
       return
@@ -471,12 +488,69 @@ export function QuizShell({
     questionStartRef.current = Date.now()
   }
 
+  /** Questions in the round just played that were never answered correctly. */
+  function missedQuestions(): QuizQuestion[] {
+    const gotRight = new Set(
+      answerLogRef.current.filter((l) => l.wasCorrect).map((l) => l.questionId),
+    )
+    return activeQuestions.filter((qq) => !gotRight.has(qq.id))
+  }
+
+  /**
+   * Replay only the missed questions. Everything the child already earned is
+   * banked by the submit that just happened, so this starts a clean attempt over
+   * a smaller set rather than throwing the round away and starting again.
+   */
+  function startFixUp() {
+    const missed = missedQuestions()
+    if (missed.length === 0) return
+
+    setIsFixUp(true)
+    setActiveQuestions(missed)
+    // No bonus question in a fix-up: doubling points on a question the child has
+    // already got wrong once reads as a taunt.
+    setBonusIndex(-1)
+    setQIndex(0)
+    setChoices(buildInitialChoices(missed[0]))
+    setLastPicked(null)
+    setAttempts(0)
+    setQuestionDone(false)
+    setAnsweredCorrectly(false)
+    setHintsRevealed(0)
+    setManualHintsRevealed(0)
+    setTotalPoints(0)
+    setQuestionsCorrect(0)
+    setPointsFlash(null)
+    setTechniqueCorrect(0)
+    setTechniqueTotal(0)
+    setHintlessStreak(0)
+    setShowStreakBonus(false)
+    setShowHalfway(false)
+    setExhaustedQuestions(0)
+    setDone(false)
+    setSubmitting(false)
+    setSubmitResult(null)
+    setSubmittedOffline(false)
+    setShowCard(false)
+    setBadgeQueue([])
+    setShowReflection(false)
+    shownWorkedExampleFor.current = new Set()
+    answerLogRef.current = []
+    questionStartRef.current = Date.now()
+    quizStartRef.current = Date.now()
+    heartsAtDoneRef.current = hearts
+    // A fix-up is its own run for drop-point instrumentation.
+    firstAnswerFiredRef.current = false
+    abandonFiredRef.current = false
+  }
+
   function restart() {
     // A preselected quiz keeps its server-pitched set on an in-page retry. The
     // child gets the full picker next time they open the page, by which point
     // the attempt is recorded and the server serves the standard mix.
     setDifficulty(preselected ? 'confidence' : null)
     setActiveQuestions(preselected ? questions : [])
+    setIsFixUp(false)
     setBonusIndex(preselected ? pickBonusIndex(questions.length) : -1)
     setHintlessStreak(0)
     setShowStreakBonus(false)
@@ -497,9 +571,7 @@ export function QuizShell({
     setDone(false)
     setHeartsDead(false)
     setHearts(MAX_HEARTS)
-    setShields(initialShields)
     setExhaustedQuestions(0)
-    setShieldFlash(false)
     shownWorkedExampleFor.current = new Set()
     setShowReflection(false)
     setSubmitting(false)
@@ -563,8 +635,8 @@ export function QuizShell({
     if (remaining.length === 0 && submitResult?.passed) setShowReflection(true)
   }
 
-  // ── Hearts dead → retry screen ───────────────────────────────────────────
-  if (heartsDead) {
+  // ── Hearts dead → retry screen (boss fights only) ────────────────────────
+  if (heartsDead && heartsEnabled) {
     return (
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
@@ -642,7 +714,22 @@ export function QuizShell({
     const serverTotalPoints = submitResult?.totalPoints
     const streakDays = submitResult?.streakDays
     const shieldAwarded = submitResult?.shieldAwarded
+    const streakSaved = submitResult?.streakSaved === true
     const isFirstWin = submitResult?.isFirstWin === true
+
+    // A miss is a detour, not a verdict: offer the questions they got wrong as a
+    // short replay instead of asking them to redo the whole round. Only offered
+    // once the submit has landed, so the points and the card are already banked,
+    // and never on a Guardian battle, where a loss is meant to end the fight.
+    const missedCount = missedQuestions().length
+    const canFixUp = !passed && !isGuardian && !!submitResult && missedCount > 0
+
+    // Answered everything correctly in the end, but took enough retries that the
+    // credit weighting kept the score under the pass mark. 17 of the 99 attempts
+    // on record landed here and every one of them was shown a grey retry icon for
+    // getting the whole round right. There is nothing to fix up, so this earns an
+    // honest "go again for a cleaner run" rather than a failure screen.
+    const allEventuallyCorrect = !passed && !isGuardian && !!submitResult && missedCount === 0
 
     return (
       <>
@@ -678,14 +765,26 @@ export function QuizShell({
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="rounded-2xl border border-black/5 bg-surface p-8 text-center shadow-sm"
+          className="relative overflow-hidden rounded-2xl border border-black/5 bg-surface p-8 text-center shadow-sm"
         >
-          <div className="flex justify-center mb-3">
-            {passed ? (isFirstWin ? <Trophy className="w-12 h-12 text-points-gold" aria-hidden /> : <Star className="w-12 h-12 text-points-gold" aria-hidden />) : <RefreshCw className="w-12 h-12 text-muted" aria-hidden />}
+          {/* Confetti for a pass, and for a round that still banked a card. */}
+          {(passed || canFixUp || allEventuallyCorrect) && <WinBurst />}
+          <div className="relative flex justify-center mb-3">
+            {passed
+              ? (isFirstWin ? <Trophy className="w-12 h-12 text-points-gold" aria-hidden /> : <Star className="w-12 h-12 text-points-gold" aria-hidden />)
+              : canFixUp || allEventuallyCorrect
+                // A round that ends with points banked and a card won is not a
+                // failure screen, so it does not get the grey retry icon.
+                ? <Sparkles className="w-12 h-12 text-points-gold" aria-hidden />
+                : <RefreshCw className="w-12 h-12 text-muted" aria-hidden />}
           </div>
           <h2 className="font-heading text-2xl font-bold text-ink">
             {passed
               ? (isFirstWin ? 'First topic complete!' : 'Great work!')
+              : allEventuallyCorrect
+                ? 'You got every one!'
+              : canFixUp
+                ? (isFixUp ? 'Nearly there!' : 'Round complete!')
               // "You got 0 right" is a rough thing to say to a child, so a blank
               // result gets encouragement instead of a count.
               : questionsCorrect > 0
@@ -705,6 +804,10 @@ export function QuizShell({
           <p className="mt-1 text-muted">
             {passed
               ? winMessage
+              : allEventuallyCorrect
+                ? 'Every question, right in the end. A few took more than one go, so play it once more to finish the topic off.'
+              : canFixUp
+                ? `Your points are banked. ${missedCount} question${missedCount !== 1 ? 's' : ''} gave you trouble, so let's just do ${missedCount !== 1 ? 'those' : 'that one'} again.`
               : questionsToPass > 0
                 ? `${questionsToPass} more and this topic is finished. Your points are saved and we have kept your progress.`
                 : 'Your points are saved and we have kept your progress. Have another go when you are ready.'}
@@ -746,9 +849,14 @@ export function QuizShell({
               {typeof streakDays === 'number' && streakDays > 0 && (
                 <p className="text-sm text-muted flex items-center gap-1"><Flame className="w-3.5 h-3.5" aria-hidden /> {streakDays} day streak</p>
               )}
+              {streakSaved && (
+                <p className="text-sm font-bold flex items-center justify-center gap-1 text-ink-2">
+                  <Shield className="w-3.5 h-3.5 text-explorer" aria-hidden /> A Streak Shield saved your streak!
+                </p>
+              )}
               {shieldAwarded && (
-                <p className="text-sm font-bold flex items-center gap-1 text-ink-2">
-                  <Shield className="w-3.5 h-3.5 text-explorer" aria-hidden /> Streak Shield awarded!
+                <p className="text-sm font-bold flex items-center justify-center gap-1 text-ink-2">
+                  <Shield className="w-3.5 h-3.5 text-explorer" aria-hidden /> Streak Shield earned. It protects your streak if you miss a day.
                 </p>
               )}
             </div>
@@ -792,12 +900,20 @@ export function QuizShell({
                 View Collection
               </Link>
             )}
-            {!passed && (
+            {canFixUp && (
+              <button
+                onClick={startFixUp}
+                className="min-h-[48px] rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white transition-opacity hover:opacity-90"
+              >
+                Fix {missedCount === 1 ? 'that one' : `those ${missedCount}`} →
+              </button>
+            )}
+            {!passed && !canFixUp && (
               <button
                 onClick={restart}
                 className="min-h-[48px] rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white transition-opacity hover:opacity-90"
               >
-                Try Again
+                {allEventuallyCorrect ? 'Go again for a clean run →' : 'Try Again'}
               </button>
             )}
             <Link
@@ -925,20 +1041,13 @@ export function QuizShell({
         )}
       </AnimatePresence>
 
-      {/* Header row: hearts + live score */}
+      {/* Header row: hearts (boss fights only) or the mute control, + live score */}
       <div className="flex items-center justify-between">
-        <HeartsDisplay hearts={hearts} />
+        {heartsEnabled ? <HeartsDisplay hearts={hearts} /> : <SoundToggle />}
         <div className="flex items-center gap-3">
-          {shields > 0 && (
-            <motion.span
-              animate={shieldFlash ? { scale: [1, 1.4, 1], opacity: [1, 0.5, 1] } : {}}
-              transition={{ duration: 0.4 }}
-              className="flex items-center gap-0.5 text-sm font-bold text-ink-2"
-              aria-label={`${shields} streak shield${shields !== 1 ? 's' : ''}, each absorbs one heart loss`}
-            >
-              <Shield className="w-4 h-4 text-explorer" aria-hidden /> <span aria-hidden>×{shields}</span>
-            </motion.span>
-          )}
+          {/* No shield count here: shields are streak freezes now, spent between
+              sessions rather than inside one, so the home screen is where they
+              belong. */}
           {/* Live score display */}
           <div className="relative flex items-center gap-1">
             <span

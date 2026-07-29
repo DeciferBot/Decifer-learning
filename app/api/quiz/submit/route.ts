@@ -4,11 +4,12 @@ import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import { calcQuizPoints, scoreAnswers, scoreToSm2Quality, scoreQuizAttempt } from '@/lib/points'
 import { sm2 } from '@/lib/sm2'
-import { pickRarity } from '@/lib/cards'
+import { rarityForRoundResult, type Rarity } from '@/lib/cards'
 import { checkAndUpdateMilestone } from '@/lib/vault/status'
 import { recordLearningEvent } from '@/lib/learning-events'
 import { getConsentGate, CONSENT_GATE_RESPONSE } from '@/lib/parental-consent'
 import { notifyParentBigMoment } from '@/lib/parent-notify'
+import { resolveStreak, earnsFreeze, MAX_STREAK_FREEZES } from '@/lib/streak'
 
 type AnswerInput = {
   questionId: string
@@ -132,7 +133,23 @@ export async function POST(req: Request) {
 
   const points = calcQuizPoints(scoredAnswers)
 
-  const { streakDays, newStreak, streakProfileUpdate } = calcStreakUpdate(profile)
+  // Freezes are read before the transaction so the streak outcome is decided on
+  // the same balance the transaction then adjusts.
+  const heldFreezes = (
+    await prisma.streakShield.findUnique({
+      where: { profile_id: profile.id },
+      select: { quantity: true },
+    })
+  )?.quantity ?? 0
+
+  const streakOutcome = resolveStreak({
+    lastActive: profile.last_active,
+    streakDays: profile.streak_days,
+    freezesAvailable: heldFreezes,
+    now: new Date(),
+  })
+  const streakDays = streakOutcome.streakDays
+  const newStreak = streakOutcome.changed
 
   const result = await prisma.$transaction(async (tx) => {
     // Write quiz_attempt
@@ -246,7 +263,8 @@ export async function POST(req: Request) {
       data: {
         total_points: newTotalPoints,
         sr_easiness: smEasiness,
-        ...streakProfileUpdate,
+        streak_days: streakDays,
+        last_active: new Date(),
       },
     })
 
@@ -268,21 +286,31 @@ export async function POST(req: Request) {
       newStreakDays: streakDays,
     })
 
-    // ── Streak shield award (when Streak 7 earned for the first time) ─────
+    // ── Streak freezes ────────────────────────────────────────────────────
+    // Spend first: this round may have been the one that survived a missed day.
+    // Clamped at 0 rather than a plain decrement, because the balance was read
+    // before the transaction opened and two submissions landing together would
+    // otherwise be able to drive it negative.
+    if (streakOutcome.freezesUsed > 0) {
+      await tx.$executeRaw`
+        UPDATE streak_shields
+        SET quantity = GREATEST(quantity - ${streakOutcome.freezesUsed}::int, 0)
+        WHERE profile_id = ${profile.id}::uuid
+      `
+    }
+
+    // Then earn. Awarded every third day of a streak and capped at
+    // MAX_STREAK_FREEZES held, so a regular player keeps a small buffer.
+    // Previously the only source was the one-off Streak 7 badge, which no child
+    // has ever reached.
+    const freezesAfterSpend = heldFreezes - streakOutcome.freezesUsed
     let shieldAwarded = false
-    const streak7Badge = newBadges.find(
-      (b) =>
-        b !== null &&
-        typeof b.trigger_rule === 'object' &&
-        b.trigger_rule !== null &&
-        (b.trigger_rule as { type: string }).type === 'streak_days',
-    )
-    if (streak7Badge) {
+    if (streakOutcome.changed && earnsFreeze(streakDays, freezesAfterSpend)) {
       await tx.$executeRaw`
         INSERT INTO streak_shields (profile_id, quantity)
         VALUES (${profile.id}::uuid, 1)
         ON CONFLICT (profile_id)
-        DO UPDATE SET quantity = streak_shields.quantity + 1
+        DO UPDATE SET quantity = LEAST(streak_shields.quantity + 1, ${MAX_STREAK_FREEZES}::int)
       `
       shieldAwarded = true
     }
@@ -298,15 +326,18 @@ export async function POST(req: Request) {
           description: b.description ?? '',
         })) satisfies EarnedBadge[],
       shieldAwarded,
+      streakSaved: streakOutcome.streakSaved,
     }
   }, { timeout: 15000 })
 
   // ── Card drop — runs OUTSIDE the main transaction so quiz results always save ─
   // A failure here logs and returns null; it never breaks the quiz response.
+  // See rarityForRoundResult in lib/cards.ts for which round earns what.
   let droppedCard: DroppedCard | null = null
-  if (passed) {
+  const rarity = rarityForRoundResult(passed, correctCount)
+  if (rarity) {
     try {
-      droppedCard = await dropCard(prisma, profile.id, profile.year_group_id)
+      droppedCard = await dropCard(prisma, profile.id, profile.year_group_id, rarity)
     } catch (err) {
       console.error('[quiz/submit] card drop failed:', err)
     }
@@ -370,6 +401,7 @@ export async function POST(req: Request) {
     droppedCard,
     newBadges: result.newBadges,
     shieldAwarded: result.shieldAwarded,
+    streakSaved: result.streakSaved,
     isFirstWin: result.isFirstWin,
   })
 }
@@ -380,9 +412,8 @@ async function dropCard(
   db: typeof prisma,
   profileId: string,
   yearGroupId: string | null,
+  rarity: Rarity,
 ): Promise<DroppedCard | null> {
-  const rarity = pickRarity()
-
   // Find published cards for this rarity: year-group-specific OR shared (null)
   const candidates = await db.cardCatalog.findMany({
     where: {
@@ -475,41 +506,4 @@ async function checkBadges(
   return awarded
 }
 
-// ── Streak calculation ────────────────────────────────────────────────────
-
-function calcStreakUpdate(profile: {
-  last_active: Date | null
-  streak_days: number
-}): {
-  streakDays: number
-  newStreak: boolean
-  streakProfileUpdate: { streak_days: number; last_active: Date }
-} {
-  const now = new Date()
-  const todayStr = now.toISOString().slice(0, 10)
-  const lastStr = profile.last_active?.toISOString().slice(0, 10)
-
-  if (lastStr === todayStr) {
-    return {
-      streakDays: profile.streak_days,
-      newStreak: false,
-      streakProfileUpdate: { streak_days: profile.streak_days, last_active: now },
-    }
-  }
-
-  let newStreakDays: number
-  if (lastStr) {
-    const yesterday = new Date(now)
-    yesterday.setDate(yesterday.getDate() - 1)
-    const yesterdayStr = yesterday.toISOString().slice(0, 10)
-    newStreakDays = lastStr === yesterdayStr ? profile.streak_days + 1 : 1
-  } else {
-    newStreakDays = 1
-  }
-
-  return {
-    streakDays: newStreakDays,
-    newStreak: newStreakDays !== profile.streak_days,
-    streakProfileUpdate: { streak_days: newStreakDays, last_active: now },
-  }
-}
+// Streak resolution, including freezes, lives in lib/streak.ts (resolveStreak).
