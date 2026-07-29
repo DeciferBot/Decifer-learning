@@ -9,7 +9,7 @@ import { checkAndUpdateMilestone } from '@/lib/vault/status'
 import { recordLearningEvent } from '@/lib/learning-events'
 import { getConsentGate, CONSENT_GATE_RESPONSE } from '@/lib/parental-consent'
 import { notifyParentBigMoment } from '@/lib/parent-notify'
-import { resolveStreak, earnsFreeze, MAX_STREAK_FREEZES } from '@/lib/streak'
+import { applyRoundToStreak } from '@/lib/streak-server'
 
 type AnswerInput = {
   questionId: string
@@ -133,24 +133,6 @@ export async function POST(req: Request) {
 
   const points = calcQuizPoints(scoredAnswers)
 
-  // Freezes are read before the transaction so the streak outcome is decided on
-  // the same balance the transaction then adjusts.
-  const heldFreezes = (
-    await prisma.streakShield.findUnique({
-      where: { profile_id: profile.id },
-      select: { quantity: true },
-    })
-  )?.quantity ?? 0
-
-  const streakOutcome = resolveStreak({
-    lastActive: profile.last_active,
-    streakDays: profile.streak_days,
-    freezesAvailable: heldFreezes,
-    now: new Date(),
-  })
-  const streakDays = streakOutcome.streakDays
-  const newStreak = streakOutcome.changed
-
   const result = await prisma.$transaction(async (tx) => {
     // Write quiz_attempt
     const attempt = await tx.quizAttempt.create({
@@ -257,15 +239,23 @@ export async function POST(req: Request) {
       }
     }
 
-    // Update profile (points + streak + SM-2 in one write)
+    // Update profile (points + SM-2). The streak is settled separately below,
+    // by the same helper the daily challenge uses.
     await tx.profile.update({
       where: { id: profile.id },
       data: {
         total_points: newTotalPoints,
         sr_easiness: smEasiness,
-        streak_days: streakDays,
-        last_active: new Date(),
       },
+    })
+
+    // ── Streak ────────────────────────────────────────────────────────────
+    // A completed round is what moves the streak, and this is one. Idempotent
+    // per day, so a second round today changes nothing.
+    const streakResult = await applyRoundToStreak(tx, {
+      id: profile.id,
+      streak_days: profile.streak_days,
+      last_round_on: profile.last_round_on,
     })
 
     // ── First-win detection ───────────────────────────────────────────────
@@ -283,37 +273,8 @@ export async function POST(req: Request) {
       profileId: profile.id,
       passed,
       perfectScore,
-      newStreakDays: streakDays,
+      newStreakDays: streakResult.streakDays,
     })
-
-    // ── Streak freezes ────────────────────────────────────────────────────
-    // Spend first: this round may have been the one that survived a missed day.
-    // Clamped at 0 rather than a plain decrement, because the balance was read
-    // before the transaction opened and two submissions landing together would
-    // otherwise be able to drive it negative.
-    if (streakOutcome.freezesUsed > 0) {
-      await tx.$executeRaw`
-        UPDATE streak_shields
-        SET quantity = GREATEST(quantity - ${streakOutcome.freezesUsed}::int, 0)
-        WHERE profile_id = ${profile.id}::uuid
-      `
-    }
-
-    // Then earn. Awarded every third day of a streak and capped at
-    // MAX_STREAK_FREEZES held, so a regular player keeps a small buffer.
-    // Previously the only source was the one-off Streak 7 badge, which no child
-    // has ever reached.
-    const freezesAfterSpend = heldFreezes - streakOutcome.freezesUsed
-    let shieldAwarded = false
-    if (streakOutcome.changed && earnsFreeze(streakDays, freezesAfterSpend)) {
-      await tx.$executeRaw`
-        INSERT INTO streak_shields (profile_id, quantity)
-        VALUES (${profile.id}::uuid, 1)
-        ON CONFLICT (profile_id)
-        DO UPDATE SET quantity = LEAST(streak_shields.quantity + 1, ${MAX_STREAK_FREEZES}::int)
-      `
-      shieldAwarded = true
-    }
 
     return {
       newTotalPoints,
@@ -325,8 +286,10 @@ export async function POST(req: Request) {
           name: b.name ?? '',
           description: b.description ?? '',
         })) satisfies EarnedBadge[],
-      shieldAwarded,
-      streakSaved: streakOutcome.streakSaved,
+      shieldAwarded: streakResult.freezeEarned,
+      streakSaved: streakResult.streakSaved,
+      streakDays: streakResult.streakDays,
+      newStreak: streakResult.changed,
     }
   }, { timeout: 15000 })
 
@@ -396,8 +359,8 @@ export async function POST(req: Request) {
     scoreFraction,
     totalQuestions,
     totalPoints: result.newTotalPoints,
-    streakDays,
-    newStreak,
+    streakDays: result.streakDays,
+    newStreak: result.newStreak,
     droppedCard,
     newBadges: result.newBadges,
     shieldAwarded: result.shieldAwarded,

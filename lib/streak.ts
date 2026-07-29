@@ -46,19 +46,24 @@ const DAY_MS = 86_400_000
  * Dates are compared in UTC, matching the behaviour this replaced.
  */
 export function resolveStreak(opts: {
-  lastActive: Date | null
+  /**
+   * The last day the child finished a round, NOT the last day they opened the
+   * app. Opening a screen is not learning, and a streak earned by loading a page
+   * means nothing. See profiles.last_round_on.
+   */
+  lastRoundOn: Date | null
   streakDays: number
   freezesAvailable: number
   now: Date
 }): StreakOutcome {
-  const { lastActive, streakDays, freezesAvailable, now } = opts
+  const { lastRoundOn, streakDays, freezesAvailable, now } = opts
 
   // Never played: today is day one.
-  if (!lastActive) {
+  if (!lastRoundOn) {
     return { streakDays: 1, changed: true, freezesUsed: 0, streakSaved: false }
   }
 
-  const gapDays = Math.round((utcDayStart(now) - utcDayStart(lastActive)) / DAY_MS)
+  const gapDays = Math.round((utcDayStart(now) - utcDayStart(lastRoundOn)) / DAY_MS)
 
   // Already counted today. Idempotent by design: the home screen calls this on
   // every mount.
@@ -93,6 +98,49 @@ export function resolveStreak(opts: {
  * so a child who plays regularly builds a small buffer, and one who has already
  * banked two does not accumulate more.
  */
+/**
+ * The streak to SHOW, given the child may not have played yet today.
+ *
+ * The stored `streak_days` is only corrected on the next round, so reading it
+ * raw would tell a child who last played a fortnight ago that they still have a
+ * 9 day streak. This reports what the streak is actually worth right now:
+ *
+ *   - played today or yesterday → the stored number, still live
+ *   - a gap their freezes can cover → the stored number, at risk but alive
+ *   - anything longer → 0, because it has lapsed
+ *
+ * Display only. It spends nothing and writes nothing; the freeze is not actually
+ * consumed until the child plays a round.
+ */
+export function displayedStreak(opts: {
+  lastRoundOn: Date | null
+  streakDays: number
+  freezesAvailable: number
+  now: Date
+}): number {
+  const { lastRoundOn, streakDays, freezesAvailable, now } = opts
+  if (!lastRoundOn || streakDays <= 0) return 0
+
+  const gapDays = Math.round((utcDayStart(now) - utcDayStart(lastRoundOn)) / DAY_MS)
+  if (gapDays <= 1) return streakDays
+
+  const missedDays = gapDays - 1
+  const covered = missedDays <= MAX_STREAK_FREEZES && freezesAvailable >= missedDays
+  return covered ? streakDays : 0
+}
+
+/** True when today's round has not happened yet and the streak is still alive. */
+export function streakAtRisk(opts: {
+  lastRoundOn: Date | null
+  streakDays: number
+  freezesAvailable: number
+  now: Date
+}): boolean {
+  if (!opts.lastRoundOn) return false
+  const gapDays = Math.round((utcDayStart(opts.now) - utcDayStart(opts.lastRoundOn)) / DAY_MS)
+  return gapDays >= 1 && displayedStreak(opts) > 0
+}
+
 export function earnsFreeze(newStreakDays: number, currentlyHeld: number): boolean {
   if (currentlyHeld >= MAX_STREAK_FREEZES) return false
   if (newStreakDays <= 0) return false

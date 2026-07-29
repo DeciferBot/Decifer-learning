@@ -26,6 +26,8 @@ export type Profile = {
   year_group_label: YearGroupLabel | null
   total_points: number
   streak_days: number
+  /** Last UTC day the child finished a round. Drives the streak; see lib/streak.ts. */
+  last_round_on: Date | null
 }
 
 type ProfileRow = {
@@ -36,6 +38,7 @@ type ProfileRow = {
   year_group_id: string | null
   total_points: number
   streak_days: number
+  last_round_on: string | null
   year_groups: { label: string } | { label: string }[] | null
 }
 
@@ -54,7 +57,7 @@ export const getCurrentProfile = cache(async (
   const { data, error } = await supabase
     .from('profiles')
     .select(
-      'id, user_id, display_name, role, year_group_id, total_points, streak_days, year_groups(label)'
+      'id, user_id, display_name, role, year_group_id, total_points, streak_days, last_round_on, year_groups(label)'
     )
     .eq('user_id', userId)
     .maybeSingle<ProfileRow>()
@@ -70,5 +73,8 @@ export const getCurrentProfile = cache(async (
     year_group_label: pickYearGroupLabel(data.year_groups),
     total_points: data.total_points,
     streak_days: data.streak_days,
+    // Supabase returns a DATE column as a 'YYYY-MM-DD' string; lib/streak.ts
+    // compares in UTC, so parse it as UTC midnight rather than local.
+    last_round_on: data.last_round_on ? new Date(`${data.last_round_on}T00:00:00.000Z`) : null,
   }
 })

@@ -48,7 +48,13 @@ model Profile {
   role                   Role      @default(child)
   total_points           Int       @default(0)
   streak_days            Int       @default(0)
+  // Last time the child opened the app. Drives the admin activity and
+  // engagement metrics. Deliberately NOT the streak driver: opening a page is
+  // not learning, and a streak you earn by loading a screen means nothing.
   last_active            DateTime?
+  // Last calendar day (UTC) the child actually finished a round: a quiz attempt
+  // or the Daily Mystery Challenge. This is what the streak counts.
+  last_round_on          DateTime? @db.Date
   sr_easiness            Float     @default(2.5)
   dashboard_widgets      Json?
   study_buddy            String?

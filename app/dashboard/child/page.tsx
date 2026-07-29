@@ -29,6 +29,7 @@ import { StreakPing } from './StreakPing'
 import { getVaultStatus } from '@/lib/vault/status'
 import { NewParentLinkNotice } from './NewParentLinkNotice'
 import { DailyGoalRing, StreakReminderPrompt } from '@/components/child/DailyGoalRing'
+import { displayedStreak } from '@/lib/streak'
 import { Layers, Star, Target, Trophy, PencilLine, BookOpen, Gift, Flame, MapPin, RefreshCw, Shield } from '@/components/ui/icons'
 
 export const metadata = { title: 'Home' }
@@ -208,8 +209,16 @@ export default async function ChildDashboardPage() {
   ])
 
   const points = profile?.total_points ?? 0
-  const streak = profile?.streak_days ?? 0
   const shields = shieldRow?.quantity ?? 0
+  // What the streak is actually worth right now. The stored number is only
+  // corrected on the next round, so reading it raw would tell a child who last
+  // played a fortnight ago that they still have a 9 day streak.
+  const streak = displayedStreak({
+    lastRoundOn: profile?.last_round_on ?? null,
+    streakDays: profile?.streak_days ?? 0,
+    freezesAvailable: shieldRow?.quantity ?? 0,
+    now: new Date(),
+  })
   const neverPlayed = attemptCount === 0
   const vaultCredits = vaultResult?.creditBalance ?? 0
   const vaultBand = vaultResult?.currentBand ?? 'none'
@@ -245,6 +254,7 @@ export default async function ChildDashboardPage() {
     neverPlayed,
   })
 
+  // Today's round is done if a quiz attempt or the daily challenge landed today.
   const goalMet = roundsToday > 0 || dailyChallengeToday !== null
 
   return (
