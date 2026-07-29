@@ -181,42 +181,51 @@ def retrieve_chunks(
     public-domain poem set) rather than the shared subject+year pool, which would
     otherwise drown a small dedicated source in thousands of Oak chunks.
 
+    Candidates come from every year in the topic's KEY STAGE, not just its own year,
+    because our year assignment and Oak's disagree systematically (see the note on
+    config.YEAR_KEY_STAGE). Exact-year chunks are still preferred via the same
+    distance-bonus mechanism used for Oak rich, so this widens the net without
+    changing what wins when the topic's own year does have the material.
+
     If query_embedding is None (embeddings disabled) or no embedded chunks
     exist, returns up to `limit` chunks in insertion order, Oak rich first.
     """
+    years = config.years_in_key_stage(year_group_label)
     conn = get_connection()
     try:
         with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
             src_clause = " AND source_name = %s" if restrict_source else ""
             if query_embedding is not None:
-                params = [subject, year_group_label]
+                params = [subject, years]
                 if restrict_source:
                     params.append(restrict_source)
-                params += [str(query_embedding.tolist()), limit]
+                params += [str(query_embedding.tolist()), year_group_label, limit]
                 cur.execute(
                     f"""
                     SELECT id, chunk_text, source_name, subject, year_group
                     FROM curriculum_chunks
-                    WHERE subject = %s AND year_group = %s
+                    WHERE subject = %s AND year_group = ANY(%s)
                       AND embedding IS NOT NULL{src_clause}
                     ORDER BY
                       (embedding <=> %s::vector)
                       - (CASE WHEN source_name = 'Oak NA rich (OGL v3.0)' THEN 0.12 ELSE 0 END)
+                      - (CASE WHEN year_group = %s THEN 0.05 ELSE 0 END)
                     LIMIT %s
                     """,
                     tuple(params),
                 )
             else:
-                params = [subject, year_group_label]
+                params = [subject, years]
                 if restrict_source:
                     params.append(restrict_source)
-                params.append(limit)
+                params += [year_group_label, limit]
                 cur.execute(
                     f"""
                     SELECT id, chunk_text, source_name, subject, year_group
                     FROM curriculum_chunks
-                    WHERE subject = %s AND year_group = %s{src_clause}
+                    WHERE subject = %s AND year_group = ANY(%s){src_clause}
                     ORDER BY
+                      CASE WHEN year_group = %s THEN 0 ELSE 1 END,
                       CASE WHEN source_name = 'Oak NA rich (OGL v3.0)' THEN 0 ELSE 1 END
                     LIMIT %s
                     """,
@@ -300,6 +309,41 @@ def get_published_questions_full(topic_id: str) -> list[dict]:
                 WHERE topic_id = %s AND status = 'published'
                 ORDER BY created_at DESC
                 LIMIT 20
+                """,
+                (topic_id,),
+            )
+            return [dict(r) for r in cur.fetchall()]
+    finally:
+        conn.close()
+
+
+def get_attempted_questions_full(topic_id: str) -> list[dict]:
+    """Return question_text/correct_answer/metadata for every question we have ALREADY
+    TRIED for this topic, not just the ones that made it to published.
+
+    This exists because the generation diversity hint was previously built from
+    published rows only. A topic whose questions kept landing in staged would be
+    generated against a forbidden-list that never mentioned them, so the model
+    reworded the same handful of facts every night, each reword tripped the Stage-5
+    dedup guard, and the topic could never fill. year-5-history-maya accumulated
+    five near-identical bloodletting questions that way.
+
+    Ordered published-first so the live wording is what survives the prompt
+    builder's truncation, then the unpublished attempts as extra facts to avoid.
+    Dedup (Stage 5) deliberately does NOT use this — similarity is still measured
+    against published content only, per CLAUDE.md §9.
+    """
+    conn = get_connection()
+    try:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute(
+                """
+                SELECT question_text, correct_answer, question_metadata
+                FROM quiz_questions
+                WHERE topic_id = %s
+                  AND status IN ('published', 'staged', 'regenerating')
+                ORDER BY (status <> 'published'), created_at DESC
+                LIMIT 40
                 """,
                 (topic_id,),
             )

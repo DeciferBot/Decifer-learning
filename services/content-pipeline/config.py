@@ -89,3 +89,40 @@ RAG_REQUIRED_TYPES: frozenset[str] = frozenset({
 def get_confidence_threshold(question_type: str) -> float:
     """Return the publish threshold for a given question_type."""
     return CONFIDENCE_THRESHOLDS.get(question_type, DEFAULT_CONFIDENCE_THRESHOLD)
+
+
+# ── Year group → key stage ────────────────────────────────────────────────────
+# Retrieval and the Stage-6 grounding gate both match source chunks at KEY STAGE
+# granularity, not exact year. Our curriculum and the Oak source material disagree
+# about which year a topic belongs to, and the disagreement is systematic: the UK
+# NC fixes the key stage but leaves the year to the school. Measured on prod, the
+# material for a topic is routinely filed one year later than we file the topic —
+# Maya is 52 chunks in Y5 but 298 in Y6, early Islamic civilisation is 117 in Y4
+# but 588 in Y5, and "Britain 1745-1901" had *zero* usable Y7 chunks while Y8+Y9
+# hold ~600. Filtering on exact year made the right sources unreachable, so
+# retrieval returned the nearest wrong-period Y7 chunks (Edward I, Elizabeth I)
+# and a question about Edward IV scored a clean 90 inside a topic about the
+# Industrial Revolution. Key stage is the honest unit of comparison.
+YEAR_KEY_STAGE: dict[str, str] = {
+    "year-1": "KS1", "year-2": "KS1",
+    "year-3": "KS2", "year-4": "KS2", "year-5": "KS2", "year-6": "KS2",
+    "year-7": "KS3", "year-8": "KS3", "year-9": "KS3",
+    "year-10": "KS4", "year-11": "KS4",
+}
+
+
+def key_stage_for(year_group_label: str) -> str:
+    """Return the key stage for a year label, or '' if unknown."""
+    return YEAR_KEY_STAGE.get((year_group_label or "").strip().lower(), "")
+
+
+def years_in_key_stage(year_group_label: str) -> list[str]:
+    """Return every year label sharing a key stage with this one.
+
+    Falls back to just the given label when the year is unrecognised, so an
+    unexpected label narrows retrieval rather than opening it to everything.
+    """
+    ks = key_stage_for(year_group_label)
+    if not ks:
+        return [year_group_label]
+    return [y for y, s in YEAR_KEY_STAGE.items() if s == ks]
