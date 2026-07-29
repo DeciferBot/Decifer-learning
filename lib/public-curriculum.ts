@@ -5,13 +5,22 @@
 // expose ONLY published topic *titles* grouped by year — never questions,
 // answers, hints, or lesson bodies. Gated content stays behind auth.
 //
-// Limited to the three marketed core subjects that carry a URL slug
-// (Maths, English, Science). Other published subjects (History, Geography)
-// have no subject slug and are not part of the public marketing surface.
+// Covers every subject we actually market. History and Geography were missing
+// here and had a null subjects.slug, so /curriculum/history and
+// /curriculum/geography returned 404 while the homepage and /subjects both
+// advertised five subjects — 85 published topics invisible to search. Their
+// slugs are now set in the database and listed below.
+//
+// Order matters: it drives the order subjects appear on /curriculum. Maths,
+// English and Science first (Year 1 to GCSE), then History and Geography
+// (Year 1 to Year 9), which matches how /subjects describes the offer.
+//
+// A subject only appears once it has published topics, so adding a slug here
+// for an empty subject is harmless — getPublicCurriculumSummary filters it out.
 
 import { prisma } from '@/lib/prisma'
 
-export const PUBLIC_SUBJECT_SLUGS = ['maths', 'english', 'science'] as const
+export const PUBLIC_SUBJECT_SLUGS = ['maths', 'english', 'science', 'history', 'geography'] as const
 export type PublicSubjectSlug = (typeof PUBLIC_SUBJECT_SLUGS)[number]
 
 export type PublicSubjectSummary = {
@@ -74,6 +83,20 @@ export async function getPublicCurriculumSummary(): Promise<PublicSubjectSummary
         PUBLIC_SUBJECT_SLUGS.indexOf(a.slug as PublicSubjectSlug) -
         PUBLIC_SUBJECT_SLUGS.indexOf(b.slug as PublicSubjectSlug),
     )
+}
+
+/**
+ * Human year span for a subject, derived from the years it actually has topics in.
+ *
+ * The subject pages used to hardcode "Year 1 to Year 11", which is true for Maths,
+ * English and Science but wrong for History and Geography (Year 1 to Year 9). Read
+ * it off the data so a page can never claim coverage the catalogue does not have.
+ */
+export function formatYearRange(years: PublicYearGroup[]): string {
+  if (years.length === 0) return ''
+  const first = years[0].displayLabel
+  const last = years[years.length - 1].displayLabel
+  return first === last ? first : `${first} to ${last}`
 }
 
 export async function getPublicSubjectDetail(

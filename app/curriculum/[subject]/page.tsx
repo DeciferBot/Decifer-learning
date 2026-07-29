@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { DeciferLogo } from '@/components/ui/DeciferLogo'
 import {
   PUBLIC_SUBJECT_SLUGS,
+  formatYearRange,
   getPublicSubjectDetail,
 } from '@/lib/public-curriculum'
 import { jsonLd } from '@/lib/json-ld'
@@ -24,7 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const keyStages = [...new Set(detail.years.map((y) => y.keyStage))].join(', ')
   return {
-    title: `${detail.name} curriculum · Year 1 to Year 11`,
+    title: `${detail.name} curriculum · ${formatYearRange(detail.years)}`,
     description: `Every ${detail.name} topic in Decifer Learning: ${detail.topicCount} topics across the UK National Curriculum (${keyStages}). Quality-checked and mapped year by year.`,
     alternates: { canonical: `/curriculum/${detail.slug}` },
   }
@@ -34,11 +35,13 @@ export default async function SubjectCurriculumPage({ params }: Props) {
   const detail = await getPublicSubjectDetail(params.subject)
   if (!detail) notFound()
 
+  const yearRange = formatYearRange(detail.years)
+
   const courseJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Course',
     name: `${detail.name}: UK National Curriculum`,
-    description: `Quality-checked ${detail.name} covering ${detail.topicCount} topics from Year 1 to Year 11.`,
+    description: `Quality-checked ${detail.name} covering ${detail.topicCount} topics from ${yearRange}.`,
     url: `${BASE}/curriculum/${detail.slug}`,
     provider: { '@type': 'EducationalOrganization', name: 'Decifer Learning', url: BASE },
     educationalLevel: [...new Set(detail.years.map((y) => y.keyStage))],
@@ -99,7 +102,7 @@ export default async function SubjectCurriculumPage({ params }: Props) {
           </h1>
           <p className="mt-3 max-w-2xl text-lg text-muted">
             {detail.topicCount} quality-checked {detail.name} topics, mapped to the UK National
-            Curriculum from Year 1 to Year 11. Here is everything your child can learn.
+            Curriculum from {yearRange}. Here is everything your child can learn.
           </p>
         </header>
 
