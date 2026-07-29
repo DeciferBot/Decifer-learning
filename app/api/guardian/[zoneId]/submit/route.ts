@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
-import { calcQuizPoints, scoreQuizAttempt } from '@/lib/points'
+import { calcQuizPoints, scoreAnswers, scoreQuizAttempt } from '@/lib/points'
 import { getConsentGate, CONSENT_GATE_RESPONSE } from '@/lib/parental-consent'
 import { notifyParentBigMoment } from '@/lib/parent-notify'
 import type { DroppedCard, EarnedBadge } from '@/app/api/quiz/submit/route'
@@ -38,6 +38,9 @@ export async function POST(req: Request, { params }: { params: { zoneId: string 
   if (!Array.isArray(answers) || answers.length === 0) {
     return NextResponse.json({ error: 'Invalid body' }, { status: 400 })
   }
+  if (answers.length > 50) {
+    return NextResponse.json({ error: 'Too many answers' }, { status: 400 })
+  }
 
   const profile = await prisma.profile.findUnique({ where: { user_id: user.id } })
   if (!profile) return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
@@ -58,11 +61,26 @@ export async function POST(req: Request, { params }: { params: { zoneId: string 
   })
   if (!zone) return NextResponse.json({ error: 'Zone not found' }, { status: 404 })
 
+  // ── Server-side verification — never trust the client's wasCorrect ────────
+  // The Guardian pool is every published question across the zone's published
+  // topics, so the answer key is scoped the same way. Anything outside that
+  // pool has no key row and scores wrong.
+  const answerKey = await prisma.quizQuestion.findMany({
+    where: {
+      id: { in: answers.map((a) => a.questionId) },
+      status: 'published',
+      topic: { zone_id: zone.id, is_published: true },
+    },
+    select: { id: true, correct_answer: true, question_type: true },
+  })
+  const scoredAnswers = scoreAnswers(answers, answerKey)
+  // ── End server-side verification ──────────────────────────────────────────
+
   // Scored per distinct question with credit falling by try, matching
   // /api/quiz/submit. Guardian quizzes carry the same 3-tries-per-question
   // mechanic, so the old row-count scoring punished persistence here too.
-  const { totalQuestions, correctCount, scoreFraction, passed } = scoreQuizAttempt(answers)
-  const points = passed ? calcQuizPoints(answers) : 0
+  const { totalQuestions, correctCount, scoreFraction, passed } = scoreQuizAttempt(scoredAnswers)
+  const points = passed ? calcQuizPoints(scoredAnswers) : 0
 
   if (!passed) {
     return NextResponse.json({
