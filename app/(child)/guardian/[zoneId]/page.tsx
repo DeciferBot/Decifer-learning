@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma'
 import { QuizShell, type QuizQuestion } from '@/components/quiz/QuizShell'
 import { GuardianBattleHeader } from '@/components/quiz/GuardianBattleHeader'
 import { getConsentGate } from '@/lib/parental-consent'
+import { getGuardianGate } from '@/lib/guardian'
 import { ConsentGateScreen } from '@/components/child/ConsentGateScreen'
 
 const GUARDIAN_QUESTION_COUNT = 15
@@ -49,6 +50,13 @@ export default async function GuardianPage({ params }: { params: { zoneId: strin
     select: { id: true, name: true, year_group_id: true },
   })
   if (!zone || zone.year_group_id !== profile.year_group_id) notFound()
+
+  // The boss is earned, not linked to. Finish every published topic in the zone
+  // first — the same rule the world map uses to show the "Battle Guardian" link.
+  // Enforced again in POST /api/guardian/[zoneId]/submit so the URL alone wins
+  // nothing.
+  const gate = await getGuardianGate(profile.id, zone.id)
+  if (!gate.unlocked) redirect('/world-map')
 
   // Published topics in this zone
   const topics = await prisma.topic.findMany({
