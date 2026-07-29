@@ -182,6 +182,38 @@ You MUST use a DIFFERENT archetype from this list:
 Choose an archetype NOT in the already-used list above and write your question using it.
 Use DIFFERENT numbers from those already in the forbidden list."""
 
+        elif "transformation" in topic_title_lower:
+            # Graph TRANSFORMATIONS (y=f(x)+a, f(x-a), -f(x), f(-x), af(x), f(ax))
+            # are DESCRIPTIVE — the answer names the transformation, it is not a
+            # number. Routing these as maths_arithmetic (below) forces a bare-number
+            # answer against sentence-style options, which consensus + the critic
+            # reject as ambiguous. Use the descriptive maths_concept type instead.
+            diversity_end += """
+
+🎯 GRAPH TRANSFORMATIONS — DESCRIPTIVE ANSWER TYPE (read before generating):
+These questions test whether the pupil can NAME a transformation of y = f(x).
+The answer is a DESCRIPTION, never a number. Do NOT emit a numeric correct_answer
+or a verification_expression — a bare number here makes the option ambiguous and
+the question WILL be rejected.
+
+USE question_type = "maths_concept".
+  • correct_answer = the full descriptive phrase, e.g. "Translation 5 units up"
+  • distractors    = three OTHER plausible transformation descriptions written in
+                     the SAME grammatical form, e.g. "Translation 5 units down",
+                     "Translation 5 units right", "Reflection in the x-axis"
+  • Omit verification_expression / verification_equation entirely.
+  • All four options must be descriptive phrases of identical shape — never mix a
+    bare number with sentence-style distractors.
+
+Pick an archetype NOT already used, and keep every option in identical form:
+  A) Vertical translation    "y = f(x) + 3"  → "Translation 3 units up"
+  B) Horizontal translation  "y = f(x − 2)"  → "Translation 2 units right"
+  C) Reflection in x-axis    "y = −f(x)"     → "Reflection in the x-axis"
+  D) Reflection in y-axis    "y = f(−x)"     → "Reflection in the y-axis"
+  E) Vertical stretch        "y = 3f(x)"     → "Vertical stretch, scale factor 3"
+  F) Horizontal stretch      "y = f(2x)"     → "Horizontal stretch, scale factor 1/2\""""
+
+
         elif "graph" in topic_title_lower or "coordinate" in topic_title_lower:
             used_texts_lower = " ".join(used_texts).lower()
             used_archetypes_g = []
@@ -338,14 +370,18 @@ ANSWER FORMAT — critical for automatic verification:
   • RIGHT:  question "Solve 3x - 6 = 9, find x" → correct_answer="5",  verification_equation="3*x - 6 - 9",  verification_variable="x"
   Double-check: substitute correct_answer back into verification_equation — the result must equal 0.
 
-Valid question_type values: maths_arithmetic, maths_algebra, maths_geometry
+Valid question_type values: maths_arithmetic, maths_algebra, maths_geometry, maths_concept
+  maths_concept is ONLY for descriptive-answer questions (e.g. graph transformations — see the
+  archetype note above): correct_answer is a descriptive phrase, all options share the same form,
+  and you MUST NOT include verification_expression or verification_equation. For every other maths
+  question use a numeric type (arithmetic / algebra / geometry) with the numeric answer rules above.
 {diversity_end}
 
 Return ONLY valid JSON with this exact structure (no extra text, no markdown fences):
 {{
   "question_text": "<the question>",
-  "question_type": "<maths_arithmetic | maths_algebra | maths_geometry>",
-  "correct_answer": "<arithmetic/geometry: pure numeric string matching verification_expression — no £$€, no %, no units, no commas | algebra: numeric value of the VARIABLE (e.g. '4' for n+10=14, not '14')>",
+  "question_type": "<maths_arithmetic | maths_algebra | maths_geometry | maths_concept>",
+  "correct_answer": "<arithmetic/geometry: pure numeric string matching verification_expression — no £$€, no %, no units, no commas | algebra: numeric value of the VARIABLE (e.g. '4' for n+10=14, not '14') | maths_concept: the descriptive answer phrase (e.g. 'Translation 5 units up')>",
   "distractors": ["<wrong1>", "<wrong2>", "<wrong3>"],
   "hint_1": "<conceptual nudge — no specific numbers>",
   "hint_2": "<method step — no final answer>",
@@ -953,6 +989,11 @@ _CHEMISTRY_TYPES = {"science_chemistry_equation", "chemistry_element_fact", "bio
 # Multi-part types: structural verification only (no code or LanguageTool check)
 _MULTIPART_TYPES = {"true_false_grid", "ordered_list", "source_analysis", "explain_example", "structured_answer"}
 _HUMANITIES_TYPES = {"history_factual", "geography_factual"}
+# Descriptive-answer maths (e.g. graph transformations): no numeric answer to
+# code-verify, so Stage 2 is a pass-through and correctness is enforced by the
+# consensus (Stage 3) and constitutional (Stage 4) checks — same shape as the
+# humanities pass-through, but not RAG-required.
+_MATHS_CONCEPT_TYPES = {"maths_concept"}
 
 
 def _verify_multipart(question_data: dict) -> tuple[bool, str]:
@@ -1300,6 +1341,12 @@ def stage2_verify(question_data: dict, result: PipelineResult) -> bool:
         # (config.RAG_REQUIRED_TYPES) and the 90-point publish threshold.
         verified, detail = True, "RAG-only type — grounding enforced at Stage 6"
         result.verifier_version = "humanities-passthrough-v1"
+    elif qtype in _MATHS_CONCEPT_TYPES:
+        # Descriptive-answer maths (graph transformations etc.): no numeric answer
+        # to compute. Correctness is enforced by consensus + constitution; reaches
+        # 85 = passthrough(60) + consensus(25), same rigour as physics calculations.
+        verified, detail = True, "conceptual maths — descriptive answer; correctness via consensus + constitution"
+        result.verifier_version = "maths-concept-passthrough-v1"
     else:
         verified = False
         detail = f"Unknown question_type: {qtype!r} — failing closed"

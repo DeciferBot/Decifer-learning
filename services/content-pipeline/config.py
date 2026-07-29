@@ -48,6 +48,11 @@ CONFIDENCE_THRESHOLDS: dict[str, float] = {
     "maths_arithmetic":            85.0,
     "maths_algebra":               85.0,
     "maths_geometry":              85.0,
+    # Descriptive-answer maths MCQ (e.g. graph transformations): the answer is a
+    # phrase like "Translation 5 units up", not a number, so there is no numeric
+    # verifier. Correctness is enforced by consensus (Stage 3) + constitution
+    # (Stage 4); reaches 85 = verified-passthrough(60) + consensus(25).
+    "maths_concept":               85.0,
     # Physics
     "science_physics_calculation": 85.0,
     # Chemistry
