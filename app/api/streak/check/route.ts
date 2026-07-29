@@ -1,14 +1,23 @@
 import { NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
-import { resolveStreak } from '@/lib/streak'
+import { displayedStreak, streakAtRisk } from '@/lib/streak'
 
 // POST /api/streak/check
-// Called from the child home screen on mount to update the streak on daily login.
-// Idempotent: multiple calls on the same calendar day are no-ops.
+// Called from the child home screen on mount.
 //
-// Streak freezes are applied here as well as on quiz submit, so a child who opens
-// the app after missing a day keeps their streak whichever route they arrive by.
+// This used to ADVANCE the streak, which meant a child could open the app, tap
+// nothing, close it, and keep the streak — so the number measured nothing but
+// page loads. The streak now moves only when a round is finished, in
+// /api/quiz/submit and /api/daily-challenge/submit via applyRoundToStreak.
+//
+// What this still does:
+//   - records last_active, which is "opened the app" and feeds the admin
+//     activity counts, the engagement funnel and the comeback nudge
+//   - reports the streak's real current worth, so the home screen never shows a
+//     9-day streak to a child who last played a fortnight ago
+//
+// It never writes streak_days and never spends a freeze.
 export async function POST() {
   const supabase = createSupabaseServerClient()
   const {
@@ -18,7 +27,7 @@ export async function POST() {
 
   const profile = await prisma.profile.findUnique({
     where: { user_id: user.id },
-    select: { id: true, last_active: true, streak_days: true },
+    select: { id: true, last_round_on: true, streak_days: true },
   })
   if (!profile) return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
 
@@ -27,39 +36,24 @@ export async function POST() {
     select: { quantity: true },
   })
 
-  const outcome = resolveStreak({
-    lastActive: profile.last_active,
+  const now = new Date()
+  const opts = {
+    lastRoundOn: profile.last_round_on,
     streakDays: profile.streak_days,
     freezesAvailable: shield?.quantity ?? 0,
-    now: new Date(),
-  })
-
-  if (!outcome.changed) {
-    return NextResponse.json({ streak_days: outcome.streakDays, updated: false, streakSaved: false })
+    now,
   }
 
-  // One transaction: spending a freeze and keeping the streak it paid for must
-  // not be able to come apart.
-  await prisma.$transaction(async (tx) => {
-    await tx.profile.update({
-      where: { id: profile.id },
-      data: { streak_days: outcome.streakDays, last_active: new Date() },
-    })
-    // Clamped at 0: the balance was read before the transaction opened, so two
-    // concurrent calls must not be able to drive it negative.
-    if (outcome.freezesUsed > 0) {
-      await tx.$executeRaw`
-        UPDATE streak_shields
-        SET quantity = GREATEST(quantity - ${outcome.freezesUsed}::int, 0)
-        WHERE profile_id = ${profile.id}::uuid
-      `
-    }
-  })
+  // Presence only. Never fails the response: a child opening the app must not
+  // see an error because an analytics timestamp could not be written.
+  await prisma.profile
+    .update({ where: { id: profile.id }, data: { last_active: now } })
+    .catch(() => null)
 
   return NextResponse.json({
-    streak_days: outcome.streakDays,
-    updated: true,
-    streakSaved: outcome.streakSaved,
-    freezesUsed: outcome.freezesUsed,
+    streak_days: displayedStreak(opts),
+    at_risk: streakAtRisk(opts),
+    // The streak is never advanced here; only a finished round does that.
+    updated: false,
   })
 }

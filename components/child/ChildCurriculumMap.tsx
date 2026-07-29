@@ -132,7 +132,7 @@ function TopicCard({
       <div className="flex items-center gap-1.5 mt-auto">
         <Link
           href={action.href}
-          className={`flex-1 min-h-[44px] flex items-center justify-center gap-1.5 rounded-xl text-xs font-bold transition-colors ${col.btnBg}`}
+          className={`flex-1 min-h-[48px] flex items-center justify-center gap-1.5 rounded-xl text-xs font-bold transition-colors ${col.btnBg}`}
         >
           {action.icon} {action.label}
         </Link>
@@ -141,7 +141,7 @@ function TopicCard({
             href={`/topics/${topic.topicId}/learn`}
             aria-label={`Read the ${topic.title} lesson again`}
             title="Read the lesson again"
-            className="flex-none min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+            className="flex-none min-h-[48px] min-w-[48px] flex items-center justify-center rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
           >
             <BookOpen className="w-3.5 h-3.5" aria-hidden />
           </Link>

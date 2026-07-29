@@ -33,16 +33,18 @@ async function handler(req: Request) {
     { auth: { persistSession: false } },
   )
 
-  const todayStart = new Date()
-  todayStart.setHours(0, 0, 0, 0)
+  // A round is what keeps the streak, so "at risk" means no round today — not
+  // merely "hasn't opened the app". A child who browsed but never played is
+  // exactly who this nudge is for.
+  const todayStr = new Date().toISOString().slice(0, 10)
 
   // Find children with a live streak who haven't been active today
   const { data: profiles } = await supabase
     .from('profiles')
-    .select('id, display_name, streak_days, last_active')
+    .select('id, display_name, streak_days, last_round_on')
     .eq('role', 'child')
     .gte('streak_days', MIN_STREAK_TO_NUDGE)
-    .lt('last_active', todayStart.toISOString())
+    .or(`last_round_on.is.null,last_round_on.lt.${todayStr}`)
 
   if (!profiles?.length) return NextResponse.json({ sent: 0, reason: 'no at-risk streaks' })
 

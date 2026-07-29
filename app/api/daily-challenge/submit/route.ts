@@ -7,6 +7,7 @@ import { NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import { getConsentGate, CONSENT_GATE_RESPONSE } from '@/lib/parental-consent'
+import { applyRoundToStreak } from '@/lib/streak-server'
 
 const BASE_POINTS   = 20
 const FLARE_POINTS  = 30
@@ -21,7 +22,7 @@ export async function POST(req: Request) {
 
   const profile = await prisma.profile.findUnique({
     where:  { user_id: user.id },
-    select: { id: true, year_group_id: true },
+    select: { id: true, year_group_id: true, streak_days: true, last_round_on: true },
   })
   if (!profile) {
     return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
@@ -98,11 +99,23 @@ export async function POST(req: Request) {
     data:  { total_points: { increment: points } },
   }).catch(() => {})
 
+  // The daily challenge is a round, so it moves the streak. It used to award
+  // points and leave the streak alone, which meant a child could do it every
+  // single day and still watch their streak reset. Best-effort: a streak write
+  // must never cost the child the result they just earned.
+  const streakResult = await applyRoundToStreak(prisma, {
+    id: profile.id,
+    streak_days: profile.streak_days,
+    last_round_on: profile.last_round_on,
+  }).catch(() => null)
+
   return NextResponse.json({
     results,
     correctCount,
     totalQuestions: questions.length,
     pointsEarned:   points,
+    streakDays:     streakResult?.streakDays ?? null,
+    streakSaved:    streakResult?.streakSaved ?? false,
     isFlare:        challenge.is_flare,
   })
 }
