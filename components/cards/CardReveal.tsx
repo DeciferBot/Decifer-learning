@@ -7,6 +7,7 @@ import { Leaf, Compass, Star, Gem, Crown, Sparkles } from '@/components/ui/icons
 import MathText from '@/components/ui/MathText'
 import type { ComponentType, SVGProps } from 'react'
 import type { DroppedCard } from '@/app/api/quiz/submit/route'
+import { fireFeedback } from '@/lib/feedback'
 
 type IconType = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
 
@@ -52,6 +53,7 @@ export function CardReveal({
     const previouslyFocused = document.activeElement as HTMLElement | null
     // Focus the dialog container so screen readers announce the role/label
     dialogRef.current?.focus()
+    fireFeedback('cardReveal')
     return () => {
       previouslyFocused?.focus()
     }

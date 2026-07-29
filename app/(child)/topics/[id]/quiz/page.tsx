@@ -19,6 +19,15 @@ import { ScreenTimeRestScreen } from '@/components/child/ScreenTimeRestScreen'
 // App-layer .eq('status', 'published') in selectQuizQuestions is defence-in-depth.
 // Adaptive selection avoids recently-seen questions per child (Phase 10D).
 
+// A round is 5 questions, not 10.
+//
+// Across the 99 attempts on record a quiz took 228 s on average and only 39%
+// of them ended in a pass, so the usual outcome was four minutes of work
+// followed by a fail screen. Halving the round halves the distance to the
+// first payoff and roughly doubles the number of winning moments per topic.
+// The pass mark is unchanged; what changes is how much has to go right at once.
+const QUESTIONS_PER_ROUND = 5
+
 export async function generateMetadata() {
   return { title: 'Quiz' }
 }
@@ -133,14 +142,16 @@ export default async function QuizPage({ params }: { params: { id: string } }) {
     if (otherCompletedIds.length >= 2) {
       // Interleave: current topic + up to 2 recently completed others
       const topicIds = [params.id, ...otherCompletedIds.slice(0, 2)]
-      const interleaved = await selectInterleavedQuestions(supabase, profile.id, topicIds)
+      const interleaved = await selectInterleavedQuestions(supabase, profile.id, topicIds, QUESTIONS_PER_ROUND)
       selected = interleaved as QuizQuestion[]
     }
   }
 
   // Fall back to single-topic adaptive selection
   if (selected.length === 0) {
-    const opts = isFirstAttempt ? { mix: 'confidence' as const } : {}
+    const opts = isFirstAttempt
+      ? { mix: 'confidence' as const, count: QUESTIONS_PER_ROUND }
+      : { count: QUESTIONS_PER_ROUND }
     const fallback = profile
       ? await selectQuizQuestions(supabase, profile.id, params.id, opts)
       : await selectQuizQuestions(supabase, '', params.id, opts)
@@ -156,15 +167,6 @@ export default async function QuizPage({ params }: { params: { id: string } }) {
         </Link>
       </div>
     )
-  }
-
-  // Fetch streak shield count
-  let initialShields = 0
-  if (profile) {
-    const shield = await prisma.streakShield.findUnique({
-      where: { profile_id: profile.id },
-    })
-    initialShields = shield?.quantity ?? 0
   }
 
   // Next topic in this zone — powers the "Continue" CTA + unlock celebration on
@@ -227,9 +229,9 @@ export default async function QuizPage({ params }: { params: { id: string } }) {
       >
         <Gift className="w-6 h-6 flex-none" style={{ color: '#FFD43B' }} aria-hidden />
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-extrabold text-white font-heading">Score 70%+ → win a Discovery Card</p>
+          <p className="text-sm font-extrabold text-white font-heading">Finish the round → win a Discovery Card</p>
           <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.82)' }}>
-            Guaranteed reward: every quiz pass earns a card
+            {questions.length} questions. Score 70%+ for a shot at the rare ones.
           </p>
         </div>
         <span className="flex-none text-xs font-bold px-2 py-1 rounded-full" style={{ background: 'rgba(255,193,7,0.2)', color: '#FFD43B' }}>
@@ -241,7 +243,6 @@ export default async function QuizPage({ params }: { params: { id: string } }) {
         questions={questions}
         topicId={params.id}
         topicTitle={topic.title}
-        initialShields={initialShields}
         nextTopic={nextTopic}
         preselected={isFirstAttempt}
       />

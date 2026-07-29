@@ -740,3 +740,24 @@ export function Robot(p: IconProps) {
     </Icon>
   )
 }
+
+// ─── Sound ────────────────────────────────────────────────────────────────────
+
+export function Volume2(p: IconProps) {
+  return (
+    <Icon {...p}>
+      <path d="M11 5 6 9H3v6h3l5 4V5Z" />
+      <path d="M15.5 8.5a5 5 0 0 1 0 7" />
+      <path d="M18.5 5.5a9 9 0 0 1 0 13" />
+    </Icon>
+  )
+}
+
+export function VolumeX(p: IconProps) {
+  return (
+    <Icon {...p}>
+      <path d="M11 5 6 9H3v6h3l5 4V5Z" />
+      <path d="m16 9 5 6M21 9l-5 6" />
+    </Icon>
+  )
+}
