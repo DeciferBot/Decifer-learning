@@ -112,6 +112,8 @@ describe('scoreAnswers', () => {
 const prismaMock = {
   profile: { findUnique: vi.fn(), update: vi.fn() },
   zone: { findFirst: vi.fn() },
+  topic: { findMany: vi.fn() },
+  topicProgress: { count: vi.fn() },
   quizQuestion: { findMany: vi.fn() },
   quizAttempt: { create: vi.fn() },
   quizAnswer: { createMany: vi.fn() },
@@ -167,6 +169,48 @@ describe('POST /api/guardian/[zoneId]/submit', () => {
     prismaMock.profile.findUnique.mockResolvedValue(PROFILE)
     prismaMock.zone.findFirst.mockResolvedValue({ id: 'zone-1', name: 'Number Jungle' })
     prismaMock.quizQuestion.findMany.mockResolvedValue(GUARDIAN_KEY)
+    // Zone earned by default: 4 published topics, all 4 completed.
+    prismaMock.topic.findMany.mockResolvedValue([{ id: 't1' }, { id: 't2' }, { id: 't3' }, { id: 't4' }])
+    prismaMock.topicProgress.count.mockResolvedValue(4)
+  })
+
+  it('refuses a child who has not finished the zone', async () => {
+    prismaMock.topicProgress.count.mockResolvedValue(3) // 3 of 4 topics done
+
+    const honest = GUARDIAN_KEY.map((q) => ({
+      questionId: q.id,
+      childAnswer: q.correct_answer,
+      wasCorrect: true,
+      hintNumber: 0,
+      timeSeconds: 4,
+    }))
+
+    const { POST } = await import('@/app/api/guardian/[zoneId]/submit/route')
+    const res = await POST(
+      post({ answers: honest, timeTakenSeconds: 60, heartsRemaining: 3 }),
+      { params: { zoneId: 'zone-1' } },
+    )
+    const json = await res.json()
+
+    expect(res.status).toBe(403)
+    expect(json.code).toBe('GUARDIAN_LOCKED')
+    expect(json.completedTopics).toBe(3)
+    expect(json.totalTopics).toBe(4)
+    // Perfect answers, but the boss was not earned: nothing awarded.
+    expect(prismaMock.$transaction).not.toHaveBeenCalled()
+  })
+
+  it('refuses a zone with no published topics', async () => {
+    prismaMock.topic.findMany.mockResolvedValue([])
+    prismaMock.topicProgress.count.mockResolvedValue(0)
+
+    const { POST } = await import('@/app/api/guardian/[zoneId]/submit/route')
+    const res = await POST(
+      post({ answers: FORGED_GUARDIAN, timeTakenSeconds: 10, heartsRemaining: 3 }),
+      { params: { zoneId: 'zone-1' } },
+    )
+    expect(res.status).toBe(403)
+    expect(prismaMock.$transaction).not.toHaveBeenCalled()
   })
 
   it('awards nothing for a forged all-correct payload', async () => {

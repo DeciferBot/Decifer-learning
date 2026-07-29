@@ -3,6 +3,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import { calcQuizPoints, scoreAnswers, scoreQuizAttempt } from '@/lib/points'
 import { getConsentGate, CONSENT_GATE_RESPONSE } from '@/lib/parental-consent'
+import { getGuardianGate } from '@/lib/guardian'
 import { notifyParentBigMoment } from '@/lib/parent-notify'
 import type { DroppedCard, EarnedBadge } from '@/app/api/quiz/submit/route'
 
@@ -60,6 +61,22 @@ export async function POST(req: Request, { params }: { params: { zoneId: string 
     select: { id: true, name: true },
   })
   if (!zone) return NextResponse.json({ error: 'Zone not found' }, { status: 404 })
+
+  // The boss is earned. The guardian page redirects a child who has not finished
+  // the zone, and this is the same check on the reward side so the URL alone
+  // wins nothing. See lib/guardian.ts.
+  const gate = await getGuardianGate(profile.id, zone.id)
+  if (!gate.unlocked) {
+    return NextResponse.json(
+      {
+        error: 'Finish every topic in this zone before facing the Guardian',
+        code: 'GUARDIAN_LOCKED',
+        completedTopics: gate.completedTopics,
+        totalTopics: gate.totalTopics,
+      },
+      { status: 403 },
+    )
+  }
 
   // ── Server-side verification — never trust the client's wasCorrect ────────
   // The Guardian pool is every published question across the zone's published
