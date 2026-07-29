@@ -38,7 +38,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       `${d.title} for ${d.displayLabel} ${d.subjectName} (${d.keyStage}): ` +
       `${d.lessons.length} lessons in teaching order. Part of the UK National Curriculum, ` +
       `quality-checked before any child sees it.`,
-    alternates: { canonical: `/curriculum/${d.subjectSlug}/${d.yearLabel}/${d.slug}` },
+    // May point at an earlier year when the lesson list is identical; see
+    // canonicalPath in lib/public-curriculum.ts.
+    alternates: { canonical: d.canonicalPath },
   }
 }
 

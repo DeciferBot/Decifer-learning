@@ -87,6 +87,15 @@ export type PublicTopicDetail = {
   lessons: string[]
   previousTopic: { title: string; slug: string } | null
   nextTopic: { title: string; slug: string } | null
+  /**
+   * Where this page should point rel=canonical. Normally itself, but some topics
+   * repeat verbatim across two years of the same key stage — KS1 History and
+   * Geography are specified at key-stage level, so "Changes Within Living Memory"
+   * is the same six lessons in Year 1 and Year 2. Two near-identical public pages
+   * is a duplicate-content signal, so the later year points at the earlier one.
+   * Computed from the lesson list, so it corrects itself if the content diverges.
+   */
+  canonicalPath: string
 }
 
 function yearNumber(label: string): number {
@@ -202,6 +211,8 @@ type TopicRow = {
   yearLabel: string
   keyStage: string
   lessonCount: number
+  /** Sorted lesson titles, used to spot topics duplicated across years. */
+  lessonSignature: string
 }
 
 type Snapshot = {
@@ -284,6 +295,7 @@ async function loadSnapshot(): Promise<Snapshot> {
       yearLabel: t.year_group.label,
       keyStage: t.year_group.key_stage,
       lessonCount: lessonsByTopic.get(t.id)?.length ?? 0,
+      lessonSignature: [...(lessonsByTopic.get(t.id) ?? [])].sort().join('||'),
     })),
   }
 }
@@ -380,6 +392,26 @@ export async function getPublicTopicDetail(
   const link = (t: TopicRow | undefined) =>
     t && t.slug && t.lessonCount >= PUBLIC_TOPIC_MIN_UNITS ? { title: t.title, slug: t.slug } : null
 
+  // Canonical: if an earlier year in the same subject and key stage teaches the
+  // identical lesson list, that page is the original and this one defers to it.
+  const selfPath = `/curriculum/${topic.subjectSlug}/${yearLabel}/${topicSlug}`
+  let canonicalPath = selfPath
+  if (topic.lessonSignature) {
+    const twin = topics
+      .filter(
+        (t) =>
+          t.subjectSlug === topic.subjectSlug &&
+          t.keyStage === topic.keyStage &&
+          t.slug &&
+          t.lessonSignature === topic.lessonSignature &&
+          t.lessonCount >= PUBLIC_TOPIC_MIN_UNITS,
+      )
+      .sort((a, b) => yearNumber(a.yearLabel) - yearNumber(b.yearLabel))[0]
+    if (twin && twin.id !== topic.id) {
+      canonicalPath = `/curriculum/${twin.subjectSlug}/${twin.yearLabel}/${twin.slug}`
+    }
+  }
+
   return {
     subjectName: topic.subjectName,
     subjectSlug: topic.subjectSlug,
@@ -392,5 +424,6 @@ export async function getPublicTopicDetail(
     lessons: lessonsByTopic.get(topic.id) ?? [],
     previousTopic: link(siblings[idx - 1]),
     nextTopic: link(siblings[idx + 1]),
+    canonicalPath,
   }
 }
