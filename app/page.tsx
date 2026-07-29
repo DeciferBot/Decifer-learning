@@ -18,12 +18,12 @@ import {
   ClipboardList, Telescope, Target, CircleCheck, Bell,
   Backpack, GraduationCap, Shield,
 } from '@/components/ui/icons'
-import { TAGLINE, TITLE } from '@/lib/brand'
+import { SEO_TITLE, TAGLINE } from '@/lib/brand'
 
 type Icon = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
 
 export const metadata = {
-  title: { absolute: TITLE },
+  title: { absolute: SEO_TITLE },
   description:
     'Decifer gives parents a clear picture of their child\'s learning: what the UK National Curriculum covers, what they know, and what to do next. Years 1 to 11.',
   alternates: { canonical: '/' },

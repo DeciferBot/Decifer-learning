@@ -5,7 +5,8 @@ import { DarkModeToggle } from '@/components/ui/DarkModeToggle'
 import { UpgradeButton } from '@/components/ui/UpgradeButton'
 
 export const metadata: Metadata = {
-  title: 'Pricing',
+  // Bare "Pricing" ranks for nothing. Name the product and the market.
+  title: 'Pricing: UK Curriculum Learning for Families in the UAE',
   description:
     'Start free with 3 Maths topics. Upgrade for unlimited access to all five subjects: Maths, English, Science, History and Geography, across Years 1 to 11. Simple AED pricing.',
   alternates: { canonical: '/pricing' },
