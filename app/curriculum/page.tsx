@@ -7,7 +7,9 @@ import { jsonLd } from '@/lib/json-ld'
 export const revalidate = 86400 // rebuild at most once a day — content changes slowly
 
 export const metadata: Metadata = {
-  title: 'Curriculum | every topic we cover',
+  // Was "Curriculum | every topic we cover". Now names the curriculum and the
+  // span, so it can match "uk national curriculum topics by year".
+  title: 'UK National Curriculum Topic List, Year 1 to Year 11',
   description:
     'Browse the full Decifer Learning curriculum, mapped to the UK National Curriculum: Maths, English and Science from Year 1 to Year 11 (KS1–KS4/GCSE), plus History and Geography from Year 1 to Year 9.',
   alternates: { canonical: '/curriculum' },

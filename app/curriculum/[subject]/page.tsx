@@ -112,11 +112,26 @@ export default async function SubjectCurriculumPage({ params }: Props) {
               key={year.label}
               className="rounded-2xl border border-black/5 bg-surface p-6 shadow-sm"
             >
-              <div className="flex items-baseline gap-3">
-                <h2 className="font-heading text-xl font-bold text-ink">{year.displayLabel}</h2>
-                <span className="text-xs font-semibold uppercase tracking-widest text-muted">
-                  {year.keyStage}
-                </span>
+              <div className="flex flex-wrap items-baseline justify-between gap-3">
+                <div className="flex items-baseline gap-3">
+                  <h2 className="font-heading text-xl font-bold text-ink">
+                    <Link
+                      href={`/curriculum/${detail.slug}/${year.label}`}
+                      className="underline underline-offset-4 hover:no-underline"
+                    >
+                      {year.displayLabel}
+                    </Link>
+                  </h2>
+                  <span className="text-xs font-semibold uppercase tracking-widest text-muted">
+                    {year.keyStage}
+                  </span>
+                </div>
+                <Link
+                  href={`/curriculum/${detail.slug}/${year.label}`}
+                  className="text-sm font-semibold text-maths hover:underline"
+                >
+                  {year.displayLabel} {detail.name} topics <span aria-hidden>→</span>
+                </Link>
               </div>
               <ul className="mt-4 grid gap-2 sm:grid-cols-2">
                 {year.topics.map((title) => (

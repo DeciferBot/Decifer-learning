@@ -4,7 +4,9 @@ import { DeciferLogo } from '@/components/ui/DeciferLogo'
 import { DarkModeToggle } from '@/components/ui/DarkModeToggle'
 
 export const metadata: Metadata = {
-  title: 'What we cover',
+  // Was "What we cover", which nobody searches. Leads with the curriculum and the
+  // year span, which is what parents actually type.
+  title: 'UK National Curriculum Subjects, Year 1 to Year 11',
   description:
     'The British curriculum across five subjects. Maths, English and Science from Year 1 to GCSE (KS1–KS4), plus History and Geography to Year 9. UK National Curriculum, quality-checked.',
   alternates: { canonical: '/subjects' },

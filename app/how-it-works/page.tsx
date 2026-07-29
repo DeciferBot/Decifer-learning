@@ -4,7 +4,9 @@ import { DeciferLogo } from '@/components/ui/DeciferLogo'
 import { DarkModeToggle } from '@/components/ui/DarkModeToggle'
 
 export const metadata: Metadata = {
-  title: 'How it works',
+  // "How it works" is an internal label with no search demand. This targets the
+  // parent question the page actually answers.
+  title: 'How Decifer Works: Track Your Child Against the UK Curriculum',
   description: 'Decifer gives parents a clear learning map and children a rewarding way to learn. Here is how both sides work.',
   alternates: { canonical: '/how-it-works' },
 }

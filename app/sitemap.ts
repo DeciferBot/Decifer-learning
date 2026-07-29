@@ -1,5 +1,9 @@
 import type { MetadataRoute } from 'next'
-import { getPublicCurriculumSummary } from '@/lib/public-curriculum'
+import {
+  getPublicCurriculumSummary,
+  getPublicTopicParams,
+  getPublicYearParams,
+} from '@/lib/public-curriculum'
 
 const BASE = 'https://www.deciferlearning.com'
 
@@ -31,13 +35,34 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // never lists a subject with nothing to show.
   let curriculumEntries: MetadataRoute.Sitemap = []
   try {
-    const subjects = await getPublicCurriculumSummary()
-    curriculumEntries = subjects.map((s) => ({
-      url: `${BASE}/curriculum/${s.slug}`,
-      lastModified: now,
-      changeFrequency: 'weekly' as const,
-      priority: 0.8,
-    }))
+    // Three levels: subject, then year, then topic. The year and topic pages are
+    // where the searchable demand is ("year 7 maths topics", "year 4 fractions"),
+    // so they belong in the sitemap even though they far outnumber the rest.
+    const [subjects, years, topics] = await Promise.all([
+      getPublicCurriculumSummary(),
+      getPublicYearParams(),
+      getPublicTopicParams(),
+    ])
+    curriculumEntries = [
+      ...subjects.map((s) => ({
+        url: `${BASE}/curriculum/${s.slug}`,
+        lastModified: now,
+        changeFrequency: 'weekly' as const,
+        priority: 0.8,
+      })),
+      ...years.map((y) => ({
+        url: `${BASE}/curriculum/${y.subject}/${y.year}`,
+        lastModified: now,
+        changeFrequency: 'weekly' as const,
+        priority: 0.7,
+      })),
+      ...topics.map((t) => ({
+        url: `${BASE}/curriculum/${t.subject}/${t.year}/${t.topic}`,
+        lastModified: now,
+        changeFrequency: 'monthly' as const,
+        priority: 0.6,
+      })),
+    ]
   } catch (err) {
     // If the DB is unreachable at build time, still emit the static sitemap —
     // but log it so a misconfigured DATABASE_URL is debuggable, not silent.
