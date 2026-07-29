@@ -13,6 +13,7 @@ export const metadata: Metadata = {
 const SUBJECTS = [
   {
     name: 'Maths',
+    slug: 'maths',
     colour: 'text-maths border-maths/30 bg-maths/5',
     badge: 'bg-maths text-white',
     years: [
@@ -24,6 +25,7 @@ const SUBJECTS = [
   },
   {
     name: 'English',
+    slug: 'english',
     colour: 'text-english border-english/30 bg-english/5',
     badge: 'bg-english text-white',
     years: [
@@ -35,6 +37,7 @@ const SUBJECTS = [
   },
   {
     name: 'Science',
+    slug: 'science',
     colour: 'text-science border-science/30 bg-science/5',
     badge: 'bg-science text-white',
     years: [
@@ -46,6 +49,7 @@ const SUBJECTS = [
   },
   {
     name: 'History',
+    slug: 'history',
     colour: 'text-ink border-black/10 bg-black/[0.02]',
     badge: 'bg-ink text-white',
     years: [
@@ -56,6 +60,7 @@ const SUBJECTS = [
   },
   {
     name: 'Geography',
+    slug: 'geography',
     colour: 'text-ink border-black/10 bg-black/[0.02]',
     badge: 'bg-ink text-white',
     years: [
@@ -99,10 +104,16 @@ export default function SubjectsPage() {
         <div className="mt-12 space-y-8">
           {SUBJECTS.map((subject) => (
             <div key={subject.name} className={`rounded-2xl border p-6 ${subject.colour}`}>
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center justify-between gap-3">
                 <span className={`rounded-full px-3 py-1 text-xs font-bold ${subject.badge}`}>
                   {subject.name}
                 </span>
+                <Link
+                  href={`/curriculum/${subject.slug}`}
+                  className="text-sm font-semibold text-ink underline underline-offset-4 hover:no-underline"
+                >
+                  See every {subject.name} topic <span aria-hidden="true">→</span>
+                </Link>
               </div>
               <div className="mt-4 divide-y divide-black/5">
                 {subject.years.map((y) => (
