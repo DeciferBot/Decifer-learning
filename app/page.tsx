@@ -395,22 +395,25 @@ export default function Home({
               <p className="mx-auto mb-6 max-w-lg text-sm leading-relaxed text-muted">
                 Maths, English and Science run all the way from Year 1 to GCSE (Year 11). History and Geography cover Year 1 to Year 9. Every one of our 6,900+ questions has passed the six-stage quality process, so your child only ever sees content that is verified and ready.
               </p>
+              {/* Each pill links to that subject's curriculum page. These are the
+                  only contextual links into /curriculum/[subject] from the homepage,
+                  and the label doubles as descriptive anchor text. */}
               <div className="flex flex-wrap justify-center gap-3 text-sm">
-                <span className="flex items-center gap-1.5 rounded-full bg-maths/10 px-4 py-1.5 font-semibold text-ink">
+                <Link href="/curriculum/maths" className="flex min-h-[48px] items-center gap-1.5 rounded-full bg-maths/10 px-4 py-1.5 font-semibold text-ink hover:underline underline-offset-4">
                   <Check className="w-4 h-4" aria-hidden /> Maths: Years 1 to 11
-                </span>
-                <span className="flex items-center gap-1.5 rounded-full bg-english/10 px-4 py-1.5 font-semibold text-ink">
+                </Link>
+                <Link href="/curriculum/english" className="flex min-h-[48px] items-center gap-1.5 rounded-full bg-english/10 px-4 py-1.5 font-semibold text-ink hover:underline underline-offset-4">
                   <Check className="w-4 h-4" aria-hidden /> English: Years 1 to 11
-                </span>
-                <span className="flex items-center gap-1.5 rounded-full bg-science/10 px-4 py-1.5 font-semibold text-ink">
+                </Link>
+                <Link href="/curriculum/science" className="flex min-h-[48px] items-center gap-1.5 rounded-full bg-science/10 px-4 py-1.5 font-semibold text-ink hover:underline underline-offset-4">
                   <Check className="w-4 h-4" aria-hidden /> Science: Years 1 to 11
-                </span>
-                <span className="flex items-center gap-1.5 rounded-full bg-surface border border-gray-200 px-4 py-1.5 font-semibold text-ink">
+                </Link>
+                <Link href="/curriculum/history" className="flex min-h-[48px] items-center gap-1.5 rounded-full bg-surface border border-gray-200 px-4 py-1.5 font-semibold text-ink hover:underline underline-offset-4">
                   <Check className="w-4 h-4" aria-hidden /> History: Years 1 to 9
-                </span>
-                <span className="flex items-center gap-1.5 rounded-full bg-surface border border-gray-200 px-4 py-1.5 font-semibold text-ink">
+                </Link>
+                <Link href="/curriculum/geography" className="flex min-h-[48px] items-center gap-1.5 rounded-full bg-surface border border-gray-200 px-4 py-1.5 font-semibold text-ink hover:underline underline-offset-4">
                   <Check className="w-4 h-4" aria-hidden /> Geography: Years 1 to 9
-                </span>
+                </Link>
               </div>
             </div>
           </div>
