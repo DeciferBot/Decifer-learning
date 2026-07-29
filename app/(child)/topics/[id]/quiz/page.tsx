@@ -94,12 +94,26 @@ export default async function QuizPage({ params }: { params: { id: string } }) {
     }
   }
 
+  // ── First attempt on this topic gets a confidence quiz ────────────────────
+  // Measured across 99 completed attempts, 60 fell below the 70% pass mark and
+  // the average score was 59%. The balanced 4/4/2 tier mix predicts exactly that.
+  // So a child meeting a topic for the first time gets a sprout-heavy set in
+  // easiest-first order, and no difficulty question to answer before they start.
+  const priorAttempts = profile
+    ? await prisma.quizAttempt.count({
+        where: { profile_id: profile.id, topic_id: params.id },
+      })
+    : 0
+  const isFirstAttempt = priorAttempts === 0
+
   // Within-session interleaving: if the child has 3+ completed topics in this
   // topic's zone, pull a mixed quiz across the 3 most recent completed topics.
   // Research basis: spacing g=0.43 in isolated practice (Murray et al. 2025).
+  // Skipped on a first attempt: a child's first meeting with a topic should be
+  // about that topic, and the confidence mix cannot survive an interleave.
   let selected: QuizQuestion[] = []
 
-  if (profile && topic.zone_id) {
+  if (profile && topic.zone_id && !isFirstAttempt) {
     // Find recently completed topics in the same zone (excluding current)
     const completedInZone = await prisma.topicProgress.findMany({
       where: {
@@ -126,9 +140,10 @@ export default async function QuizPage({ params }: { params: { id: string } }) {
 
   // Fall back to single-topic adaptive selection
   if (selected.length === 0) {
+    const opts = isFirstAttempt ? { mix: 'confidence' as const } : {}
     const fallback = profile
-      ? await selectQuizQuestions(supabase, profile.id, params.id)
-      : await selectQuizQuestions(supabase, '', params.id)
+      ? await selectQuizQuestions(supabase, profile.id, params.id, opts)
+      : await selectQuizQuestions(supabase, '', params.id, opts)
     selected = fallback as QuizQuestion[]
   }
 
@@ -222,7 +237,14 @@ export default async function QuizPage({ params }: { params: { id: string } }) {
         </span>
       </div>
 
-      <QuizShell questions={questions} topicId={params.id} topicTitle={topic.title} initialShields={initialShields} nextTopic={nextTopic} />
+      <QuizShell
+        questions={questions}
+        topicId={params.id}
+        topicTitle={topic.title}
+        initialShields={initialShields}
+        nextTopic={nextTopic}
+        preselected={isFirstAttempt}
+      />
     </div>
   )
 }

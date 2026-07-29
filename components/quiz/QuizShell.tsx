@@ -19,6 +19,7 @@ import { WorkedExample } from './WorkedExample'
 import { ReflectionPrompt } from './ReflectionPrompt'
 import type { DroppedCard, EarnedBadge } from '@/app/api/quiz/submit/route'
 import { DifficultyPicker, type DifficultyChoice } from './DifficultyPicker'
+import { postQuizEvent, beaconQuizEvent } from './quiz-events'
 import MathText from '@/components/ui/MathText'
 import { GuardianVictoryScreen } from './GuardianVictoryScreen'
 import { HeartCrack, Swords, Sparkles, Trophy, Star, RefreshCw, Gift, Flame, Shield, Lightbulb, Target, Check } from '@/components/ui/icons'
@@ -67,7 +68,10 @@ type AnswerLog = {
 type SubmitResult = {
   points: number
   passed: boolean
+  /** Count of questions answered correctly (a fraction from /api/quiz/checkpoint). */
   score: number
+  /** Credit-weighted 0–1 score the pass decision was made on. */
+  scoreFraction?: number
   totalQuestions: number
   totalPoints: number
   streakDays: number
@@ -116,6 +120,7 @@ export function QuizShell({
   isGuardian = false,
   zoneName = '',
   nextTopic = null,
+  preselected = false,
 }: {
   questions: QuizQuestion[]
   topicId: string | null
@@ -131,14 +136,27 @@ export function QuizShell({
   // celebration on a passing result. newlyUnlocked = the child hasn't completed
   // it yet (i.e. this pass just opened it up).
   nextTopic?: { id: string; title: string; newlyUnlocked: boolean } | null
+  /**
+   * True when the server already pitched this quiz for the child (their first
+   * attempt on the topic). Skips the difficulty picker and keeps the questions
+   * in the deliberate easiest-first order the server chose, instead of asking a
+   * child who has never seen the topic to judge their own difficulty and then
+   * shuffling that judgement away.
+   */
+  preselected?: boolean
 }) {
   const router = useRouter()
 
-  // Difficulty selection — shown before quiz starts
-  const [difficulty, setDifficulty] = useState<DifficultyChoice | null>(null)
+  // Difficulty selection — shown before quiz starts, unless preselected
+  const [difficulty, setDifficulty] = useState<DifficultyChoice | null>(
+    preselected ? 'confidence' : null,
+  )
 
-  // Shuffled + filtered question list — set when child picks difficulty
-  const [activeQuestions, setActiveQuestions] = useState<QuizQuestion[]>([])
+  // Shuffled + filtered question list — set when child picks difficulty.
+  // When preselected, the server order is kept exactly as delivered.
+  const [activeQuestions, setActiveQuestions] = useState<QuizQuestion[]>(
+    preselected ? questions : [],
+  )
 
   const [qIndex, setQIndex] = useState(0)
   const [choices, setChoices] = useState<string[]>(() => buildInitialChoices(questions[0]))
@@ -161,7 +179,7 @@ export function QuizShell({
   const [techniqueTotal, setTechniqueTotal] = useState(0)
 
   // Challenge milestones
-  const [bonusIndex, setBonusIndex] = useState(-1)         // which question is the bonus challenge
+  const [bonusIndex, setBonusIndex] = useState(preselected ? pickBonusIndex(questions.length) : -1)
   const [hintlessStreak, setHintlessStreak] = useState(0)  // correct answers with no hints used
   const [showStreakBonus, setShowStreakBonus] = useState(false)
   const [showHalfway, setShowHalfway] = useState(false)
@@ -202,6 +220,93 @@ export function QuizShell({
   const hints = [q.hint_1, q.hint_2, q.hint_3].filter((h): h is string => h !== null)
   const revealedHints = hints.slice(0, hintsRevealed)
 
+  // ── Drop-point instrumentation ───────────────────────────────────────────
+  // quiz_started fires on page mount, so it counts reloads and picker views and
+  // cannot say where a child stops. These two can: quiz_first_answer when the
+  // child answers anything at all, quiz_abandoned when they leave before the
+  // quiz is submitted, carrying the question they were on.
+  const firstAnswerFiredRef = useRef(false)
+  const abandonFiredRef = useRef(false)
+  const progressRef = useRef({
+    stage: 'picker' as 'picker' | 'in_quiz',
+    questionIndex: 0,
+    totalQuestions: 0,
+    answered: 0,
+    difficulty: 'none',
+    hearts: MAX_HEARTS,
+    finished: false,
+  })
+
+  useEffect(() => {
+    progressRef.current = {
+      stage: difficulty === null ? 'picker' : 'in_quiz',
+      questionIndex: qIndex,
+      totalQuestions: activeQuestions.length,
+      answered: new Set(answerLogRef.current.map((l) => l.questionId)).size,
+      difficulty: difficulty ?? 'none',
+      hearts,
+      // Once the quiz is submitted there is nothing left to abandon.
+      finished: done,
+    }
+  })
+
+  function recordFirstAnswer() {
+    if (firstAnswerFiredRef.current) return
+    firstAnswerFiredRef.current = true
+    void postQuizEvent({
+      eventType: 'quiz_first_answer',
+      topicId,
+      metadata: {
+        difficulty: difficulty ?? 'none',
+        total_questions: activeQuestions.length,
+        is_guardian: isGuardian,
+      },
+    })
+  }
+
+  useEffect(() => {
+    // A child who backgrounds the app and never returns looks identical to one
+    // who navigates away, and on iOS Safari `pagehide` often does not fire for
+    // the former. So we treat "hidden" as gone, and clear the guard if they come
+    // back, which can produce more than one abandon event per session. Analysis
+    // should take the last event per profile+topic rather than counting them.
+    function fireAbandon(reason: 'pagehide' | 'hidden' | 'navigated_away') {
+      if (abandonFiredRef.current) return
+      const p = progressRef.current
+      if (p.finished) return
+      abandonFiredRef.current = true
+      beaconQuizEvent({
+        eventType: 'quiz_abandoned',
+        topicId,
+        metadata: {
+          reason,
+          stage: p.stage,
+          question_index: p.questionIndex,
+          total_questions: p.totalQuestions,
+          questions_answered: p.answered,
+          difficulty: p.difficulty,
+          hearts_remaining: p.hearts,
+          is_guardian: isGuardian,
+        },
+      })
+    }
+
+    function onPageHide() { fireAbandon('pagehide') }
+    function onVisibility() {
+      if (document.visibilityState === 'hidden') fireAbandon('hidden')
+      else abandonFiredRef.current = false
+    }
+
+    window.addEventListener('pagehide', onPageHide)
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => {
+      window.removeEventListener('pagehide', onPageHide)
+      document.removeEventListener('visibilitychange', onVisibility)
+      fireAbandon('navigated_away')
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [topicId, isGuardian])
+
   const showWorkedExample =
     !questionDone &&
     attempts === 0 &&
@@ -214,6 +319,7 @@ export function QuizShell({
     const timeSeconds = Math.max(1, Math.round((Date.now() - questionStartRef.current) / 1000))
     const newAttempts = attempts + 1
 
+    recordFirstAnswer()
     setLastPicked(choice)
 
     answerLogRef.current.push({
@@ -313,6 +419,7 @@ export function QuizShell({
     childAnswer?: string
   }) {
     const timeSeconds = Math.max(1, Math.round((Date.now() - questionStartRef.current) / 1000))
+    recordFirstAnswer()
     // Points: full (3) for all correct, partial based on fraction; 2× for bonus challenge
     const fraction = totalCount ? (correctCount ?? 0) / totalCount : (allCorrect ? 1 : 0)
     const isBonus = qIndex === bonusIndex
@@ -365,9 +472,12 @@ export function QuizShell({
   }
 
   function restart() {
-    setDifficulty(null)
-    setActiveQuestions([])
-    setBonusIndex(-1)
+    // A preselected quiz keeps its server-pitched set on an in-page retry. The
+    // child gets the full picker next time they open the page, by which point
+    // the attempt is recorded and the server serves the standard mix.
+    setDifficulty(preselected ? 'confidence' : null)
+    setActiveQuestions(preselected ? questions : [])
+    setBonusIndex(preselected ? pickBonusIndex(questions.length) : -1)
     setHintlessStreak(0)
     setShowStreakBonus(false)
     setShowHalfway(false)
@@ -401,6 +511,9 @@ export function QuizShell({
     questionStartRef.current = Date.now()
     quizStartRef.current = Date.now()
     heartsAtDoneRef.current = MAX_HEARTS
+    // A retry is a fresh run: it gets its own first-answer and abandon events.
+    firstAnswerFiredRef.current = false
+    abandonFiredRef.current = false
   }
 
   // Submit to API when quiz is done
@@ -473,7 +586,14 @@ export function QuizShell({
 
   // ── Guardian victory screen ───────────────────────────────────────────────
   if (done && isGuardian) {
-    const passed = Math.round((questionsCorrect / activeQuestions.length) * 100) >= 70
+    // Server first, same as the topic result screen: it is the side that decides
+    // whether the Legendary card and the Guardian Slayer badge are awarded, so a
+    // victory screen driven by a local count could celebrate a win the server
+    // never recorded. The local count is only the estimate shown while the
+    // submission is still in flight.
+    const passed = submitResult
+      ? submitResult.passed
+      : Math.round((questionsCorrect / activeQuestions.length) * 100) >= 70
     if (passed && submitResult) {
       return (
         <GuardianVictoryScreen
@@ -502,8 +622,22 @@ export function QuizShell({
 
   // ── Quiz done → result screen ─────────────────────────────────────────────
   if (done) {
-    const pct = Math.round((questionsCorrect / activeQuestions.length) * 100)
-    const passed = pct >= 70
+    // The server is the authority: it re-checks every answer against the
+    // database and applies the per-attempt credit. It used to be ignored here,
+    // and on 37 of the 99 attempts on record the child was shown "Great work!"
+    // while the server recorded a fail and withheld the card, the progress and
+    // the unlock. Fall back to the local count only while the submission is in
+    // flight or the child is offline.
+    const localPct = Math.round((questionsCorrect / activeQuestions.length) * 100)
+    const passed = submitResult ? submitResult.passed : localPct >= 70
+    // How many more questions a first-try correct would have needed to finish.
+    // Uses scoreFraction, never `score`: that field is a COUNT from
+    // /api/quiz/submit and /api/guardian, and a 0–1 fraction from
+    // /api/quiz/checkpoint, so it cannot be read as one thing.
+    const scoreFraction = submitResult?.scoreFraction
+    const questionsToPass = scoreFraction != null && !passed
+      ? Math.max(1, Math.ceil(submitResult!.totalQuestions * (0.7 - scoreFraction)))
+      : 0
     const serverPoints = submitResult?.points
     const serverTotalPoints = submitResult?.totalPoints
     const streakDays = submitResult?.streakDays
@@ -550,13 +684,30 @@ export function QuizShell({
             {passed ? (isFirstWin ? <Trophy className="w-12 h-12 text-points-gold" aria-hidden /> : <Star className="w-12 h-12 text-points-gold" aria-hidden />) : <RefreshCw className="w-12 h-12 text-muted" aria-hidden />}
           </div>
           <h2 className="font-heading text-2xl font-bold text-ink">
-            {passed ? (isFirstWin ? 'First topic complete!' : 'Great work!') : 'Keep going!'}
+            {passed
+              ? (isFirstWin ? 'First topic complete!' : 'Great work!')
+              // "You got 0 right" is a rough thing to say to a child, so a blank
+              // result gets encouragement instead of a count.
+              : questionsCorrect > 0
+                ? `You got ${questionsCorrect} right`
+                : 'This one is tricky'}
           </h2>
           <p className={`mt-2 text-4xl font-bold ${passed ? 'text-correct-700' : 'text-ink'}`}>
             {questionsCorrect} / {activeQuestions.length}
           </p>
+          {/* A miss leads with the work that counted, not the percentage. Points
+              are already banked and the topic is saved as in progress, so the
+              child needs to know the effort was not thrown away. */}
+          {/* No percentage here on purpose. The count above is what a child can
+              act on, and the server score is credit-weighted by how many tries
+              each question took, so a percentage beside "8 / 10" would not match
+              it. */}
           <p className="mt-1 text-muted">
-            {pct}%. {passed ? winMessage : 'Try again to improve your score.'}
+            {passed
+              ? winMessage
+              : questionsToPass > 0
+                ? `${questionsToPass} more and this topic is finished. Your points are saved and we have kept your progress.`
+                : 'Your points are saved and we have kept your progress. Have another go when you are ready.'}
           </p>
 
           {/* Technique score — only shown when quiz had non-recall questions */}
@@ -899,9 +1050,11 @@ export function QuizShell({
             </div>
           )}
 
-          {/* Hints — shown automatically after wrong attempts */}
+          {/* Hints — shown automatically after wrong attempts.
+              aria-live so a child using a screen reader is told a clue appeared:
+              nothing else moves focus on a wrong-but-not-final answer. */}
           {revealedHints.length > 0 && (
-            <div className="mb-4 space-y-2">
+            <div className="mb-4 space-y-2" role="status" aria-live="polite">
               {revealedHints.map((hint, i) => (
                 <motion.div
                   key={i}
@@ -924,6 +1077,7 @@ export function QuizShell({
               onReveal={() => { setHintsRevealed((n) => Math.min(n + 1, hints.length)); setManualHintsRevealed((n) => n + 1) }}
               disabled={false}
               countdown={null}
+              showRevealed={false}
             />
           )}
 

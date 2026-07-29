@@ -23,6 +23,9 @@ export const LEARNING_EVENT_TYPES = [
   'practice_started',
   'practice_completed',
   'quiz_started',
+  // quiz_started fires on page mount, so it counts reloads and picker views.
+  // quiz_first_answer is the honest "the child actually began" signal.
+  'quiz_first_answer',
   'quiz_completed',
   'quiz_abandoned',
   'recommendation_shown',

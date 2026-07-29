@@ -11,9 +11,17 @@ type Props = {
   // When non-null, hints are locked and the countdown (seconds remaining) is shown.
   // When null or 0, hints are unlocked and the normal button renders.
   countdown?: number | null
+  /**
+   * Whether to render the revealed hints here. Set false when the caller already
+   * displays them itself, which QuizShell does: it shows hints that appear
+   * automatically after a wrong answer, so letting this component draw them too
+   * printed every manually-requested hint on screen twice.
+   * `revealed` is still needed either way for the remaining count.
+   */
+  showRevealed?: boolean
 }
 
-export function HintButton({ hints, revealed, onReveal, disabled, countdown }: Props) {
+export function HintButton({ hints, revealed, onReveal, disabled, countdown, showRevealed = true }: Props) {
   if (hints.length === 0) return null
 
   const remaining = hints.length - revealed.length
@@ -22,7 +30,7 @@ export function HintButton({ hints, revealed, onReveal, disabled, countdown }: P
   return (
     <div className="space-y-2">
       <AnimatePresence initial={false}>
-        {revealed.map((hint, i) => (
+        {showRevealed && revealed.map((hint, i) => (
           <motion.div
             key={i}
             initial={{ opacity: 0, height: 0 }}

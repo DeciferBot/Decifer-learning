@@ -366,6 +366,27 @@ model QuizQuestion {
   @@map("quiz_questions")
 }
 
+// Pooled difficulty priors, filled nightly by /api/cron/calibrate-difficulty.
+//
+// Item-level calibration (quiz_questions.difficulty_b) needs 20 first-attempt
+// responses per question. With 6,971 published questions and about a thousand
+// answers in total, no item has ever reached that and none will at this volume.
+// Pooling responses by (question_type, tier) produces a usable prior that every
+// item in the group inherits until it earns a calibration of its own.
+//
+// question_type '*' is the coarser tier-only fallback for types with too little
+// data of their own.
+model QuestionDifficultyPrior {
+  question_type String
+  tier          String
+  difficulty_b  Float
+  sample_n      Int
+  updated_at    DateTime @default(now())
+
+  @@id([question_type, tier])
+  @@map("question_difficulty_priors")
+}
+
 // ---------- Pipeline tracking (Phase 11A) ----------
 
 model PipelineRun {
