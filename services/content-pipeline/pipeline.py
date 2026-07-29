@@ -1495,6 +1495,44 @@ def stage5_dedup(
                 result.log_stage(f"  number-fingerprint duplicate detected (shared values: {new_fp})")
                 return False
 
+        # Answer-identity and question/answer inversion.
+        #
+        # Semantic dedup below embeds question_text only, so it cannot see two
+        # questions that teach one fact from opposite ends:
+        #   "What is the Qur'an?"                   → "The Islamic holy book"
+        #   "What is the Islamic holy book called?" → "The Qur'an"
+        # Those wordings score under DEDUP_SIMILARITY_THRESHOLD, so both publish and
+        # a child meets the same fact twice. year-4-history-early-islamic shipped
+        # exactly that pair, plus three separate questions answering "Migration".
+        #
+        # Only applied to descriptive answers. Numeric answers legitimately repeat
+        # across a maths topic ("4" is not a fact, it is a result), and the English
+        # >40% answer-diversity guard below already covers short repeated tokens.
+        def _norm_phrase(text: str) -> str:
+            return _re.sub(r"[^a-z0-9 ]", " ", str(text).lower())
+
+        def _is_descriptive(answer: str) -> bool:
+            a = answer.strip()
+            return len(a) >= 4 and not _re.fullmatch(r"[\d,\.\s/%-]+", a)
+
+        if _is_descriptive(new_answer):
+            new_a, new_q = _norm_phrase(new_answer).strip(), f" {_norm_phrase(new_text)} "
+            for row in existing:
+                ex_answer = str(row.get("correct_answer", ""))
+                if not _is_descriptive(ex_answer):
+                    continue
+                ex_a = _norm_phrase(ex_answer).strip()
+                ex_q = f" {_norm_phrase(row.get('question_text', ''))} "
+                if new_a == ex_a:
+                    result.log_stage(f"  duplicate answer detected ({new_answer!r} already used in this topic)")
+                    return False
+                if f" {new_a} " in ex_q and f" {ex_a} " in new_q:
+                    result.log_stage(
+                        f"  inverted duplicate detected ({new_answer!r} is asked about by an "
+                        f"existing question whose answer this one asks about)"
+                    )
+                    return False
+
         q_embedding = embed_text(new_text)
         if q_embedding is None:
             result.log_stage("  embedding failed — skipping dedup")

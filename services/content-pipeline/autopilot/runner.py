@@ -319,3 +319,40 @@ def print_run_summary(results: list[JobResult]) -> None:
         if r.exit_code != 0 and r.stderr_tail:
             print(f"     └─ {r.stderr_tail[:100]}")
     print(f"{'═' * 60}\n")
+
+
+# ── CLI entry point ───────────────────────────────────────────────────────────
+# main.py's nightly autopilot invokes this module with `python -m
+# autopilot.runner`. Without a __main__ block that call imported the module,
+# executed nothing and exited 0, so the nightly run reported success while
+# running no jobs. See scripts/learning-autopilot-run.py for the fuller CLI.
+#
+# The .PIPELINE_STOP gate is deliberately NOT created here. If it is missing the
+# run exits non-zero with a clear message rather than generating unattended,
+# which is the whole point of the sentinel.
+
+if __name__ == "__main__":
+    import argparse
+    import sys
+
+    parser = argparse.ArgumentParser(description="Execute queued autopilot content jobs.")
+    parser.add_argument("--count", type=int, default=1, help="Number of jobs to execute")
+    parser.add_argument("--dry-run", action="store_true", help="Show commands without executing")
+    parser.add_argument("--job-id", metavar="UUID", help="Execute one specific job")
+    args = parser.parse_args()
+
+    if not args.dry_run and not PIPELINE_STOP.exists():
+        print(
+            f".PIPELINE_STOP not found at {PIPELINE_STOP}. The runner uses it as a gate and "
+            "will not generate without it. Create it before running.",
+            file=sys.stderr,
+        )
+        raise SystemExit(2)
+
+    try:
+        results = run_next_batch(count=args.count, dry_run=args.dry_run, job_id=args.job_id)
+    except RuntimeError as exc:
+        print(f"Safety check failed: {exc}", file=sys.stderr)
+        raise SystemExit(2)
+
+    print_run_summary(results)

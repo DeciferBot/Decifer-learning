@@ -261,3 +261,41 @@ def print_queue_plan(decisions: list[QueueDecision], dry_run: bool = False) -> N
         print()
 
     print(f"{'═' * 70}\n")
+
+
+# ── CLI entry point ───────────────────────────────────────────────────────────
+# main.py's nightly autopilot invokes this module with `python -m
+# autopilot.queue_builder`. Without a __main__ block that call imported the
+# module, executed nothing and exited 0, so the nightly run reported success
+# while building no queue at all. See scripts/learning-autopilot-queue.py for
+# the fuller CLI (year/subject filters, --limit); this is the no-argument form
+# the pipeline service uses.
+
+if __name__ == "__main__":
+    import argparse
+    import sys
+    from pathlib import Path
+
+    # config.py lives in the pipeline root, one level above this package.
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    import config as _config
+
+    parser = argparse.ArgumentParser(description="Populate the autopilot work queue.")
+    parser.add_argument("--year", help="Filter to one year group, e.g. year-3")
+    parser.add_argument("--subject", help="Filter to one subject, e.g. Maths")
+    parser.add_argument("--dry-run", action="store_true", help="Plan without writing the queue")
+    parser.add_argument("--limit", type=int, default=None, help="Maximum jobs to enqueue")
+    args = parser.parse_args()
+
+    if not _config.DATABASE_URL:
+        print("DATABASE_URL is not set — cannot build the queue", file=sys.stderr)
+        raise SystemExit(1)
+
+    decisions = build_queue(
+        database_url=_config.DATABASE_URL,
+        year_filter=args.year,
+        subject_filter=args.subject,
+        dry_run=args.dry_run,
+        limit=args.limit,
+    )
+    print_queue_plan(decisions, dry_run=args.dry_run)
