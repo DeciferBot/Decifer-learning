@@ -1505,9 +1505,19 @@ def stage5_dedup(
         # a child meets the same fact twice. year-4-history-early-islamic shipped
         # exactly that pair, plus three separate questions answering "Migration".
         #
-        # Only applied to descriptive answers. Numeric answers legitimately repeat
-        # across a maths topic ("4" is not a fact, it is a result), and the English
-        # >40% answer-diversity guard below already covers short repeated tokens.
+        # Only the INVERSION is checked here, deliberately.
+        #
+        # A first version also rejected any repeat of a descriptive answer. That was
+        # wrong. Whole topics are built on repeated answers by design: y7-english-
+        # writing-persuasive has 66 published questions, 43 distinct answers, and 10
+        # that answer "Rule of three" — each quoting a DIFFERENT sentence and asking
+        # which technique it is. Blocking those would gut the topic. Answer
+        # over-concentration is already handled by the >40% diversity guard below,
+        # which is the right tool because it is proportional rather than absolute.
+        #
+        # Inversion has no such false positives: it fires only when the new answer
+        # appears inside an existing question AND that question's answer appears
+        # inside the new one, which is one fact asked from both ends.
         def _norm_phrase(text: str) -> str:
             return _re.sub(r"[^a-z0-9 ]", " ", str(text).lower())
 
@@ -1523,9 +1533,6 @@ def stage5_dedup(
                     continue
                 ex_a = _norm_phrase(ex_answer).strip()
                 ex_q = f" {_norm_phrase(row.get('question_text', ''))} "
-                if new_a == ex_a:
-                    result.log_stage(f"  duplicate answer detected ({new_answer!r} already used in this topic)")
-                    return False
                 if f" {new_a} " in ex_q and f" {ex_a} " in new_q:
                     result.log_stage(
                         f"  inverted duplicate detected ({new_answer!r} is asked about by an "
