@@ -69,7 +69,7 @@ export default async function CurriculumIndexPage() {
         </nav>
 
         <header>
-          <h1 className="font-heading text-4xl font-bold text-ink">Our curriculum</h1>
+          <h1 className="font-heading text-4xl font-bold text-ink">UK National Curriculum topics, Year 1 to Year 11</h1>
           <p className="mt-3 max-w-2xl text-lg text-muted">
             Every topic in Decifer Learning is mapped to the UK National Curriculum. Browse what we
             cover, by subject and year group, from Year 1 through to Year 11.
@@ -102,7 +102,7 @@ export default async function CurriculumIndexPage() {
 
         <div className="mt-12 rounded-2xl border border-maths/20 bg-maths/5 p-8 text-center">
           <h2 className="font-heading text-2xl font-bold text-ink">Ready to start?</h2>
-          <p className="mt-2 text-muted">Free for the first 3 Maths topics. No card required.</p>
+          <p className="mt-2 text-muted">Every subject and year group, free while we are in beta. No card required.</p>
           <Link
             href="/register"
             className="mt-6 inline-flex h-12 items-center rounded-xl bg-maths px-8 font-semibold text-white"

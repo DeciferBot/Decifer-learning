@@ -153,7 +153,7 @@ export default async function SubjectCurriculumPage({ params }: Props) {
             Start learning {detail.name}
           </h2>
           <p className="mt-2 text-muted">
-            Free for the first 3 Maths topics. Upgrade for unlimited access to all five subjects.
+            Every subject and year group, free while we are in beta. No card required.
           </p>
           <Link
             href="/register"

@@ -176,7 +176,7 @@ export default async function TopicCurriculumPage({ params }: Props) {
         <div className="mt-12 rounded-2xl border border-maths/20 bg-maths/5 p-8 text-center">
           <h2 className="font-heading text-2xl font-bold text-ink">Learn {d.title}</h2>
           <p className="mt-2 text-muted">
-            Free for the first 3 Maths topics. No card required.
+            Every subject and year group, free while we are in beta. No card required.
           </p>
           <Link
             href="/register"
