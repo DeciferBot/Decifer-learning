@@ -852,6 +852,30 @@ def fix_staged_all(background_tasks: BackgroundTasks, cap: int = 200) -> dict:
     return {"status": "started", "message": f"fix-staged-all running in background (cap={cap})"}
 
 
+# Rows scanned before the unpublishable-row filter runs. Must comfortably exceed the
+# staged backlog (~1.4k) so the filter never runs out of candidates and silently
+# under-fills the cap, while still bounding the fetch.
+_FIX_STAGED_SCAN_LIMIT = 10000
+
+
+def _fix_ceiling(qtype: str, grounded: bool) -> float:
+    """Highest score fix_staged_question could possibly reach for this row.
+
+    Mirrors the re-score in pipeline.fix_staged_question exactly: verification (60)
+    and consensus (25) are carried forward from the original run, the RAG bonus (+5)
+    requires non-empty source_chunk_ids, and the literary/physics buffers only land
+    when the fixed question has zero violations. A flawless fix cannot beat this.
+    """
+    import config
+
+    ceiling = 60.0 + 25.0
+    if qtype in config.RAG_REQUIRED_TYPES and grounded:
+        ceiling += 5.0
+    if qtype in ("english_literary_analysis", "science_physics_calculation"):
+        ceiling += 5.0
+    return ceiling
+
+
 def _run_fix_staged_all(cap: int = 200):
     import psycopg2
     import psycopg2.extras
@@ -867,7 +891,10 @@ def _run_fix_staged_all(cap: int = 200):
             # then other types ≥80. Maths at 85 are the highest-yield batch.
             cur.execute(
                 """
-                SELECT qq.id FROM quiz_questions qq
+                SELECT qq.id, qq.question_type,
+                       (qq.source_chunk_ids IS NOT NULL
+                        AND qq.source_chunk_ids::text NOT IN ('[]', 'null')) AS grounded
+                FROM quiz_questions qq
                 JOIN topics t ON t.id = qq.topic_id
                 JOIN subjects s ON s.id = t.subject_id
                 WHERE qq.status = 'staged' AND qq.confidence_score >= 80
@@ -876,14 +903,37 @@ def _run_fix_staged_all(cap: int = 200):
                   qq.confidence_score DESC
                 LIMIT %s
                 """,
-                (cap,),
+                (_FIX_STAGED_SCAN_LIMIT,),
             )
             rows = cur.fetchall()
     finally:
         conn.close()
 
-    question_ids = [str(r["id"]) for r in rows]
-    log.info(f"[fix-staged-all] {len(question_ids)} questions to process")
+    # Drop rows a perfect fix still could not publish, THEN apply the cap.
+    #
+    # WHY: an ungrounded RAG-required row (empty source_chunk_ids) misses the +5
+    # grounding bonus, so it tops out at 85 against a threshold of 90. It can never
+    # be promoted. These rows are legacy — today's hard RAG gate in stage6_score
+    # scores an ungrounded RAG-required question 0 — but they carry a legacy score of
+    # 88, which sorts them to the FRONT of the ORDER BY above. Before this filter the
+    # nightly run spent its entire cap making one LLM call per impossible row, landed
+    # them all back in staged, repeated the same set the next night, and never reached
+    # the rows that genuinely could pass. Filtering before the cap is the whole point.
+    eligible: list[str] = []
+    impossible = 0
+    for r in rows:
+        qtype = r["question_type"] or ""
+        if _fix_ceiling(qtype, bool(r["grounded"])) < config.get_confidence_threshold(qtype):
+            impossible += 1
+            continue
+        eligible.append(str(r["id"]))
+
+    question_ids = eligible[:cap]
+    log.info(
+        f"[fix-staged-all] {len(rows)} staged rows scored >=80; "
+        f"{impossible} skipped as unpublishable (ceiling below threshold); "
+        f"{len(eligible)} eligible; {len(question_ids)} to process (cap={cap})"
+    )
 
     published = 0
     still_staged = 0
