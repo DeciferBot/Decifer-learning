@@ -1,6 +1,5 @@
 'use client'
 
-import Link from 'next/link'
 import { useState } from 'react'
 
 type Props = {
@@ -26,23 +25,17 @@ export function SubscriptionStatus({ plan, status, periodEnd }: Props) {
     ? new Date(periodEnd).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
     : null
 
+  // Content gating is off for the beta (see isTopicAccessible in lib/stripe.ts),
+  // so there is nothing to upgrade to. Showing an "Upgrade to unlock" prompt
+  // told parents they were limited when they were not.
   if (isFree) {
     return (
       <div className="rounded-2xl border border-maths/20 bg-maths/5 p-5">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-wide text-maths">Free plan</p>
-            <p className="mt-1 text-sm text-muted">
-              3 Maths topics. Upgrade to unlock all subjects and year groups.
-            </p>
-          </div>
-          <Link
-            href="/pricing"
-            className="shrink-0 rounded-lg bg-maths px-4 py-2 text-sm font-semibold text-white transition hover:bg-maths/90"
-          >
-            Upgrade
-          </Link>
-        </div>
+        <p className="text-xs font-bold uppercase tracking-wide text-maths">Beta</p>
+        <p className="mt-1 text-sm text-muted">
+          Everything is included and free while we are in beta: all five subjects, every year
+          group from Year 1 to Year 11, and unlimited quizzes.
+        </p>
       </div>
     )
   }

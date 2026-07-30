@@ -6,6 +6,8 @@ export const movingToUaeSchoolAdmissions: Guide = {
   h1: 'Moving to the UAE: getting your child into school',
   description:
     'How school admissions work for families arriving in Dubai and the UAE: when you can join mid-year, the transfer certificate and attestation rules, what to prepare before you fly, and how placement is decided.',
+  keyAnswer:
+    'Children arriving from outside the UAE can join a Dubai school in any year group at any point in the school year, subject to places. You need a valid Emirates ID and, from Year 3 upwards, a transfer certificate from the previous school, attested according to the country you are leaving.',
   category: 'planning-and-dates',
   datePublished: '2026-07-30',
   dateModified: '2026-07-30',

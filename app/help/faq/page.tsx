@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import { jsonLd } from '@/lib/json-ld'
 
 export const metadata = {
   title: 'FAQ',
@@ -8,30 +7,14 @@ export const metadata = {
   alternates: { canonical: '/help/faq' },
 }
 
-// Build schema.org FAQPage markup from the on-page Q&As so they can qualify for
-// rich results in search. Only string answers are emitted (skip any rich-node answer).
-function faqJsonLd() {
-  const all = [...PARENT_FAQS, ...STUDENT_FAQS, ...CONTENT_FAQS].filter(
-    (item): item is { q: string; a: string } => typeof item.a === 'string',
-  )
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: all.map((item) => ({
-      '@type': 'Question',
-      name: item.q,
-      acceptedAnswer: { '@type': 'Answer', text: item.a },
-    })),
-  }
-}
+// FAQPage JSON-LD used to be emitted here. Google restricted FAQ rich results
+// to government and health sites in 2023, then stopped showing them for
+// everyone on 7 May 2026 and removed the documentation in June. The markup now
+// earns nothing, so it is gone. The on-page questions stay: readers use them.
 
 export default function FAQPage() {
   return (
     <div className="space-y-8">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: jsonLd(faqJsonLd()) }}
-      />
       <div>
         <Link href="/help" className="mb-4 inline-block text-sm font-semibold text-brand hover:underline">
           ← All guides

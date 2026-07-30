@@ -162,7 +162,7 @@ export default async function YearCurriculumPage({ params }: Props) {
             Start {detail.displayLabel} {detail.subjectName}
           </h2>
           <p className="mt-2 text-muted">
-            Free for the first 3 Maths topics. No card required.
+            Every subject and year group, free while we are in beta. No card required.
           </p>
           <Link
             href="/register"
