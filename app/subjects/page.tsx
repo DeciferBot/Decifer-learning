@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { DeciferLogo } from '@/components/ui/DeciferLogo'
 import { DarkModeToggle } from '@/components/ui/DarkModeToggle'
+import { MarketingFooter } from '@/components/marketing/MarketingFooter'
 
 export const metadata: Metadata = {
   // Was "What we cover", which nobody searches. Leads with the curriculum and the
@@ -134,7 +135,9 @@ export default function SubjectsPage() {
 
         <div className="mt-12 rounded-2xl bg-maths/5 border border-maths/20 p-8 text-center">
           <h2 className="font-heading text-2xl font-bold text-ink">Ready to start?</h2>
-          <p className="mt-2 text-muted">Free for the first 3 Maths topics. No card required.</p>
+          <p className="mt-2 text-muted">
+            Every subject and year group, free while we are in beta. No card required.
+          </p>
           <Link
             href="/register"
             className="mt-6 inline-flex h-12 items-center rounded-xl bg-maths px-8 font-semibold text-white"
@@ -143,6 +146,8 @@ export default function SubjectsPage() {
           </Link>
         </div>
       </main>
+
+      <MarketingFooter />
     </div>
   )
 }

@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { DeciferLogo } from '@/components/ui/DeciferLogo'
+import { MarketingFooter } from '@/components/marketing/MarketingFooter'
 
 export default function HelpLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -30,11 +31,7 @@ export default function HelpLayout({ children }: { children: React.ReactNode }) 
         {children}
       </main>
 
-      <footer className="border-t border-black/5 bg-surface py-6 text-center text-xs text-muted">
-        <Link href="/" className="hover:text-ink">Decifer Learning</Link>
-        {' · '}
-        <Link href="/help" className="hover:text-ink">All guides</Link>
-      </footer>
+      <MarketingFooter />
     </div>
   )
 }

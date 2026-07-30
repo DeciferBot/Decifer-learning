@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { DeciferLogo } from '@/components/ui/DeciferLogo'
 import { DarkModeToggle } from '@/components/ui/DarkModeToggle'
+import { MarketingFooter } from '@/components/marketing/MarketingFooter'
 
 export const metadata: Metadata = {
   // "How it works" is an internal label with no search demand. This targets the
@@ -180,7 +181,9 @@ export default function HowItWorksPage() {
 
         <div className="mt-10 rounded-2xl border border-maths/20 bg-maths/5 p-8 text-center">
           <h2 className="font-heading text-2xl font-bold text-ink">Try it free</h2>
-          <p className="mt-2 text-muted">3 Maths topics. No card required.</p>
+          <p className="mt-2 text-muted">
+            Everything is free while we are in beta. No card required.
+          </p>
           <Link
             href="/register"
             className="mt-6 inline-flex h-12 items-center rounded-xl bg-maths px-8 font-semibold text-white"
@@ -189,6 +192,8 @@ export default function HowItWorksPage() {
           </Link>
         </div>
       </main>
+
+      <MarketingFooter />
     </div>
   )
 }

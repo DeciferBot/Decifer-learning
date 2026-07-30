@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { MarketingFooter } from '@/components/marketing/MarketingFooter'
 
 export const metadata: Metadata = {
   title: 'Decifer Blitz | Live quiz battles',
@@ -217,17 +218,7 @@ export default function BlitzPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-black/5 px-5 py-8 text-center text-xs text-muted">
-        <p>
-          <Link href="/" className="font-semibold text-ink hover:underline">Decifer Learning</Link>
-          {' · '}
-          <Link href="/legal/privacy" className="hover:underline">Privacy</Link>
-          {' · '}
-          <Link href="/legal/terms" className="hover:underline">Terms</Link>
-          {' · '}
-          <Link href="/join" className="hover:underline">Join a game</Link>
-        </p>
-      </footer>
+      <MarketingFooter />
     </main>
   )
 }

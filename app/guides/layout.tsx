@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { DeciferLogo } from '@/components/ui/DeciferLogo'
 import { DarkModeToggle } from '@/components/ui/DarkModeToggle'
+import { MarketingFooter } from '@/components/marketing/MarketingFooter'
 
 export default function GuidesLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -30,15 +31,7 @@ export default function GuidesLayout({ children }: { children: React.ReactNode }
 
       <main className="mx-auto max-w-3xl px-4 py-10">{children}</main>
 
-      <footer className="border-t border-black/5 bg-surface py-6 text-center text-xs text-muted">
-        <Link href="/" className="hover:text-ink">Decifer Learning</Link>
-        {' · '}
-        <Link href="/guides" className="hover:text-ink">UAE parent guides</Link>
-        {' · '}
-        <Link href="/curriculum" className="hover:text-ink">Curriculum</Link>
-        {' · '}
-        <Link href="/help" className="hover:text-ink">Help</Link>
-      </footer>
+      <MarketingFooter />
     </div>
   )
 }

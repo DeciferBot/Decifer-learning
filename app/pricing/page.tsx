@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { DeciferLogo } from '@/components/ui/DeciferLogo'
 import { DarkModeToggle } from '@/components/ui/DarkModeToggle'
+import { MarketingFooter } from '@/components/marketing/MarketingFooter'
 
 export const metadata: Metadata = {
   // Bare "Pricing" ranks for nothing. Name the product, the offer and the market.
@@ -135,15 +136,7 @@ export default function PricingPage() {
         </div>
       </main>
 
-      <footer className="border-t border-black/5 py-8 text-center text-xs text-muted">
-        <div className="space-x-4">
-          <Link href="/legal/terms" className="hover:underline">Terms</Link>
-          <Link href="/legal/privacy" className="hover:underline">Privacy</Link>
-          <Link href="/help" className="hover:underline">Help</Link>
-          <Link href="/guides" className="hover:underline">UAE parent guides</Link>
-        </div>
-        <p className="mt-2">© {new Date().getFullYear()} DECIFER. All rights reserved.</p>
-      </footer>
+      <MarketingFooter />
     </div>
   )
 }
