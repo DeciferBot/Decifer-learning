@@ -36,6 +36,15 @@ export type LivePlayer = {
 
 type SyncPayload = { game?: LiveGameState | null; players?: LivePlayer[] }
 
+// Never select('*') from these two tables. They carry host_guest_token and
+// guest_token, which are what authorise host actions in lib/live/server.ts, and
+// both tables are readable by anon so a wildcard select hands every browser the
+// credentials to take over any game. These lists mirror liveGameSnapshot() in
+// broadcast.ts, so the fetched shape matches what Realtime broadcasts.
+const LIVE_GAME_COLUMNS =
+  'id, pin, status, mode, question_count, seconds_per_question, current_index, current_started_at, host_profile_id'
+const LIVE_PLAYER_COLUMNS = 'id, profile_id, display_name, score, is_host'
+
 export function useLiveGame(gameId: string) {
   const [game, setGame] = useState<LiveGameState | null>(null)
   const [players, setPlayers] = useState<LivePlayer[]>([])
@@ -49,8 +58,12 @@ export function useLiveGame(gameId: string) {
 
     async function loadInitial() {
       const [{ data: g }, { data: ps }] = await Promise.all([
-        supabase.from('live_games').select('*').eq('id', gameId).single(),
-        supabase.from('live_game_players').select('*').eq('game_id', gameId).order('score', { ascending: false }),
+        supabase.from('live_games').select(LIVE_GAME_COLUMNS).eq('id', gameId).single(),
+        supabase
+          .from('live_game_players')
+          .select(LIVE_PLAYER_COLUMNS)
+          .eq('game_id', gameId)
+          .order('score', { ascending: false }),
       ])
       if (!active) return
       if (g) setGame(g as LiveGameState)
