@@ -430,6 +430,13 @@ export default function Home({
             </p>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               <GuideCard
+                icon={<Search size={22} />}
+                title="UAE school guides"
+                description="School fees, KHDA and ADEK ratings, term dates and the British curriculum, explained for UAE parents."
+                href="/guides"
+                audience="parent"
+              />
+              <GuideCard
                 icon={<Users size={22} />}
                 title="Parent guide"
                 description="How to set up your child's account, read the learning map, and support their learning."
@@ -554,6 +561,7 @@ export default function Home({
               <Link href="/how-it-works" className="hover:text-ink">How it works</Link>
               <Link href="/blitz" className="hover:text-ink">Blitz</Link>
               <Link href="/pricing" className="hover:text-ink">Pricing</Link>
+              <Link href="/guides" className="hover:text-ink">UAE guides</Link>
               <Link href="/help" className="hover:text-ink">Help</Link>
               <Link href="/help/faq" className="hover:text-ink">FAQ</Link>
               <Link href="/legal/privacy" className="hover:text-ink">Privacy</Link>
