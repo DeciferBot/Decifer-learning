@@ -83,13 +83,10 @@ export async function resolveHostAuth(gameId: string): Promise<boolean> {
   return false
 }
 
-// Trim + bound a guest nickname. Returns null if it can't be made valid.
-export function cleanNickname(raw: unknown): string | null {
-  if (typeof raw !== 'string') return null
-  const name = raw.trim().replace(/\s+/g, ' ').slice(0, 20)
-  if (name.length < 1) return null
-  return name
-}
+// Trim, bound and content-filter a guest nickname. Returns null if it can't be
+// made valid or safe. Lives in ./nickname so it stays importable from tests —
+// this module is server-only.
+export { cleanNickname, NICKNAME_MAX_LENGTH } from './nickname'
 
 // Basic email sanity check — not a full RFC validator, just enough to reject
 // obviously bad input before it hits the DB.
