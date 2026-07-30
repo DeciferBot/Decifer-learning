@@ -32,7 +32,18 @@ EMBEDDINGS_ENABLED: bool = True
 EMBEDDING_MODEL          = "all-MiniLM-L6-v2"
 EMBEDDING_DIM            = 384
 
-CLAUDE_MODEL = "claude-sonnet-4-6"
+CLAUDE_MODEL = "claude-sonnet-4-6"  # Anthropic fallback only (used when DO inference is down/unset)
+
+# ── Primary LLM: DigitalOcean serverless inference (OpenAI-compatible) ────
+# 2026-07-30: all pipeline LLM calls moved off Sonnet to cut API spend.
+# Generation/repair use DeepSeek's flagship; the cheaper flash model handles
+# the consensus + constitutional judge calls. Quality is still gated by the
+# code verifiers, dedup, and §8 confidence thresholds — a weak generation
+# lands in 'staged', never 'published'.
+DO_API_TOKEN: str = os.environ.get("DO_API_TOKEN", "") or os.environ.get("DO_INFERENCE_API_KEY", "")
+DO_INFERENCE_BASE_URL = "https://inference.do-ai.run/v1"
+GENERATION_MODEL = "deepseek-v4-pro"   # Stage 1 generation + fix/repair calls
+CHECK_MODEL      = "deepseek-4-flash"  # Stage 3 consensus + Stage 4 constitutional
 
 PIPELINE_VERSION = "1.1.1"  # Phase 2A.12
 
