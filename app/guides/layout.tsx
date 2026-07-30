@@ -1,8 +1,9 @@
 import Link from 'next/link'
 import { DeciferLogo } from '@/components/ui/DeciferLogo'
+import { DarkModeToggle } from '@/components/ui/DarkModeToggle'
 import { MarketingFooter } from '@/components/marketing/MarketingFooter'
 
-export default function HelpLayout({ children }: { children: React.ReactNode }) {
+export default function GuidesLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-background">
       <nav className="sticky top-0 z-10 border-b border-black/5 bg-background/90 backdrop-blur-sm">
@@ -11,6 +12,7 @@ export default function HelpLayout({ children }: { children: React.ReactNode }) 
             <DeciferLogo size="sm" product="Learning" />
           </Link>
           <div className="flex items-center gap-2">
+            <DarkModeToggle />
             <Link
               href="/login"
               className="flex h-9 items-center rounded-lg px-3 text-sm font-semibold text-ink transition-colors hover:bg-black/5"
@@ -27,9 +29,7 @@ export default function HelpLayout({ children }: { children: React.ReactNode }) 
         </div>
       </nav>
 
-      <main className="mx-auto max-w-3xl px-4 py-10">
-        {children}
-      </main>
+      <main className="mx-auto max-w-3xl px-4 py-10">{children}</main>
 
       <MarketingFooter />
     </div>

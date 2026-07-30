@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { DeciferLogo } from '@/components/ui/DeciferLogo'
+import { MarketingFooter } from '@/components/marketing/MarketingFooter'
 
 export default function LegalLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -34,15 +35,9 @@ export default function LegalLayout({ children }: { children: React.ReactNode })
       </main>
 
       {/* ── Footer ──────────────────────────────────────────────────── */}
-      <footer className="border-t border-black/5 bg-surface py-6 text-center text-xs text-muted">
-        <Link href="/" className="hover:text-ink">Decifer Learning</Link>
-        {' · '}
-        <Link href="/legal/privacy" className="hover:text-ink">Privacy</Link>
-        {' · '}
-        <Link href="/legal/terms" className="hover:text-ink">Terms</Link>
-        {' · '}
-        <Link href="/help" className="hover:text-ink">Help</Link>
-      </footer>
+      {/* family={false}: this layout also wraps /legal/privacy-for-kids, which is
+          written for children. The sibling-brand row stays off child-facing pages. */}
+      <MarketingFooter family={false} />
 
     </div>
   )

@@ -4,6 +4,7 @@ import {
   getPublicTopicParams,
   getPublicYearParams,
 } from '@/lib/public-curriculum'
+import { getAllGuides } from '@/lib/guides'
 
 const BASE = 'https://www.deciferlearning.com'
 
@@ -17,6 +18,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/subjects`, lastModified: now, changeFrequency: 'monthly', priority: 0.9 },
     { url: `${BASE}/curriculum`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
     { url: `${BASE}/pricing`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${BASE}/guides`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
     { url: `${BASE}/blitz`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
     // Help centre
     { url: `${BASE}/help`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
@@ -70,5 +72,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     curriculumEntries = []
   }
 
-  return [...staticEntries, ...curriculumEntries]
+  // UAE parent guides — repo-authored editorial content, no DB dependency.
+  // dateModified is per-guide so a refreshed article signals freshness.
+  const guideEntries: MetadataRoute.Sitemap = getAllGuides().map((g) => ({
+    url: `${BASE}/guides/${g.slug}`,
+    lastModified: new Date(g.dateModified),
+    changeFrequency: 'monthly' as const,
+    priority: 0.8,
+  }))
+
+  return [...staticEntries, ...guideEntries, ...curriculumEntries]
 }

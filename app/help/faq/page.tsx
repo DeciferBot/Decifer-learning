@@ -126,7 +126,7 @@ const PARENT_FAQS = [
   },
   {
     q: 'We follow the British curriculum but live outside the UK. Can we use Decifer?',
-    a: 'Absolutely. Decifer follows the England National Curriculum, the same British curriculum taught in British schools across the UAE, the Gulf and internationally. You can use it from anywhere, and subscriptions are billed in AED.',
+    a: 'Absolutely. Decifer follows the England National Curriculum, the same British curriculum taught in British schools across the UAE, the Gulf and internationally. You can use it from anywhere, and everything is free while we are in beta.',
   },
 ]
 

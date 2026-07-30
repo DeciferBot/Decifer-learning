@@ -9,6 +9,7 @@ import { GuideCard } from '@/components/ui/GuideCard'
 import { LearningJourney } from '@/components/homepage/LearningJourney'
 import { QualityPipeline } from '@/components/homepage/QualityPipeline'
 import { HeroMockup } from '@/components/homepage/HeroMockup'
+import { MarketingFooter } from '@/components/marketing/MarketingFooter'
 import type { ComponentType, SVGProps } from 'react'
 import {
   MapFold, Check, BarChart, Users,
@@ -18,7 +19,7 @@ import {
   ClipboardList, Telescope, Target, CircleCheck, Bell,
   Backpack, GraduationCap, Shield,
 } from '@/components/ui/icons'
-import { SEO_TITLE, TAGLINE } from '@/lib/brand'
+import { SEO_TITLE } from '@/lib/brand'
 
 type Icon = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
 
@@ -430,6 +431,13 @@ export default function Home({
             </p>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               <GuideCard
+                icon={<Search size={22} />}
+                title="UAE school guides"
+                description="School fees, KHDA and ADEK ratings, term dates and the British curriculum, explained for UAE parents."
+                href="/guides"
+                audience="parent"
+              />
+              <GuideCard
                 icon={<Users size={22} />}
                 title="Parent guide"
                 description="How to set up your child's account, read the learning map, and support their learning."
@@ -536,35 +544,7 @@ export default function Home({
         </main>
 
         {/* ── Footer ───────────────────────────────────────────────────────── */}
-        <footer className="border-t border-black/5 bg-surface py-8">
-          <div className="mx-auto flex max-w-5xl flex-col items-center gap-4 px-4 text-center sm:flex-row sm:justify-between">
-            <DeciferLogo size="xs" product="Learning" />
-            <p className="flex items-center gap-2 text-xs text-muted">
-              {TAGLINE}
-              <Link
-                href="/legal/terms"
-                className="rounded-full border border-black/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide hover:text-ink"
-              >
-                Beta
-              </Link>
-            </p>
-            <nav className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs text-muted sm:justify-start" aria-label="Footer navigation">
-              <Link href="/curriculum" className="hover:text-ink">Curriculum</Link>
-              <Link href="/subjects" className="hover:text-ink">Subjects</Link>
-              <Link href="/how-it-works" className="hover:text-ink">How it works</Link>
-              <Link href="/blitz" className="hover:text-ink">Blitz</Link>
-              <Link href="/pricing" className="hover:text-ink">Pricing</Link>
-              <Link href="/help" className="hover:text-ink">Help</Link>
-              <Link href="/help/faq" className="hover:text-ink">FAQ</Link>
-              <Link href="/legal/privacy" className="hover:text-ink">Privacy</Link>
-              <Link href="/legal/terms" className="hover:text-ink">Terms</Link>
-              <Link href="/login" className="hover:text-ink">Sign in</Link>
-              <a href="https://www.decifer.io" className="hover:text-ink">Part of DECIFER</a>
-              <a href="https://decifertrading.com" className="hover:text-ink">Decifer Trading</a>
-              <a href="https://decifermarketing.com" className="hover:text-ink">Decifer Marketing</a>
-            </nav>
-          </div>
-        </footer>
+        <MarketingFooter />
 
       </div>
     </>
