@@ -11,6 +11,7 @@
     "lint": "next lint",
     "lint:brand": "node scripts/check-brand-hex.mjs",
     "typecheck": "tsc --noEmit",
+    "indexnow": "node scripts/indexnow-submit.mjs",
     "prisma:generate": "prisma generate",
     "prisma:validate": "prisma validate",
     "verify-content-freshness-safety": "node scripts/verify-content-freshness-safety.mjs",
