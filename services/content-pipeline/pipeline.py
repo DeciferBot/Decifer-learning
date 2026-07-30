@@ -53,6 +53,67 @@ def _anthropic():
     return _anthropic_client
 
 
+def _llm_call(*, prompt: str, max_tokens: int, temperature: float | None = None,
+              model: str | None = None):
+    """Primary LLM call — DO serverless inference (cheap DeepSeek models), with
+    Anthropic CLAUDE_MODEL as the failure fallback.
+
+    Returns an anthropic-shaped message (msg.content[0].text, msg.usage with
+    input_tokens/output_tokens) so existing call sites and add_tokens() work
+    unchanged. DO's thinking models spend part of max_tokens on reasoning, so
+    the DO path raises the output budget to avoid truncated JSON — the flat
+    per-token price makes that cheap.
+    """
+    if config.DO_API_TOKEN:
+        import time as _time
+        from types import SimpleNamespace
+        import httpx
+        payload = {
+            "model": model or config.GENERATION_MODEL,
+            "max_tokens": max(max_tokens * 2, 2048),
+            "messages": [{"role": "user", "content": prompt}],
+        }
+        if temperature is not None:
+            payload["temperature"] = temperature
+        for attempt in range(3):
+            try:
+                resp = httpx.post(
+                    f"{config.DO_INFERENCE_BASE_URL}/chat/completions",
+                    headers={"Authorization": f"Bearer {config.DO_API_TOKEN}"},
+                    json=payload,
+                    timeout=120.0,
+                )
+                if resp.status_code in (429, 502, 503, 529):
+                    _time.sleep(2 ** attempt)
+                    continue
+                resp.raise_for_status()
+                data = resp.json()
+                text = (data["choices"][0]["message"].get("content") or "").strip()
+                if not text:
+                    raise ValueError("empty DO inference response")
+                usage = data.get("usage") or {}
+                return SimpleNamespace(
+                    content=[SimpleNamespace(text=text)],
+                    usage=SimpleNamespace(
+                        input_tokens=usage.get("prompt_tokens", 0),
+                        output_tokens=usage.get("completion_tokens", 0),
+                    ),
+                )
+            except Exception as exc:
+                log.warning(f"DO inference failed (attempt {attempt + 1}): {exc}")
+                break
+        log.warning("DO inference unavailable — falling back to Anthropic %s", config.CLAUDE_MODEL)
+    kwargs: dict = {}
+    if temperature is not None:
+        kwargs["temperature"] = temperature
+    return _anthropic().messages.create(
+        model=config.CLAUDE_MODEL,
+        max_tokens=max_tokens,
+        messages=[{"role": "user", "content": prompt}],
+        **kwargs,
+    )
+
+
 # ── sentence-transformers embeddings (local, no API key needed) ───────────
 
 _st_model = None
@@ -953,10 +1014,10 @@ def stage1_generate(
 
     for attempt in range(3):
         try:
-            msg = _anthropic().messages.create(
-                model=config.CLAUDE_MODEL,
+            msg = _llm_call(
+                prompt=prompt,
                 max_tokens=1024,
-                messages=[{"role": "user", "content": prompt}],
+                model=config.GENERATION_MODEL,
             )
             result.add_tokens(msg)
             # Use the shared extractor the later stages already use. Stage 1 used to
@@ -1372,11 +1433,11 @@ def stage3_consensus(topic: dict, tier: str, question_data: dict, result: Pipeli
         tier=tier,
     )
     try:
-        msg = _anthropic().messages.create(
-            model=config.CLAUDE_MODEL,
+        msg = _llm_call(
+            prompt=prompt,
             max_tokens=512,
             temperature=0,
-            messages=[{"role": "user", "content": prompt}],
+            model=config.CHECK_MODEL,
         )
         result.add_tokens(msg)
         text = msg.content[0].text.strip()
@@ -1421,11 +1482,11 @@ def stage4_constitutional(
         explanation=question_data.get("explanation", ""),
     )
     try:
-        msg = _anthropic().messages.create(
-            model=config.CLAUDE_MODEL,
+        msg = _llm_call(
+            prompt=prompt,
             max_tokens=600,
             temperature=0,
-            messages=[{"role": "user", "content": prompt}],
+            model=config.CHECK_MODEL,
         )
         result.add_tokens(msg)
         text = msg.content[0].text.strip()
@@ -2043,7 +2104,7 @@ def run_for_topic(
         "year_group": topic.get("year_group_label"),
         "subject": topic.get("subject_name"),
         "tier": tier,
-        "model": config.CLAUDE_MODEL,
+        "model": config.GENERATION_MODEL if config.DO_API_TOKEN else config.CLAUDE_MODEL,
         "pipeline_version": config.PIPELINE_VERSION,
         "count_requested": count,
         "count_published": sum(1 for r in results if r.status == "published"),
@@ -2183,11 +2244,11 @@ def fix_staged_question(question_id: str) -> dict:
             hint_3=question_data["hint_3"],
             explanation=question_data["explanation"],
         )
-        msg = _anthropic().messages.create(
-            model=config.CLAUDE_MODEL,
+        msg = _llm_call(
+            prompt=fix_prompt,
             max_tokens=1200,
             temperature=0.3,
-            messages=[{"role": "user", "content": fix_prompt}],
+            model=config.GENERATION_MODEL,
         )
         text = msg.content[0].text.strip()
         if text.startswith("```"):
