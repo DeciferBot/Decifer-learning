@@ -40,7 +40,9 @@ CLAUDE_MODEL = "claude-sonnet-4-6"  # Anthropic fallback only (used when DO infe
 # the consensus + constitutional judge calls. Quality is still gated by the
 # code verifiers, dedup, and §8 confidence thresholds — a weak generation
 # lands in 'staged', never 'published'.
-DO_API_TOKEN: str = os.environ.get("DO_API_TOKEN", "") or os.environ.get("DO_INFERENCE_API_KEY", "")
+# NOTE: the inference endpoint needs a DO *model access key* (DO_INFERENCE_API_KEY),
+# not the general DO_API_TOKEN — the general token gets 401 Unauthorized here.
+DO_API_TOKEN: str = os.environ.get("DO_INFERENCE_API_KEY", "") or os.environ.get("DO_API_TOKEN", "")
 DO_INFERENCE_BASE_URL = "https://inference.do-ai.run/v1"
 GENERATION_MODEL = "deepseek-v4-pro"   # Stage 1 generation + fix/repair calls
 CHECK_MODEL      = "deepseek-4-flash"  # Stage 3 consensus + Stage 4 constitutional

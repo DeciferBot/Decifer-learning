@@ -164,9 +164,14 @@ OAK_API_KEY                   # Oak National Academy OpenAPI (OGL v3.0 content).
                               # NEVER expose in any public web service or commit to git.
 
 # DigitalOcean
-DO_API_TOKEN                  # DO read/write API token — used for DO GenAI serverless inference
-                              # (Llama 3.3 70B for pipeline consensus/constitutional checks)
+DO_API_TOKEN                  # DO read/write API token (droplet/infra API). NOT valid for the
+                              # inference endpoint — that needs DO_INFERENCE_API_KEY below.
+DO_INFERENCE_API_KEY          # DO serverless-inference model access key.
                               # Endpoint: https://inference.do-ai.run/v1
+                              # 2026-07-30: the content pipeline's PRIMARY LLM route — all four
+                              # LLM calls (generation, consensus, constitutional, repair) run on
+                              # DeepSeek models here (see config.GENERATION_MODEL / CHECK_MODEL);
+                              # ANTHROPIC_API_KEY (Sonnet) is the failure fallback only.
 
 # Stripe subscriptions (UAE — all prices in AED)
 STRIPE_SECRET_KEY             # server-only secret key (sk_test_/sk_live_)
