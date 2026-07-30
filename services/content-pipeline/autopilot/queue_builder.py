@@ -51,6 +51,24 @@ _STRATEGY_KEYWORDS: list[tuple[tuple[str, ...], str]] = [
     (("phonics", "digraph", "phoneme", "punctuation"),                      "topup"),
 ]
 
+# Per-topic published-question targets for content-limited topics: subjects where
+# the curriculum genuinely contains fewer than MIN_QUESTIONS distinct questions, so
+# the topic can never reach the normal target no matter how long it is worked.
+#
+# Graph transformations is the worked example. It has ~6 non-duplicate variants in
+# total (the six archetypes in the maths_concept prompt: vertical and horizontal
+# translation, reflection in each axis, and the two stretches). Every generation
+# run past that hits the dedup wall, so the topic was re-queued every night, ground
+# through rejects until the 900s timeout, and reported "needs a human" on every
+# single queue build. There is no human fix — the content does not exist.
+#
+# Key = topic slug, value = the published-question count at which the topic is
+# considered complete.
+TOPUP_TARGET_OVERRIDES: dict[str, int] = {
+    # 5 = what is currently published; the topic is at its natural ceiling.
+    "y11-maths-functions-graph-transformations": 5,
+}
+
 # State → base priority (lower = higher priority in queue)
 _STATE_PRIORITY: dict[CoverageState, int] = {
     CoverageState.READY_FOR_TOPUP:      1,
@@ -95,6 +113,15 @@ def _decide(topic: TopicCoverage) -> QueueDecision:
     if topic.state in (CoverageState.QUARANTINED, CoverageState.WEAK):
         return QueueDecision(topic.topic_id, slug, "skip", strategy, priority,
                              "", skip_reason=f"{topic.state.value}: handled by anomaly detection")
+
+    # Content-limited topics have their own target. This is checked before the
+    # BLOCKED branch on purpose: such a topic accumulates errors from the dedup
+    # wall, so the classifier reports MANUAL_REVIEW_REQUIRED forever even though
+    # no human action exists. Treating it as complete retires that false alarm.
+    cap = TOPUP_TARGET_OVERRIDES.get(slug)
+    if cap is not None and topic.pub_q >= cap:
+        return QueueDecision(topic.topic_id, slug, "skip", strategy, priority,
+                             "", skip_reason=f"content-limited: {topic.pub_q}/{cap} published — at its natural ceiling")
 
     # BLOCKED with too many errors
     if topic.state == CoverageState.BLOCKED and topic.recent_errors >= HIGH_ERROR_SKIP:
