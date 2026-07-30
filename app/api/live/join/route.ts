@@ -80,7 +80,16 @@ export async function POST(req: Request) {
   }
 
   const nickname = cleanNickname(body.nickname)
-  if (!nickname) return NextResponse.json({ error: 'need_nickname' }, { status: 400 })
+  if (!nickname) {
+    // The filter rejects unsafe names as well as empty ones. Tell a player who
+    // actually typed something that the name was refused, rather than asking
+    // them to "pick a nickname first" when they already did.
+    const typedSomething = typeof body.nickname === 'string' && body.nickname.trim().length > 0
+    return NextResponse.json(
+      { error: typedSomething ? 'nickname_not_allowed' : 'need_nickname' },
+      { status: 400 },
+    )
+  }
   if (game.status !== 'lobby') {
     return NextResponse.json({ error: 'game_already_started' }, { status: 409 })
   }

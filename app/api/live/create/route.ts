@@ -55,9 +55,11 @@ export async function POST(req: Request) {
     }
     hostEmail = body.email.trim().toLowerCase()
     hostGuestToken = crypto.randomUUID()
-    // Use supplied nickname, or derive from email local-part
-    const fromEmail = hostEmail.split('@')[0].slice(0, 20)
-    hostDisplayName = cleanNickname(body.nickname) ?? fromEmail
+    // Use supplied nickname, or derive from email local-part. The fallback goes
+    // through the same filter — it is broadcast to every player just like a
+    // nickname, and an email local-part is often a real name or a phone number.
+    const fromEmail = hostEmail.split('@')[0]
+    hostDisplayName = cleanNickname(body.nickname) ?? cleanNickname(fromEmail) ?? 'Host'
   }
 
   const mode = body.mode === 'subject' ? 'subject' : 'topic'

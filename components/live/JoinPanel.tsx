@@ -36,7 +36,9 @@ export function JoinPanel({ isLoggedIn, initialPin }: { isLoggedIn: boolean; ini
                 ? `This game is full (max ${data.max ?? 50} players).`
                 : data.error === 'need_nickname'
                   ? 'Pick a nickname first.'
-                  : 'Enter the 6-digit code.',
+                  : data.error === 'nickname_not_allowed'
+                    ? 'That nickname is not allowed. Try another one.'
+                    : 'Enter the 6-digit code.',
         )
         return
       }
