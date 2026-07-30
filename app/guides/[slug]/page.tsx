@@ -49,11 +49,24 @@ export default function GuidePage({ params }: { params: { slug: string } }) {
       '@type': 'Article',
       headline: guide.h1,
       description: guide.description,
+      // Google lists no required Article properties, but image, author and both
+      // dates are recommended and help it show a better title, image and date.
+      image: [`${BASE}/guides/${guide.slug}/opengraph-image`],
       datePublished: guide.datePublished,
       dateModified: guide.dateModified,
       mainEntityOfPage: `${BASE}/guides/${guide.slug}`,
+      inLanguage: 'en-GB',
+      isAccessibleForFree: true,
       author: { '@type': 'Organization', name: 'Decifer Learning', url: BASE },
-      publisher: { '@type': 'Organization', name: 'Decifer Learning', url: BASE },
+      publisher: {
+        '@type': 'Organization',
+        name: 'Decifer Learning',
+        url: BASE,
+        logo: {
+          '@type': 'ImageObject',
+          url: `${BASE}/brand/decifer-app-icon.svg`,
+        },
+      },
     },
     {
       '@context': 'https://schema.org',

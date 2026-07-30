@@ -1,12 +1,12 @@
 # Graph Report - .  (2026-07-30)
 
 ## Corpus Check
-- 548 files · ~654,927 words
+- 550 files · ~655,149 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 2016 nodes · 3161 edges · 261 communities detected
-- Extraction: 70% EXTRACTED · 30% INFERRED · 0% AMBIGUOUS · INFERRED: 943 edges (avg confidence: 0.77)
+- 2020 nodes · 3169 edges · 261 communities detected
+- Extraction: 70% EXTRACTED · 30% INFERRED · 0% AMBIGUOUS · INFERRED: 946 edges (avg confidence: 0.77)
 - Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
@@ -275,7 +275,7 @@
 ## God Nodes (most connected - your core abstractions)
 1. `GET()` - 218 edges
 2. `POST()` - 102 edges
-3. `join()` - 74 edges
+3. `join()` - 75 edges
 4. `error()` - 50 edges
 5. `create()` - 48 edges
 6. `fetch()` - 46 edges
@@ -300,55 +300,55 @@
 
 ### Community 0 - "Community 0"
 Cohesion: 0.02
-Nodes (166): bulk_upsert_chunks(), cancel_pipeline_run(), complete_pipeline_run(), count_published_questions(), create_pipeline_run(), get_attempted_questions_full(), get_connection(), get_pipeline_run() (+158 more)
+Nodes (130): complete_pipeline_run(), create_pipeline_run(), Create a pipeline_runs row and return its id., Mark a pipeline_runs row as completed or failed., check_publish_gate(), get_topic_by_slug(), main(), Full batch generation for Year 2 (KS1) Maths, English, and Science.  Targets 6 M (+122 more)
 
 ### Community 1 - "Community 1"
 Cohesion: 0.02
-Nodes (84): hasAdminRole(), requireAdmin(), requireAdminApi(), clone(), pickRarity(), rarityForRoundResult(), createCatalogueItem(), getActiveCatalogueItems() (+76 more)
+Nodes (78): hasAdminRole(), requireAdmin(), requireAdminApi(), pickRarity(), rarityForRoundResult(), createCatalogueItem(), getActiveCatalogueItems(), getAllCatalogueItems() (+70 more)
 
 ### Community 2 - "Community 2"
 Cohesion: 0.03
-Nodes (86): getAllRequests(), getVaultStats(), main(), Publish any topic that has >= 5 published questions and is not yet published. Sa, _chempy_available(), _lookup_element(), Chemistry verifier for Decifer Learning content pipeline.  Stage 2: code verific, Use ChemPy to check mass balance of a chemical equation. (+78 more)
+Nodes (86): _classify(), coverage_summary(), CoverageState, _fetch_raw(), print_coverage(), coverage_scanner.py — Topic coverage state scanner for the Decifer Learning auto, Return classified TopicCoverage objects for every topic., Return a dict of state → count for a coverage list. (+78 more)
 
 ### Community 3 - "Community 3"
-Cohesion: 0.02
-Nodes (51): broadcastLive(), broadcastLiveSnapshot(), liveChannel(), liveGameSnapshot(), createItem(), toggleActive(), resend(), saveEmail() (+43 more)
+Cohesion: 0.03
+Nodes (70): getAllRequests(), getVaultStats(), main(), Publish any topic that has >= 5 published questions and is not yet published. Sa, build_body_html(), build_rows(), get_lessons_for_unit(), main() (+62 more)
 
 ### Community 4 - "Community 4"
 Cohesion: 0.02
-Nodes (23): _anthropic(), _conn(), _do_llama(), get_chunks(), get_existing_questions(), get_gaps(), infer_qtype(), _llama_call() (+15 more)
+Nodes (55): broadcastLive(), broadcastLiveSnapshot(), liveChannel(), liveGameSnapshot(), createItem(), toggleActive(), resend(), saveEmail() (+47 more)
 
 ### Community 5 - "Community 5"
 Cohesion: 0.04
-Nodes (80): build_payload(), main(), main(), parseWidgets(), main(), main(), map_unit(), oak() (+72 more)
+Nodes (88): get_confidence_threshold(), key_stage_for(), _psycopg2_safe_dsn(), Runtime configuration for the Decifer Learning content pipeline., Return the publish threshold for a given question_type., Return the key stage for a year label, or '' if unknown., Return every year label sharing a key stage with this one.      Falls back to ju, Strip Prisma-only query params (e.g. pgbouncer=true) that psycopg2 rejects. (+80 more)
 
 ### Community 6 - "Community 6"
-Cohesion: 0.04
-Nodes (51): _classify(), coverage_summary(), CoverageState, _fetch_raw(), print_coverage(), coverage_scanner.py — Topic coverage state scanner for the Decifer Learning auto, Return classified TopicCoverage objects for every topic., Return a dict of state → count for a coverage list. (+43 more)
+Cohesion: 0.03
+Nodes (48): getGuardianGate(), getAllGuides(), getGuide(), getPublishedLesson(), getPublishedLessonsForTopic(), getPublishedSubjects(), getPublishedTopicsForSubject(), publishedVerifiedFor() (+40 more)
 
 ### Community 7 - "Community 7"
-Cohesion: 0.04
-Nodes (44): getGuardianGate(), getAllGuides(), getGuide(), getPublishedLesson(), getPublishedLessonsForTopic(), getPublishedSubjects(), getPublishedTopicsForSubject(), publishedVerifiedFor() (+36 more)
+Cohesion: 0.03
+Nodes (76): build_payload(), main(), main(), parseWidgets(), ensureChildSession(), makeDisposableAccount(), registerChild(), main() (+68 more)
 
 ### Community 8 - "Community 8"
+Cohesion: 0.03
+Nodes (0): 
+
+### Community 9 - "Community 9"
 Cohesion: 0.05
 Nodes (47): computeRetention(), computeTopicMastery(), efficacyReport(), median(), round(), summariseEfficacy(), buildTopicAnswerStats(), computeSignals() (+39 more)
 
-### Community 9 - "Community 9"
+### Community 10 - "Community 10"
 Cohesion: 0.04
 Nodes (25): addOnPostRun(), addOnPreRun(), addRunDependency(), craftInvokerFunction(), createJsInvoker(), createWasm(), destructor(), ExceptionInfo (+17 more)
 
-### Community 10 - "Community 10"
-Cohesion: 0.05
-Nodes (45): audioContext(), buzz(), fireFeedback(), isSoundOn(), playCue(), prefersReducedMotion(), _conn(), fix_one() (+37 more)
-
 ### Community 11 - "Community 11"
-Cohesion: 0.06
-Nodes (53): BaseModel, get_flagged_questions(), Return up to `limit` quiz_questions with status='flagged', joined with their top, autopilot_daily(), BatchItem, BatchItemResult, fix_staged_all(), generate() (+45 more)
+Cohesion: 0.05
+Nodes (54): _anthropic(), _conn(), _do_llama(), get_chunks(), get_existing_questions(), get_gaps(), infer_qtype(), _llama_call() (+46 more)
 
 ### Community 12 - "Community 12"
-Cohesion: 0.07
-Nodes (52): main(), learning-autopilot-run.py — Execute the next batch of queued content jobs.  Dequ, _build_command(), JobResult, _log_result(), _pipeline_gate_open(), print_run_summary(), runner.py — Content job executor for the Decifer Learning autopilot.  Dequeues j (+44 more)
+Cohesion: 0.06
+Nodes (52): BaseModel, autopilot_daily(), BatchItem, BatchItemResult, fix_staged_all(), generate(), generate_batch(), GenerateBatchRequest (+44 more)
 
 ### Community 13 - "Community 13"
 Cohesion: 0.08
@@ -360,63 +360,63 @@ Nodes (26): createSupabaseAdminClient(), delete(), appUrl(), copy(), escapeHtml(
 
 ### Community 15 - "Community 15"
 Cohesion: 0.09
-Nodes (34): _clean(), is_self_contained(), is_usable_mc(), main(), oak(), Ingest Oak National Academy quiz questions directly into quiz_questions.  Oak qu, _tokens(), transform() (+26 more)
+Nodes (24): audioContext(), buzz(), fireFeedback(), isSoundOn(), playCue(), prefersReducedMotion(), poll(), start() (+16 more)
 
 ### Community 16 - "Community 16"
+Cohesion: 0.12
+Nodes (24): clone(), _clean(), is_self_contained(), is_usable_mc(), main(), oak(), Ingest Oak National Academy quiz questions directly into quiz_questions.  Oak qu, _tokens() (+16 more)
+
+### Community 17 - "Community 17"
 Cohesion: 0.14
 Nodes (24): _classify_error_messages(), _conn(), diagnose_topic(), _expected_type_for_slug(), fetch_generation_errors(), fetch_last_pipeline_run(), fetch_published_question_types(), fetch_recent_question_types_staged() (+16 more)
 
-### Community 17 - "Community 17"
+### Community 18 - "Community 18"
 Cohesion: 0.17
 Nodes (18): byTierAscending(), deduplicateById(), effectiveDifficulty(), estimateAbility(), getHistoryIds(), loadDifficultyPriors(), logSelection(), pickWithTierBalance() (+10 more)
 
-### Community 18 - "Community 18"
-Cohesion: 0.2
-Nodes (18): cosine(), embedBatch(), main(), Flag near-duplicate published quiz questions within the same topic.  Uses the sa, build_body_html(), check_rate(), get_lessons_for_unit(), import_questions() (+10 more)
-
 ### Community 19 - "Community 19"
+Cohesion: 0.17
+Nodes (18): RuntimeError, assert_safe(), check_job_in_queue(), check_no_active_lock(), check_no_trading_reference(), check_pipeline_stop(), check_topic_limit(), safety.py — Autopilot safety guards for the Decifer Learning content pipeline. (+10 more)
+
+### Community 20 - "Community 20"
 Cohesion: 0.24
 Nodes (16): _cache_get(), _cache_set(), check_rate(), claude_match(), _ensure_cache_table(), insert_questions(), job_match(), job_quiz() (+8 more)
 
-### Community 20 - "Community 20"
-Cohesion: 0.16
-Nodes (13): ensureChildSession(), makeDisposableAccount(), registerChild(), _eval_node(), _parse_numeric(), Physics verifier for Decifer Learning content pipeline.  Stage 2: code verificat, Evaluate a physics expression using the AST whitelist. Never calls eval()., Stage 2 Physics verification.      Expects question_data to include:       quest (+5 more)
-
 ### Community 21 - "Community 21"
-Cohesion: 0.26
-Nodes (12): _bar(), _classify(), fetch_coverage(), main(), _parse_curriculum_map(), print_csv(), print_gaps(), print_report() (+4 more)
+Cohesion: 0.2
+Nodes (13): _chempy_available(), _lookup_element(), Chemistry verifier for Decifer Learning content pipeline.  Stage 2: code verific, Use ChemPy to check mass balance of a chemical equation., Basic format check when ChemPy is not available., Check element property answers against the local periodic table., Stage 2 Chemistry/Science verification.      Dispatches by question_type. Unknow, Look up an element by symbol (case-sensitive) or name (case-insensitive). (+5 more)
 
 ### Community 22 - "Community 22"
-Cohesion: 0.15
-Nodes (2): renderBlitzOgCard(), Image()
-
-### Community 23 - "Community 23"
 Cohesion: 0.33
 Nodes (10): bandOrder(), calcHintPenaltyXP(), childQualifiesForBand(), computeMilestone(), effectiveXP(), getBandDisplayName(), checkAndUpdateMilestone(), getVaultStatus() (+2 more)
 
-### Community 24 - "Community 24"
+### Community 23 - "Community 23"
 Cohesion: 0.29
 Nodes (10): generate_widgets(), get_curriculum_chunks(), get_rows_needing_widgets(), _label_to_display(), _label_to_year_group_key(), main(), Retroactively generate learn_widgets for existing learn_content rows that have n, Call Claude Haiku to produce widget specs. Returns [] on error. (+2 more)
 
-### Community 25 - "Community 25"
+### Community 24 - "Community 24"
 Cohesion: 0.39
 Nodes (7): getMissingContentTypes(), getTopicCurriculumCoverage(), getTopicCurriculumGaps(), hasPracticeGames(), hasPublishedLearnContent(), hasPublishedQuizTier(), isTopicCurriculumComplete()
 
-### Community 26 - "Community 26"
+### Community 25 - "Community 25"
 Cohesion: 0.36
 Nodes (7): assign_tier(), main(), make_hints(), oak(), Directly import Oak NA quiz Q&As as published quiz_questions.  Used for topics w, Distribute questions across tiers: first third sprout, mid explorer, last lightn, Generate 3-level hints from the question and answer.
+
+### Community 26 - "Community 26"
+Cohesion: 0.33
+Nodes (3): SaturnRings(), ktx2Path(), useExploreTexture()
 
 ### Community 27 - "Community 27"
 Cohesion: 0.29
 Nodes (3): ScrollReveal(), useReducedMotion(), WinBurst()
 
 ### Community 28 - "Community 28"
-Cohesion: 0.33
-Nodes (3): SaturnRings(), ktx2Path(), useExploreTexture()
-
-### Community 29 - "Community 29"
 Cohesion: 0.47
 Nodes (3): handleSlotClick(), placeInSlot(), removeFromSlot()
+
+### Community 29 - "Community 29"
+Cohesion: 0.33
+Nodes (0): 
 
 ### Community 30 - "Community 30"
 Cohesion: 0.33
@@ -1741,17 +1741,17 @@ Nodes (0):
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `GET()` connect `Community 2` to `Community 0`, `Community 1`, `Community 3`, `Community 4`, `Community 5`, `Community 6`, `Community 7`, `Community 8`, `Community 10`, `Community 11`, `Community 12`, `Community 13`, `Community 14`, `Community 15`, `Community 16`, `Community 17`, `Community 18`, `Community 19`, `Community 20`, `Community 21`, `Community 23`, `Community 24`, `Community 26`?**
-  _High betweenness centrality (0.287) - this node is a cross-community bridge._
-- **Why does `join()` connect `Community 5` to `Community 0`, `Community 1`, `Community 2`, `Community 3`, `Community 4`, `Community 6`, `Community 7`, `Community 9`, `Community 10`, `Community 12`, `Community 14`, `Community 15`, `Community 16`, `Community 18`, `Community 19`, `Community 21`, `Community 24`?**
-  _High betweenness centrality (0.128) - this node is a cross-community bridge._
-- **Why does `Search()` connect `Community 4` to `Community 5`, `Community 6`, `Community 10`, `Community 11`, `Community 12`, `Community 15`, `Community 16`, `Community 19`, `Community 20`?**
-  _High betweenness centrality (0.082) - this node is a cross-community bridge._
+- **Why does `GET()` connect `Community 3` to `Community 0`, `Community 1`, `Community 2`, `Community 4`, `Community 5`, `Community 6`, `Community 7`, `Community 9`, `Community 11`, `Community 12`, `Community 13`, `Community 14`, `Community 16`, `Community 17`, `Community 18`, `Community 19`, `Community 20`, `Community 21`, `Community 22`, `Community 23`, `Community 25`?**
+  _High betweenness centrality (0.330) - this node is a cross-community bridge._
+- **Why does `join()` connect `Community 7` to `Community 0`, `Community 1`, `Community 2`, `Community 3`, `Community 4`, `Community 5`, `Community 6`, `Community 10`, `Community 11`, `Community 14`, `Community 17`, `Community 19`, `Community 20`, `Community 23`?**
+  _High betweenness centrality (0.124) - this node is a cross-community bridge._
+- **Why does `POST()` connect `Community 1` to `Community 0`, `Community 3`, `Community 4`, `Community 6`, `Community 7`, `Community 9`, `Community 14`, `Community 22`?**
+  _High betweenness centrality (0.077) - this node is a cross-community bridge._
 - **Are the 188 inferred relationships involving `GET()` (e.g. with `handleEmailAuthRequest()` and `confirmConsent()`) actually correct?**
   _`GET()` has 188 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 48 inferred relationships involving `POST()` (e.g. with `createSupabaseServerClient()` and `getConsentGate()`) actually correct?**
   _`POST()` has 48 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 82 inferred relationships involving `str` (e.g. with `lesson_to_html()` and `import_questions()`) actually correct?**
   _`str` has 82 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 73 inferred relationships involving `join()` (e.g. with `generateMetadata()` and `exportCsv()`) actually correct?**
-  _`join()` has 73 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 74 inferred relationships involving `join()` (e.g. with `generateMetadata()` and `exportCsv()`) actually correct?**
+  _`join()` has 74 INFERRED edges - model-reasoned connections that need verification._

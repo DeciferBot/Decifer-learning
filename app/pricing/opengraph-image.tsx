@@ -1,14 +1,15 @@
 import { ogContentType, ogSize, renderOgCard } from '@/lib/og'
 
-export const alt = 'Decifer Learning · Simple pricing for families'
+export const alt = 'Decifer Learning · Free while in beta'
 export const size = ogSize
 export const contentType = ogContentType
 
 export default async function Image() {
   return renderOgCard({
-    headlineTop: 'Simple pricing',
-    headlineBottom: 'for families.',
-    subtitle: 'Start free with 3 Maths topics. Upgrade for unlimited access to all five subjects.',
-    pills: ['Free start', 'Family plan', 'Cancel anytime'],
+    headlineTop: 'Free while',
+    headlineBottom: 'we are in beta.',
+    subtitle:
+      'Every subject, every year group from Year 1 to Year 11, every feature. No card required.',
+    pills: ['All 5 subjects', 'Years 1 to 11', 'No card'],
   })
 }
