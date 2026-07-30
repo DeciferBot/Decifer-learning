@@ -2104,7 +2104,7 @@ def run_for_topic(
         "year_group": topic.get("year_group_label"),
         "subject": topic.get("subject_name"),
         "tier": tier,
-        "model": config.CLAUDE_MODEL,
+        "model": config.GENERATION_MODEL if config.DO_API_TOKEN else config.CLAUDE_MODEL,
         "pipeline_version": config.PIPELINE_VERSION,
         "count_requested": count,
         "count_published": sum(1 for r in results if r.status == "published"),
