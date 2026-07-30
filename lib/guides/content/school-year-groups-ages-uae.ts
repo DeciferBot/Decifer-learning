@@ -6,6 +6,8 @@ export const schoolYearGroupsAgesUae: Guide = {
   h1: 'Year groups and ages in the UAE: the full conversion table',
   description:
     'Which year group your child belongs in under UAE rules: the official age table from FS1 to Year 13, British years versus American grades versus IB, and the new 31 December cut-off explained.',
+  keyAnswer:
+    'From 2026-27 the UAE school entry cut-off is 31 December. A child joins the year group matching the age they reach by 31 December that year: 3 for FS1, 4 for FS2, 5 for Year 1 and 6 for Year 2. April-start schools keep a 31 March cut-off.',
   category: 'curriculum-explained',
   datePublished: '2026-07-30',
   dateModified: '2026-07-30',

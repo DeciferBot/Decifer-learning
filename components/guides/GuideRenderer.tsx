@@ -132,6 +132,11 @@ export function GuideRenderer({ guide }: { guide: Guide }) {
 
   return (
     <article className="space-y-5">
+      <div className="rounded-2xl border border-black/10 bg-surface p-5">
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted">The short answer</p>
+        <p className="mt-2 text-lg leading-relaxed text-ink">{guide.keyAnswer}</p>
+      </div>
+
       {toc.length >= 3 ? (
         <nav
           aria-label="On this page"

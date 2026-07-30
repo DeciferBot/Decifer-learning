@@ -6,6 +6,8 @@ export const abuDhabiSchoolFeesRatings: Guide = {
   h1: 'Abu Dhabi school fees and ADEK ratings, explained',
   description:
     'How ADEK’s Irtiqa’a inspections rate Abu Dhabi private schools, the latest results, real fee ranges at British curriculum schools from about AED 25,000 to AED 106,000, and how fee rises are controlled.',
+  keyAnswer:
+    'ADEK inspects Abu Dhabi private schools every two years under the Irtiqa’a programme, rating them from Outstanding down to Very Weak. In the latest cycle 204 schools were rated and 77% reached Good or better. British curriculum tuition runs from roughly AED 25,000 to AED 106,000 a year.',
   category: 'schools-and-fees',
   datePublished: '2026-07-30',
   dateModified: '2026-07-30',

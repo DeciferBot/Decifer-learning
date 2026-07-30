@@ -6,6 +6,8 @@ export const britishCurriculumExplained: Guide = {
   h1: 'The British curriculum in the UAE, explained',
   description:
     'How the English National Curriculum works in UAE schools: what each key stage covers, when children sit assessments, what BSO accreditation means, and how KHDA inspections fit in.',
+  keyAnswer:
+    'The English National Curriculum runs from the early years through four key stages: KS1 covers Years 1 to 2, KS2 Years 3 to 6, KS3 Years 7 to 9, and KS4 Years 10 to 11 ending in GCSEs. UAE British schools follow the same structure and add Arabic and Islamic education.',
   category: 'curriculum-explained',
   datePublished: '2026-07-30',
   dateModified: '2026-07-30',

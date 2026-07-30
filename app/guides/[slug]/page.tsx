@@ -41,14 +41,13 @@ export default function GuidePage({ params }: { params: { slug: string } }) {
     .map((slug) => getGuide(slug))
     .filter((g): g is NonNullable<typeof g> => Boolean(g))
 
-  const faqItems = guide.blocks.flatMap((b) => (b.kind === 'faq' ? b.items : []))
-
   const graph: object[] = [
     {
       '@context': 'https://schema.org',
       '@type': 'Article',
       headline: guide.h1,
       description: guide.description,
+      abstract: guide.keyAnswer,
       // Google lists no required Article properties, but image, author and both
       // dates are recommended and help it show a better title, image and date.
       image: [`${BASE}/guides/${guide.slug}/opengraph-image`],
@@ -78,18 +77,9 @@ export default function GuidePage({ params }: { params: { slug: string } }) {
       ],
     },
   ]
-  if (faqItems.length > 0) {
-    graph.push({
-      '@context': 'https://schema.org',
-      '@type': 'FAQPage',
-      mainEntity: faqItems.map(({ q, a }) => ({
-        '@type': 'Question',
-        name: q,
-        // Strip inline tags: JSON-LD answers should be plain text.
-        acceptedAnswer: { '@type': 'Answer', text: a.replace(/<[^>]+>/g, '') },
-      })),
-    })
-  }
+  // No FAQPage markup here on purpose. Google stopped showing FAQ rich results
+  // entirely on 7 May 2026 and deleted the documentation the following month,
+  // so the markup earns nothing. The on-page Q&A stays because readers use it.
 
   const modified = new Date(guide.dateModified)
 
