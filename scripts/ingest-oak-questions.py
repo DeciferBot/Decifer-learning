@@ -8,8 +8,14 @@ multiple-choice quiz UI can render:
   - exactly ONE correct answer (distractor:false)
   - >= 2 distractors
 
-Mapping: Oak units → our topics via local-embedding cosine similarity,
-scoped to the same (subject, year). No Anthropic API used anywhere.
+Mapping: the topic map (oak-topic-map.json) first, then local-embedding cosine
+similarity as a fallback. No Anthropic API used anywhere.
+
+Years: Oak's year is not our year — it files Ancient Greece at year-4 where we teach
+it at Y6, and continents/oceans at year-1 where we teach it at Y2. An EXPLICIT topic
+map entry may therefore pull a unit across the year boundary; cosine matching may not,
+since letting it wander across years is what caused the historic wrong-year seeding.
+Key stages ks1-ks4 are supported (Y1-Y11).
 
 Tier:  starterQuiz → sprout,  exitQuiz → explorer
 Hints: hint_1 from the lesson's first keyword description (real Oak content);
@@ -69,9 +75,10 @@ SUBJECT_SLUG = {"Maths": "maths", "English": "english", "Science": "science",
 YEAR_TO_KS = {
     "year-1":"ks1","year-2":"ks1","year-3":"ks2","year-4":"ks2",
     "year-5":"ks2","year-6":"ks2","year-7":"ks3","year-8":"ks3","year-9":"ks3",
+    "year-10":"ks4","year-11":"ks4",
 }
 # Our year label → Oak yearSlug
-YEAR_SLUG = {f"year-{i}": f"year-{i}" for i in range(1,10)}
+YEAR_SLUG = {f"year-{i}": f"year-{i}" for i in range(1,12)}
 
 _req_count = 0
 def oak(path):
@@ -81,19 +88,21 @@ def oak(path):
         "Authorization": f"Bearer {OAK_KEY}",
         "User-Agent": "Decifer-Learning/1.0",
     })
-    for attempt in range(4):
+    # Oak rate-limits with 403 + a Cloudflare HTML page, not 429, and the block can
+    # last minutes. Back off long enough to ride it out rather than giving up.
+    for attempt in range(6):
         try:
             with urllib.request.urlopen(req, timeout=25) as r:
                 _req_count += 1
-                return json.loads(r.read().decode("utf-8"))
+                out = json.loads(r.read().decode("utf-8"))
+                time.sleep(0.5)          # stay under the rate limit
+                return out
         except urllib.error.HTTPError as ex:
-            if ex.code == 429:
-                time.sleep(5 * (attempt+1)); continue
-            if ex.code in (403, 500, 502, 503):
-                time.sleep(2 * (attempt+1)); continue
+            if ex.code in (429, 403, 500, 502, 503):
+                time.sleep(8 * (attempt+1)); continue
             raise
         except Exception:
-            time.sleep(2); continue
+            time.sleep(4 * (attempt+1)); continue
     raise RuntimeError(f"Oak fetch failed: {url}")
 
 GENERIC_HINTS = (
@@ -191,7 +200,7 @@ def main():
     args = ap.parse_args()
 
     subjects = args.subject or (["Maths","English","Science","History","Geography"] if args.all else ["Maths"])
-    years = args.years or ([f"year-{i}" for i in range(1,10)] if args.all else ["year-3"])
+    years = args.years or ([f"year-{i}" for i in range(1,12)] if args.all else ["year-3"])
 
     conn = psycopg2.connect(config.DATABASE_URL)
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -223,19 +232,30 @@ def main():
             topic_vecs = {t["id"]: embed_text(t["title"]) for t in our_topics}
             topic_toks = {t["id"]: _tokens(t["title"]) for t in our_topics}
 
-            # Oak units for this keyStage+subject, filtered to this year
+            # Oak units for this keyStage+subject.
+            # Oak's year is NOT our year: it files Ancient Greece at year-4 where we teach
+            # it at Y6, continents/oceans at year-1 where we teach it at Y2, and so on. So
+            # we keep every unit in the key stage and tag it with its own Oak year. Units
+            # from another year are only ever used when the topic map names them
+            # EXPLICITLY (see below) — fuzzy matching stays locked to our own year,
+            # because letting it wander across years is what caused the historic
+            # wrong-year seeding.
             try:
                 unit_groups = oak(f"/key-stages/{ks}/subject/{oak_subject}/units")
             except Exception as ex:
                 print(f"  ! Oak units fail {subject}/{year}: {ex}"); continue
             year_units = []
             for g in unit_groups:
-                if g.get("yearSlug") == yslug:
-                    year_units = g.get("units", []); break
+                g_year = g.get("yearSlug")
+                for u in (g.get("units") or []):
+                    u = dict(u); u["_oak_year"] = g_year
+                    year_units.append(u)
+            same_year = sum(1 for u in year_units if u["_oak_year"] == yslug)
             if not year_units:
                 print(f"  · {subject} {year}: no Oak units"); continue
 
-            print(f"\n══ {subject} {year} ({ks}) — {len(our_topics)} topics, {len(year_units)} Oak units ══")
+            print(f"\n══ {subject} {year} ({ks}) — {len(our_topics)} topics, "
+                  f"{len(year_units)} Oak units in key stage ({same_year} filed at {yslug}) ══")
 
             # current published counts per topic
             pubcount = {}
@@ -245,19 +265,31 @@ def main():
 
             for unit in year_units:
                 best_id, best_sim = None, -1.0  # reset each iteration
+                unit_year = unit.get("_oak_year") or yslug
                 # ── Step 1: LLM-assisted map (built by build-oak-topic-map.py) ──
-                map_key = f"{subject.lower()}/{ks}/{year}/{unit['unitSlug']}"
-                map_entry = _TOPIC_MAP.get(map_key)
+                # Accept a key under EITHER our year or the unit's own Oak year, so a
+                # mapping can deliberately pull a unit across the year boundary.
+                map_entry = None
+                for _key in (f"{subject.lower()}/{ks}/{year}/{unit['unitSlug']}",
+                             f"{subject.lower()}/{ks}/{unit_year}/{unit['unitSlug']}"):
+                    map_entry = _TOPIC_MAP.get(_key)
+                    if map_entry:
+                        break
                 if map_entry and map_entry.get("topic_slug") and map_entry["topic_slug"] != "none":
                     mapped_slug = map_entry["topic_slug"]
                     best_id = next((t["id"] for t in our_topics if t["slug"] == mapped_slug), None)
                     best_sim = 1.0 if best_id else -1.0
                     if best_id:
                         conf = map_entry.get("confidence", "?")
-                        print(f"  [map/{conf}] {unit['unitTitle'][:55]} → {mapped_slug.split('-',2)[-1]}")
+                        cross = "" if unit_year == yslug else f" [oak {unit_year}→{year}]"
+                        print(f"  [map/{conf}] {unit['unitTitle'][:55]} → {mapped_slug.split('-',2)[-1]}{cross}")
                     else:
                         # Map references a slug not in our current topic set — fall through
                         best_id, best_sim = None, -1.0
+
+                # Fuzzy matching may NOT cross years — only an explicit mapping can.
+                if best_id is None and unit_year != yslug:
+                    continue
 
                 # ── Step 2: Cosine similarity fallback ──
                 if best_id is None:
@@ -282,8 +314,15 @@ def main():
                     lgroups = oak(f"/key-stages/{ks}/subject/{oak_subject}/lessons?unit={urllib.parse.quote(unit['unitSlug'])}")
                 except Exception:
                     continue
-                lessons = []
-                for g in lgroups: lessons += g.get("lessons", [])
+                # Oak returns the same lesson under several programme groups (e.g.
+                # foundation/higher), so a naive concat fetches each quiz 2-3 times and
+                # burns the rate-limit budget on duplicate work. Fetch each lesson once.
+                lessons, _seen_lessons = [], set()
+                for g in lgroups:
+                    for L in g.get("lessons", []):
+                        _sl = L.get("lessonSlug")
+                        if _sl and _sl not in _seen_lessons:
+                            _seen_lessons.add(_sl); lessons.append(L)
 
                 for L in lessons:
                     if pubcount.get(best_id,0) >= args.target: break
