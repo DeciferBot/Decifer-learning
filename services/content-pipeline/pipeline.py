@@ -35,6 +35,7 @@ from verifiers import maths as maths_verifier
 from verifiers import english as english_verifier
 from verifiers import physics as physics_verifier
 from verifiers import chemistry as chemistry_verifier
+from verifiers import gates
 
 log = logging.getLogger("pipeline")
 
@@ -1508,12 +1509,15 @@ def stage4_constitutional(
         )
         return violations
     except Exception as exc:
-        result.log_stage(f"  constitutional error: {exc}")
-        # Fail-safe: default to recall so the question can still be written
+        # FAIL CLOSED. This previously returned [] — an empty violation list is
+        # indistinguishable from a clean pass, so a timeout or a malformed JSON
+        # response silently granted a full constitutional pass to content nobody
+        # had checked. Stage 3 already fails closed; the safety stage must too.
+        result.log_stage(f"  constitutional error: {exc} — failing closed")
         question_data.setdefault("technique_type", "recall")
         question_data.setdefault("technique_hint", None)
         question_data.setdefault("technique_note", None)
-        return []
+        return [f"constitutional_check_unavailable: {exc}"]
 
 
 def stage5_dedup(
@@ -1954,6 +1958,27 @@ def run_one(
             )
             last_result = result
             continue
+
+        # Stage 1b: deterministic gates.
+        # Runs before any paid verification call, for two reasons: a candidate that
+        # dresses arithmetic in human suffering or points at a diagram we don't have
+        # is unfixable no matter what the verifiers say, and rejecting it here costs
+        # nothing. Discarded in place — never written, so it cannot reach a queue.
+        gates_ok, gate_violations = gates.run_all(question_data, topic)
+        if not gates_ok:
+            result.log_stage(f"  Stage 1b gates FAILED: {gate_violations}")
+            db.write_generation_error(
+                pipeline_run_id=pipeline_run_id,
+                topic_id=str(topic["id"]),
+                question_type=qtype,
+                tier=tier,
+                stage_failed=1,
+                error_message="Stage 1b: " + "; ".join(gate_violations),
+                raw_llm_output=question_data,
+            )
+            last_result = result
+            continue
+        result.log_stage("Stage 1b: deterministic gates passed")
 
         # Stage 2
         verified = stage2_verify(question_data, result)

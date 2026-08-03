@@ -223,9 +223,10 @@ world_map_nodes (id, zone_id, topic_id, x_pos FLOAT, y_pos FLOAT,
                  unlocked_by_topic_id)
 
 -- Content
+-- status is the ContentStatus enum: staged | published | flagged | regenerating | retired
+-- ('retired' is terminal — see §8. Added 2026-08-03.)
 learn_content (id, topic_id, body_html, examples_json, foundation_audio_url,
-               status TEXT DEFAULT 'staged'
-                 CHECK(status IN ('staged','published','flagged','regenerating')))
+               status ContentStatus DEFAULT 'staged')
 practice_games (id, topic_id, game_type, config_json)
 quiz_questions (id, topic_id,
                 tier TEXT CHECK(tier IN ('sprout','explorer','lightning')),
@@ -234,8 +235,7 @@ quiz_questions (id, topic_id,
                 hint_1, hint_2, hint_3, explanation,
                 foundation_images JSONB,
                 confidence_score FLOAT,
-                status TEXT DEFAULT 'staged'
-                  CHECK(status IN ('staged','published','flagged','regenerating')),
+                status ContentStatus DEFAULT 'staged',
                 source_chunk_ids JSONB, created_at)
 
 -- Gamification
@@ -248,8 +248,7 @@ streak_shields (profile_id, quantity)
 card_catalog (id, subject_id, year_group_id, rarity TEXT, title, fact_text,
               illustration_url, source_url, is_seasonal, available_until,
               is_fusion, required_subject_ids JSONB,
-              status TEXT DEFAULT 'staged'
-                CHECK(status IN ('staged','published','flagged','regenerating')))
+              status ContentStatus DEFAULT 'staged')
 child_collection (profile_id, card_id, quantity, first_obtained_at)
 
 -- Progress
@@ -295,12 +294,20 @@ daily_challenges (id, date, year_group_id, question_ids JSONB, is_flare BOOL)
 
 Every content row (`quiz_questions`, `card_catalog`, `learn_content`) carries a `status`:
 
-| Status | Visible to children? | Meaning |
-|---|---|---|
-| `staged` | **No** | Passed structure + verification but below the publish threshold, OR awaiting one-time pilot spot-check. Admin/test only. |
-| `published` | **Yes** | Cleared all gates. The only state child-facing code may read. |
-| `flagged` | **No** | Anomaly detection raised an issue (high error rate, high hint-3 rate, or post-spot-check rejection). |
-| `regenerating` | **No** | In the pipeline regeneration loop. |
+| Status | Visible to children? | Walks back to `published`? | Meaning |
+|---|---|---|---|
+| `staged` | **No** | **Yes** — `/api/cron/fix-staged-all` | Passed structure + verification but below the publish threshold. Rows scoring ≥ 80 are re-polished nightly and republished if they clear the threshold. |
+| `published` | **Yes** | — | Cleared all gates. The only state child-facing code may read. |
+| `flagged` | **No** | **Yes** — `/api/cron/regenerate-flagged` | Anomaly detection raised an issue. The nightly drain regenerates the topic and parks the original in `staged`, from where `fix-staged-all` can republish it. |
+| `regenerating` | **No** | No (but has no consumer) | Transient, held only while `regenerate_question` runs. A row stranded here is invisible **and** never retried. |
+| `retired` | **No** | **No — terminal** | Content that must never reach a child again and must never be regenerated in place. No cron consumes it. |
+
+> **`flagged` is not a quarantine.** Three of the four non-published states are input
+> queues that lead back to `published`. A clean-up that parked defective rows in
+> `flagged` was silently undone inside a day (verified 2026-08-03: 125 of 211
+> duplicates and 18 of 23 broken rows were live again). **To take content down for
+> good, use `retired`** — and record why in
+> `question_metadata.retired_reason`.
 
 **Hard rules:**
 - Every API route, SQL query, or RPC that returns content to children **MUST** filter `WHERE status = 'published'`. No exceptions.
