@@ -1,5 +1,70 @@
 # Content quality audit — curriculum map vs Oak, and a plan to fix it
 
+---
+
+## FINAL STATE, 2026-08-04
+
+Every published question has now been put through the check appropriate to its
+type, on the free DO DeepSeek route. Nothing below used the Anthropic API.
+
+| | Count | Share |
+|---|---:|---:|
+| Published | 7,692 | |
+| **Maths code-proven** (SymPy recomputed and matched) | 1,938 | 75% of maths |
+| **Source-supported** (quote verified present in the cited chunk) | 1,286 | 77% of those citing a chunk |
+| **Oak human-authored** | 723 | |
+| **Positive proof on file** | **3,947** | **51%** |
+| Retired this session | 95 | |
+
+### The 12 wrong answers found and retired
+
+Four by hand from the explanation-vs-answer check, four more from the maths
+recomputation, three keyed to a bare "0" against worded options, and one with two
+correct options:
+
+- sine rule keyed 17.3 cm — it is 14.0 cm
+- quadratic sequence keyed 47 — it is 60
+- recurrence keyed 41 — it is 83 (its explanation shipped *"wait… let me recheck"* to children)
+- similar spheres keyed 36π — it is 63π
+- mean-age keyed 26 — it is 22
+- (x+3)/2 − (x−1)/5 = 2 keyed 3 — it is 1
+- √8 + √18 − √2 keyed 5√2 — it is 4√2
+- √98 keyed bare "7" while every option is a full surd
+- three rows keyed "0" against worded options
+- plate boundary keyed "Conservative" while "Collision" is also correct
+
+### What no free check can settle (the honest remainder)
+
+| | Count |
+|---|---:|
+| Conceptual maths — no arithmetic to compute | 497 |
+| Grounded-type questions citing **no chunk at all** | ~1,531 |
+| Grammar/spelling — LanguageTool checks prose, never the answer key | 1,206 |
+| Grounded but unsupported — the citation is decorative | 381 |
+| Maths contested / needs_review / unprovable | 140 |
+
+These are not known-wrong. They are unproven, and no amount of further automated
+checking will prove them from where they sit.
+
+**The route to a fully proven corpus is regeneration, not more auditing.** Stage 2
+now refuses to pass anything without a real proof, so content re-run through the
+pipeline is provable by construction. That is a decision about catalogue size, not
+a technical problem.
+
+### False-positive rates, because they governed every decision
+
+The checkers are useful and not trustworthy on their own:
+
+- maths "disproven": **4 real out of 16** — the rest computed an intermediate value
+- grounding "contradicted": **1 real out of 6** — the rest confused *unsupported* with *contradicted*
+- an earlier sensitivity gate draft: ~30 false positives in 52 hits, discarded before use
+- cross-question contradiction by stem embedding: unusable, ~121 hits nearly all false
+
+Every retirement in this session was confirmed by hand. Nothing was retired on a
+checker's verdict alone.
+
+---
+
 **Date:** 2026-08-03
 **Method:** Oak National Academy OpenAPI pulled live (20 catalogue calls + 18 probe calls,
 1.5s apart, no writes); full-corpus SQL over `quiz_questions WHERE status='published'`;
