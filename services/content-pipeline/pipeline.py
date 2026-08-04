@@ -36,6 +36,7 @@ from verifiers import english as english_verifier
 from verifiers import physics as physics_verifier
 from verifiers import chemistry as chemistry_verifier
 from verifiers import gates
+from verifiers import entailment as entailment_verifier
 
 log = logging.getLogger("pipeline")
 
@@ -1051,6 +1052,14 @@ _CHEMISTRY_TYPES = {"science_chemistry_equation", "chemistry_element_fact", "bio
 # Multi-part types: structural verification only (no code or LanguageTool check)
 _MULTIPART_TYPES = {"true_false_grid", "ordered_list", "source_analysis", "explain_example", "structured_answer"}
 _HUMANITIES_TYPES = {"history_factual", "geography_factual"}
+# RAG-only types whose Stage 2 is now an entailment check against the cited chunk.
+# biology_factual and science_factual previously went to the chemistry verifier,
+# which passed them straight through; the English three went to LanguageTool,
+# which checks the prose reads cleanly and never looks at the answer key.
+_ENTAILMENT_TYPES = {
+    "biology_factual", "science_factual",
+    "english_comprehension", "english_vocabulary", "english_literary_analysis",
+}
 # Descriptive-answer maths (e.g. graph transformations): no numeric answer to
 # code-verify, so Stage 2 is a pass-through and correctness is enforced by the
 # consensus (Stage 3) and constitutional (Stage 4) checks — same shape as the
@@ -1383,7 +1392,27 @@ def stage2_verify(question_data: dict, result: PipelineResult) -> bool:
     result.log_stage("Stage 2: code verification")
     qtype = question_data.get("question_type", "")
 
-    if qtype in _MATHS_TYPES:
+    # Grounded types are routed FIRST, ahead of the chemistry and English
+    # dispatchers that used to claim them.
+    #
+    # Previously these returned an unconditional pass-through True, while Stage 6
+    # went on to award the full 60-point computation weight for that non-check —
+    # 60 + consensus 25 + RAG bonus 5 = exactly the 90 threshold, so a third of
+    # the catalogue published on one consensus call and nothing else. biology and
+    # science_factual went to the chemistry verifier, which passed them straight
+    # through; the English three went to LanguageTool, which checks the prose
+    # reads cleanly and never looks at the answer key.
+    #
+    # Now they must earn it: the cited chunk has to actually state the answer, and
+    # the supporting quote is verified against the chunk IN CODE. Stage 6's
+    # grounding gate still runs on top, but that checks the citation's metadata;
+    # this checks its content.
+    if qtype in _ENTAILMENT_TYPES or qtype in _HUMANITIES_TYPES:
+        verified, detail = entailment_verifier.verify(question_data, llm_call=_llm_call)
+        result.verifier_version = (
+            f"entailment-v{entailment_verifier.ENTAILMENT_VERIFIER_VERSION}"
+        )
+    elif qtype in _MATHS_TYPES:
         verified, detail = maths_verifier.verify(question_data)
         result.verifier_version = getattr(maths_verifier, "VERIFIER_VERSION", "unknown")
     elif qtype in _ENGLISH_TYPES:
@@ -1398,11 +1427,6 @@ def stage2_verify(question_data: dict, result: PipelineResult) -> bool:
     elif qtype in _MULTIPART_TYPES:
         verified, detail = _verify_multipart(question_data)
         result.verifier_version = "multipart-v1"
-    elif qtype in _HUMANITIES_TYPES:
-        # RAG-only pass-through: Stage 6 enforces non-empty source_chunk_ids
-        # (config.RAG_REQUIRED_TYPES) and the 90-point publish threshold.
-        verified, detail = True, "RAG-only type — grounding enforced at Stage 6"
-        result.verifier_version = "humanities-passthrough-v1"
     elif qtype in _MATHS_CONCEPT_TYPES:
         # Descriptive-answer maths (graph transformations etc.): no numeric answer
         # to compute. Correctness is enforced by consensus + constitution; reaches

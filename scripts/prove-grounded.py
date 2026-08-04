@@ -54,6 +54,7 @@ from pipeline import _llm_call, _extract_json  # noqa: E402
 
 import psycopg2  # noqa: E402
 import psycopg2.extras  # noqa: E402
+import psycopg2.pool  # noqa: E402
 
 GROUNDED_TYPES = (
     "history_factual", "geography_factual", "biology_factual", "science_factual",
@@ -163,14 +164,14 @@ def main() -> int:
     conn.autocommit = True
     cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     limit_sql = "" if args.all else f"LIMIT {int(args.limit)}"
+    # Fetch the questions WITHOUT joining chunk text. A correlated subquery that
+    # aggregates curriculum_chunks for every row at once exceeds the statement
+    # timeout; chunk text is pulled per row below, which is an indexed point read.
     cur.execute(
         f"""
         SELECT qq.id, qq.question_text, qq.correct_answer, qq.question_type,
-               yg.label AS year_group_label, s.name AS subject_name,
-               (SELECT string_agg(cc.chunk_text, E'\\n\\n---\\n\\n')
-                  FROM curriculum_chunks cc
-                 WHERE cc.id::text IN (
-                     SELECT jsonb_array_elements_text(qq.source_chunk_ids))) AS chunk_text
+               qq.source_chunk_ids,
+               yg.label AS year_group_label, s.name AS subject_name
         FROM quiz_questions qq
         JOIN topics t       ON t.id  = qq.topic_id
         JOIN subjects s     ON s.id  = t.subject_id
@@ -186,6 +187,34 @@ def main() -> int:
         (list(GROUNDED_TYPES),),
     )
     rows = cur.fetchall()
+
+    _chunk_pool = psycopg2.pool.ThreadedConnectionPool(1, args.concurrency + 1,
+                                                       config.DATABASE_URL)
+
+    def load_chunks(row) -> dict:
+        ids = row.get("source_chunk_ids") or []
+        if isinstance(ids, str):
+            try:
+                ids = json.loads(ids)
+            except Exception:
+                ids = []
+        ids = [str(i) for i in ids if str(i).strip()]
+        if not ids:
+            row["chunk_text"] = ""
+            return row
+        c = _chunk_pool.getconn()
+        try:
+            with c.cursor() as cc:
+                cc.execute(
+                    "SELECT chunk_text FROM curriculum_chunks WHERE id::text = ANY(%s)",
+                    (ids,),
+                )
+                row["chunk_text"] = "\n\n---\n\n".join(r[0] or "" for r in cc.fetchall())
+        except Exception:
+            row["chunk_text"] = ""
+        finally:
+            _chunk_pool.putconn(c)
+        return row
     print(f"Checking {len(rows)} grounded questions against their own cited sources "
           f"via {config.GENERATION_MODEL}\n", flush=True)
     if not rows:
@@ -196,7 +225,7 @@ def main() -> int:
     write_cur = conn.cursor()
 
     with ThreadPoolExecutor(max_workers=args.concurrency) as pool:
-        futures = {pool.submit(check, r): r for r in rows}
+        futures = {pool.submit(lambda x: check(load_chunks(x)), r): r for r in rows}
         for fut in as_completed(futures):
             row = futures[fut]
             result = fut.result()
