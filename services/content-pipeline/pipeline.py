@@ -473,12 +473,28 @@ def _build_english_prompt(
             f"[Source {i+1} — {c['source_name']}]\n{c['chunk_text']}"
             for i, c in enumerate(chunks)
         )
-        chunk_ids = json.dumps([str(c["id"]) for c in chunks])
+        # Citation used to be automatic: this said "Set source_chunk_ids to <every
+        # retrieved id>", so the model cited all eight chunks whether or not it used
+        # any of them. Grounding was meaningless by construction — measured
+        # 2026-08-04, 23% of grounded questions cite a chunk that does not state
+        # their answer, and a pilot regeneration cited 8 chunks supporting nothing.
+        # Stage 2 now checks entailment, so the citation has to be real.
+        id_list = "\n".join(
+            f"  Source {i + 1} = {c['id']}" for i, c in enumerate(chunks)
+        )
         source_section = (
             f"Use ONLY the following curriculum sources. "
             f"Do not introduce facts not supported by these sources.\n\n"
             f"{chunks_text}\n\n"
-            f"Set source_chunk_ids to: {chunk_ids}"
+            f"GROUNDING — this decides whether the question can be published:\n"
+            f"Write a question whose correct answer is STATED IN ONE OF THE SOURCES "
+            f"ABOVE. Before writing, find the sentence that states it. If the sources "
+            f"do not state a fact worth asking about, ask about a different fact that "
+            f"they DO state. Do not write from your own knowledge of the topic — an "
+            f"answer the sources do not state is rejected automatically.\n\n"
+            f"Set source_chunk_ids to ONLY the sources you actually used — usually "
+            f"one, occasionally two. Do not list them all.\n"
+            f"Source ids:\n{id_list}"
         )
     else:
         source_section = (
@@ -628,12 +644,28 @@ def _build_science_prompt(topic: dict, tier: str, chunks: list[dict],
             f"[Source {i+1} — {c['source_name']}]\n{c['chunk_text']}"
             for i, c in enumerate(chunks)
         )
-        chunk_ids = json.dumps([str(c["id"]) for c in chunks])
+        # Citation used to be automatic: this said "Set source_chunk_ids to <every
+        # retrieved id>", so the model cited all eight chunks whether or not it used
+        # any of them. Grounding was meaningless by construction — measured
+        # 2026-08-04, 23% of grounded questions cite a chunk that does not state
+        # their answer, and a pilot regeneration cited 8 chunks supporting nothing.
+        # Stage 2 now checks entailment, so the citation has to be real.
+        id_list = "\n".join(
+            f"  Source {i + 1} = {c['id']}" for i, c in enumerate(chunks)
+        )
         source_section = (
             f"Use ONLY the following curriculum sources. "
             f"Do not introduce facts not supported by these sources.\n\n"
             f"{chunks_text}\n\n"
-            f"Set source_chunk_ids to: {chunk_ids}"
+            f"GROUNDING — this decides whether the question can be published:\n"
+            f"Write a question whose correct answer is STATED IN ONE OF THE SOURCES "
+            f"ABOVE. Before writing, find the sentence that states it. If the sources "
+            f"do not state a fact worth asking about, ask about a different fact that "
+            f"they DO state. Do not write from your own knowledge of the topic — an "
+            f"answer the sources do not state is rejected automatically.\n\n"
+            f"Set source_chunk_ids to ONLY the sources you actually used — usually "
+            f"one, occasionally two. Do not list them all.\n"
+            f"Source ids:\n{id_list}"
         )
     else:
         source_section = (
@@ -745,12 +777,28 @@ def _build_humanities_prompt(topic: dict, tier: str, chunks: list[dict],
             f"[Source {i+1} — {c['source_name']}]\n{c['chunk_text']}"
             for i, c in enumerate(chunks)
         )
-        chunk_ids = json.dumps([str(c["id"]) for c in chunks])
+        # Citation used to be automatic: this said "Set source_chunk_ids to <every
+        # retrieved id>", so the model cited all eight chunks whether or not it used
+        # any of them. Grounding was meaningless by construction — measured
+        # 2026-08-04, 23% of grounded questions cite a chunk that does not state
+        # their answer, and a pilot regeneration cited 8 chunks supporting nothing.
+        # Stage 2 now checks entailment, so the citation has to be real.
+        id_list = "\n".join(
+            f"  Source {i + 1} = {c['id']}" for i, c in enumerate(chunks)
+        )
         source_section = (
             f"Use ONLY the following curriculum sources. "
             f"Do not introduce facts not supported by these sources.\n\n"
             f"{chunks_text}\n\n"
-            f"Set source_chunk_ids to: {chunk_ids}"
+            f"GROUNDING — this decides whether the question can be published:\n"
+            f"Write a question whose correct answer is STATED IN ONE OF THE SOURCES "
+            f"ABOVE. Before writing, find the sentence that states it. If the sources "
+            f"do not state a fact worth asking about, ask about a different fact that "
+            f"they DO state. Do not write from your own knowledge of the topic — an "
+            f"answer the sources do not state is rejected automatically.\n\n"
+            f"Set source_chunk_ids to ONLY the sources you actually used — usually "
+            f"one, occasionally two. Do not list them all.\n"
+            f"Source ids:\n{id_list}"
         )
     else:
         source_section = (
