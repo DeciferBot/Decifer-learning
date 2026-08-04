@@ -223,19 +223,41 @@ def main():
             topic_vecs = {t["id"]: embed_text(t["title"]) for t in our_topics}
             topic_toks = {t["id"]: _tokens(t["title"]) for t in our_topics}
 
-            # Oak units for this keyStage+subject, filtered to this year
+            # Oak units for this keyStage+subject.
+            #
+            # This used to keep ONLY the units Oak files under our exact year, and
+            # that is why Oak coverage is 6.5% with 224 of 329 topics holding no
+            # Oak content at all. Oak's year is Oak's editorial choice, not the
+            # statutory curriculum: History and Geography are specified by KEY
+            # STAGE with no year at all (verified on gov.uk), so Oak files Ancient
+            # Greece at year-4 where we teach it at year-6, and continents at
+            # year-1 where we teach them at year-2. Matching on year made those
+            # units unreachable — the importer could not see the very content it
+            # was looking for.
+            #
+            # Take every unit in the key stage and let the placement logic below
+            # decide: the curated LLM map first (oak-topic-map.json), cosine
+            # similarity as the fallback, both scoped to this subject's topics.
+            # Oak stays the authority on the ANSWER; we stay the authority on
+            # which year it belongs to.
             try:
                 unit_groups = oak(f"/key-stages/{ks}/subject/{oak_subject}/units")
             except Exception as ex:
                 print(f"  ! Oak units fail {subject}/{year}: {ex}"); continue
-            year_units = []
-            for g in unit_groups:
-                if g.get("yearSlug") == yslug:
-                    year_units = g.get("units", []); break
-            if not year_units:
-                print(f"  · {subject} {year}: no Oak units"); continue
 
-            print(f"\n══ {subject} {year} ({ks}) — {len(our_topics)} topics, {len(year_units)} Oak units ══")
+            year_units, same_year = [], 0
+            for g in unit_groups:
+                units = g.get("units", []) or []
+                year_units += units
+                if g.get("yearSlug") == yslug:
+                    same_year = len(units)
+            if not year_units:
+                print(f"  · {subject} {year}: no Oak units in {ks}"); continue
+
+            print(f"\n══ {subject} {year} ({ks}) — {len(our_topics)} topics, "
+                  f"{len(year_units)} Oak units across the key stage "
+                  f"({same_year} filed at {yslug}, {len(year_units) - same_year} "
+                  f"previously unreachable) ══")
 
             # current published counts per topic
             pubcount = {}
