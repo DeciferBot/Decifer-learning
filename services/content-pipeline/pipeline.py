@@ -36,6 +36,8 @@ from verifiers import maths as maths_verifier
 from verifiers import english as english_verifier
 from verifiers import physics as physics_verifier
 from verifiers import chemistry as chemistry_verifier
+from verifiers import gates
+from verifiers import entailment as entailment_verifier
 
 log = logging.getLogger("pipeline")
 
@@ -472,12 +474,28 @@ def _build_english_prompt(
             f"[Source {i+1} — {c['source_name']}]\n{c['chunk_text']}"
             for i, c in enumerate(chunks)
         )
-        chunk_ids = json.dumps([str(c["id"]) for c in chunks])
+        # Citation used to be automatic: this said "Set source_chunk_ids to <every
+        # retrieved id>", so the model cited all eight chunks whether or not it used
+        # any of them. Grounding was meaningless by construction — measured
+        # 2026-08-04, 23% of grounded questions cite a chunk that does not state
+        # their answer, and a pilot regeneration cited 8 chunks supporting nothing.
+        # Stage 2 now checks entailment, so the citation has to be real.
+        id_list = "\n".join(
+            f"  Source {i + 1} = {c['id']}" for i, c in enumerate(chunks)
+        )
         source_section = (
             f"Use ONLY the following curriculum sources. "
             f"Do not introduce facts not supported by these sources.\n\n"
             f"{chunks_text}\n\n"
-            f"Set source_chunk_ids to: {chunk_ids}"
+            f"GROUNDING — this decides whether the question can be published:\n"
+            f"Write a question whose correct answer is STATED IN ONE OF THE SOURCES "
+            f"ABOVE. Before writing, find the sentence that states it. If the sources "
+            f"do not state a fact worth asking about, ask about a different fact that "
+            f"they DO state. Do not write from your own knowledge of the topic — an "
+            f"answer the sources do not state is rejected automatically.\n\n"
+            f"Set source_chunk_ids to ONLY the sources you actually used — usually "
+            f"one, occasionally two. Do not list them all.\n"
+            f"Source ids:\n{id_list}"
         )
     else:
         source_section = (
@@ -627,12 +645,28 @@ def _build_science_prompt(topic: dict, tier: str, chunks: list[dict],
             f"[Source {i+1} — {c['source_name']}]\n{c['chunk_text']}"
             for i, c in enumerate(chunks)
         )
-        chunk_ids = json.dumps([str(c["id"]) for c in chunks])
+        # Citation used to be automatic: this said "Set source_chunk_ids to <every
+        # retrieved id>", so the model cited all eight chunks whether or not it used
+        # any of them. Grounding was meaningless by construction — measured
+        # 2026-08-04, 23% of grounded questions cite a chunk that does not state
+        # their answer, and a pilot regeneration cited 8 chunks supporting nothing.
+        # Stage 2 now checks entailment, so the citation has to be real.
+        id_list = "\n".join(
+            f"  Source {i + 1} = {c['id']}" for i, c in enumerate(chunks)
+        )
         source_section = (
             f"Use ONLY the following curriculum sources. "
             f"Do not introduce facts not supported by these sources.\n\n"
             f"{chunks_text}\n\n"
-            f"Set source_chunk_ids to: {chunk_ids}"
+            f"GROUNDING — this decides whether the question can be published:\n"
+            f"Write a question whose correct answer is STATED IN ONE OF THE SOURCES "
+            f"ABOVE. Before writing, find the sentence that states it. If the sources "
+            f"do not state a fact worth asking about, ask about a different fact that "
+            f"they DO state. Do not write from your own knowledge of the topic — an "
+            f"answer the sources do not state is rejected automatically.\n\n"
+            f"Set source_chunk_ids to ONLY the sources you actually used — usually "
+            f"one, occasionally two. Do not list them all.\n"
+            f"Source ids:\n{id_list}"
         )
     else:
         source_section = (
@@ -744,12 +778,28 @@ def _build_humanities_prompt(topic: dict, tier: str, chunks: list[dict],
             f"[Source {i+1} — {c['source_name']}]\n{c['chunk_text']}"
             for i, c in enumerate(chunks)
         )
-        chunk_ids = json.dumps([str(c["id"]) for c in chunks])
+        # Citation used to be automatic: this said "Set source_chunk_ids to <every
+        # retrieved id>", so the model cited all eight chunks whether or not it used
+        # any of them. Grounding was meaningless by construction — measured
+        # 2026-08-04, 23% of grounded questions cite a chunk that does not state
+        # their answer, and a pilot regeneration cited 8 chunks supporting nothing.
+        # Stage 2 now checks entailment, so the citation has to be real.
+        id_list = "\n".join(
+            f"  Source {i + 1} = {c['id']}" for i, c in enumerate(chunks)
+        )
         source_section = (
             f"Use ONLY the following curriculum sources. "
             f"Do not introduce facts not supported by these sources.\n\n"
             f"{chunks_text}\n\n"
-            f"Set source_chunk_ids to: {chunk_ids}"
+            f"GROUNDING — this decides whether the question can be published:\n"
+            f"Write a question whose correct answer is STATED IN ONE OF THE SOURCES "
+            f"ABOVE. Before writing, find the sentence that states it. If the sources "
+            f"do not state a fact worth asking about, ask about a different fact that "
+            f"they DO state. Do not write from your own knowledge of the topic — an "
+            f"answer the sources do not state is rejected automatically.\n\n"
+            f"Set source_chunk_ids to ONLY the sources you actually used — usually "
+            f"one, occasionally two. Do not list them all.\n"
+            f"Source ids:\n{id_list}"
         )
     else:
         source_section = (
@@ -1051,6 +1101,14 @@ _CHEMISTRY_TYPES = {"science_chemistry_equation", "chemistry_element_fact", "bio
 # Multi-part types: structural verification only (no code or LanguageTool check)
 _MULTIPART_TYPES = {"true_false_grid", "ordered_list", "source_analysis", "explain_example", "structured_answer"}
 _HUMANITIES_TYPES = {"history_factual", "geography_factual"}
+# RAG-only types whose Stage 2 is now an entailment check against the cited chunk.
+# biology_factual and science_factual previously went to the chemistry verifier,
+# which passed them straight through; the English three went to LanguageTool,
+# which checks the prose reads cleanly and never looks at the answer key.
+_ENTAILMENT_TYPES = {
+    "biology_factual", "science_factual",
+    "english_comprehension", "english_vocabulary", "english_literary_analysis",
+}
 # Descriptive-answer maths (e.g. graph transformations): no numeric answer to
 # code-verify, so Stage 2 is a pass-through and correctness is enforced by the
 # consensus (Stage 3) and constitutional (Stage 4) checks — same shape as the
@@ -1383,7 +1441,27 @@ def stage2_verify(question_data: dict, result: PipelineResult) -> bool:
     result.log_stage("Stage 2: code verification")
     qtype = question_data.get("question_type", "")
 
-    if qtype in _MATHS_TYPES:
+    # Grounded types are routed FIRST, ahead of the chemistry and English
+    # dispatchers that used to claim them.
+    #
+    # Previously these returned an unconditional pass-through True, while Stage 6
+    # went on to award the full 60-point computation weight for that non-check —
+    # 60 + consensus 25 + RAG bonus 5 = exactly the 90 threshold, so a third of
+    # the catalogue published on one consensus call and nothing else. biology and
+    # science_factual went to the chemistry verifier, which passed them straight
+    # through; the English three went to LanguageTool, which checks the prose
+    # reads cleanly and never looks at the answer key.
+    #
+    # Now they must earn it: the cited chunk has to actually state the answer, and
+    # the supporting quote is verified against the chunk IN CODE. Stage 6's
+    # grounding gate still runs on top, but that checks the citation's metadata;
+    # this checks its content.
+    if qtype in _ENTAILMENT_TYPES or qtype in _HUMANITIES_TYPES:
+        verified, detail = entailment_verifier.verify(question_data, llm_call=_llm_call)
+        result.verifier_version = (
+            f"entailment-v{entailment_verifier.ENTAILMENT_VERIFIER_VERSION}"
+        )
+    elif qtype in _MATHS_TYPES:
         verified, detail = maths_verifier.verify(question_data)
         result.verifier_version = getattr(maths_verifier, "VERIFIER_VERSION", "unknown")
     elif qtype in _ENGLISH_TYPES:
@@ -1398,11 +1476,6 @@ def stage2_verify(question_data: dict, result: PipelineResult) -> bool:
     elif qtype in _MULTIPART_TYPES:
         verified, detail = _verify_multipart(question_data)
         result.verifier_version = "multipart-v1"
-    elif qtype in _HUMANITIES_TYPES:
-        # RAG-only pass-through: Stage 6 enforces non-empty source_chunk_ids
-        # (config.RAG_REQUIRED_TYPES) and the 90-point publish threshold.
-        verified, detail = True, "RAG-only type — grounding enforced at Stage 6"
-        result.verifier_version = "humanities-passthrough-v1"
     elif qtype in _MATHS_CONCEPT_TYPES:
         # Descriptive-answer maths (graph transformations etc.): no numeric answer
         # to compute. Correctness is enforced by consensus + constitution; reaches
@@ -1509,12 +1582,15 @@ def stage4_constitutional(
         )
         return violations
     except Exception as exc:
-        result.log_stage(f"  constitutional error: {exc}")
-        # Fail-safe: default to recall so the question can still be written
+        # FAIL CLOSED. This previously returned [] — an empty violation list is
+        # indistinguishable from a clean pass, so a timeout or a malformed JSON
+        # response silently granted a full constitutional pass to content nobody
+        # had checked. Stage 3 already fails closed; the safety stage must too.
+        result.log_stage(f"  constitutional error: {exc} — failing closed")
         question_data.setdefault("technique_type", "recall")
         question_data.setdefault("technique_hint", None)
         question_data.setdefault("technique_note", None)
-        return []
+        return [f"constitutional_check_unavailable: {exc}"]
 
 
 def stage5_dedup(
@@ -1956,6 +2032,27 @@ def run_one(
             last_result = result
             continue
 
+        # Stage 1b: deterministic gates.
+        # Runs before any paid verification call, for two reasons: a candidate that
+        # dresses arithmetic in human suffering or points at a diagram we don't have
+        # is unfixable no matter what the verifiers say, and rejecting it here costs
+        # nothing. Discarded in place — never written, so it cannot reach a queue.
+        gates_ok, gate_violations = gates.run_all(question_data, topic)
+        if not gates_ok:
+            result.log_stage(f"  Stage 1b gates FAILED: {gate_violations}")
+            db.write_generation_error(
+                pipeline_run_id=pipeline_run_id,
+                topic_id=str(topic["id"]),
+                question_type=qtype,
+                tier=tier,
+                stage_failed=1,
+                error_message="Stage 1b: " + "; ".join(gate_violations),
+                raw_llm_output=question_data,
+            )
+            last_result = result
+            continue
+        result.log_stage("Stage 1b: deterministic gates passed")
+
         # Stage 2
         verified = stage2_verify(question_data, result)
 
@@ -2066,13 +2163,16 @@ def regenerate_question(flagged_row: dict) -> "PipelineResult":
     # run_one raises. 'regenerating' has NO consumer (get_flagged_questions selects
     # only 'flagged'), so a row left there is invisible to children AND never
     # retried: a permanent orphan. The try/finally guarantees the original lands in
-    # 'retired' regardless of generation outcome. Without it, a single transient
-    # generation error (LLM timeout, rate limit) stranded the row forever — which
-    # is how ~516 humanities rows accumulated as stuck orphans.
+    # 'staged' (admin-reviewable) regardless of generation outcome. Without it, a
+    # single transient generation error (LLM timeout, rate limit) stranded the row
+    # forever — which is how ~516 humanities rows accumulated as stuck orphans.
     #
-    # If run_one failed, the topic is briefly one question short; the nightly
-    # autopilot top-up refills it. That is strictly better than the old behaviour
-    # of returning a known-bad question to the child-facing pool.
+    # The original is RETIRED, not staged. It was flagged because it should not be
+    # shown, and a replacement has just been generated for its slot. Staging it fed
+    # it to fix-staged-all, which polishes anything scoring >= 80 straight back to
+    # 'published' — so a flagged question reappeared, unfixed, within a day or two.
+    # If run_one failed the topic is briefly one question short; the nightly
+    # autopilot top-up refills it. Better than returning a known-bad question.
     try:
         result = run_one(topic, tier)
     finally:
@@ -2407,10 +2507,10 @@ def fix_staged_question(question_id: str) -> dict:
             conn2.commit()
         except psycopg2.errors.UniqueViolation:
             # The polished question is identical to one already live — rejected by
-            # quiz_questions_published_dedup_idx. This is exactly how duplicates
-            # crept back in before the guard existed: a staged copy of a live
-            # question got polished and promoted alongside it. Retire it instead;
-            # it is redundant, and leaving it staged would only retry forever.
+            # quiz_questions_published_dedup_idx. This is exactly how duplicates crept
+            # back in before that guard existed: a staged copy of a live question got
+            # polished and promoted alongside it. Retire it — it is redundant, and
+            # leaving it staged would only retry forever.
             conn2.rollback()
             duplicate_of_published = True
         finally:
