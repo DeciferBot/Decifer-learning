@@ -200,6 +200,27 @@ def check_structure(question_data: dict) -> tuple[bool, list[str]]:
     if len({str(d).strip().lower() for d in distractors}) != len(distractors):
         violations.append("structure: duplicate distractors")
 
+    # Answer/distractor type mismatch.
+    # Found 2026-08-04: "Put these fractions in order from smallest to largest"
+    # was keyed to "0" while its three options were orderings, and "Which
+    # description matches this move?" was keyed to "0" against three worded
+    # descriptions. In both the keyed answer is not one of the options, so every
+    # child is marked wrong whatever they pick. A bare number against worded
+    # options (or the reverse) is always a broken row — and unlike "is the answer
+    # right?", it costs nothing to detect.
+    if answer and distractors:
+        def _is_number(value: str) -> bool:
+            return bool(re.fullmatch(r"[-−]?\d+(?:[.,]\d+)?", str(value).strip()))
+
+        answer_numeric = _is_number(answer)
+        distractor_numeric = [_is_number(d) for d in distractors]
+        if distractor_numeric and answer_numeric != all(distractor_numeric) \
+                and answer_numeric != any(distractor_numeric):
+            violations.append(
+                f"structure: answer {answer!r} is a bare number but the options are "
+                f"worded (or the reverse) — the keyed answer is not one of the choices"
+            )
+
     for field in ("hint_1", "hint_2", "hint_3"):
         if not str(question_data.get(field) or "").strip():
             violations.append(f"structure: {field} is empty")
@@ -523,6 +544,20 @@ if __name__ == "__main__":
     check("placeholder hints are blocked",
           q(hint_2="Rule out any options you are sure are wrong first."),
           MATHS_Y3, False, "placeholder hints")
+    check("a bare number keyed against worded options is blocked",
+          q(question_text="Put these fractions in order from smallest to largest: 1/2, 1/4, 3/4. "
+                          "Which order is correct?",
+            correct_answer="0",
+            distractors=["3/4, 1/2, 1/4", "1/2, 1/4, 3/4", "3/4, 1/4, 1/2"]),
+          MATHS_Y3, False, "not one of the choices")
+    check("a genuine numeric zero against numeric options passes",
+          q(question_text="Lily has 6 sweets. She eats 6 sweets. How many does she have left?",
+            correct_answer="0", distractors=["1", "6", "12"]),
+          MATHS_Y3, True)
+    check("worded answer against worded options passes",
+          q(question_text="How many corners does a circle have?",
+            correct_answer="None", distractors=["One", "Two", "Seven"]),
+          MATHS_Y3, True)
 
     print("\nContainment gate")
     check("orphan source reference is blocked",
