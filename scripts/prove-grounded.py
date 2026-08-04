@@ -50,6 +50,13 @@ for line in _e.splitlines():
 
 sys.path.insert(0, f"{_REPO}/services/content-pipeline")
 import config  # noqa: E402
+
+# Amit's instruction 2026-08-04: no Anthropic API spend. _llm_call falls back to
+# CLAUDE_MODEL whenever DO inference hiccups, which quietly did happen 10 times
+# across the first sweeps. Blanking the key turns that silent fallback into a
+# plain failure, which these scripts already record as unprovable/unsupported.
+config.ANTHROPIC_API_KEY = ""
+os.environ.pop("ANTHROPIC_API_KEY", None)
 from pipeline import _llm_call, _extract_json  # noqa: E402
 
 import psycopg2  # noqa: E402
