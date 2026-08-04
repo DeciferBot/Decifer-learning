@@ -159,6 +159,11 @@ def process_topic(row: dict, target: int, dry_run: bool) -> dict:
                 out["published"] += 1
             else:
                 out["failed"] += 1
+                # Record why. The first run reported "failed 2" with no reason,
+                # which made an environmental problem look like a fundamental one.
+                tail = [l for l in (result.stage_log or []) if l.strip()][-3:]
+                out.setdefault("reasons", []).append(
+                    f"{result.status}: " + " | ".join(t.strip() for t in tail))
         except Exception as exc:
             out["failed"] += 1
             with _lock:
@@ -171,7 +176,7 @@ def main() -> int:
     ap.add_argument("--topics", type=int, default=3)
     ap.add_argument("--all", action="store_true")
     ap.add_argument("--target", type=int, default=12, help="published questions per topic")
-    ap.add_argument("--concurrency", type=int, default=4)
+    ap.add_argument("--concurrency", type=int, default=2)
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
@@ -209,6 +214,20 @@ def main() -> int:
             print(f"[{n}/{len(plan)}] {res['topic']}: "
                   f"retired {res['retired']}, republished {res['published']}, "
                   f"failed {res['failed']}", flush=True)
+            for reason in (res.get("reasons") or [])[:2]:
+                print(f"      why: {reason[:190]}", flush=True)
+
+            # SAFETY: never keep emptying topics if replacement is not working.
+            # The first run retired 238 questions and republished 0 before it was
+            # stopped by hand; this makes that self-limiting.
+            if totals["retired"] >= 20 and totals["published"] == 0:
+                _STOP.touch()
+                print("\n  ABORTING: retired "
+                      f"{totals['retired']} and republished 0. Restore with:\n"
+                      "  UPDATE quiz_questions SET status='published' WHERE status='retired'\n"
+                      "    AND question_metadata->>'retired_reason'='ungrounded_replaced';",
+                      flush=True)
+                break
             if _STOP.exists():
                 print("stop file present — finishing early", flush=True)
                 break
