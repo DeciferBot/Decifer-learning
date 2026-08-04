@@ -31,7 +31,7 @@ Usage:
   python3 scripts/ingest-oak-questions.py --all
 """
 from __future__ import annotations
-import argparse, json, os, sys, time, uuid, urllib.request, urllib.parse
+import argparse, hashlib, json, os, sys, time, uuid, urllib.request, urllib.parse
 from pathlib import Path  # used for .PIPELINE_STOP and oak-topic-map.json
 
 _STOP = Path(__file__).resolve().parent.parent / ".PIPELINE_STOP"
@@ -80,30 +80,90 @@ YEAR_TO_KS = {
 # Our year label → Oak yearSlug
 YEAR_SLUG = {f"year-{i}": f"year-{i}" for i in range(1,12)}
 
+# ── Oak fetch: cached, paced, and self-limiting ───────────────────────────
+# Oak is rate limited and a 403 from it means throttling, not a bad key.
+#
+# THE CACHE IS NOT AN OPTIMISATION, IT IS THE MAIN PROTECTION. Units are now
+# selected per key stage rather than per year, so a KS2 subject walks the same
+# ~26 units once for year-3, again for year-4, year-5 and year-6 — four
+# identical passes over the same lessons and quizzes. Without caching, widening
+# the filter would have quadrupled the load on Oak. On disk, so a rerun after a
+# crash re-reads nothing.
+_CACHE_DIR = Path(os.environ.get("OAK_CACHE_DIR", "/tmp/oak-cache"))
+_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+
+_MIN_INTERVAL = float(os.environ.get("OAK_MIN_INTERVAL", "1.0"))  # seconds between live calls
+_last_call = [0.0]
 _req_count = 0
+_cache_hits = 0
+_throttle_streak = [0]
+_MAX_THROTTLE_STREAK = 8   # consecutive 429/403 before we stop rather than hammer
+
+
 def oak(path):
-    global _req_count
+    """Fetch an Oak endpoint, from disk cache when possible.
+
+    Paces live calls, backs off hard on throttling, and aborts the run outright
+    if Oak keeps refusing — better to stop and be restarted than to keep
+    knocking on a door that is telling us to go away.
+    """
+    global _req_count, _cache_hits
     url = path if path.startswith("http") else f"{OAK_BASE}{path}"
+
+    key = hashlib.sha256(url.encode()).hexdigest()[:32]
+    cached = _CACHE_DIR / f"{key}.json"
+    if cached.exists():
+        try:
+            _cache_hits += 1
+            return json.loads(cached.read_text())
+        except Exception:
+            cached.unlink(missing_ok=True)   # corrupt entry, refetch
+
     req = urllib.request.Request(url, headers={
         "Authorization": f"Bearer {OAK_KEY}",
-        "User-Agent": "Decifer-Learning/1.0",
+        "User-Agent": "Decifer-Learning/1.0 (+content ingest; contact chopraa@gmail.com)",
     })
-    # Oak rate-limits with 403 + a Cloudflare HTML page, not 429, and the block can
-    # last minutes. Back off long enough to ride it out rather than giving up.
-    for attempt in range(6):
+
+
+    for attempt in range(5):
+        gap = time.time() - _last_call[0]
+        if gap < _MIN_INTERVAL:
+            time.sleep(_MIN_INTERVAL - gap)
+        _last_call[0] = time.time()
         try:
-            with urllib.request.urlopen(req, timeout=25) as r:
-                _req_count += 1
-                out = json.loads(r.read().decode("utf-8"))
-                time.sleep(0.5)          # stay under the rate limit
-                return out
+            with urllib.request.urlopen(req, timeout=30) as r:
+                data = json.loads(r.read().decode("utf-8"))
+            _req_count += 1
+            _throttle_streak[0] = 0
+            try:
+                cached.write_text(json.dumps(data))
+            except Exception:
+                pass
+            return data
         except urllib.error.HTTPError as ex:
-            if ex.code in (429, 403, 500, 502, 503):
-                time.sleep(8 * (attempt+1)); continue
+            # 403 from Oak is rate limiting, not authentication.
+            if ex.code in (429, 403):
+                _throttle_streak[0] += 1
+                if _throttle_streak[0] >= _MAX_THROTTLE_STREAK:
+                    raise SystemExit(
+                        f"\nSTOPPING: Oak returned {ex.code} "
+                        f"{_throttle_streak[0]} times in a row. Backing off entirely "
+                        f"rather than hammering a rate-limited API. Rerun later — "
+                        f"the disk cache at {_CACHE_DIR} means nothing already "
+                        f"fetched will be requested again."
+                    )
+                wait = min(120, 10 * (attempt + 1) ** 2)
+                print(f"    [oak] {ex.code} — backing off {wait}s", flush=True)
+                time.sleep(wait)
+                continue
+            if ex.code in (500, 502, 503):
+                time.sleep(3 * (attempt + 1)); continue
+            if ex.code == 404:
+                return None
             raise
         except Exception:
-            time.sleep(4 * (attempt+1)); continue
-    raise RuntimeError(f"Oak fetch failed: {url}")
+            time.sleep(3); continue
+    raise RuntimeError(f"Oak fetch failed after retries: {url}")
 
 GENERIC_HINTS = (
     "Read the question carefully and decide exactly what it is asking.",
@@ -209,6 +269,7 @@ def main():
     cur.execute("SELECT id,label FROM year_groups"); yg_ids = {r["label"]:r["id"] for r in cur.fetchall()}
 
     grand_inserted = 0
+    grand_skipped = 0
     for subject in subjects:
         oak_subject = SUBJECT_SLUG[subject]
         sub_id = sub_ids.get(subject)
@@ -233,6 +294,7 @@ def main():
             topic_toks = {t["id"]: _tokens(t["title"]) for t in our_topics}
 
             # Oak units for this keyStage+subject.
+
             # Oak's year is NOT our year: it files Ancient Greece at year-4 where we teach
             # it at Y6, continents/oceans at year-1 where we teach it at Y2, and so on. So
             # we keep every unit in the key stage and tag it with its own Oak year. Units
@@ -244,6 +306,7 @@ def main():
                 unit_groups = oak(f"/key-stages/{ks}/subject/{oak_subject}/units")
             except Exception as ex:
                 print(f"  ! Oak units fail {subject}/{year}: {ex}"); continue
+
             year_units = []
             for g in unit_groups:
                 g_year = g.get("yearSlug")
@@ -356,17 +419,37 @@ def main():
                                 print(f"  [{topic['slug']}] ({tier}, sim={best_sim:.2f}) {q['question_text'][:70]}")
                                 print(f"      ✓ {q['correct_answer']}   ✗ {q['distractors']}")
                             else:
-                                cur.execute("""
-                                    INSERT INTO quiz_questions
-                                      (id, topic_id, tier, question_text, question_type, correct_answer,
-                                       distractors, hint_1, hint_2, hint_3, explanation, confidence_score,
-                                       status, question_metadata, generator_version, verifier_version,
-                                       published_at, created_at)
-                                    VALUES (%s,%s,%s,%s,%s,%s,%s::jsonb,%s,%s,%s,%s,%s,'published',%s::jsonb,
-                                            'oak-import-v1','oak-authoritative', now(), now())
-                                """, (str(uuid.uuid4()), best_id, tier, q["question_text"], q["question_type"],
-                                      q["correct_answer"], json.dumps(q["distractors"]), q["hint_1"], q["hint_2"],
-                                      q["hint_3"], q["explanation"], 100.0, json.dumps(q["metadata"])))
+                                # There is a global unique index on published
+                                # (stem + answer + distractors), which the per-topic
+                                # stem check above cannot see: the same Oak question
+                                # may already sit under a different topic. A collision
+                                # is a success — the content is present — so skip it.
+                                # SAVEPOINT because a failed statement otherwise
+                                # aborts the whole transaction and loses the unit's
+                                # earlier inserts.
+                                cur.execute("SAVEPOINT oak_row")
+                                try:
+                                    cur.execute("""
+                                        INSERT INTO quiz_questions
+                                          (id, topic_id, tier, question_text, question_type, correct_answer,
+                                           distractors, hint_1, hint_2, hint_3, explanation, confidence_score,
+                                           status, question_metadata, generator_version, verifier_version,
+                                           published_at, created_at)
+                                        VALUES (%s,%s,%s,%s,%s,%s,%s::jsonb,%s,%s,%s,%s,%s,'published',%s::jsonb,
+                                                'oak-import-v1','oak-authoritative', now(), now())
+                                    """, (str(uuid.uuid4()), best_id, tier, q["question_text"], q["question_type"],
+                                          q["correct_answer"], json.dumps(q["distractors"]), q["hint_1"], q["hint_2"],
+                                          q["hint_3"], q["explanation"], 100.0, json.dumps(q["metadata"])))
+                                except psycopg2.errors.UniqueViolation:
+                                    cur.execute("ROLLBACK TO SAVEPOINT oak_row")
+                                    grand_skipped += 1
+                                    continue
+                                except psycopg2.Error as _ex:
+                                    cur.execute("ROLLBACK TO SAVEPOINT oak_row")
+                                    print(f"      ! insert failed, skipping: {_ex}")
+                                    grand_skipped += 1
+                                    continue
+                                cur.execute("RELEASE SAVEPOINT oak_row")
                             pubcount[best_id] = pubcount.get(best_id,0) + 1
                             grand_inserted += 1
                     time.sleep(0.15)
@@ -377,7 +460,10 @@ def main():
                 print(f"  · {t['slug']}: {pubcount.get(t['id'],0)} published")
 
     if not args.dry_run: conn.commit()
-    print(f"\n── {'DRY RUN — ' if args.dry_run else ''}{grand_inserted} questions imported. Oak requests: {_req_count} ──")
+    print(f"\n── {'DRY RUN — ' if args.dry_run else ''}{grand_inserted} questions imported, "
+          f"{grand_skipped} already present ──")
+    print(f"Oak API: {_req_count} live requests, {_cache_hits} served from the "
+          f"disk cache at {_CACHE_DIR} (pacing {_MIN_INTERVAL}s between live calls)")
 
 if __name__ == "__main__":
     main()

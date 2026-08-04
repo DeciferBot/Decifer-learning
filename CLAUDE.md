@@ -223,9 +223,10 @@ world_map_nodes (id, zone_id, topic_id, x_pos FLOAT, y_pos FLOAT,
                  unlocked_by_topic_id)
 
 -- Content
+-- status is the ContentStatus enum: staged | published | flagged | regenerating | retired
+-- ('retired' is terminal — see §8. Added 2026-08-03.)
 learn_content (id, topic_id, body_html, examples_json, foundation_audio_url,
-               status TEXT DEFAULT 'staged'
-                 CHECK(status IN ('staged','published','flagged','regenerating')))
+               status ContentStatus DEFAULT 'staged')
 practice_games (id, topic_id, game_type, config_json)
 quiz_questions (id, topic_id,
                 tier TEXT CHECK(tier IN ('sprout','explorer','lightning')),
@@ -234,8 +235,7 @@ quiz_questions (id, topic_id,
                 hint_1, hint_2, hint_3, explanation,
                 foundation_images JSONB,
                 confidence_score FLOAT,
-                status TEXT DEFAULT 'staged'
-                  CHECK(status IN ('staged','published','flagged','regenerating')),
+                status ContentStatus DEFAULT 'staged',
                 source_chunk_ids JSONB, created_at)
 
 -- Gamification
@@ -248,8 +248,7 @@ streak_shields (profile_id, quantity)
 card_catalog (id, subject_id, year_group_id, rarity TEXT, title, fact_text,
               illustration_url, source_url, is_seasonal, available_until,
               is_fusion, required_subject_ids JSONB,
-              status TEXT DEFAULT 'staged'
-                CHECK(status IN ('staged','published','flagged','regenerating')))
+              status ContentStatus DEFAULT 'staged')
 child_collection (profile_id, card_id, quantity, first_obtained_at)
 
 -- Progress
