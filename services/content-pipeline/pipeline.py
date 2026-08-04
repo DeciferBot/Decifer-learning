@@ -25,6 +25,7 @@ from pathlib import Path
 from typing import Optional
 
 import numpy as np
+import psycopg2.errors
 
 import config
 import db
@@ -2370,6 +2371,7 @@ def fix_staged_question(question_id: str) -> dict:
 
     if new_status == "published":
         # UPDATE the existing row in-place
+        duplicate_of_published = False
         conn2 = db.get_connection()
         try:
             with conn2.cursor() as cur:
@@ -2403,8 +2405,27 @@ def fix_staged_question(question_id: str) -> dict:
                     ),
                 )
             conn2.commit()
+        except psycopg2.errors.UniqueViolation:
+            # The polished question is identical to one already live — rejected by
+            # quiz_questions_published_dedup_idx. This is exactly how duplicates
+            # crept back in before the guard existed: a staged copy of a live
+            # question got polished and promoted alongside it. Retire it instead;
+            # it is redundant, and leaving it staged would only retry forever.
+            conn2.rollback()
+            duplicate_of_published = True
         finally:
             conn2.close()
+
+        if duplicate_of_published:
+            db.mark_question_retired(question_id)
+            log.info(f"[fix_staged] {question_id} retired: duplicate of a live question")
+            return {
+                "question_id": question_id,
+                "outcome": "retired_duplicate",
+                "old_score": old_score,
+                "new_score": new_score,
+            }
+
         log.info(f"[fix_staged] {question_id} promoted: {old_score}→{new_score}")
         return {
             "question_id": question_id,
