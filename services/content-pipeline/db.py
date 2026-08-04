@@ -11,16 +11,20 @@ superuser).
 from __future__ import annotations
 
 import json
+import logging
 import uuid
 from datetime import datetime, timezone
 from typing import Optional
 
 import numpy as np
 import psycopg2
+import psycopg2.errors
 import psycopg2.extras
 from pgvector.psycopg2 import register_vector
 
 import config
+
+log = logging.getLogger(__name__)
 
 
 def get_connection() -> psycopg2.extensions.connection:
@@ -390,10 +394,18 @@ def write_question(
     generator_version: str = "",
     verifier_version: str = "",
 ) -> str:
-    """Insert a quiz_question row with provenance fields. Returns the new question id."""
+    """Insert a quiz_question row with provenance fields. Returns the new question id.
+
+    If the row would duplicate a question that is already published, the unique
+    index quiz_questions_published_dedup_idx rejects it. We catch that and retry
+    once as 'staged' rather than letting the whole generation batch die: the
+    content is redundant, not broken, so it is kept out of the child-facing pool
+    but retained. Returns "" if even that fails.
+    """
     question_id = str(uuid.uuid4())
     published_at = datetime.now(timezone.utc) if status == "published" else None
     question_metadata = question_data.get("question_metadata")
+    duplicate_of_published = False
 
     conn = get_connection()
     try:
@@ -449,8 +461,31 @@ def write_question(
                 ),
             )
         conn.commit()
+    except psycopg2.errors.UniqueViolation:
+        # Identical to a question that is already published — rejected by
+        # quiz_questions_published_dedup_idx. Handled, not fatal: a redundant
+        # question must not kill the whole nightly generation batch.
+        conn.rollback()
+        duplicate_of_published = True
     finally:
         conn.close()
+
+    if duplicate_of_published:
+        if status != "published":
+            log.warning(
+                "write_question: duplicate of a published question (topic=%s) and "
+                "already non-published (%s) — skipping", topic_id, status
+            )
+            return ""
+        log.warning(
+            "write_question: identical to a live question (topic=%s) — staging "
+            "instead of publishing", topic_id
+        )
+        return write_question(
+            topic_id, tier, question_data, "staged", confidence_score,
+            generator_version, verifier_version,
+        )
+
     return question_id
 
 
