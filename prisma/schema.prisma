@@ -28,16 +28,9 @@ enum ContentStatus {
   published
   flagged
   regenerating
-  // Terminal. Content that must never reach a child again and must never be
-  // regenerated in place — age-inappropriate context, unanswerable stems, and
-  // anything a human has judged unfixable.
-  //
-  // The other three non-published states are all INPUT QUEUES that lead back to
-  // published: 'flagged' feeds /api/cron/regenerate-flagged, which parks the
-  // original in 'staged'; 'staged' feeds /api/cron/fix-staged-all, which
-  // republishes anything it can lift over the threshold. A clean-up that parked
-  // bad rows in 'flagged' was silently undone within a day (2026-08-03).
-  // 'retired' has no consumer, so nothing walks it back.
+  // Terminal. Never served, never retried, no queue drains it. Everything else
+  // eventually leads back to 'published': flagged -> regenerate-flagged,
+  // staged -> fix-staged-all. Use this to take a question out for good.
   retired
 }
 

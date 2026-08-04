@@ -294,20 +294,31 @@ daily_challenges (id, date, year_group_id, question_ids JSONB, is_flare BOOL)
 
 Every content row (`quiz_questions`, `card_catalog`, `learn_content`) carries a `status`:
 
-| Status | Visible to children? | Walks back to `published`? | Meaning |
-|---|---|---|---|
-| `staged` | **No** | **Yes** — `/api/cron/fix-staged-all` | Passed structure + verification but below the publish threshold. Rows scoring ≥ 80 are re-polished nightly and republished if they clear the threshold. |
-| `published` | **Yes** | — | Cleared all gates. The only state child-facing code may read. |
-| `flagged` | **No** | **Yes** — `/api/cron/regenerate-flagged` | Anomaly detection raised an issue. The nightly drain regenerates the topic and parks the original in `staged`, from where `fix-staged-all` can republish it. |
-| `regenerating` | **No** | No (but has no consumer) | Transient, held only while `regenerate_question` runs. A row stranded here is invisible **and** never retried. |
-| `retired` | **No** | **No — terminal** | Content that must never reach a child again and must never be regenerated in place. No cron consumes it. |
+| Status | Visible to children? | Meaning |
+|---|---|---|
+| `staged` | **No** | Passed structure + verification but below the publish threshold, OR awaiting one-time pilot spot-check. Admin/test only. |
+| `published` | **Yes** | Cleared all gates. The only state child-facing code may read. |
+| `flagged` | **No** | Anomaly detection raised an issue (high error rate, high hint-3 rate, or post-spot-check rejection). **Not a quarantine — this is a work queue** (see below). |
+| `regenerating` | **No** | In the pipeline regeneration loop. |
+| `retired` | **No** | **Terminal.** Removed for good: no queue drains it and nothing ever republishes it. |
 
-> **`flagged` is not a quarantine.** Three of the four non-published states are input
-> queues that lead back to `published`. A clean-up that parked defective rows in
-> `flagged` was silently undone inside a day (verified 2026-08-03: 125 of 211
-> duplicates and 18 of 23 broken rows were live again). **To take content down for
-> good, use `retired`** — and record why in
-> `question_metadata.retired_reason`.
+**`flagged` and `staged` are work queues, not quarantines.** Content parked in either comes back:
+
+```
+anomaly-detect (02:00)  ->  flagged
+flagged   -> regenerate-flagged (03:00) -> generates a replacement, original -> retired
+staged    -> fix-staged-all     (03:30) -> LLM-polishes anything scoring >= 80 -> published
+```
+
+To take a question out of circulation permanently, set `status='retired'` (or delete it). Setting
+it to `flagged` or `staged` puts it back in front of children within a day or two. This is not
+hypothetical: it silently undid the 2026-07-31 content audit — 125 of 211 removed duplicates and
+18 of 23 verified-broken questions were live again by 2026-08-03.
+
+Re-scoring cannot fix every defect, which is why a terminal state is needed. A maths drill dressed
+as a history question still reports `question_type='history_factual'` and still passes verification;
+a distractor that is also correct, or a question referring to a picture that does not exist, are
+invisible to the scorer. For those, "score it again" is never the answer.
 
 **Hard rules:**
 - Every API route, SQL query, or RPC that returns content to children **MUST** filter `WHERE status = 'published'`. No exceptions.

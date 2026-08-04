@@ -25,6 +25,7 @@ from pathlib import Path
 from typing import Optional
 
 import numpy as np
+import psycopg2.errors
 
 import config
 import db
@@ -2118,13 +2119,25 @@ def run_one(
 def regenerate_question(flagged_row: dict) -> "PipelineResult":
     """Re-run the pipeline to replace a single flagged question.
 
-    The original flagged question is moved to 'regenerating' immediately so
-    it disappears from the child-facing pool. A new question is generated for
-    the same topic + tier via the full 6-stage pipeline. If generation
-    succeeds the new question is written with status 'published'/'staged'. The
-    original row is then moved to 'staged' for the one-time admin spot-check.
-    If generation fails the original is left in 'regenerating' (the nightly
-    cron will retry it the next day).
+    The original flagged question is moved to 'regenerating' immediately so it
+    disappears from the child-facing pool. A new question is generated for the
+    same topic + tier via the full 6-stage pipeline. The original row is then
+    RETIRED — terminally, never served again.
+
+    Retiring the original (rather than staging it) is the whole point of this
+    function: it was flagged because it should not be shown, and a replacement
+    has just been generated for its slot. Staging it instead fed it to
+    fix-staged-all, which LLM-polishes anything scoring >= 80 straight back to
+    'published' — so a flagged question reappeared in front of children within a
+    day or two, unfixed. That loop silently undid the whole 2026-07-31 content
+    audit: 125 of 211 removed duplicates and 18 of 23 verified-broken questions
+    were live again by 2026-08-03.
+
+    Note the re-scorer cannot see the defects that matter most here. A maths
+    drill dressed as history still reports question_type='history_factual' and
+    still verifies; a distractor that is also correct, or a question naming a
+    picture that does not exist, are both invisible to it. For that class of
+    fault, "score it again" can never be the answer.
     """
     question_id = str(flagged_row["id"])
     topic_id    = str(flagged_row["topic_id"])
@@ -2138,8 +2151,8 @@ def regenerate_question(flagged_row: dict) -> "PipelineResult":
     topic = db.get_topic(topic_id)
     if topic is None:
         # Never leave the row orphaned in 'regenerating' (which has no consumer):
-        # move it to 'staged' for admin review even on this early-out.
-        db.mark_question_staged(question_id)
+        # retire it even on this early-out.
+        db.mark_question_retired(question_id)
         result = PipelineResult()
         result.status = "failed"
         result.log_stage(f"Topic {topic_id!r} not found — cannot regenerate")
@@ -2153,12 +2166,19 @@ def regenerate_question(flagged_row: dict) -> "PipelineResult":
     # 'staged' (admin-reviewable) regardless of generation outcome. Without it, a
     # single transient generation error (LLM timeout, rate limit) stranded the row
     # forever — which is how ~516 humanities rows accumulated as stuck orphans.
+    #
+    # The original is RETIRED, not staged. It was flagged because it should not be
+    # shown, and a replacement has just been generated for its slot. Staging it fed
+    # it to fix-staged-all, which polishes anything scoring >= 80 straight back to
+    # 'published' — so a flagged question reappeared, unfixed, within a day or two.
+    # If run_one failed the topic is briefly one question short; the nightly
+    # autopilot top-up refills it. Better than returning a known-bad question.
     try:
         result = run_one(topic, tier)
     finally:
-        db.mark_question_staged(question_id)
+        db.mark_question_retired(question_id)
     log.info(
-        f"regenerate_question: original {question_id} → staged; "
+        f"regenerate_question: original {question_id} → retired; "
         f"new question status={result.status}"
     )
     return result
@@ -2451,6 +2471,7 @@ def fix_staged_question(question_id: str) -> dict:
 
     if new_status == "published":
         # UPDATE the existing row in-place
+        duplicate_of_published = False
         conn2 = db.get_connection()
         try:
             with conn2.cursor() as cur:
@@ -2484,8 +2505,27 @@ def fix_staged_question(question_id: str) -> dict:
                     ),
                 )
             conn2.commit()
+        except psycopg2.errors.UniqueViolation:
+            # The polished question is identical to one already live — rejected by
+            # quiz_questions_published_dedup_idx. This is exactly how duplicates crept
+            # back in before that guard existed: a staged copy of a live question got
+            # polished and promoted alongside it. Retire it — it is redundant, and
+            # leaving it staged would only retry forever.
+            conn2.rollback()
+            duplicate_of_published = True
         finally:
             conn2.close()
+
+        if duplicate_of_published:
+            db.mark_question_retired(question_id)
+            log.info(f"[fix_staged] {question_id} retired: duplicate of a live question")
+            return {
+                "question_id": question_id,
+                "outcome": "retired_duplicate",
+                "old_score": old_score,
+                "new_score": new_score,
+            }
+
         log.info(f"[fix_staged] {question_id} promoted: {old_score}→{new_score}")
         return {
             "question_id": question_id,
