@@ -299,8 +299,27 @@ Every content row (`quiz_questions`, `card_catalog`, `learn_content`) carries a 
 |---|---|---|
 | `staged` | **No** | Passed structure + verification but below the publish threshold, OR awaiting one-time pilot spot-check. Admin/test only. |
 | `published` | **Yes** | Cleared all gates. The only state child-facing code may read. |
-| `flagged` | **No** | Anomaly detection raised an issue (high error rate, high hint-3 rate, or post-spot-check rejection). |
+| `flagged` | **No** | Anomaly detection raised an issue (high error rate, high hint-3 rate, or post-spot-check rejection). **Not a quarantine — this is a work queue** (see below). |
 | `regenerating` | **No** | In the pipeline regeneration loop. |
+| `retired` | **No** | **Terminal.** Removed for good: no queue drains it and nothing ever republishes it. |
+
+**`flagged` and `staged` are work queues, not quarantines.** Content parked in either comes back:
+
+```
+anomaly-detect (02:00)  ->  flagged
+flagged   -> regenerate-flagged (03:00) -> generates a replacement, original -> retired
+staged    -> fix-staged-all     (03:30) -> LLM-polishes anything scoring >= 80 -> published
+```
+
+To take a question out of circulation permanently, set `status='retired'` (or delete it). Setting
+it to `flagged` or `staged` puts it back in front of children within a day or two. This is not
+hypothetical: it silently undid the 2026-07-31 content audit — 125 of 211 removed duplicates and
+18 of 23 verified-broken questions were live again by 2026-08-03.
+
+Re-scoring cannot fix every defect, which is why a terminal state is needed. A maths drill dressed
+as a history question still reports `question_type='history_factual'` and still passes verification;
+a distractor that is also correct, or a question referring to a picture that does not exist, are
+invisible to the scorer. For those, "score it again" is never the answer.
 
 **Hard rules:**
 - Every API route, SQL query, or RPC that returns content to children **MUST** filter `WHERE status = 'published'`. No exceptions.

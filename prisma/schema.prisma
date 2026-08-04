@@ -28,6 +28,10 @@ enum ContentStatus {
   published
   flagged
   regenerating
+  // Terminal. Never served, never retried, no queue drains it. Everything else
+  // eventually leads back to 'published': flagged -> regenerate-flagged,
+  // staged -> fix-staged-all. Use this to take a question out for good.
+  retired
 }
 
 enum Tier {

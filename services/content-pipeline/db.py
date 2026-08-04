@@ -161,6 +161,33 @@ def mark_question_staged(question_id: str) -> None:
         conn.close()
 
 
+def mark_question_retired(question_id: str) -> None:
+    """Retire a question permanently. TERMINAL — nothing ever brings it back.
+
+    This is the only status with no consumer, which is the whole point. Every
+    other non-published status feeds a queue that can end in 'published':
+    'flagged' is drained by regenerate-flagged, and 'staged' is drained by
+    fix-staged-all, which LLM-polishes anything scoring >= 80 and publishes it.
+    So parking a genuinely bad question in flagged or staged puts it back in
+    front of children within a day or two — which is exactly what happened to
+    the 2026-07-31 content audit.
+
+    Use this for questions that must never be served again. It is still fully
+    reversible by hand (just set the status back), and the row is retained so
+    quiz_answers/session_answers keep their foreign key.
+    """
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                "UPDATE quiz_questions SET status = 'retired' WHERE id = %s",
+                (question_id,),
+            )
+            conn.commit()
+    finally:
+        conn.close()
+
+
 # ── Curriculum chunks ─────────────────────────────────────────────────────
 
 def retrieve_chunks(

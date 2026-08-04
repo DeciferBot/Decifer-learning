@@ -2021,13 +2021,25 @@ def run_one(
 def regenerate_question(flagged_row: dict) -> "PipelineResult":
     """Re-run the pipeline to replace a single flagged question.
 
-    The original flagged question is moved to 'regenerating' immediately so
-    it disappears from the child-facing pool. A new question is generated for
-    the same topic + tier via the full 6-stage pipeline. If generation
-    succeeds the new question is written with status 'published'/'staged'. The
-    original row is then moved to 'staged' for the one-time admin spot-check.
-    If generation fails the original is left in 'regenerating' (the nightly
-    cron will retry it the next day).
+    The original flagged question is moved to 'regenerating' immediately so it
+    disappears from the child-facing pool. A new question is generated for the
+    same topic + tier via the full 6-stage pipeline. The original row is then
+    RETIRED — terminally, never served again.
+
+    Retiring the original (rather than staging it) is the whole point of this
+    function: it was flagged because it should not be shown, and a replacement
+    has just been generated for its slot. Staging it instead fed it to
+    fix-staged-all, which LLM-polishes anything scoring >= 80 straight back to
+    'published' — so a flagged question reappeared in front of children within a
+    day or two, unfixed. That loop silently undid the whole 2026-07-31 content
+    audit: 125 of 211 removed duplicates and 18 of 23 verified-broken questions
+    were live again by 2026-08-03.
+
+    Note the re-scorer cannot see the defects that matter most here. A maths
+    drill dressed as history still reports question_type='history_factual' and
+    still verifies; a distractor that is also correct, or a question naming a
+    picture that does not exist, are both invisible to it. For that class of
+    fault, "score it again" can never be the answer.
     """
     question_id = str(flagged_row["id"])
     topic_id    = str(flagged_row["topic_id"])
@@ -2041,8 +2053,8 @@ def regenerate_question(flagged_row: dict) -> "PipelineResult":
     topic = db.get_topic(topic_id)
     if topic is None:
         # Never leave the row orphaned in 'regenerating' (which has no consumer):
-        # move it to 'staged' for admin review even on this early-out.
-        db.mark_question_staged(question_id)
+        # retire it even on this early-out.
+        db.mark_question_retired(question_id)
         result = PipelineResult()
         result.status = "failed"
         result.log_stage(f"Topic {topic_id!r} not found — cannot regenerate")
@@ -2053,15 +2065,19 @@ def regenerate_question(flagged_row: dict) -> "PipelineResult":
     # run_one raises. 'regenerating' has NO consumer (get_flagged_questions selects
     # only 'flagged'), so a row left there is invisible to children AND never
     # retried: a permanent orphan. The try/finally guarantees the original lands in
-    # 'staged' (admin-reviewable) regardless of generation outcome. Without it, a
-    # single transient generation error (LLM timeout, rate limit) stranded the row
-    # forever — which is how ~516 humanities rows accumulated as stuck orphans.
+    # 'retired' regardless of generation outcome. Without it, a single transient
+    # generation error (LLM timeout, rate limit) stranded the row forever — which
+    # is how ~516 humanities rows accumulated as stuck orphans.
+    #
+    # If run_one failed, the topic is briefly one question short; the nightly
+    # autopilot top-up refills it. That is strictly better than the old behaviour
+    # of returning a known-bad question to the child-facing pool.
     try:
         result = run_one(topic, tier)
     finally:
-        db.mark_question_staged(question_id)
+        db.mark_question_retired(question_id)
     log.info(
-        f"regenerate_question: original {question_id} → staged; "
+        f"regenerate_question: original {question_id} → retired; "
         f"new question status={result.status}"
     )
     return result
