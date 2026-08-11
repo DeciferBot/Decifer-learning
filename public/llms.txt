@@ -1,0 +1,43 @@
+# Decifer Learning
+
+> Decifer Learning is a British curriculum learning companion for Years 1 to 11 (KS1 to KS4/GCSE). Children learn, practise and quiz through each topic, and parents get a learning map showing where their child actually stands.
+
+Subjects covered are Maths, English, Science, History and Geography. It is built for British-curriculum families in the UAE, the Gulf and worldwide.
+
+Decifer Learning supports learning. It does not replace teachers, schools or parents.
+
+Decifer Learning is a product of DECIFER, an AI intelligence company (https://www.decifer.io). DECIFER is a company name, spelled with an e. It is not the dictionary word decipher.
+
+## Key pages
+
+- [Home](https://www.deciferlearning.com): what the product is and who it is for
+- [How it works](https://www.deciferlearning.com/how-it-works): the learn, practise and quiz loop, and how answers are checked
+- [Subjects](https://www.deciferlearning.com/subjects): the five subjects and what each covers
+- [Curriculum](https://www.deciferlearning.com/curriculum): browse by subject, then year group, then topic
+- [Pricing](https://www.deciferlearning.com/pricing): current plans
+- [Guides](https://www.deciferlearning.com/guides): plain-English guides for parents on British-curriculum schooling in the UAE
+- [Help centre](https://www.deciferlearning.com/help): FAQ, parent guide, student guide, and how content quality is checked
+
+## Guides for parents
+
+- [The British Curriculum in the UAE Explained](https://www.deciferlearning.com/guides/british-curriculum-explained): key stages, years and assessments
+- [School Year Groups and Ages in the UAE](https://www.deciferlearning.com/guides/school-year-groups-ages-uae): FS1 to Year 13 conversion table
+- [How to Choose a British School in Dubai](https://www.deciferlearning.com/guides/choosing-british-school-dubai): a practical checklist for parents
+- [Dubai School Fees 2026-27](https://www.deciferlearning.com/guides/dubai-school-fees): real ranges for British curriculum schools
+- [Abu Dhabi School Fees and ADEK Ratings 2026](https://www.deciferlearning.com/guides/abu-dhabi-school-fees-ratings)
+- [KHDA School Ratings Explained](https://www.deciferlearning.com/guides/khda-ratings-explained): what Outstanding, Good and Acceptable really mean
+- [GCSEs in the UAE](https://www.deciferlearning.com/guides/gcse-in-uae): exam boards, 9-1 grades and how to support your child
+- [Moving to the UAE](https://www.deciferlearning.com/guides/moving-to-uae-school-admissions): school admissions, transfers and the documents you need
+- [UAE School Term Dates 2026-27](https://www.deciferlearning.com/guides/uae-term-dates-2026-27): start dates, half terms and holidays
+
+## Company
+
+- [DECIFER (parent)](https://www.decifer.io): the company behind Decifer Learning, Decifer Trading and Decifer Marketing
+- [Decifer Trading](https://decifertrading.com): sibling product, market intelligence
+- [Decifer Marketing](https://decifermarketing.com): sibling product, marketing intelligence
+- [LinkedIn](https://www.linkedin.com/company/deciferdxb/): DECIFER's official company page
+
+## Policies
+
+- [Privacy Policy](https://www.deciferlearning.com/legal/privacy)
+- [Terms of Service](https://www.deciferlearning.com/legal/terms)
