@@ -5,6 +5,7 @@ export const metadata: Metadata = {
   title: 'Privacy Policy',
   description:
     'How Decifer Learning collects, uses, and protects your personal data under UAE Federal Decree-Law No. 45 of 2021.',
+  alternates: { canonical: '/legal/privacy' },
 }
 
 export default function PrivacyPolicyPage() {

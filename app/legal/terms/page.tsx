@@ -5,6 +5,7 @@ export const metadata: Metadata = {
   title: 'Terms of Service',
   description:
     'The terms and conditions governing your use of Decifer Learning, governed by the laws of the United Arab Emirates.',
+  alternates: { canonical: '/legal/terms' },
 }
 
 export default function TermsOfServicePage() {
