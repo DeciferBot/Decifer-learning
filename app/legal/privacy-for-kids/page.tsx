@@ -5,6 +5,7 @@ import { Lock, Check } from '@/components/ui/icons'
 export const metadata: Metadata = {
   title: 'Your Privacy',
   description: 'What Decifer Learning knows about you, and how we keep it safe.',
+  alternates: { canonical: '/legal/privacy-for-kids' },
 }
 
 // Child-friendly privacy notice — required by UK Children's Code (Standard 4).

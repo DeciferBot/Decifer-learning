@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { HelpBreadcrumbSchema } from '@/components/marketing/HelpBreadcrumbSchema'
 
 export const metadata = {
   title: 'Content quality',
@@ -10,6 +11,7 @@ export const metadata = {
 export default function ContentQualityPage() {
   return (
     <div className="space-y-8">
+      <HelpBreadcrumbSchema title="Content quality" path="/help/content-quality" />
       <div>
         <Link href="/help" className="mb-4 inline-block text-sm font-semibold text-brand hover:underline">
           ← All guides
