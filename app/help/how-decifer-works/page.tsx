@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { HelpBreadcrumbSchema } from '@/components/marketing/HelpBreadcrumbSchema'
 import { DeciferLogo } from '@/components/ui/DeciferLogo'
 import { BookOpen, PencilLine, Zap } from '@/components/ui/icons'
 import type { ReactNode } from 'react'
@@ -15,6 +16,7 @@ export const metadata = {
 export default function HowDeciferWorksPage() {
   return (
     <div className="space-y-8">
+      <HelpBreadcrumbSchema title="How Decifer works" path="/help/how-decifer-works" />
       <div>
         <Link href="/help" className="mb-4 inline-block text-sm font-semibold text-brand hover:underline">
           ← All guides

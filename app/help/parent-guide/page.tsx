@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { HelpBreadcrumbSchema } from '@/components/marketing/HelpBreadcrumbSchema'
 import { BarChart, Target, TrendingUp, AlertTriangle, ArrowRight, Medal } from '@/components/ui/icons'
 import type { ComponentType, SVGProps } from 'react'
 type IconComp = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
@@ -13,6 +14,7 @@ export const metadata = {
 export default function ParentGuidePage() {
   return (
     <div className="space-y-8">
+      <HelpBreadcrumbSchema title="Parent guide" path="/help/parent-guide" />
       <div>
         <Link href="/help" className="mb-4 inline-block text-sm font-semibold text-brand hover:underline">
           ← All guides

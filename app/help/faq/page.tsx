@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { HelpBreadcrumbSchema } from '@/components/marketing/HelpBreadcrumbSchema'
 
 export const metadata = {
   title: 'FAQ',
@@ -15,6 +16,7 @@ export const metadata = {
 export default function FAQPage() {
   return (
     <div className="space-y-8">
+      <HelpBreadcrumbSchema title="Frequently asked questions" path="/help/faq" />
       <div>
         <Link href="/help" className="mb-4 inline-block text-sm font-semibold text-brand hover:underline">
           ← All guides

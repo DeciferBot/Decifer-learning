@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { HelpBreadcrumbSchema } from '@/components/marketing/HelpBreadcrumbSchema'
 import { BookOpen, PencilLine, Zap, CircleCheck, Target, Lightbulb, Flame } from '@/components/ui/icons'
 import type { ComponentType, SVGProps } from 'react'
 type IconComp = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
@@ -13,6 +14,7 @@ export const metadata = {
 export default function StudentGuidePage() {
   return (
     <div className="space-y-8">
+      <HelpBreadcrumbSchema title="Student guide" path="/help/student-guide" />
       <div>
         <Link href="/help" className="mb-4 inline-block text-sm font-semibold text-brand hover:underline">
           ← All guides

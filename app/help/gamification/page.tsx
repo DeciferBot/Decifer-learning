@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { HelpBreadcrumbSchema } from '@/components/marketing/HelpBreadcrumbSchema'
 import { Star, Medal, Flame, Shield, Layers, Target, CircleX, Check } from '@/components/ui/icons'
 
 export const metadata = {
@@ -11,6 +12,7 @@ export const metadata = {
 export default function GamificationPage() {
   return (
     <div className="space-y-8">
+      <HelpBreadcrumbSchema title="Gamification explained" path="/help/gamification" />
       <div>
         <Link href="/help" className="mb-4 inline-block text-sm font-semibold text-brand hover:underline">
           ← All guides
