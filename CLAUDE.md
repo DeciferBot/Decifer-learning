@@ -285,6 +285,22 @@ curriculum_chunks (id, subject, year_group, source_name,
 
 -- Daily challenge cache
 daily_challenges (id, date, year_group_id, question_ids JSONB, is_flare BOOL)
+
+-- Decifer Downtime — just-for-fun 2-player board games (no points, no
+-- curriculum content). Host is always the first side (White/Red/Red);
+-- guest cookie identity mirrors Decifer Live but namespaced separately.
+-- Locked down: no anon/authenticated grant at all (see §16 note below) —
+-- every read/write goes through app/api/downtime/games/*, live sync via
+-- Supabase Realtime Broadcast, not a client-side table select.
+board_games (id, game_type ENUM('chess','checkers','connect4','scrabble'),
+             invite_code, status ENUM('waiting','active','finished'),
+             state JSONB,                    -- public board; safe for both players
+             private_host_state JSONB,       -- Scrabble rack only; never publicly readable
+             private_guest_state JSONB,      -- Scrabble rack only; never publicly readable
+             turn, winner,
+             host_profile_id, host_guest_token, host_display_name,
+             guest_profile_id, guest_guest_token, guest_display_name,
+             created_at, updated_at, finished_at)
 ```
 
 **RLS baseline (Phase 2 of the build, not Phase 2 of the product):**

@@ -43,38 +43,38 @@ enum Tier {
 // ---------- Identity & family ----------
 
 model Profile {
-  id                     String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  user_id                String    @unique @db.Uuid // FK to auth.users (Supabase-managed)
-  display_name           String
-  avatar_config          Json?
-  theme_name             String?
-  year_group_id          String?   @db.Uuid
-  role                   Role      @default(child)
-  total_points           Int       @default(0)
-  streak_days            Int       @default(0)
+  id                           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id                      String    @unique @db.Uuid // FK to auth.users (Supabase-managed)
+  display_name                 String
+  avatar_config                Json?
+  theme_name                   String?
+  year_group_id                String?   @db.Uuid
+  role                         Role      @default(child)
+  total_points                 Int       @default(0)
+  streak_days                  Int       @default(0)
   // Last time the child opened the app. Drives the admin activity and
   // engagement metrics. Deliberately NOT the streak driver: opening a page is
   // not learning, and a streak you earn by loading a screen means nothing.
-  last_active            DateTime?
+  last_active                  DateTime?
   // Last calendar day (UTC) the child actually finished a round: a quiz attempt
   // or the Daily Mystery Challenge. This is what the streak counts.
-  last_round_on          DateTime? @db.Date
-  sr_easiness            Float     @default(2.5)
-  dashboard_widgets      Json?
-  study_buddy            String?
-  accessibility_settings Json?
+  last_round_on                DateTime? @db.Date
+  sr_easiness                  Float     @default(2.5)
+  dashboard_widgets            Json?
+  study_buddy                  String?
+  accessibility_settings       Json?
   // First-run onboarding: set once the child has seen the avatar + about-me
   // prompt (whether they completed or skipped it) so we never nag again.
-  onboarded_at           DateTime?
+  onboarded_at                 DateTime?
   // Non-PII personalisation answers captured at onboarding (favourite subject,
   // interests, preferred learning styles, self-rated confidence). Editable later.
-  learning_profile       Json?
+  learning_profile             Json?
   // GDPR/UK Children's Code: for child accounts, records when the parent gave
   // explicit consent and which parent's user_id gave it.
-  parental_consent_at    DateTime?
-  consented_by_user_id   String?   @db.Uuid
+  parental_consent_at          DateTime?
+  consented_by_user_id         String?   @db.Uuid
   // KS4 only: 'AQA' | 'Edexcel' | 'OCR'. Null for KS1–KS3.
-  exam_board             String?
+  exam_board                   String?
   // Parent/guardian contact captured at child self-registration. The parent
   // confirms via an emailed link (/verify-parent?token=…); reminders go out
   // via /api/cron/parent-verify until verified (max 3 reminders).
@@ -94,12 +94,12 @@ model Profile {
   // Last child-initiated year-group change — drives the self-service cooldown.
   year_group_changed_at        DateTime?
   // Denormalised subscription tier for fast gating — kept in sync by webhook.
-  subscription_tier      String    @default("free")
-  created_at             DateTime  @default(now())
+  subscription_tier            String    @default("free")
+  created_at                   DateTime  @default(now())
 
-  year_group       YearGroup?       @relation(fields: [year_group_id], references: [id])
-  family_as_parent FamilyLink[]     @relation("ParentLink")
-  family_as_child  FamilyLink[]     @relation("ChildLink")
+  year_group       YearGroup?        @relation(fields: [year_group_id], references: [id])
+  family_as_parent FamilyLink[]      @relation("ParentLink")
+  family_as_child  FamilyLink[]      @relation("ChildLink")
   parent_controls  ParentControl?
   point_events     PointEvent[]
   profile_badges   ProfileBadge[]
@@ -112,25 +112,29 @@ model Profile {
   quiz_reflections QuizReflection[]
 
   // PLI v1
-  learning_events                 LearningEvent[]
+  learning_events LearningEvent[]
 
   // Reward Vault
   vault_status                    ChildVaultStatus?
   vault_milestone_events          VaultMilestoneEvent[]
-  reward_requests_as_child        RewardRequest[]        @relation("ChildRewardRequests")
-  reward_requests_as_parent       RewardRequest[]        @relation("ParentRewardRequests")
-  reward_requests_responded       RewardRequest[]        @relation("RespondedByProfile")
-  vault_parent_settings_as_parent VaultParentSettings[]  @relation("ParentVaultSettings")
-  vault_parent_settings_as_child  VaultParentSettings[]  @relation("ChildVaultSettings")
+  reward_requests_as_child        RewardRequest[]       @relation("ChildRewardRequests")
+  reward_requests_as_parent       RewardRequest[]       @relation("ParentRewardRequests")
+  reward_requests_responded       RewardRequest[]       @relation("RespondedByProfile")
+  vault_parent_settings_as_parent VaultParentSettings[] @relation("ParentVaultSettings")
+  vault_parent_settings_as_child  VaultParentSettings[] @relation("ChildVaultSettings")
   question_reports                QuestionReport[]
   exploration_sessions            ExplorationSession[]
-  exam_assignments_as_parent      ExamAssignment[]       @relation("ParentExamAssignments")
-  exam_assignments_as_child       ExamAssignment[]       @relation("ChildExamAssignments")
+  exam_assignments_as_parent      ExamAssignment[]      @relation("ParentExamAssignments")
+  exam_assignments_as_child       ExamAssignment[]      @relation("ChildExamAssignments")
   exam_attempts                   ExamAttempt[]
 
   // Decifer Live (Kahoot-style multiplayer)
-  hosted_live_games               LiveGame[]             @relation("HostedLiveGames")
-  live_game_players               LiveGamePlayer[]       @relation("LiveGamePlayers")
+  hosted_live_games LiveGame[]       @relation("HostedLiveGames")
+  live_game_players LiveGamePlayer[] @relation("LiveGamePlayers")
+
+  // Decifer Downtime (2-player board games via invite code)
+  hosted_board_games BoardGame[] @relation("HostedBoardGames")
+  guest_board_games  BoardGame[] @relation("GuestBoardGames")
 
   @@map("profiles")
 }
@@ -151,12 +155,12 @@ model FamilyLink {
 }
 
 model ParentControl {
-  child_profile_id         String   @id @db.Uuid
-  daily_time_limit_minutes Int      @default(60)
+  child_profile_id         String    @id @db.Uuid
+  daily_time_limit_minutes Int       @default(60)
   allowed_time_start       DateTime? @db.Time
   allowed_time_end         DateTime? @db.Time
-  leaderboard_visible      Boolean  @default(true)
-  social_features_enabled  Boolean  @default(false)
+  leaderboard_visible      Boolean   @default(true)
+  social_features_enabled  Boolean   @default(false)
 
   child Profile @relation(fields: [child_profile_id], references: [id])
 
@@ -186,46 +190,46 @@ model Subject {
   colour_token String
   slug         String? @unique
 
-  topics               Topic[]
-  zones                Zone[]
-  cards                CardCatalog[]
-  curriculum_outcomes  CurriculumOutcome[]
-  lessons              Lesson[]
-  curriculum_units     CurriculumUnit[]
-  exam_assignments     ExamAssignment[]
+  topics              Topic[]
+  zones               Zone[]
+  cards               CardCatalog[]
+  curriculum_outcomes CurriculumOutcome[]
+  lessons             Lesson[]
+  curriculum_units    CurriculumUnit[]
+  exam_assignments    ExamAssignment[]
 
   @@map("subjects")
 }
 
 model Topic {
-  id             String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  subject_id     String  @db.Uuid
-  year_group_id  String  @db.Uuid
-  title          String
-  order_index    Int     @default(0)
-  is_published   Boolean @default(false)
-  zone_id        String? @db.Uuid
-  slug           String?
+  id            String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  subject_id    String  @db.Uuid
+  year_group_id String  @db.Uuid
+  title         String
+  order_index   Int     @default(0)
+  is_published  Boolean @default(false)
+  zone_id       String? @db.Uuid
+  slug          String?
   // When true this topic has no quiz — world map shows a book icon, Quiz button hidden.
-  quiz_optional  Boolean @default(false)
+  quiz_optional Boolean @default(false)
   // 'instruction_first' (default Learn→Practise→Quiz) or 'pretest_first' (attempt→explanation→practise)
-  pedagogy_mode  String  @default("instruction_first")
+  pedagogy_mode String  @default("instruction_first")
 
-  subject               Subject             @relation(fields: [subject_id], references: [id])
-  year_group            YearGroup           @relation(fields: [year_group_id], references: [id])
-  zone                  Zone?               @relation(fields: [zone_id], references: [id])
-  curriculum_units      CurriculumUnit[]
-  learn_content         LearnContent[]
-  practice_games        PracticeGame[]
-  quiz_questions        QuizQuestion[]
-  world_map_nodes       WorldMapNode[]      @relation("NodeTopic")
-  unlocks_for_nodes     WorldMapNode[]      @relation("UnlockedByTopic")
-  topic_progress        TopicProgress[]
-  quiz_attempts         QuizAttempt[]
-  missions              ChildMission[]
-  curriculum_outcomes   CurriculumOutcome[]
-  lessons               Lesson[]
-  quiz_reflections      QuizReflection[]
+  subject             Subject             @relation(fields: [subject_id], references: [id])
+  year_group          YearGroup           @relation(fields: [year_group_id], references: [id])
+  zone                Zone?               @relation(fields: [zone_id], references: [id])
+  curriculum_units    CurriculumUnit[]
+  learn_content       LearnContent[]
+  practice_games      PracticeGame[]
+  quiz_questions      QuizQuestion[]
+  world_map_nodes     WorldMapNode[]      @relation("NodeTopic")
+  unlocks_for_nodes   WorldMapNode[]      @relation("UnlockedByTopic")
+  topic_progress      TopicProgress[]
+  quiz_attempts       QuizAttempt[]
+  missions            ChildMission[]
+  curriculum_outcomes CurriculumOutcome[]
+  lessons             Lesson[]
+  quiz_reflections    QuizReflection[]
 
   @@unique([subject_id, slug])
   @@map("topics")
@@ -240,8 +244,8 @@ model Zone {
   illustration_url String?
   guardian_quiz_id String? @db.Uuid
 
-  year_group      YearGroup       @relation(fields: [year_group_id], references: [id])
-  subject         Subject         @relation(fields: [subject_id], references: [id])
+  year_group      YearGroup      @relation(fields: [year_group_id], references: [id])
+  subject         Subject        @relation(fields: [subject_id], references: [id])
   topics          Topic[]
   world_map_nodes WorldMapNode[]
 
@@ -249,22 +253,22 @@ model Zone {
 }
 
 model CurriculumUnit {
-  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  subject_id     String   @db.Uuid
-  year_group_id  String   @db.Uuid
-  topic_id       String?  @db.Uuid                   // the broad topic this unit belongs to
-  title          String                               // Oak unit title, verbatim
-  description    String?                              // enquiry question / subtitle
-  order_index    Int      @default(0)                 // Oak teaching sequence
-  oak_unit_slug  String?  @unique                     // traceability back to Oak API
-  oak_confidence String?                              // 'high' | 'medium' | 'low'
-  content_json   Json?                                // Oak lesson summary (key learning points, keywords, misconceptions) — ingested on the droplet, served from DB
-  content_fetched_at DateTime?                        // when content_json was last refreshed from Oak
-  created_at     DateTime @default(now())
+  id                 String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  subject_id         String    @db.Uuid
+  year_group_id      String    @db.Uuid
+  topic_id           String?   @db.Uuid // the broad topic this unit belongs to
+  title              String // Oak unit title, verbatim
+  description        String? // enquiry question / subtitle
+  order_index        Int       @default(0) // Oak teaching sequence
+  oak_unit_slug      String?   @unique // traceability back to Oak API
+  oak_confidence     String? // 'high' | 'medium' | 'low'
+  content_json       Json? // Oak lesson summary (key learning points, keywords, misconceptions) — ingested on the droplet, served from DB
+  content_fetched_at DateTime? // when content_json was last refreshed from Oak
+  created_at         DateTime  @default(now())
 
-  subject     Subject    @relation(fields: [subject_id], references: [id])
-  year_group  YearGroup  @relation(fields: [year_group_id], references: [id])
-  topic       Topic?     @relation(fields: [topic_id], references: [id])
+  subject    Subject   @relation(fields: [subject_id], references: [id])
+  year_group YearGroup @relation(fields: [year_group_id], references: [id])
+  topic      Topic?    @relation(fields: [topic_id], references: [id])
 
   @@index([subject_id, year_group_id, order_index])
   @@index([topic_id])
@@ -334,7 +338,7 @@ model QuizQuestion {
   hint_2            String?
   hint_3            String?
   explanation       String?
-  worked_example    String?       // Step-by-step solution of a similar problem; shown before child attempts
+  worked_example    String? // Step-by-step solution of a similar problem; shown before child attempts
   foundation_images Json?
   // KS1 visual-answer mode. Map of { [answerText]: imageUrl } — one entry per
   // choice this question wants rendered as a picture card instead of plain
@@ -348,9 +352,9 @@ model QuizQuestion {
   source_chunk_ids  Json?
   created_at        DateTime      @default(now())
   // Exam technique layer (Sprint 1)
-  technique_type    String?   // 'recall' | 'perspective' | 'evidence_cite' | 'show_working' | 'two_part' | 'causation'
-  technique_hint    String?   // fires before hint_1 on first wrong answer; teaches HOW to answer, not content
-  technique_note    String?   // shown in post-answer explanation; reinforces technique used
+  technique_type    String? // 'recall' | 'perspective' | 'evidence_cite' | 'show_working' | 'two_part' | 'causation'
+  technique_hint    String? // fires before hint_1 on first wrong answer; teaches HOW to answer, not content
+  technique_note    String? // shown in post-answer explanation; reinforces technique used
   // Multi-part question types (Sprint 3)
   // true_false_grid: [{statement: string, correct: boolean}]
   // ordered_list:    [{item: string}]  (stored in correct order; component shuffles for display)
@@ -374,7 +378,7 @@ model QuizQuestion {
   calibration_n     Int           @default(0)
   calibrated_at     DateTime?
 
-  topic           Topic           @relation(fields: [topic_id], references: [id])
+  topic           Topic            @relation(fields: [topic_id], references: [id])
   quiz_answers    QuizAnswer[]
   session_answers SessionAnswer[]
   reports         QuestionReport[]
@@ -429,15 +433,15 @@ model PipelineRun {
 }
 
 model GenerationError {
-  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  pipeline_run_id  String?  @db.Uuid
-  topic_id         String?  @db.Uuid
-  question_type    String?
-  tier             String?
-  stage_failed     Int?
-  error_message    String
-  raw_llm_output   Json?
-  created_at       DateTime @default(now())
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  pipeline_run_id String?  @db.Uuid
+  topic_id        String?  @db.Uuid
+  question_type   String?
+  tier            String?
+  stage_failed    Int?
+  error_message   String
+  raw_llm_output  Json?
+  created_at      DateTime @default(now())
 
   pipeline_run PipelineRun? @relation(fields: [pipeline_run_id], references: [id])
 
@@ -651,7 +655,7 @@ model PastPaperQuestion {
 // ---------- RAG knowledge base ----------
 
 model CurriculumChunk {
-  id          String                       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id          String                      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   subject     String
   year_group  String
   source_name String
@@ -668,18 +672,18 @@ model CurriculumOutcome {
   id                     String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   framework_country      String   @default("England")
   framework_name         String   @default("National Curriculum 2014")
-  key_stage              String   // "KS1", "KS2"
-  year_group             String   // "Year 1" … "Year 6"
+  key_stage              String // "KS1", "KS2"
+  year_group             String // "Year 1" … "Year 6"
   subject                String   @default("Mathematics")
-  domain                 String   // "Number – multiplication and division"
-  statutory_outcome      String   // Full statutory statement text (verbatim)
+  domain                 String // "Number – multiplication and division"
+  statutory_outcome      String // Full statutory statement text (verbatim)
   non_statutory_notes    String?
-  source_reference       String   // Document + page reference + outcome code
+  source_reference       String // Document + page reference + outcome code
   app_subject_id         String?  @db.Uuid
   app_topic_id           String?  @db.Uuid
-  app_skill_id           String?  // e.g. "times_tables_recall" (text identifier, no FK)
+  app_skill_id           String? // e.g. "times_tables_recall" (text identifier, no FK)
   required_content_types String[] // ["learn","practice","quiz_sprout","quiz_explorer","quiz_lightning"]
-  coverage_status        String   @default("unmapped")   // "mapped" | "partial" | "unmapped"
+  coverage_status        String   @default("unmapped") // "mapped" | "partial" | "unmapped"
   verification_status    String   @default("unverified") // "verified" | "unverified" | "failed"
   created_at             DateTime @default(now())
 
@@ -697,12 +701,12 @@ model CurriculumOutcome {
 // Child-facing routes only show status='published' AND verification_status='verified'.
 
 model Lesson {
-  id                    String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  subject_id            String        @db.Uuid
-  topic_id              String        @db.Uuid
-  curriculum_outcome_id String?       @db.Uuid
+  id                    String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  subject_id            String   @db.Uuid
+  topic_id              String   @db.Uuid
+  curriculum_outcome_id String?  @db.Uuid
   title                 String
-  slug                  String        @unique
+  slug                  String   @unique
   lesson_summary        String?
   learning_objective    String?
   key_stage             String
@@ -711,12 +715,12 @@ model Lesson {
   lesson_type           String?
   estimated_minutes     Int?
   app_experience        String?
-  status                String        @default("staged")
+  status                String   @default("staged")
   verification_method   String?
-  verification_status   String        @default("unverified")
+  verification_status   String   @default("unverified")
   source_reference      String?
-  created_at            DateTime      @default(now())
-  updated_at            DateTime      @updatedAt
+  created_at            DateTime @default(now())
+  updated_at            DateTime @updatedAt
 
   subject            Subject            @relation(fields: [subject_id], references: [id])
   topic              Topic              @relation(fields: [topic_id], references: [id])
@@ -795,9 +799,9 @@ model RewardRequest {
   created_at              DateTime  @default(now())
   responded_at            DateTime?
 
-  child        Profile       @relation("ChildRewardRequests", fields: [child_profile_id], references: [id], onDelete: Cascade)
-  parent       Profile       @relation("ParentRewardRequests", fields: [parent_profile_id], references: [id])
-  responded_by Profile?      @relation("RespondedByProfile", fields: [responded_by_profile_id], references: [id])
+  child        Profile           @relation("ChildRewardRequests", fields: [child_profile_id], references: [id], onDelete: Cascade)
+  parent       Profile           @relation("ParentRewardRequests", fields: [parent_profile_id], references: [id])
+  responded_by Profile?          @relation("RespondedByProfile", fields: [responded_by_profile_id], references: [id])
   fulfilment   RewardFulfilment?
 
   @@index([child_profile_id, status])
@@ -823,30 +827,30 @@ model VaultMilestoneEvent {
 // Future-readiness tables — empty in Stage 1, populated in Stage 2+
 
 model RewardCatalog {
-  id                 String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name               String
   description        String?
   category           String?
   min_milestone      String?
-  price_pence        Int     @default(0)
+  price_pence        Int      @default(0)
   image_url          String?
   shopify_variant_id String?
-  is_active          Boolean @default(false)
+  is_active          Boolean  @default(false)
   created_at         DateTime @default(now())
 
   @@map("reward_catalog")
 }
 
 model RewardFulfilment {
-  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  request_id       String   @unique @db.Uuid
-  status           String   @default("approved")
-  shopify_order_id String?
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  request_id        String   @unique @db.Uuid
+  status            String   @default("approved")
+  shopify_order_id  String?
   shopify_order_url String?
-  tracking_number  String?
-  admin_notes      String?
-  created_at       DateTime @default(now())
-  updated_at       DateTime @updatedAt
+  tracking_number   String?
+  admin_notes       String?
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
 
   request RewardRequest @relation(fields: [request_id], references: [id])
 
@@ -860,10 +864,10 @@ model RewardFulfilment {
 model LearningEvent {
   id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   profile_id      String   @db.Uuid
-  event_type      String   // lesson_opened | lesson_completed | lesson_repeated | lesson_exited_early
-                           // | lesson_active_time_recorded | practice_started | practice_completed
-                           // | quiz_started | quiz_completed | quiz_abandoned
-                           // | recommendation_shown | recommendation_clicked | recommendation_ignored
+  event_type      String // lesson_opened | lesson_completed | lesson_repeated | lesson_exited_early
+  // | lesson_active_time_recorded | practice_started | practice_completed
+  // | quiz_started | quiz_completed | quiz_abandoned
+  // | recommendation_shown | recommendation_clicked | recommendation_ignored
   subject_id      String?  @db.Uuid
   topic_id        String?  @db.Uuid
   lesson_id       String?  @db.Uuid
@@ -935,8 +939,8 @@ model Subscription {
 model ExplorationSession {
   id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   profile_id       String   @db.Uuid
-  aid_type         String   // 'solar-system' | 'world-atlas' | 'human-body' | 'timeline' | 'periodic-table' | 'animal-kingdom'
-  topic_key        String?  // specific item explored e.g. 'mars', 'france', 'heart'
+  aid_type         String // 'solar-system' | 'world-atlas' | 'human-body' | 'timeline' | 'periodic-table' | 'animal-kingdom'
+  topic_key        String? // specific item explored e.g. 'mars', 'france', 'heart'
   duration_seconds Int      @default(0)
   ask_count        Int      @default(0) // number of Ask Decifer questions asked
   created_at       DateTime @default(now())
@@ -1000,7 +1004,7 @@ model ExamAssignment {
   year_group_id      String    @db.Uuid
   title              String
   topic_scope        String    @default("all") // 'all' | 'weak_areas' | 'selected'
-  topic_ids          Json?     // non-null when topic_scope='selected'
+  topic_ids          Json? // non-null when topic_scope='selected'
   question_count     Int       @default(20)
   time_limit_minutes Int       @default(30)
   hints_allowed      Boolean   @default(false)
@@ -1009,11 +1013,11 @@ model ExamAssignment {
   status             String    @default("active") // 'active' | 'completed' | 'archived'
   created_at         DateTime  @default(now())
 
-  parent      Profile       @relation("ParentExamAssignments", fields: [parent_profile_id], references: [id], onDelete: Cascade)
-  child       Profile       @relation("ChildExamAssignments", fields: [child_profile_id], references: [id], onDelete: Cascade)
-  subject     Subject       @relation(fields: [subject_id], references: [id])
-  year_group  YearGroup     @relation(fields: [year_group_id], references: [id])
-  attempts    ExamAttempt[]
+  parent     Profile       @relation("ParentExamAssignments", fields: [parent_profile_id], references: [id], onDelete: Cascade)
+  child      Profile       @relation("ChildExamAssignments", fields: [child_profile_id], references: [id], onDelete: Cascade)
+  subject    Subject       @relation(fields: [subject_id], references: [id])
+  year_group YearGroup     @relation(fields: [year_group_id], references: [id])
+  attempts   ExamAttempt[]
 
   @@index([child_profile_id, status])
   @@index([parent_profile_id, created_at(sort: Desc)])
@@ -1021,19 +1025,19 @@ model ExamAssignment {
 }
 
 model ExamAttempt {
-  id                  String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  exam_assignment_id  String    @db.Uuid
-  profile_id          String    @db.Uuid
-  question_ids        Json      // ordered array of question IDs served
-  started_at          DateTime  @default(now())
-  completed_at        DateTime?
-  time_taken_seconds  Int?
-  score               Float?    // 0.0–1.0
-  status              String    @default("in_progress") // 'in_progress' | 'completed' | 'timed_out' | 'abandoned'
-  answers             Json?     // [{questionId, childAnswer, wasCorrect, timeSeconds, topicId}]
+  id                 String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  exam_assignment_id String    @db.Uuid
+  profile_id         String    @db.Uuid
+  question_ids       Json // ordered array of question IDs served
+  started_at         DateTime  @default(now())
+  completed_at       DateTime?
+  time_taken_seconds Int?
+  score              Float? // 0.0–1.0
+  status             String    @default("in_progress") // 'in_progress' | 'completed' | 'timed_out' | 'abandoned'
+  answers            Json? // [{questionId, childAnswer, wasCorrect, timeSeconds, topicId}]
 
-  assignment  ExamAssignment @relation(fields: [exam_assignment_id], references: [id], onDelete: Cascade)
-  profile     Profile        @relation(fields: [profile_id], references: [id], onDelete: Cascade)
+  assignment ExamAssignment @relation(fields: [exam_assignment_id], references: [id], onDelete: Cascade)
+  profile    Profile        @relation(fields: [profile_id], references: [id], onDelete: Cascade)
 
   @@index([exam_assignment_id])
   @@index([profile_id, started_at(sort: Desc)])
@@ -1057,20 +1061,20 @@ enum LiveGameStatus {
 model LiveGame {
   id                   String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   pin                  String         @unique // 6-digit join code, unique among active games
-  host_profile_id      String?        @db.Uuid  // null for guest hosts
-  host_email           String?                  // required when host_profile_id is null
-  host_guest_token     String?        @db.Uuid  // cookie token for guest-host auth
+  host_profile_id      String?        @db.Uuid // null for guest hosts
+  host_email           String? // required when host_profile_id is null
+  host_guest_token     String?        @db.Uuid // cookie token for guest-host auth
   status               LiveGameStatus @default(lobby)
   // Content scope: a single topic, or a mixed pool across a subject + year group.
   mode                 String         @default("topic") // 'topic' | 'subject'
   topic_id             String?        @db.Uuid
   subject_id           String?        @db.Uuid
   year_group_id        String?        @db.Uuid
-  question_ids         Json           // ordered array of PUBLISHED quiz_question IDs
+  question_ids         Json // ordered array of PUBLISHED quiz_question IDs
   question_count       Int            @default(10)
   seconds_per_question Int            @default(20)
   current_index        Int            @default(-1) // -1 = lobby; 0..n-1 active; >= n finished
-  current_started_at   DateTime?      // server timestamp the current question went live
+  current_started_at   DateTime? // server timestamp the current question went live
   created_at           DateTime       @default(now())
   finished_at          DateTime?
 
@@ -1127,6 +1131,64 @@ model LiveGameAnswer {
 
   @@unique([player_id, question_index]) // one answer per player per question
   @@index([game_id, question_index])
-  @@index([game_id, was_correct])       // end-game groupBy aggregation
+  @@index([game_id, was_correct]) // end-game groupBy aggregation
   @@map("live_game_answers")
+}
+
+// Decifer Downtime — just-for-fun 2-player board games (Chess, Checkers,
+// Connect 4, Scrabble), played with a friend via a 6-character invite code.
+// No points, no curriculum content — see app/(child)/downtime. The host
+// always plays the first side (White / Red / Red / first-to-place); the
+// guest plays the second. Same guest-cookie identity pattern as Decifer
+// Live (lib/downtime/server.ts mirrors lib/live/server.ts), but with its own
+// cookie so the two features' guest identities don't couple.
+//
+// `state` is the PUBLIC board state — safe for both players and the anon
+// Realtime broadcast to read, because Chess/Checkers/Connect 4 have no
+// hidden information and Scrabble's public half (board tiles, scores, bag
+// count) is likewise safe. `private_host_state` / `private_guest_state`
+// exist only for Scrabble's rack — each player's rack must never be visible
+// to the other, so those two columns are (like host_guest_token below)
+// deliberately left out of the anon/authenticated column grant in the
+// migration; only a server route reads a player's own rack out to them.
+enum BoardGameType {
+  chess
+  checkers
+  connect4
+  scrabble
+}
+
+enum BoardGameStatus {
+  waiting
+  active
+  finished
+}
+
+model BoardGame {
+  id                  String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  game_type           BoardGameType
+  invite_code         String          @unique
+  status              BoardGameStatus @default(waiting)
+  state               Json
+  private_host_state  Json?
+  private_guest_state Json?
+  turn                String          @default("host") // 'host' | 'guest'
+  winner              String? // 'host' | 'guest' | 'draw'
+  host_profile_id     String?         @db.Uuid
+  host_guest_token    String?         @db.Uuid
+  host_display_name   String
+  guest_profile_id    String?         @db.Uuid
+  guest_guest_token   String?         @db.Uuid
+  guest_display_name  String?
+  created_at          DateTime        @default(now())
+  updated_at          DateTime        @updatedAt
+  finished_at         DateTime?
+
+  host  Profile? @relation("HostedBoardGames", fields: [host_profile_id], references: [id], onDelete: Cascade)
+  guest Profile? @relation("GuestBoardGames", fields: [guest_profile_id], references: [id], onDelete: Cascade)
+
+  @@index([status, created_at])
+  @@index([host_guest_token])
+  @@index([guest_guest_token])
+  @@map("board_games")
 }
