@@ -336,6 +336,13 @@ model QuizQuestion {
   explanation       String?
   worked_example    String?       // Step-by-step solution of a similar problem; shown before child attempts
   foundation_images Json?
+  // KS1 visual-answer mode. Map of { [answerText]: imageUrl } — one entry per
+  // choice this question wants rendered as a picture card instead of plain
+  // text, keyed by the exact string already used in correct_answer /
+  // distractors. The verified text answer stays canonical (CLAUDE.md §4);
+  // this only changes how a choice is presented, never what is scored.
+  // Absent or missing keys fall back to a text button. See QuizShell.tsx.
+  option_images     Json?
   confidence_score  Float?
   status            ContentStatus @default(staged)
   source_chunk_ids  Json?

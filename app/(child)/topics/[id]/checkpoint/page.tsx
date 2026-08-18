@@ -77,6 +77,7 @@ export default async function CheckpointPage({ params }: { params: { id: string 
         backHref="/world-map"
         backLabel="Back to World Map"
         winMessage="Checkpoint passed! Keep going."
+        yearGroupLabel={profile.year_group_label}
       />
     </div>
   )

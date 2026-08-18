@@ -234,6 +234,10 @@ quiz_questions (id, topic_id,
                 correct_answer, distractors JSONB,
                 hint_1, hint_2, hint_3, explanation,
                 foundation_images JSONB,
+                -- 2026-08-18: KS1 visual-answer mode. { [answerText]: imageUrl },
+                -- one entry per choice (matching correct_answer/distractors) to
+                -- render as a picture card instead of text. See QuizShell.tsx.
+                option_images JSONB,
                 confidence_score FLOAT,
                 status ContentStatus DEFAULT 'staged',
                 source_chunk_ids JSONB, created_at)

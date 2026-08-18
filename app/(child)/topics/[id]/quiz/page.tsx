@@ -245,6 +245,7 @@ export default async function QuizPage({ params }: { params: { id: string } }) {
         topicTitle={topic.title}
         nextTopic={nextTopic}
         preselected={isFirstAttempt}
+        yearGroupLabel={profile?.year_group_label ?? null}
       />
     </div>
   )
