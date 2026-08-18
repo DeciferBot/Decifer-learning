@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server'
+import { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import {
   getAuthedProfile, getGuestToken, cleanNickname,
   GUEST_COOKIE, GUEST_COOKIE_MAX_AGE,
 } from '@/lib/downtime/server'
 import { broadcastBoardGameSnapshot } from '@/lib/downtime/broadcast'
+import { dealGuestRack, type ScrabbleHostPrivate } from '@/lib/downtime/scrabble-flow'
 
 // POST /api/downtime/games/join  { inviteCode, nickname? }
 // Joins a waiting game by its 6-character invite code. Idempotent: the host
@@ -29,7 +31,7 @@ export async function POST(req: Request) {
   const game = await prisma.boardGame.findFirst({
     where: { invite_code: code, status: { not: 'finished' } },
     select: {
-      id: true, status: true,
+      id: true, status: true, game_type: true, private_host_state: true,
       host_profile_id: true, host_guest_token: true,
       guest_profile_id: true, guest_guest_token: true,
     },
@@ -71,6 +73,14 @@ export async function POST(req: Request) {
     guestDisplayName = nickname
   }
 
+  let hostPrivateState: Prisma.InputJsonValue | undefined
+  let guestPrivateState: Prisma.InputJsonValue | undefined
+  if (game.game_type === 'scrabble') {
+    const dealt = dealGuestRack(game.private_host_state as unknown as ScrabbleHostPrivate)
+    hostPrivateState = dealt.hostPrivate as Prisma.InputJsonValue
+    guestPrivateState = dealt.guestPrivate as Prisma.InputJsonValue
+  }
+
   await prisma.boardGame.update({
     where: { id: game.id },
     data: {
@@ -78,6 +88,8 @@ export async function POST(req: Request) {
       guest_guest_token: guestGuestToken,
       guest_display_name: guestDisplayName,
       status: 'active',
+      ...(hostPrivateState !== undefined ? { private_host_state: hostPrivateState } : {}),
+      ...(guestPrivateState !== undefined ? { private_guest_state: guestPrivateState } : {}),
     },
   })
   await broadcastBoardGameSnapshot(game.id)

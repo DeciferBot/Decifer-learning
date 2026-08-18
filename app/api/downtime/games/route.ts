@@ -7,13 +7,15 @@ import {
   GUEST_COOKIE, GUEST_COOKIE_MAX_AGE,
 } from '@/lib/downtime/server'
 import { initialBoardState, type GameType } from '@/lib/downtime/move-engine'
+import { initialScrabbleGame } from '@/lib/downtime/scrabble-flow'
 
 // POST /api/downtime/games  { gameType, nickname? }
 // Creates a waiting game and returns its invite code. The caller becomes the
 // host — logged-in users host as their profile; guests supply a nickname
 // (same guest-cookie identity pattern as Decifer Live).
 
-const VALID_TYPES: GameType[] = ['chess', 'checkers', 'connect4']
+type AnyGameType = GameType | 'scrabble'
+const VALID_TYPES: AnyGameType[] = ['chess', 'checkers', 'connect4', 'scrabble']
 
 type CreateBody = { gameType?: string; nickname?: string }
 
@@ -27,10 +29,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
 
-  if (!VALID_TYPES.includes(body.gameType as GameType)) {
+  if (!VALID_TYPES.includes(body.gameType as AnyGameType)) {
     return NextResponse.json({ error: 'invalid_game_type' }, { status: 400 })
   }
-  const gameType = body.gameType as GameType
+  const gameType = body.gameType as AnyGameType
 
   let hostProfileId: string | null = null
   let hostGuestToken: string | null = null
@@ -54,12 +56,23 @@ export async function POST(req: Request) {
 
   const inviteCode = await generateUniqueInviteCode()
 
+  let state: unknown
+  let hostPrivateState: unknown
+  if (gameType === 'scrabble') {
+    const initial = initialScrabbleGame()
+    state = initial.publicState
+    hostPrivateState = initial.hostPrivate
+  } else {
+    state = initialBoardState(gameType)
+  }
+
   const game = await prisma.boardGame.create({
     data: {
       game_type: gameType,
       invite_code: inviteCode,
       status: 'waiting',
-      state: initialBoardState(gameType) as Prisma.InputJsonValue,
+      state: state as Prisma.InputJsonValue,
+      private_host_state: hostPrivateState as Prisma.InputJsonValue | undefined,
       turn: 'host',
       host_profile_id: hostProfileId,
       host_guest_token: hostGuestToken,
