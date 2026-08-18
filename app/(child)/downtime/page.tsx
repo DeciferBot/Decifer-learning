@@ -21,6 +21,12 @@ const GAMES = [
     name: 'Connect 4',
     blurb: 'Line up four in a row before the computer does.',
   },
+  {
+    href: '/downtime/checkers',
+    emoji: '⚫',
+    name: 'Checkers',
+    blurb: 'Jump your way across the board and crown some kings.',
+  },
 ]
 
 export default function DowntimePage() {
