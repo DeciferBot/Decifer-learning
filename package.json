@@ -78,7 +78,8 @@
     "resend": "^6.12.4",
     "stripe": "^22.2.0",
     "three": "^0.184.0",
-    "web-push": "^3.6.7"
+    "web-push": "^3.6.7",
+    "word-list": "^4.1.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.60.0",
