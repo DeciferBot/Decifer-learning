@@ -26,6 +26,12 @@ import { WinBurst } from './WinBurst'
 import MathText from '@/components/ui/MathText'
 import { GuardianVictoryScreen } from './GuardianVictoryScreen'
 import { HeartCrack, Swords, Sparkles, Trophy, Star, RefreshCw, Gift, Flame, Shield, Lightbulb, Target, Check } from '@/components/ui/icons'
+import { StudyBuddy } from './StudyBuddy'
+import type { BuddyId } from '@/lib/customise-config'
+import {
+  type BuddyMood, pickLine,
+  CORRECT_FIRST_TRY, CORRECT_WITH_HELP, TRY_AGAIN, COMBO, LAST_QUESTION,
+} from '@/lib/buddy-lines'
 
 // Points awarded per attempt number (1-indexed). Exhausting all attempts = 0.
 const POINTS_BY_ATTEMPT = [3, 2, 1] as const
@@ -223,6 +229,37 @@ export function QuizShell({
   // Review previous question overlay
   const [showingPrevReview, setShowingPrevReview] = useState(false)
 
+  // Study buddy — the character picked in Customise, reacting through the
+  // quiz. buddyId stays null (buddy renders nothing) for a child who hasn't
+  // picked one; this is a companion layered on top, never a requirement.
+  const [buddyId, setBuddyId] = useState<BuddyId | null>(null)
+  const [buddyMood, setBuddyMood] = useState<BuddyMood>('idle')
+  const [buddyLine, setBuddyLine] = useState<string | null>(null)
+  const buddyLineTimeoutRef = useRef<ReturnType<typeof setTimeout>>()
+
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/profile/me')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data: { profile?: { studyBuddy?: string | null } } | null) => {
+        if (cancelled) return
+        const buddy = data?.profile?.studyBuddy
+        if (buddy) setBuddyId(buddy as BuddyId)
+      })
+      .catch(() => {
+        // No buddy today is a silent no-op, never a broken quiz.
+      })
+    return () => { cancelled = true }
+  }, [])
+
+  /** Set the buddy's mood and speech; the line fades on its own after a beat. */
+  function sayBuddy(mood: BuddyMood, pool: readonly string[]) {
+    if (buddyLineTimeoutRef.current) clearTimeout(buddyLineTimeoutRef.current)
+    setBuddyMood(mood)
+    setBuddyLine(pickLine(pool, buddyLine ?? undefined))
+    buddyLineTimeoutRef.current = setTimeout(() => setBuddyLine(null), 3200)
+  }
+
   // Refs
   const answerLogRef = useRef<AnswerLog[]>([])
   const questionStartRef = useRef(Date.now())
@@ -378,9 +415,13 @@ export function QuizShell({
           setShowStreakBonus(true)
           setTimeout(() => setShowStreakBonus(false), 2000)
           setHintlessStreak(0)
+          sayBuddy('excited', COMBO)
+        } else {
+          sayBuddy('happy', attempts === 0 ? CORRECT_FIRST_TRY : CORRECT_WITH_HELP)
         }
       } else {
         setHintlessStreak(0)
+        sayBuddy('happy', CORRECT_WITH_HELP)
       }
 
       // Halfway celebration
@@ -392,6 +433,7 @@ export function QuizShell({
     } else {
       fireFeedback('incorrect')
       setAttempts(newAttempts)
+      if (newAttempts < MAX_ATTEMPTS) sayBuddy('oops', TRY_AGAIN)
       if (newAttempts >= MAX_ATTEMPTS) {
         // Exhausted all attempts
         setQuestionDone(true)
@@ -476,6 +518,9 @@ export function QuizShell({
       setDone(true)
       return
     }
+    // Anticipation beats the win itself — tell the child before the last
+    // question, not just after it.
+    if (nextIdx === activeQuestions.length - 1) sayBuddy('anticipation', LAST_QUESTION)
     const nextQ = activeQuestions[nextIdx]
     setChoices(buildInitialChoices(nextQ))
     setQIndex(nextIdx)
@@ -1068,12 +1113,12 @@ export function QuizShell({
                   transition={{ duration: 1.1 }}
                   className="absolute -top-5 right-0 text-sm font-bold text-points-gold-700"
                 >
-                  +{pointsFlash}pts
+                  +{pointsFlash} pts
                 </motion.span>
               )}
             </AnimatePresence>
             <span className="text-xs text-muted">
-              · {totalPoints}pts
+              · {totalPoints} pts
             </span>
           </div>
         </div>
@@ -1115,6 +1160,8 @@ export function QuizShell({
           aria-hidden
         />
       </div>
+
+      <StudyBuddy buddyId={buddyId} mood={buddyMood} line={buddyLine} />
 
       <AnimatePresence mode="wait">
         <motion.div
