@@ -1213,7 +1213,16 @@ export function QuizShell({
               <MathText text={q.question_text} />
             </p>
             <QuestionListenButton
-              text={`${q.question_text}. Your choices are: ${choices.join(', ')}.`}
+              // distractors is always [] for multipart types (structured_answer,
+              // true_false_grid, ordered_list, source_analysis, explain_example),
+              // which collapses `choices` down to just q.correct_answer — reading
+              // that aloud as a "choice" would speak the answer key itself. Only
+              // read out real MCQ options.
+              text={
+                q.distractors.length > 0
+                  ? `${q.question_text}. Your choices are: ${choices.join(', ')}.`
+                  : q.question_text
+              }
             />
           </div>
 

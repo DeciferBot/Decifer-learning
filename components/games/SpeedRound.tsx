@@ -127,7 +127,7 @@ export function SpeedRound({ config, topicId }: { config: SpeedRoundConfig; topi
           <button
             onClick={() => {
               setIndex(0); setAnswerState('unanswered')
-              setTimeLeft(timeLimit); setResults([]); setDone(false)
+              setTimeLeft(timeLimit); setResults([]); setDone(false); setStreak(0)
             }}
             className="min-h-[48px] w-full rounded-xl border-2 border-maths px-6 py-3 font-heading font-bold text-maths transition-opacity hover:opacity-80"
           >

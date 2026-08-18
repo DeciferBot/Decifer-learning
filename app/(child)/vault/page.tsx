@@ -146,7 +146,6 @@ export default async function VaultPage() {
             <div>badges</div>
           </div>
         </div>
-
       </div>
 
       {/* ── Request section ──────────────────────────────────────────────── */}
