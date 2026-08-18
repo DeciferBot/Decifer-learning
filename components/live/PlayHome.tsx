@@ -195,8 +195,11 @@ function HostForm({
         </Field>
       )}
 
-      {/* Year group — shown for guests (logged-in users get theirs pre-set) */}
-      {!initialYearGroupId && (
+      {/* Year group — always shown and always changeable. A host playing with
+          a sibling at a different level needs to pick THEIR year, not be
+          locked into their own; it starts pre-set to the host's own year
+          group (or the first option for a guest) as a sensible default. */}
+      {yearGroupOptions.length > 1 && (
         <Field label="Year group">
           <div className="flex flex-wrap gap-2">
             {yearGroupOptions.map((yg) => (
