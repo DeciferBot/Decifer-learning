@@ -150,9 +150,6 @@ function MissionCard({ mission: m }: { mission: Mission }) {
             </p>
           )}
         </div>
-        <span className="flex-none rounded-full bg-black/5 px-2 py-0.5 text-xs font-bold text-muted">
-          {pct}%
-        </span>
       </div>
 
       {/* Progress bar */}

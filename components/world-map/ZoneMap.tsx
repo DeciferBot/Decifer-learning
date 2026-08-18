@@ -174,9 +174,6 @@ export function ZoneMap({ zoneId, zoneName, subjectName, theme, subjectColor, no
       <div className="px-5 pb-4 pt-3">
         <div className="mb-1 flex items-center justify-between">
           <p className="text-xs text-muted">{completedCount} / {nodes.length} topic{nodes.length !== 1 ? 's' : ''} complete</p>
-          <p className="text-xs font-bold text-ink-2">
-            {nodes.length > 0 ? Math.round((completedCount / nodes.length) * 100) : 0}%
-          </p>
         </div>
         <div
           className="h-2 overflow-hidden rounded-full bg-black/8"

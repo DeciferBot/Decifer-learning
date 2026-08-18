@@ -5,7 +5,7 @@ import { getCurrentProfile } from '@/lib/profile'
 import { prisma } from '@/lib/prisma'
 import { getVaultStatus } from '@/lib/vault/status'
 import { RequestSection } from './RequestSection'
-import { BookOpen, Trophy, Gift, Lightbulb, Dragon, Lock, Medal, Star, Gem } from '@/components/ui/icons'
+import { BookOpen, Trophy, Gift, Dragon, Lock, Medal, Star, Gem } from '@/components/ui/icons'
 
 export const metadata = { title: 'Reward Vault' }
 
@@ -97,7 +97,7 @@ export default async function VaultPage() {
               <BookOpen className="flex-none w-5 h-5 text-muted mt-0.5" aria-hidden />
               <div>
                 <p className="text-sm font-semibold text-ink">Learn and complete topics</p>
-                <p className="text-xs text-muted">Every quiz you pass earns you XP and gets you closer to a milestone.</p>
+                <p className="text-xs text-muted">Every quiz you pass earns points and gets you closer to a milestone.</p>
               </div>
             </li>
             <li className="flex items-start gap-3">
@@ -135,7 +135,7 @@ export default async function VaultPage() {
         <div className="grid grid-cols-3 gap-2 text-center text-xs text-muted">
           <div>
             <div className="font-heading text-base font-bold text-ink">{status.effectiveXP.toLocaleString()}</div>
-            <div>XP</div>
+            <div>points</div>
           </div>
           <div>
             <div className="font-heading text-base font-bold text-ink">{status.currentTopicsCompleted}</div>
@@ -147,17 +147,6 @@ export default async function VaultPage() {
           </div>
         </div>
 
-        {/* Hint penalty callout — only shown when there is a meaningful penalty */}
-        {status.hintPenaltyXP > 0 && (
-          <div className="flex items-start gap-2 rounded-xl bg-incorrect/10 px-3 py-2">
-            <Lightbulb className="flex-none w-4 h-4 text-incorrect" aria-hidden />
-            <p className="text-xs text-incorrect leading-snug">
-              <span className="font-semibold">−{status.hintPenaltyXP} XP hint penalty.</span>{' '}
-              You used {status.totalHintsUsed} hint{status.totalHintsUsed !== 1 ? 's' : ''} across your quizzes.
-              Try answering without hints to reach rewards faster!
-            </p>
-          </div>
-        )}
       </div>
 
       {/* ── Request section ──────────────────────────────────────────────── */}
@@ -177,15 +166,15 @@ export default async function VaultPage() {
           </div>
 
           <div className="space-y-3">
-            {/* XP — uses effective (hint-penalised) XP so the bar matches milestone gates */}
+            {/* Points — effectiveXP matches the milestone gates */}
             <div className="space-y-1">
               <div className="flex justify-between text-xs text-muted">
-                <span>XP</span>
+                <span>Points</span>
                 <span>{status.effectiveXP.toLocaleString()} / {next.xpRequired.toLocaleString()}</span>
               </div>
               <ProgressBar current={status.effectiveXP} total={next.xpRequired} />
               {progress.xpNeeded > 0 && (
-                <p className="text-xs text-muted">{progress.xpNeeded.toLocaleString()} XP to go</p>
+                <p className="text-xs text-muted">{progress.xpNeeded.toLocaleString()} points to go</p>
               )}
             </div>
 

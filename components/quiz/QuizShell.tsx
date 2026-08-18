@@ -124,7 +124,7 @@ export function QuizShell({
   topicTitle = 'this topic',
   submitUrl = '/api/quiz/submit',
   backHref = '/dashboard/child',
-  backLabel = 'Back to Home',
+  backLabel = 'Back',
   winMessage = 'Topic complete!',
   isGuardian = false,
   zoneName = '',
@@ -844,7 +844,7 @@ export function QuizShell({
                 </p>
               )}
               {typeof serverTotalPoints === 'number' && (
-                <p className="text-sm text-muted">Total: {serverTotalPoints.toLocaleString()} pts</p>
+                <p className="text-sm text-muted">Total: {serverTotalPoints.toLocaleString()} points</p>
               )}
               {typeof streakDays === 'number' && streakDays > 0 && (
                 <p className="text-sm text-muted flex items-center gap-1"><Flame className="w-3.5 h-3.5" aria-hidden /> {streakDays} day streak</p>
@@ -1019,7 +1019,7 @@ export function QuizShell({
             className="rounded-2xl bg-points-gold/20 px-5 py-3 text-center"
           >
             <p className="font-heading text-lg font-bold flex items-center justify-center gap-1.5 text-points-gold-700">
-              <Flame className="w-5 h-5" aria-hidden /> 3-in-a-row! Bonus +5 pts!
+              <Flame className="w-5 h-5" aria-hidden /> 3-in-a-row! Bonus +5 points!
             </p>
           </motion.div>
         )}
@@ -1350,7 +1350,7 @@ export function QuizShell({
                         : <span className="flex items-center gap-1">
                             {/* aria-hidden on the ✗ symbol; the text carries the meaning */}
                             <span aria-hidden>✗</span>
-                            <span>Incorrect. The answer is <strong><MathText text={q.correct_answer} /></strong></span>
+                            <span>Not quite. The answer is <strong><MathText text={q.correct_answer} /></strong></span>
                           </span>}
                     </p>
                   )}

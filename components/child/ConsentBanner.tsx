@@ -15,7 +15,7 @@ type Props = {
   userId: string
 }
 
-export function ConsentBanner({ state, daysLeft, hasParentEmail, userId }: Props) {
+export function ConsentBanner({ state, hasParentEmail, userId }: Props) {
   const [showEmailForm, setShowEmailForm] = useState(!hasParentEmail)
   const [parentEmail, setParentEmail] = useState('')
   const [busy, setBusy] = useState(false)
@@ -66,7 +66,7 @@ export function ConsentBanner({ state, daysLeft, hasParentEmail, userId }: Props
   const headline =
     state === 'gated'
       ? 'Quizzes are paused until a parent or guardian confirms your account.'
-      : `Ask your parent or guardian to check their email. Quizzes pause in ${daysLeft} day${daysLeft === 1 ? '' : 's'} if they don’t confirm.`
+      : 'Ask your parent or guardian to check their email. Once they confirm, quizzes stay unlocked.'
 
   return (
     <div

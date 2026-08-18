@@ -64,8 +64,7 @@ const APP_URL =
     : process.env.NEXT_PUBLIC_APP_URL ?? 'https://deciferlearning.com'
 
 function buildShareText(zoneName: string, score: number, total: number) {
-  const pct = Math.round((score / total) * 100)
-  return `I just defeated the ${zoneName} Guardian on Decifer Learning! 🏆 ${score}/${total} (${pct}%). Can you beat me? ${APP_URL}`
+  return `I just defeated the ${zoneName} Guardian on Decifer Learning! 🏆 ${score}/${total}. Can you beat me? ${APP_URL}`
 }
 
 async function shareOrCopy(text: string, onCopied: () => void) {
@@ -103,7 +102,6 @@ export function GuardianVictoryScreen({
   newBadges: EarnedBadge[]
   backHref?: string
 }) {
-  const pct = Math.round((score / total) * 100)
   const [phase, setPhase] = useState<'splash' | 'stats' | 'done'>('splash')
   const [showCard, setShowCard] = useState(false)
   const [badgeQueue, setBadgeQueue] = useState<EarnedBadge[]>(newBadges)
@@ -226,11 +224,11 @@ export function GuardianVictoryScreen({
               <h2 className="font-heading text-2xl font-extrabold text-white">Guardian Defeated!</h2>
               <p className="mt-1 font-semibold" style={{ color: '#FFD43B' }}>{zoneName}</p>
 
-              {/* Score ring */}
+              {/* Score ring — count, not a percentage (children never see marks) */}
               <div className="mx-auto mt-5 flex h-24 w-24 items-center justify-center rounded-full border-4" style={{ borderColor: '#FFC107', background: 'rgba(255,193,7,0.12)' }}>
                 <div>
-                  <p className="font-heading text-3xl font-extrabold text-white">{pct}%</p>
-                  <p className="text-xs font-medium" style={{ color: 'rgba(255,255,255,0.55)' }}>{score}/{total}</p>
+                  <p className="font-heading text-3xl font-extrabold text-white">{score}/{total}</p>
+                  <p className="text-xs font-medium" style={{ color: 'rgba(255,255,255,0.55)' }}>questions</p>
                 </div>
               </div>
             </div>
@@ -254,7 +252,7 @@ export function GuardianVictoryScreen({
                 ) : (
                   <>
                     <p className="text-2xl font-extrabold font-heading text-ink">{totalPoints.toLocaleString()}</p>
-                    <p className="mt-0.5 text-[11px] font-semibold text-muted">Total pts</p>
+                    <p className="mt-0.5 text-[11px] font-semibold text-muted">Total points</p>
                   </>
                 )}
               </div>

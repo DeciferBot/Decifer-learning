@@ -8,7 +8,8 @@ import { prisma } from '@/lib/prisma'
 // Mission types and their display config
 const MISSION_LABELS: Record<string, { title: (v: number, topic?: string) => string; iconName: string }> = {
   complete_topic:   { iconName: 'BookOpen', title: (v, t) => `Complete ${t ?? 'a topic'}` },
-  quiz_score:       { iconName: 'Target',   title: (v) => `Score ${v}% or higher on a quiz` },
+  // No percentages in child-facing copy — describe the target in plain words.
+  quiz_score:       { iconName: 'Target',   title: (v) => v >= 100 ? 'Get every question right in one quiz' : v >= 85 ? 'Get a super score on a quiz' : 'Pass a quiz' },
   streak_days:      { iconName: 'Flame',    title: (v) => `Keep a ${v}-day streak` },
   earn_points:      { iconName: 'Star',     title: (v) => `Earn ${v.toLocaleString()} points` },
   collect_cards:    { iconName: 'Layers',   title: (v) => `Collect ${v} Discovery Cards` },

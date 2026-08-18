@@ -284,7 +284,7 @@ export default async function ChildDashboardPage() {
           {points > 0 && (
             <span className="inline-flex items-center gap-1">
               <Star className="w-3.5 h-3.5 text-points-gold-700" aria-hidden />
-              {points.toLocaleString()} pts
+              {points.toLocaleString()} points
             </span>
           )}
           {collectionCount > 0 && (
@@ -458,8 +458,8 @@ export default async function ChildDashboardPage() {
       ) : topicRows.length === 0 ? (
         <EmptyState
           icon={<BookOpen className="w-10 h-10 text-muted" aria-hidden />}
-          heading="Your first topics are being prepared"
-          body="Topics appear here once they pass all quality checks. New content is added across all five subjects as it clears the pipeline."
+          heading="Your first topics are on their way"
+          body="New topics show up here when they are ready. Check back soon!"
           action={
             <Link
               href="/help/how-decifer-works"

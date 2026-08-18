@@ -19,6 +19,7 @@ export type FeedbackKind =
   | 'combo'
   | 'roundComplete'
   | 'cardReveal'
+  | 'tick'
 
 const SOUND_KEY = 'decifer:sound'
 
@@ -53,6 +54,11 @@ const CUES: Record<FeedbackKind, Note[]> = {
     { freq: 1047, at: 0.07, dur: 0.08, type: 'triangle' },
     { freq: 1319, at: 0.14, dur: 0.24, type: 'triangle' },
   ],
+  // A quiet countdown pulse for the last few seconds of a timed round. Kept
+  // deliberately soft — this marks urgency, it must not read as an alarm.
+  tick: [
+    { freq: 900, at: 0, dur: 0.045, type: 'square', gain: 0.06 },
+  ],
 }
 
 // Short taps only. A long buzz on a wrong answer would read as a punishment.
@@ -62,6 +68,7 @@ const HAPTICS: Record<FeedbackKind, number | number[]> = {
   combo: [10, 30, 10, 30, 18],
   roundComplete: [14, 40, 14],
   cardReveal: [10, 30, 24],
+  tick: 6,
 }
 
 let ctx: AudioContext | null = null

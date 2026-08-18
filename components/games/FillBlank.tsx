@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { Sparkles, Check } from '@/components/ui/icons'
+import { fireFeedback } from '@/lib/feedback'
 
 type Question = { display: string; answer: string }
 type Config = { title: string; instructions: string; questions: Question[] }
@@ -34,7 +35,11 @@ export function FillBlank({ config, topicId }: { config: Config; topicId: string
     if (!input.trim() || feedback !== null) return
     const correct = input.trim() === q.answer
     setFeedback(correct ? 'correct' : 'incorrect')
-    setTimeout(advance, correct ? 700 : 1800)
+    fireFeedback(correct ? 'correct' : 'incorrect')
+    // Wrong answers stay on screen well past reading time (3.5s) and never
+    // auto-advance: the child taps Next when ready, so they keep agency over
+    // a moment that used to be silently taken from them after 1.8s.
+    if (correct) setTimeout(advance, 700)
   }
 
   if (completed) {
@@ -45,7 +50,7 @@ export function FillBlank({ config, topicId }: { config: Config; topicId: string
         className="rounded-2xl border border-black/5 bg-surface p-8 text-center shadow-sm"
       >
         <div className="flex justify-center mb-3"><Sparkles className="w-12 h-12 text-maths" aria-hidden /></div>
-        <h2 className="font-heading text-2xl font-bold text-ink">Practice Complete!</h2>
+        <h2 className="font-heading text-2xl font-bold text-ink">Practice complete!</h2>
         <p className="mt-2 text-muted">You worked through all {total} questions.</p>
         <Link
           href={`/topics/${topicId}/quiz`}
@@ -120,13 +125,22 @@ export function FillBlank({ config, topicId }: { config: Config; topicId: string
                   : 'border-black/20 focus:border-maths',
               ].join(' ')}
             />
-            <button
-              onClick={check}
-              disabled={!input.trim() || feedback !== null}
-              className="min-h-[48px] min-w-[80px] rounded-xl bg-maths px-4 py-2 font-heading font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-40"
-            >
-              Check
-            </button>
+            {feedback === 'incorrect' ? (
+              <button
+                onClick={advance}
+                className="min-h-[48px] min-w-[80px] rounded-xl bg-maths px-4 py-2 font-heading font-bold text-white transition-opacity hover:opacity-90"
+              >
+                Next →
+              </button>
+            ) : (
+              <button
+                onClick={check}
+                disabled={!input.trim() || feedback !== null}
+                className="min-h-[48px] min-w-[80px] rounded-xl bg-maths px-4 py-2 font-heading font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-40"
+              >
+                Check
+              </button>
+            )}
           </div>
 
           {/* aria-live so screen readers announce the result without moving focus */}
@@ -145,7 +159,7 @@ export function FillBlank({ config, topicId }: { config: Config; topicId: string
                     ? <span className="flex items-center justify-center gap-1"><Check className="w-4 h-4" aria-hidden /> Correct!</span>
                     : <span>
                         <span aria-hidden>✗ </span>
-                        Incorrect. The answer is {q.answer}. Moving on…
+                        Not quite. The answer is {q.answer}.
                       </span>}
                 </motion.p>
               )}
