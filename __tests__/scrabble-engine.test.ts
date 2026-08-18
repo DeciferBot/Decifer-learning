@@ -92,12 +92,18 @@ describe('placement geometry', () => {
     if (!result.ok) expect(result.error).toBe('not_connected')
   })
 
-  it('accepts a second move that extends an existing word in-line', () => {
-    const board = boardWithCat() // CAT at row 7, cols 6-8
-    // Extend to CATS by adding S at (7,9) — connects via being adjacent/in-line.
+  it('accepts a second move that extends an existing word in-line, and does not re-double the already-used centre premium', () => {
+    const board = boardWithCat() // CAT at row 7, cols 6-8 — its first move already spent the centre's DW bonus
+    // Extend to CATS by adding S at (7,9), a plain square — connects via being adjacent/in-line.
     const result = place(board, ['S'], [], [{ row: CENTER, col: 9, letter: 'S' }])
     expect(result.ok).toBe(true)
-    if (result.ok) expect(result.wordsFormed).toEqual(['CATS'])
+    if (result.ok) {
+      expect(result.wordsFormed).toEqual(['CATS'])
+      // C(3) + A(1) + T(1) — all already-placed, no bonus — + S(1, new, plain square) = 6.
+      // If the centre's double-word premium were wrongly reapplied here (because
+      // an "already placed" tile's premium wasn't excluded), this would be 12.
+      expect(result.scoreGained).toBe(6)
+    }
   })
 })
 

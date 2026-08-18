@@ -18,6 +18,17 @@ import {
 // players on success; the word-tile branch additionally returns the
 // mover's own updated rack directly in the response (never broadcast,
 // never visible to the opponent).
+//
+// The read (findUnique) and write (update) below are two separate
+// round-trips, so two requests from the same mover — a double-tap, or a
+// mobile network retry — could both read the same pre-move `turn` value
+// and both pass validation before either write lands; the second write
+// would then silently clobber the first move. The update is guarded with
+// `where: { turn: <the turn value just read> }` (via updateMany, since a
+// conditional `update` throws instead of reporting a miss) so a losing
+// request's write matches zero rows instead of overwriting a move that
+// already landed; the caller gets 'conflict' and can retry against the
+// now-current state.
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
   let body: { move?: unknown }
@@ -55,8 +66,8 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     )
     if (!turnResult.ok) return NextResponse.json({ error: turnResult.error }, { status: 422 })
 
-    const updated = await prisma.boardGame.update({
-      where: { id: game.id },
+    const { count } = await prisma.boardGame.updateMany({
+      where: { id: game.id, turn: game.turn, status: 'active' },
       data: {
         state: turnResult.publicState as unknown as Prisma.InputJsonValue,
         private_host_state: turnResult.hostPrivate as unknown as Prisma.InputJsonValue,
@@ -66,6 +77,11 @@ export async function POST(req: Request, { params }: { params: { id: string } })
         winner: turnResult.winner,
         finished_at: turnResult.winner ? new Date() : undefined,
       },
+    })
+    if (count === 0) return NextResponse.json({ error: 'conflict' }, { status: 409 })
+
+    const updated = await prisma.boardGame.findUniqueOrThrow({
+      where: { id: game.id },
       select: {
         id: true, game_type: true, status: true, state: true, turn: true, winner: true,
         host_display_name: true, guest_display_name: true, updated_at: true,
@@ -88,8 +104,8 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   )
   if (!result.ok) return NextResponse.json({ error: result.error }, { status: 422 })
 
-  const updated = await prisma.boardGame.update({
-    where: { id: game.id },
+  const { count } = await prisma.boardGame.updateMany({
+    where: { id: game.id, turn: game.turn, status: 'active' },
     data: {
       state: result.state as Prisma.InputJsonValue,
       turn: result.turn,
@@ -97,6 +113,11 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       winner: result.winner,
       finished_at: result.winner ? new Date() : undefined,
     },
+  })
+  if (count === 0) return NextResponse.json({ error: 'conflict' }, { status: 409 })
+
+  const updated = await prisma.boardGame.findUniqueOrThrow({
+    where: { id: game.id },
     select: {
       id: true, game_type: true, status: true, state: true, turn: true, winner: true,
       host_display_name: true, guest_display_name: true, updated_at: true,

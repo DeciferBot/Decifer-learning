@@ -26,4 +26,18 @@ describe('isValidWord', () => {
     const samples = ['APPLE', 'BANANA', 'GALAXY', 'OCTOPUS', 'ZEBRA', 'YELLOW', 'JUNGLE']
     for (const w of samples) expect(isValidWord(w)).toBe(true)
   })
+
+  it('excludes profanity and slurs from playable words, case-insensitively — this is a children\'s product', () => {
+    for (const w of ['fuck', 'SHIT', 'Bitch', 'cunt', 'nigger', 'bastard', 'damn', 'hell', 'ass']) {
+      expect(isValidWord(w)).toBe(false)
+    }
+  })
+
+  it('does not over-block real words that merely contain an excluded substring', () => {
+    // The exclusion list is exact-match only (unlike nickname.ts's fuzzy
+    // matcher) — "assassin" must stay playable even though "ass" is excluded.
+    for (const w of ['ASSASSIN', 'CLASSIC', 'HELLO', 'GRASS', 'THERAPIST']) {
+      expect(isValidWord(w)).toBe(true)
+    }
+  })
 })

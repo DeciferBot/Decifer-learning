@@ -64,6 +64,10 @@ function WordTilesOnlineGame({ gameId, backHref, onExit }: { gameId: string; bac
   const [blankPromptFor, setBlankPromptFor] = useState<Coord | null>(null)
   const [exchangeMode, setExchangeMode] = useState(false)
   const [exchangeSelection, setExchangeSelection] = useState<Set<number>>(new Set())
+  // Guards Play word / Pass / Swap against a double-tap firing two in-flight
+  // requests — the server independently rejects a losing race as a
+  // 'conflict' (see the move route), this just makes it rare in practice.
+  const [submitting, setSubmitting] = useState(false)
 
   if (!ready) return <CenteredMessage backHref={backHref} text="Loading…" />
   if (notFound) return <CenteredMessage backHref={backHref} text="That game couldn't be found." />
@@ -130,11 +134,13 @@ function WordTilesOnlineGame({ gameId, backHref, onExit }: { gameId: string; bac
   }
 
   async function submitPlacement() {
-    if (pending.length === 0) return
+    if (pending.length === 0 || submitting) return
+    setSubmitting(true)
     const ok = await sendMove({
       type: 'place',
       tiles: pending.map((p) => ({ row: p.row, col: p.col, letter: p.letter, isBlank: p.isBlank })),
     })
+    setSubmitting(false)
     if (ok) {
       setPending([])
       fireFeedback('roundComplete')
@@ -144,14 +150,19 @@ function WordTilesOnlineGame({ gameId, backHref, onExit }: { gameId: string; bac
   }
 
   async function submitPass() {
+    if (submitting) return
+    setSubmitting(true)
     const ok = await sendMove({ type: 'pass' })
+    setSubmitting(false)
     if (ok) setPending([])
   }
 
   async function submitExchange() {
-    if (!rack || exchangeSelection.size === 0) return
+    if (!rack || exchangeSelection.size === 0 || submitting) return
+    setSubmitting(true)
     const tiles = [...exchangeSelection].map((i) => rack[i])
     const ok = await sendMove({ type: 'exchange', tiles })
+    setSubmitting(false)
     if (ok) {
       setExchangeMode(false)
       setExchangeSelection(new Set())
@@ -243,28 +254,28 @@ function WordTilesOnlineGame({ gameId, backHref, onExit }: { gameId: string; bac
         <div className="flex gap-2">
           <button
             onClick={submitPlacement}
-            disabled={pending.length === 0}
+            disabled={pending.length === 0 || submitting}
             className="flex-1 rounded-xl bg-maths px-4 py-2.5 text-sm font-heading font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-40"
           >
             Play word
           </button>
           <button
             onClick={() => setPending([])}
-            disabled={pending.length === 0}
+            disabled={pending.length === 0 || submitting}
             className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl border-2 border-black/10 px-3 text-sm font-semibold text-ink-2 disabled:opacity-40"
           >
             <ClearIcon className="h-4 w-4" aria-hidden /> Clear
           </button>
           <button
             onClick={() => setExchangeMode(true)}
-            disabled={pending.length > 0}
+            disabled={pending.length > 0 || submitting}
             className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl border-2 border-black/10 px-3 text-sm font-semibold text-ink-2 disabled:opacity-40"
           >
             <RefreshCw className="h-4 w-4" aria-hidden /> Swap
           </button>
           <button
             onClick={submitPass}
-            disabled={pending.length > 0}
+            disabled={pending.length > 0 || submitting}
             className="inline-flex min-h-[44px] items-center rounded-xl border-2 border-black/10 px-3 text-sm font-semibold text-ink-2 disabled:opacity-40"
           >
             Pass
@@ -276,14 +287,15 @@ function WordTilesOnlineGame({ gameId, backHref, onExit }: { gameId: string; bac
         <div className="flex gap-2">
           <button
             onClick={submitExchange}
-            disabled={exchangeSelection.size === 0}
+            disabled={exchangeSelection.size === 0 || submitting}
             className="flex-1 rounded-xl bg-maths px-4 py-2.5 text-sm font-heading font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-40"
           >
             Swap {exchangeSelection.size || ''} tile{exchangeSelection.size === 1 ? '' : 's'}
           </button>
           <button
             onClick={() => { setExchangeMode(false); setExchangeSelection(new Set()) }}
-            className="inline-flex min-h-[44px] items-center rounded-xl border-2 border-black/10 px-3 text-sm font-semibold text-ink-2"
+            disabled={submitting}
+            className="inline-flex min-h-[44px] items-center rounded-xl border-2 border-black/10 px-3 text-sm font-semibold text-ink-2 disabled:opacity-40"
           >
             Cancel
           </button>
