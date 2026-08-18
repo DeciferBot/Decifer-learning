@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Link2, RefreshCw } from '@/components/ui/icons'
 
-type GameType = 'chess' | 'checkers' | 'connect4'
+type GameType = 'chess' | 'checkers' | 'connect4' | 'scrabble'
 
 const ERROR_COPY: Record<string, string> = {
   need_nickname: 'Pick a name first.',

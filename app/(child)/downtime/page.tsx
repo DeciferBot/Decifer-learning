@@ -34,6 +34,12 @@ const GAMES = [
     name: 'Crossword',
     blurb: 'Pick a theme and fill in a fresh puzzle every time.',
   },
+  {
+    href: '/downtime/word-tiles',
+    emoji: '🔤',
+    name: 'Word Tiles',
+    blurb: 'Build words on a shared board with a friend — most points wins.',
+  },
 ]
 
 export default function DowntimePage() {

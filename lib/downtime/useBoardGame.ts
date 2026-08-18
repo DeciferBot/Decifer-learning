@@ -33,6 +33,12 @@ export function useBoardGame(gameId: string) {
   const [game, setGame] = useState<BoardGameState | null>(null)
   const [side, setSide] = useState<BoardSide>(null)
   const [inviteCode, setInviteCode] = useState<string | null>(null)
+  // The word-tile game's private rack — absent (stays null) for every other
+  // game type. Populated from GET on first load and kept in sync from each
+  // move response, so the mover sees their own new rack immediately without
+  // waiting on a second round-trip (the Realtime broadcast never carries it —
+  // it's private, see lib/downtime/broadcast.ts).
+  const [rack, setRack] = useState<string[] | null>(null)
   const [ready, setReady] = useState(false)
   const [notFound, setNotFound] = useState(false)
   const [moveError, setMoveError] = useState<string | null>(null)
@@ -49,6 +55,7 @@ export function useBoardGame(gameId: string) {
       setSide(data.side ?? null)
       if (data.game) setGame(data.game)
       if (data.inviteCode) setInviteCode(data.inviteCode)
+      if (Array.isArray(data.rack)) setRack(data.rack)
     } finally {
       setReady(true)
     }
@@ -89,6 +96,7 @@ export function useBoardGame(gameId: string) {
         return false
       }
       setGame(data.game)
+      if (Array.isArray(data.rack)) setRack(data.rack)
       return true
     } catch {
       setMoveError('network_error')
@@ -96,5 +104,5 @@ export function useBoardGame(gameId: string) {
     }
   }, [gameId])
 
-  return { game, side, inviteCode, ready, notFound, moveError, sendMove }
+  return { game, side, inviteCode, rack, ready, notFound, moveError, sendMove }
 }
