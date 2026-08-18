@@ -7,8 +7,11 @@ import { fireFeedback } from '@/lib/feedback'
 import { WinBurst } from '@/components/quiz/WinBurst'
 import {
   createInitialBoard, legalMoves, applyMove, determineOutcome, pickComputerMove,
-  type Board, type CheckersDifficulty,
+  type Board, type CheckersColor, type CheckersDifficulty, type Move,
 } from '@/lib/games/checkers-ai'
+import { useBoardGame } from '@/lib/downtime/useBoardGame'
+import { OnlineLobby } from '@/components/games/OnlineLobby'
+import { WaitingRoom, TurnBanner, PlayAFriendDivider } from '@/components/games/OnlineBoardStatus'
 import { ChevronLeft, RefreshCw, Trophy, Crown } from '@/components/ui/icons'
 
 const DIFFICULTIES: { id: CheckersDifficulty; label: string; blurb: string }[] = [
@@ -19,12 +22,18 @@ const DIFFICULTIES: { id: CheckersDifficulty; label: string; blurb: string }[] =
 
 type Coord = [number, number]
 type EndState = 'win' | 'loss' | null
+type Screen = 'difficulty' | 'online-lobby'
 
-/** Checkers against the computer. The child always plays Red and moves
- *  first, from the bottom of the board upward. Captures are mandatory, per
- *  standard American rules — see lib/games/checkers-ai.ts. */
+/** Checkers — against the computer, or against a friend via invite code.
+ *  The host/child always plays Red and moves first, from the bottom of the
+ *  board upward. Captures are mandatory, per standard American rules — see
+ *  lib/games/checkers-ai.ts. Computer mode is the default landing screen;
+ *  "play a friend" is a secondary option. */
 export function CheckersGame({ backHref = '/downtime' }: { backHref?: string }) {
+  const [screen, setScreen] = useState<Screen>('difficulty')
   const [difficulty, setDifficulty] = useState<CheckersDifficulty | null>(null)
+  const [onlineGameId, setOnlineGameId] = useState<string | null>(null)
+
   const [board, setBoard] = useState<Board>(() => createInitialBoard())
   const [selected, setSelected] = useState<Coord | null>(null)
   const [thinking, setThinking] = useState(false)
@@ -38,7 +47,7 @@ export function CheckersGame({ backHref = '/downtime' }: { backHref?: string }) 
     ? redMoves.filter((m) => m.from[0] === selected[0] && m.from[1] === selected[1])
     : []
 
-  const finishIfOver = useCallback((b: Board, mover: 'red' | 'black') => {
+  const finishIfOver = useCallback((b: Board, mover: CheckersColor) => {
     const winner = determineOutcome(b, mover)
     if (winner) {
       setEnd(winner === 'red' ? 'win' : 'loss')
@@ -50,8 +59,6 @@ export function CheckersGame({ backHref = '/downtime' }: { backHref?: string }) 
 
   const playComputerMove = useCallback((currentBoard: Board) => {
     setThinking(true)
-    // A short delay both reads as "thinking" and gives React a chance to
-    // paint that state first, since the search below runs synchronously.
     setTimeout(() => {
       const move = pickComputerMove(currentBoard, 'black', difficulty ?? 'medium')
       if (move) {
@@ -80,7 +87,6 @@ export function CheckersGame({ backHref = '/downtime' }: { backHref?: string }) 
         if (!over) playComputerMove(next)
         return
       }
-      // Tapping a different one of your own movable pieces re-selects.
       if (movableFrom.has(`${r},${c}`)) {
         setSelected([r, c])
         return
@@ -99,6 +105,26 @@ export function CheckersGame({ backHref = '/downtime' }: { backHref?: string }) 
     setLastMove(null)
   }
 
+  function exitToMenu() {
+    setScreen('difficulty')
+    setDifficulty(null)
+    setOnlineGameId(null)
+    restart()
+  }
+
+  if (onlineGameId) {
+    return <CheckersOnlineGame gameId={onlineGameId} backHref={backHref} onExit={exitToMenu} />
+  }
+
+  if (screen === 'online-lobby') {
+    return (
+      <div className="mx-auto max-w-sm space-y-4">
+        <BackLink href={backHref} />
+        <OnlineLobby gameType="checkers" onReady={setOnlineGameId} onBack={() => setScreen('difficulty')} />
+      </div>
+    )
+  }
+
   if (!difficulty) {
     return (
       <div className="mx-auto max-w-sm space-y-4">
@@ -106,7 +132,7 @@ export function CheckersGame({ backHref = '/downtime' }: { backHref?: string }) 
         <div className="rounded-2xl border border-black/5 bg-surface p-6 text-center shadow-sm">
           <p className="mb-4 text-5xl" aria-hidden>⚫🔴</p>
           <h1 className="font-heading text-2xl font-bold text-ink">Checkers</h1>
-          <p className="mt-1 mb-5 text-sm text-muted">Pick who you&apos;re playing against</p>
+          <p className="mt-1 mb-5 text-sm text-muted">Pick a difficulty</p>
           <div className="space-y-2">
             {DIFFICULTIES.map((d) => (
               <button
@@ -119,6 +145,7 @@ export function CheckersGame({ backHref = '/downtime' }: { backHref?: string }) 
               </button>
             ))}
           </div>
+          <PlayAFriendDivider onClick={() => setScreen('online-lobby')} />
         </div>
       </div>
     )
@@ -167,59 +194,7 @@ export function CheckersGame({ backHref = '/downtime' }: { backHref?: string }) 
         </span>
       </div>
 
-      <div
-        className="grid aspect-square w-full grid-cols-8 overflow-hidden rounded-2xl border border-black/10 shadow-sm"
-        role="group"
-        aria-label="Checkers board"
-      >
-        {Array.from({ length: 8 }, (_, rowFromTop) => {
-          const row = 7 - rowFromTop
-          return Array.from({ length: 8 }, (_, col) => {
-            const piece = board[row][col]
-            const dark = (row + col) % 2 === 1
-            const isSelected = selected && selected[0] === row && selected[1] === col
-            const isTarget = targets.some((m) => m.to[0] === row && m.to[1] === col)
-            const isLastMove = lastMove
-              && ((lastMove.from[0] === row && lastMove.from[1] === col)
-                || (lastMove.to[0] === row && lastMove.to[1] === col))
-            const canTap = dark && (isTarget || movableFrom.has(`${row},${col}`))
-            return (
-              <button
-                key={`${row}-${col}`}
-                onClick={() => tapSquare(row, col)}
-                disabled={!!end || !canTap}
-                aria-label={
-                  piece ? `${row + 1},${col + 1}, ${piece.color}${piece.king ? ' king' : ''}` : `${row + 1},${col + 1}`
-                }
-                className="relative flex aspect-square items-center justify-center transition-colors disabled:cursor-default"
-                style={{
-                  backgroundColor: !dark
-                    ? '#F5EBDD'
-                    : isSelected
-                      ? 'rgba(108,158,255,0.55)'
-                      : isLastMove
-                        ? 'rgba(255,193,7,0.35)'
-                        : '#8B5E3C',
-                }}
-              >
-                {piece && (
-                  <span
-                    className="relative flex h-[72%] w-[72%] items-center justify-center rounded-full shadow-[0_2px_3px_rgba(0,0,0,0.35)]"
-                    style={{ backgroundColor: piece.color === 'red' ? '#FF6B6B' : '#2D3748' }}
-                  >
-                    {piece.king && (
-                      <Crown className="h-[55%] w-[55%] text-points-gold" aria-hidden />
-                    )}
-                  </span>
-                )}
-                {isTarget && !piece && (
-                  <span className="absolute h-[26%] w-[26%] rounded-full bg-maths/60" aria-hidden />
-                )}
-              </button>
-            )
-          })
-        })}
-      </div>
+      <CheckersGrid board={board} targets={targets} movableFrom={movableFrom} selected={selected} lastMove={lastMove} onTap={tapSquare} disabled={!!end} />
 
       <AnimatePresence>
         {end && (
@@ -257,10 +232,195 @@ export function CheckersGame({ backHref = '/downtime' }: { backHref?: string }) 
   )
 }
 
-function BackLink({ href }: { href: string }) {
+/** The 8x8 board, shared between computer and online modes — only the data
+ *  source and tap handler differ. */
+function CheckersGrid({
+  board, targets, movableFrom, selected, lastMove, onTap, disabled,
+}: {
+  board: Board
+  targets: Move[]
+  movableFrom: Set<string>
+  selected: Coord | null
+  lastMove: { from: Coord; to: Coord } | null
+  onTap: (r: number, c: number) => void
+  disabled: boolean
+}) {
+  return (
+    <div
+      className="grid aspect-square w-full grid-cols-8 overflow-hidden rounded-2xl border border-black/10 shadow-sm"
+      role="group"
+      aria-label="Checkers board"
+    >
+      {Array.from({ length: 8 }, (_, rowFromTop) => {
+        const row = 7 - rowFromTop
+        return Array.from({ length: 8 }, (_, col) => {
+          const piece = board[row][col]
+          const dark = (row + col) % 2 === 1
+          const isSelected = selected && selected[0] === row && selected[1] === col
+          const isTarget = targets.some((m) => m.to[0] === row && m.to[1] === col)
+          const isLastMove = lastMove
+            && ((lastMove.from[0] === row && lastMove.from[1] === col)
+              || (lastMove.to[0] === row && lastMove.to[1] === col))
+          const canTap = dark && (isTarget || movableFrom.has(`${row},${col}`))
+          return (
+            <button
+              key={`${row}-${col}`}
+              onClick={() => onTap(row, col)}
+              disabled={disabled || !canTap}
+              aria-label={
+                piece ? `${row + 1},${col + 1}, ${piece.color}${piece.king ? ' king' : ''}` : `${row + 1},${col + 1}`
+              }
+              className="relative flex aspect-square items-center justify-center transition-colors disabled:cursor-default"
+              style={{
+                backgroundColor: !dark
+                  ? '#F5EBDD'
+                  : isSelected
+                    ? 'rgba(108,158,255,0.55)'
+                    : isLastMove
+                      ? 'rgba(255,193,7,0.35)'
+                      : '#8B5E3C',
+              }}
+            >
+              {piece && (
+                <span
+                  className="relative flex h-[72%] w-[72%] items-center justify-center rounded-full shadow-[0_2px_3px_rgba(0,0,0,0.35)]"
+                  style={{ backgroundColor: piece.color === 'red' ? '#FF6B6B' : '#2D3748' }}
+                >
+                  {piece.king && (
+                    <Crown className="h-[55%] w-[55%] text-points-gold" aria-hidden />
+                  )}
+                </span>
+              )}
+              {isTarget && !piece && (
+                <span className="absolute h-[26%] w-[26%] rounded-full bg-maths/60" aria-hidden />
+              )}
+            </button>
+          )
+        })
+      })}
+    </div>
+  )
+}
+
+/** Online mode: board comes from useBoardGame, moves go through sendMove.
+ *  Legal-move highlighting is still computed locally (checkers-ai.ts is
+ *  pure and safe to call client-side) — the server independently
+ *  re-validates every move regardless, this is purely for the UI. */
+function CheckersOnlineGame({
+  gameId, backHref, onExit,
+}: {
+  gameId: string
+  backHref: string
+  onExit: () => void
+}) {
+  const { game, side, inviteCode, ready, notFound, sendMove } = useBoardGame(gameId)
+  const [selected, setSelected] = useState<Coord | null>(null)
+
+  if (!ready) return <CenteredMessage backHref={backHref} text="Loading…" />
+  if (notFound) return <CenteredMessage backHref={backHref} text="That game couldn't be found." />
+  if (!side || !game) return <CenteredMessage backHref={backHref} text="This game isn't yours." />
+
+  if (game.status === 'waiting') {
+    return (
+      <div className="mx-auto max-w-sm space-y-4">
+        <BackLink href={backHref} onClick={onExit} />
+        <WaitingRoom inviteCode={inviteCode} onCancel={onExit} />
+      </div>
+    )
+  }
+
+  const boardState = game.state as { board: Board }
+  const board = boardState.board
+  const myColor: CheckersColor = side === 'host' ? 'red' : 'black'
+  const myTurn = game.status === 'active' && game.turn === side
+  const myMoves = myTurn ? legalMoves(board, myColor) : []
+  const movableFrom = new Set(myMoves.map((m) => m.from.join(',')))
+  const targets = selected
+    ? myMoves.filter((m) => m.from[0] === selected[0] && m.from[1] === selected[1])
+    : []
+  const won = game.winner
+  const iWon = won === side
+
+  function handleTap(r: number, c: number) {
+    if (!myTurn) return
+    if (selected) {
+      const move = targets.find((m) => m.to[0] === r && m.to[1] === c)
+      if (move) {
+        fireFeedback('correct')
+        setSelected(null)
+        sendMove({ from: move.from, to: move.to })
+        return
+      }
+      if (movableFrom.has(`${r},${c}`)) {
+        setSelected([r, c])
+        return
+      }
+      setSelected(null)
+      return
+    }
+    if (movableFrom.has(`${r},${c}`)) setSelected([r, c])
+  }
+
+  return (
+    <div className="mx-auto max-w-sm space-y-4">
+      <BackLink href={backHref} onClick={onExit} />
+
+      <div className="flex items-center justify-between px-1 text-sm">
+        <span className="inline-flex items-center gap-1.5 font-semibold text-ink">
+          <span className="h-3.5 w-3.5 rounded-full bg-[#FF6B6B]" aria-hidden /> {side === 'host' ? 'You' : game.host_display_name}
+        </span>
+        <span className="inline-flex items-center gap-1.5 font-semibold text-muted">
+          {side === 'guest' ? 'You' : (game.guest_display_name ?? 'Friend')} <span className="h-3.5 w-3.5 rounded-full bg-[#2D3748]" aria-hidden />
+        </span>
+      </div>
+
+      <TurnBanner game={game} side={side} />
+
+      <CheckersGrid board={board} targets={targets} movableFrom={movableFrom} selected={selected} lastMove={null} onTap={handleTap} disabled={!myTurn || !!won} />
+
+      <AnimatePresence>
+        {won && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="relative overflow-hidden rounded-2xl border border-black/5 bg-surface p-6 text-center shadow-sm"
+          >
+            {iWon && <WinBurst />}
+            <div className="mb-2 flex justify-center">
+              {iWon ? (
+                <Trophy className="h-10 w-10 text-points-gold" aria-hidden />
+              ) : (
+                <span className="text-4xl" aria-hidden>⚫</span>
+              )}
+            </div>
+            <h2 className="font-heading text-xl font-bold text-ink">{iWon ? 'You won!' : 'Good game!'}</h2>
+            <button
+              onClick={onExit}
+              className="mt-4 inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl bg-maths px-6 font-heading font-bold text-white transition-opacity hover:opacity-90"
+            >
+              Back to Downtime
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
+function CenteredMessage({ backHref, text }: { backHref: string; text: string }) {
+  return (
+    <div className="mx-auto max-w-sm space-y-4">
+      <BackLink href={backHref} />
+      <p className="rounded-2xl border border-black/5 bg-surface p-6 text-center text-sm text-muted shadow-sm">{text}</p>
+    </div>
+  )
+}
+
+function BackLink({ href, onClick }: { href: string; onClick?: () => void }) {
   return (
     <Link
       href={href}
+      onClick={onClick}
       className="inline-flex min-h-[44px] items-center gap-1 rounded-xl px-2 text-sm font-semibold text-ink-2 transition-colors hover:bg-black/5"
     >
       <ChevronLeft className="h-4 w-4" aria-hidden /> Downtime

@@ -32,6 +32,7 @@ export type BoardSide = 'host' | 'guest' | null
 export function useBoardGame(gameId: string) {
   const [game, setGame] = useState<BoardGameState | null>(null)
   const [side, setSide] = useState<BoardSide>(null)
+  const [inviteCode, setInviteCode] = useState<string | null>(null)
   const [ready, setReady] = useState(false)
   const [notFound, setNotFound] = useState(false)
   const [moveError, setMoveError] = useState<string | null>(null)
@@ -47,6 +48,7 @@ export function useBoardGame(gameId: string) {
       const data = await res.json()
       setSide(data.side ?? null)
       if (data.game) setGame(data.game)
+      if (data.inviteCode) setInviteCode(data.inviteCode)
     } finally {
       setReady(true)
     }
@@ -94,5 +96,5 @@ export function useBoardGame(gameId: string) {
     }
   }, [gameId])
 
-  return { game, side, ready, notFound, moveError, sendMove }
+  return { game, side, inviteCode, ready, notFound, moveError, sendMove }
 }
