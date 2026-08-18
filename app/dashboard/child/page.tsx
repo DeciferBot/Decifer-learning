@@ -30,7 +30,7 @@ import { getVaultStatus } from '@/lib/vault/status'
 import { NewParentLinkNotice } from './NewParentLinkNotice'
 import { DailyGoalRing, StreakReminderPrompt } from '@/components/child/DailyGoalRing'
 import { displayedStreak } from '@/lib/streak'
-import { Layers, Star, Target, Trophy, PencilLine, BookOpen, Gift, Flame, MapPin, RefreshCw, Shield } from '@/components/ui/icons'
+import { Layers, Star, Target, Trophy, PencilLine, BookOpen, Gift, Flame, MapPin, RefreshCw, Shield, Gamepad } from '@/components/ui/icons'
 
 export const metadata = { title: 'Home' }
 
@@ -384,11 +384,12 @@ export default async function ChildDashboardPage() {
       </Link>
 
       {/* ── Everything else, in one row ─────────────────────────────────── */}
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-4 gap-2">
         {[
           { href: '/missions',    label: 'Missions',  Icon: Target },
           { href: '/leaderboard', label: 'Family',    Icon: Trophy },
           { href: '/customise',   label: 'Customise', Icon: PencilLine },
+          { href: '/downtime',    label: 'Downtime',  Icon: Gamepad },
         ].map(({ href, label, Icon }) => (
           <Link
             key={href}
