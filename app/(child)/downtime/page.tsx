@@ -5,9 +5,10 @@ export const metadata = { title: 'Downtime' }
 
 // A small, deliberately separate catalogue of just-for-fun games — no
 // points, no curriculum content, nothing to pass or fail. For when a child
-// opens the app and doesn't want to study right now. Single-player against
-// the computer today; each game's own page also offers this — invite-code
-// play with a friend is the natural next step, not yet built.
+// opens the app and doesn't want to study right now. Chess, Checkers and
+// Connect 4 default to single-player against the computer, with "play a
+// friend" (invite code) as a one-tap secondary option. Crossword is solo —
+// a fresh puzzle every time via lib/games/crossword-generator.ts.
 const GAMES = [
   {
     href: '/downtime/chess',
@@ -26,6 +27,12 @@ const GAMES = [
     emoji: '⚫',
     name: 'Checkers',
     blurb: 'Jump your way across the board and crown some kings.',
+  },
+  {
+    href: '/downtime/crossword',
+    emoji: '📝',
+    name: 'Crossword',
+    blurb: 'Pick a theme and fill in a fresh puzzle every time.',
   },
 ]
 
