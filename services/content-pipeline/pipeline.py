@@ -151,6 +151,36 @@ _YEAR_GROUP_DISPLAY = {
     for year, key_stage in config.YEAR_KEY_STAGE.items()
 }
 
+# Concrete, numeric language guidance per year group, replacing the one bare
+# word each prompt carried before ("appropriate"). The sentence-length
+# numbers here match verifiers/readability.py's _READABILITY_BY_YEAR exactly
+# — this is instruction, that is the gate; a prompt telling the model one
+# ceiling and a gate enforcing a different one would just teach it to write
+# right up against a wall it can't see. See docs/research/
+# WRITING_FOR_CHILDREN_STANDARDS_2026-08.md §6 for the source table (the
+# gate's own docstring explains why these are looser than that table's
+# "ideal" figures — calibrated against real accepted content, not theory).
+_LANGUAGE_GUIDANCE = {
+    "year-1": "Short, simple sentences (aim for well under 14 words each). Everyday, concrete words a 5-6 year old reading independently would already know.",
+    "year-2": "Short, simple sentences (aim for well under 14 words each). Everyday, concrete words a 6-7 year old reading independently would already know.",
+    "year-3": "Simple, direct sentences (aim for well under 16 words each). Plain words; introduce a new technical term only if it is the exact thing being taught.",
+    "year-4": "Simple, direct sentences (aim for well under 16 words each). Plain words; introduce a new technical term only if it is the exact thing being taught.",
+    "year-5": "Clear sentences (aim for well under 20 words each). Common words; define any subject-specific term the first time it appears.",
+    "year-6": "Clear sentences (aim for well under 20 words each). Common words; define any subject-specific term the first time it appears.",
+    "year-7": "Everyday teenage register (aim for well under 24 words per sentence). Never write down to the reader.",
+    "year-8": "Everyday teenage register (aim for well under 24 words per sentence). Never write down to the reader.",
+    "year-9": "Everyday teenage register (aim for well under 24 words per sentence). Never write down to the reader.",
+    "year-10": "Plain English plus correct GCSE subject terminology. Keep sentences readable — avoid long, multi-clause run-ons.",
+    "year-11": "Plain English plus correct GCSE subject terminology. Keep sentences readable — avoid long, multi-clause run-ons.",
+}
+
+
+def _language_guidance(topic: dict) -> str:
+    return _LANGUAGE_GUIDANCE.get(
+        topic["year_group_label"],
+        "Clear, age-appropriate sentences with no unnecessarily long or complex wording.",
+    )
+
 # ── Subject-aware prompt builders ─────────────────────────────────────────
 
 def _build_maths_prompt(
@@ -162,6 +192,7 @@ def _build_maths_prompt(
     year_label, key_stage = _YEAR_GROUP_DISPLAY.get(
         topic["year_group_label"], (topic["year_group_label"], "")
     )
+    language_guidance = _language_guidance(topic)
     tier_desc = _TIER_DESCRIPTIONS.get(tier, tier)
 
     if chunks:
@@ -375,6 +406,7 @@ OAK SOURCE USAGE — read the sources above carefully before writing anything:
 • If any source line starts with "Learning point:", prioritise those points over general topic knowledge.
 
 QUESTION: Clear, unambiguous, appropriate for {year_label}. One correct answer.
+LANGUAGE: {language_guidance}
 
 DISTRACTORS: Exactly 3 wrong answers. Prioritise real misconceptions from the source material above (lines starting "Common misconception:") — these are far more valuable than invented wrong answers.
 
@@ -467,6 +499,7 @@ def _build_english_prompt(
     year_label, key_stage = _YEAR_GROUP_DISPLAY.get(
         topic["year_group_label"], (topic["year_group_label"], "")
     )
+    language_guidance = _language_guidance(topic)
     tier_desc = _TIER_DESCRIPTIONS.get(tier, tier)
 
     if chunks:
@@ -553,6 +586,7 @@ OAK SOURCE USAGE — read the sources above carefully before writing anything:
 • If any source line starts with "Q: " followed by "Correct answer:", those are Oak-verified quiz pairs — you may base your question on a similar concept but must NOT copy them verbatim (deduplication will reject copies).
 
 QUESTION: Clear, unambiguous, appropriate for {year_label}. One correct answer.
+LANGUAGE: {language_guidance}
 
 DISTRACTORS: Exactly 3 wrong answers. Where source lines contain "Common misconception:", use those as distractors rather than inventing generic wrong answers.
 
@@ -638,6 +672,7 @@ def _build_science_prompt(topic: dict, tier: str, chunks: list[dict],
     year_label, key_stage = _YEAR_GROUP_DISPLAY.get(
         topic["year_group_label"], (topic["year_group_label"], "")
     )
+    language_guidance = _language_guidance(topic)
     tier_desc = _TIER_DESCRIPTIONS.get(tier, tier)
 
     if chunks:
@@ -721,6 +756,7 @@ OAK SOURCE USAGE — read the sources above carefully before writing anything:
 • If any source line starts with "Q: " followed by "Correct answer:", those are Oak-verified Q&A pairs — you may base a question on the same concept but must NOT copy them verbatim.
 
 QUESTION: Clear, unambiguous, appropriate for {year_label}. One correct answer.
+LANGUAGE: {language_guidance}
 
 DISTRACTORS: Exactly 3 wrong answers. Prioritise real misconceptions from source lines starting "Common misconception:" — these encode what children actually get wrong.
 
@@ -771,6 +807,7 @@ def _build_humanities_prompt(topic: dict, tier: str, chunks: list[dict],
     year_label, key_stage = _YEAR_GROUP_DISPLAY.get(
         topic["year_group_label"], (topic["year_group_label"], "")
     )
+    language_guidance = _language_guidance(topic)
     tier_desc = _TIER_DESCRIPTIONS.get(tier, tier)
 
     if chunks:
@@ -860,6 +897,7 @@ OAK SOURCE USAGE — read the sources above carefully before writing anything:
 • If any source line starts with "Learning point:", prioritise those points as the question focus.
 
 QUESTION: Clear, unambiguous, appropriate for {year_label}. One correct answer, fully supported by the sources.
+LANGUAGE: {language_guidance}
 
 DISTRACTORS: Exactly 3 wrong answers — plausible {subject.lower()} alternatives (wrong date from the same era,
 neighbouring country, similar historical figure, related but incorrect process). Never random or silly options.
@@ -1221,6 +1259,7 @@ def _build_multipart_prompt(topic: dict, tier: str, qtype: str, chunks: list[dic
     year_label, key_stage = _YEAR_GROUP_DISPLAY.get(
         topic["year_group_label"], (topic["year_group_label"], "")
     )
+    language_guidance = _language_guidance(topic)
     tier_desc = _TIER_DESCRIPTIONS.get(tier, tier)
     subject = topic.get("subject_name", "")
 
@@ -1288,7 +1327,7 @@ Rules:
 - Exactly 4 statements — mix of true AND false (2 true + 2 false is ideal, or 3+1)
 - Each statement must be clearly true or clearly false — no ambiguous ones
 - Statements should test different aspects of the topic
-- Language appropriate for {year_label}
+- Language appropriate for {year_label}. {language_guidance}
 - correct_answer: compact string e.g. "TFFT" (T=true, F=false, one char per statement in order)
 - answer_parts: the structured data
 
@@ -1413,7 +1452,7 @@ Rules:
 - 4–5 items — each clearly belonging in one position
 - Items stored in CORRECT order in answer_parts (the component will shuffle for display)
 - Each item is a short phrase (under 12 words)
-- Language appropriate for {year_label}
+- Language appropriate for {year_label}. {language_guidance}
 - correct_answer: items joined by " → " in correct order
 
 Return ONLY valid JSON:
