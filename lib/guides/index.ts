@@ -8,6 +8,7 @@ import { gcseInUae } from './content/gcse-in-uae'
 import { schoolYearGroupsAgesUae } from './content/school-year-groups-ages-uae'
 import { uaeTermDates202627 } from './content/uae-term-dates-2026-27'
 import { movingToUaeSchoolAdmissions } from './content/moving-to-uae-school-admissions'
+import { satsAndPrimaryAssessments } from './content/sats-and-primary-assessments'
 
 // Ordered registry of published guides. Add new guides here after authoring
 // the content file under lib/guides/content/. Order controls the hub page
@@ -18,6 +19,7 @@ const GUIDES: Guide[] = [
   choosingBritishSchoolDubai,
   abuDhabiSchoolFeesRatings,
   britishCurriculumExplained,
+  satsAndPrimaryAssessments,
   schoolYearGroupsAgesUae,
   gcseInUae,
   uaeTermDates202627,
