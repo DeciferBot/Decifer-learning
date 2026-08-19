@@ -5,9 +5,13 @@
 // first-win fires once ever; each badge / the guardian-win badge is awarded once.
 //
 // "Non-blocking" here means waitUntil(), NOT a bare `void`. On Vercel the
-// function is frozen as soon as the response is returned, so an un-awaited
-// promise never runs to completion and the mail silently never leaves. Call
-// sites must wrap this in waitUntil() from @vercel/functions.
+// platform may freeze the function once the response is returned, so an
+// un-awaited promise is a race: it sometimes finishes, and sometimes is
+// dropped. Measured on the sibling PLI learning-event block, which used the
+// same `void`: in June 2026 only 55 of 82 quiz submits (67%) recorded their
+// event. For a one-shot email like first-win there is no second chance, so a
+// one-in-three loss rate is a real loss. Call sites must wrap this in
+// waitUntil() from @vercel/functions.
 
 import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'

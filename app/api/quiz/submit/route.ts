@@ -309,8 +309,8 @@ export async function POST(req: Request) {
 
   // Non-blocking milestone check — fires after response is returned.
   // Vault writes are isolated; any failure here must not affect the quiz result.
-  // waitUntil, not `void`: without it Vercel freezes the function on response
-  // and this write never lands.
+  // waitUntil, not `void`: without it this write races the response freeze and
+  // is dropped some of the time.
   if (passed) {
     waitUntil(
       checkAndUpdateMilestone(profile.id).catch((err) => {
@@ -348,11 +348,12 @@ export async function POST(req: Request) {
   // per submit at most: first-win takes precedence, else the first new badge.
   // notifyParentBigMoment swallows all errors and adds no latency here.
   //
-  // waitUntil, not `void`. On Vercel the function is frozen the moment the
-  // response is returned, so an un-awaited promise never runs to completion and
-  // the mail never leaves. That was proven on the equivalent Skills Check call
-  // (see app/api/skills-check/unlock/route.ts). waitUntil keeps the work alive
-  // after the response instead, so the child still waits for nothing.
+  // waitUntil, not `void`. Vercel may freeze the function once the response is
+  // returned, so an un-awaited promise is a race it can lose. Measured on the
+  // PLI block below, which used the same `void`: only 67% of June 2026 quiz
+  // submits recorded their event. The Skills Check report email lost the same
+  // race outright (see app/api/skills-check/unlock/route.ts). waitUntil keeps
+  // the work alive after the response, so the child still waits for nothing.
   if (result.isFirstWin) {
     waitUntil(notifyParentBigMoment(profile.id, profile.display_name, { kind: 'first_win' }))
   } else if (result.newBadges.length > 0) {
