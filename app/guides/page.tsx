@@ -9,9 +9,12 @@ const BASE = 'https://www.deciferlearning.com'
 export const dynamic = 'force-static'
 
 export const metadata: Metadata = {
-  title: 'UAE School Guides for Parents: Fees, Ratings, Term Dates and the British Curriculum',
+  // `absolute` for the same reason as the individual guides: parents find
+  // these by searching the topic, and '| Decifer Learning' was pushing the
+  // useful half of the title past what Google displays.
+  title: { absolute: 'UAE School Guides for Parents: Fees, Ratings, Term Dates' },
   description:
-    'Practical guides for parents in Dubai, Abu Dhabi and the wider UAE. School fees and inspection ratings explained, term dates, year group ages, GCSE choices, and how the British curriculum works.',
+    'Practical guides for parents in Dubai, Abu Dhabi and the wider UAE: school fees, inspection ratings, term dates, year group ages, GCSEs and the British curriculum.',
   alternates: { canonical: '/guides' },
 }
 

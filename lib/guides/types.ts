@@ -44,11 +44,33 @@ export interface GuideSource {
 
 export interface Guide {
   slug: string
-  /** <title> tag — leads with what a parent would type into Google. */
+  /**
+   * <title> tag — leads with what a parent would type into Google.
+   *
+   * Keep it under about 60 characters. Google truncates the displayed title
+   * around there, and `/guides` renders these with `title: { absolute }` so
+   * nothing is appended: the whole budget belongs to the guide.
+   */
   title: string
   /** On-page H1. Can be friendlier than the title tag. */
   h1: string
+  /**
+   * The standfirst paragraph under the H1, and the card blurb on `/guides`.
+   * This is reader-facing copy, so write it for a reader and let it run as
+   * long as it needs to.
+   */
   description: string
+  /**
+   * Optional meta description, used for `<meta name="description">`, Open
+   * Graph and the Article schema only.
+   *
+   * Exists because `description` does double duty as visible copy. Google
+   * shows roughly 155 to 160 characters of a description, and every guide's
+   * standfirst is longer than that, so the tail was being cut mid-clause in
+   * search results. Set this to a trimmed version of `description` carrying
+   * the same facts. Falls back to `description` when absent.
+   */
+  metaDescription?: string
   category: GuideCategory
   /**
    * A direct, self-contained answer to the question the title implies.

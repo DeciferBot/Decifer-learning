@@ -2,10 +2,12 @@ import type { Guide } from '../types'
 
 export const khdaRatingsExplained: Guide = {
   slug: 'khda-ratings-explained',
-  title: 'KHDA School Ratings Explained: What Outstanding, Good and Acceptable Really Mean',
+  title: 'KHDA School Ratings Explained: Outstanding to Acceptable',
   h1: 'KHDA school ratings explained for parents',
   description:
     'What the KHDA inspection ratings actually measure, how many Dubai schools hold each rating, why most ratings currently date from 2023-24, and how to use them when choosing a school.',
+  metaDescription:
+    'What KHDA inspection ratings actually measure, how many Dubai schools hold each rating, and how to use them when choosing a school.',
   keyAnswer:
     'KHDA rates Dubai private schools on six levels: Outstanding, Very Good, Good, Acceptable, Weak and Very Weak. Good is the standard every school is expected to reach. In the last full inspection cycle, 209 schools were inspected and 81% of students attended a school rated Good or better.',
   category: 'schools-and-fees',

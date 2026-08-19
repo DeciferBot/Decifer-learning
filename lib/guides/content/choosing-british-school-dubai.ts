@@ -2,10 +2,12 @@ import type { Guide } from '../types'
 
 export const choosingBritishSchoolDubai: Guide = {
   slug: 'choosing-british-school-dubai',
-  title: 'How to Choose a British School in Dubai: A Practical Checklist for Parents',
+  title: 'How to Choose a British School in Dubai: A Checklist',
   h1: 'Choosing a British school in Dubai: a practical checklist',
   description:
     'A step-by-step way to shortlist British curriculum schools in Dubai: how to weigh KHDA ratings against fees, what to check in the inspection report, and the questions worth asking on a tour.',
+  metaDescription:
+    'How to shortlist British curriculum schools in Dubai: weighing KHDA ratings against fees, what to check in the inspection report, and what to ask on a tour.',
   keyAnswer:
     'Fix your budget, commute limit and required year group first, since those rule out most of the list. Then read the KHDA inspection report for your child’s phase rather than the headline grade, check the report’s date, ask the school about teacher turnover, and visit on a normal working day.',
   category: 'schools-and-fees',

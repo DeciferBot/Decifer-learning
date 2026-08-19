@@ -2,10 +2,12 @@ import type { Guide } from '../types'
 
 export const uaeTermDates202627: Guide = {
   slug: 'uae-term-dates-2026-27',
-  title: 'UAE School Term Dates 2026-27: Start Dates, Half Terms and Holidays',
+  title: 'UAE School Term Dates 2026-27: Holidays and Half Terms',
   h1: 'UAE school term dates for 2026-27',
   description:
     'Official 2026-27 term dates for schools in Dubai, Abu Dhabi and across the UAE: the 31 August start, October half term, winter and spring breaks, and the new three-year calendar.',
+  metaDescription:
+    'Official 2026-27 term dates for schools in Dubai, Abu Dhabi and the UAE: the 31 August start, October half term, and winter and spring breaks.',
   keyAnswer:
     'UAE schools start the 2026-27 year on Monday 31 August 2026 and finish on Friday 2 July 2027. The October half term falls between 12 and 18 October, winter break runs from 14 December to 3 January, and spring break is 5 to 11 April 2027.',
   category: 'planning-and-dates',

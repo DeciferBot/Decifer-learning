@@ -2,10 +2,12 @@ import type { Guide } from '../types'
 
 export const movingToUaeSchoolAdmissions: Guide = {
   slug: 'moving-to-uae-school-admissions',
-  title: 'Moving to the UAE: School Admissions, Transfers and the Documents You Need',
+  title: 'Moving to the UAE: School Admissions and Transfers',
   h1: 'Moving to the UAE: getting your child into school',
   description:
     'How school admissions work for families arriving in Dubai and the UAE: when you can join mid-year, the transfer certificate and attestation rules, what to prepare before you fly, and how placement is decided.',
+  metaDescription:
+    'How admissions work for families arriving in the UAE: joining mid-year, the transfer certificate and attestation rules, and what to prepare before you fly.',
   keyAnswer:
     'Children arriving from outside the UAE can join a Dubai school in any year group at any point in the school year, subject to places. You need a valid Emirates ID and, from Year 3 upwards, a transfer certificate from the previous school, attested according to the country you are leaving.',
   category: 'planning-and-dates',
