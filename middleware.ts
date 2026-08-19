@@ -44,10 +44,15 @@ const PUBLIC_EXACT = new Set<string>([
 // via a cookie identity (see lib/downtime/server.ts) — the same posture as
 // Decifer Live above, so /api/downtime/ needs the same exemption /api/live/
 // has. Host-only writes are still checked per-route, not by the middleware.
+// /skills-check/* — the free, no-login curriculum check and its result pages,
+// same public posture as /games above. A parent must be able to hand a child a
+// tablet and get a result without creating an account, and the landing pages are
+// meant to be crawled and ranked. The API is public for the same reason; the
+// email gate is enforced inside lib/skills-check/server.ts, not by auth.
 const PUBLIC_PREFIX = [
   '/auth/', '/_next/', '/help', '/curriculum', '/guides', '/sitemap', '/robots', '/legal/',
   '/api/cron/', '/api/parent-verification/', '/join', '/live/', '/api/live/', '/blitz',
-  '/games', '/api/downtime/',
+  '/games', '/api/downtime/', '/skills-check', '/api/skills-check/',
 ]
 // Next.js metadata image routes (opengraph-image / twitter-image) live at any
 // depth — e.g. /opengraph-image AND /pricing/opengraph-image. Social crawlers
