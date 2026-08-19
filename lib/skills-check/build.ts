@@ -163,9 +163,15 @@ export async function planCheckForYear(
 /**
  * Create or replace a check's item list.
  *
- * Replacing is deliberate and destructive of the ITEM LIST only: attempts are
- * kept, because a past report must still render. It also forces `is_published`
- * back to false, since a new item list has not been hand-checked.
+ * Replacing deletes and re-creates every skill_check_items row. Attempts survive
+ * (their FK is to skill_checks) and so do answers, but only because
+ * skill_check_answers carries its own question, band, strand and position and
+ * treats item_id as a nullable convenience. It did not always: while item_id was
+ * ON DELETE CASCADE, every rebuild silently deleted every answer the check had
+ * ever collected. Do not restore that dependency.
+ *
+ * It also forces `is_published` back to false, since a new item list has not
+ * been hand-checked.
  */
 export async function persistCheck(built: BuiltCheck): Promise<{ checkId: string; items: number }> {
   const { subjectId, yearGroupId, slug, plan } = built
