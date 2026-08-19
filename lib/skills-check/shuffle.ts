@@ -21,6 +21,16 @@ export { hashSeed, seededRandom, seededShuffle } from '@/lib/seeded-random'
 import { seededShuffle } from '@/lib/seeded-random'
 
 /**
+ * How many options a question needs to be a fair multiple choice.
+ *
+ * One correct answer plus three distractors, matching what the content pipeline
+ * is specified to produce (CLAUDE.md §7: `distractors JSONB`, three of them).
+ * Anything less is filtered out of a check's pool at build time rather than
+ * shown to a child with two buttons.
+ */
+export const MIN_OPTIONS = 4
+
+/**
  * Build the answer options a child sees: the correct answer plus its distractors,
  * shuffled, with nothing marking which is which.
  *

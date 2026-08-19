@@ -17,8 +17,15 @@
  * Server-only: imports Prisma. Never import this from a client component.
  */
 
+import { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import { planCheck, isSuitableForPublicCheck, type TopicPool, type CheckPlan } from './plan'
+import { buildOptions, MIN_OPTIONS } from './shuffle'
+
+/** True when a question can render as a fair multiple choice. */
+function hasEnoughOptions(correctAnswer: string, distractors: unknown): boolean {
+  return buildOptions(correctAnswer, distractors, 'probe').length >= MIN_OPTIONS
+}
 
 /** Year group labels are 'year-1' … 'year-11'. Returns null for anything else. */
 export function yearNumberFromLabel(label: string): number | null {
@@ -69,7 +76,13 @@ export async function loadTopicPools(
       quiz_questions: {
         // The published-only gate. Do not relax this.
         where: { status: 'published' },
-        select: { id: true, tier: true, question_text: true },
+        select: {
+          id: true,
+          tier: true,
+          question_text: true,
+          correct_answer: true,
+          distractors: true,
+        },
         orderBy: { id: 'asc' }, // stable, so a rebuild picks the same items
       },
     },
@@ -77,8 +90,16 @@ export async function loadTopicPools(
   })
 
   return topics.map((t) => {
-    // Screen heavy themes out of a public check. See isSuitableForPublicCheck.
-    const usable = t.quiz_questions.filter((q) => isSuitableForPublicCheck(q.question_text))
+    const usable = t.quiz_questions.filter(
+      (q) =>
+        // Screen heavy themes out of a public check. See isSuitableForPublicCheck.
+        isSuitableForPublicCheck(q.question_text) &&
+        // And drop anything that cannot render as a fair multiple choice. A row
+        // whose `distractors` JSON is empty, malformed, or duplicates the
+        // correct answer would show a child a single button to press. Checking
+        // it here keeps it out of the pool entirely, rather than surfacing mid-test.
+        hasEnoughOptions(q.correct_answer, q.distractors),
+    )
     return {
       topicId: t.id,
       title: t.title,
@@ -87,6 +108,8 @@ export async function loadTopicPools(
         explorer: usable.filter((q) => q.tier === 'explorer').map((q) => q.id),
         lightning: usable.filter((q) => q.tier === 'lightning').map((q) => q.id),
       },
+      // Lets the planner keep two ways of asking the same thing out of one check.
+      texts: Object.fromEntries(usable.map((q) => [q.id, q.question_text])),
     }
   })
 }
@@ -147,29 +170,45 @@ export async function planCheckForYear(
 export async function persistCheck(built: BuiltCheck): Promise<{ checkId: string; items: number }> {
   const { subjectId, yearGroupId, slug, plan } = built
 
-  return prisma.$transaction(async (tx) => {
-    const check = await tx.skillCheck.upsert({
-      where: { slug },
-      create: {
-        slug,
-        subject_id: subjectId,
-        year_group_id: yearGroupId,
-        format: 'strand_sample',
-        item_count: plan.items.length,
-        is_published: false,
-      },
-      update: {
-        item_count: plan.items.length,
-        // A rebuilt item list is unreviewed by definition.
-        is_published: false,
-      },
-      select: { id: true },
-    })
+  // The upsert runs on its own. It has to, because the item writes below need
+  // the check id it returns, and there is no safe way to get that inside a
+  // batched transaction.
+  //
+  // A check row with no items is harmless: `is_published` is false, so nothing
+  // serves it, and the next run replaces it.
+  const check = await prisma.skillCheck.upsert({
+    where: { slug },
+    create: {
+      slug,
+      subject_id: subjectId,
+      year_group_id: yearGroupId,
+      format: 'strand_sample',
+      item_count: plan.items.length,
+      is_published: false,
+    },
+    update: {
+      item_count: plan.items.length,
+      // A rebuilt item list is unreviewed by definition.
+      is_published: false,
+    },
+    select: { id: true },
+  })
 
-    await tx.skillCheckItem.deleteMany({ where: { check_id: check.id } })
-
-    if (plan.items.length > 0) {
-      await tx.skillCheckItem.createMany({
+  // The item swap must be all or nothing, and it uses the ARRAY form of
+  // $transaction rather than the interactive callback form on purpose.
+  //
+  // DECISIONS.md records that Prisma interactive transactions can silently lose
+  // atomicity behind Supabase's PgBouncer pooler in transaction mode, because
+  // the pooler may hand a different physical connection to each statement. The
+  // array form is sent as one batch on one connection, so it does not have that
+  // problem. With the callback form, a failure between the delete and the create
+  // would leave a check advertising 20 items and holding none.
+  const writes: Prisma.PrismaPromise<unknown>[] = [
+    prisma.skillCheckItem.deleteMany({ where: { check_id: check.id } }),
+  ]
+  if (plan.items.length > 0) {
+    writes.push(
+      prisma.skillCheckItem.createMany({
         data: plan.items.map((i) => ({
           check_id: check.id,
           question_id: i.questionId,
@@ -177,9 +216,10 @@ export async function persistCheck(built: BuiltCheck): Promise<{ checkId: string
           band: i.band,
           strand_topic_id: i.strandTopicId,
         })),
-      })
-    }
+      }),
+    )
+  }
+  await prisma.$transaction(writes)
 
-    return { checkId: check.id, items: plan.items.length }
-  })
+  return { checkId: check.id, items: plan.items.length }
 }

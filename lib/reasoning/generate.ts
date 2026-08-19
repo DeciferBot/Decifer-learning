@@ -117,7 +117,15 @@ export type Rule = Step[]
 
 function domainIndex(f: Figure, attribute: Attribute): number {
   const domain = DOMAINS[attribute] as readonly unknown[]
-  return domain.indexOf(f[attribute])
+  const idx = domain.indexOf(f[attribute])
+  // A figure whose value is not in its own domain can only come from a bad cast
+  // or a domain edited without its type. Throwing here turns that into a loud
+  // test failure; letting the -1 through would quietly shift every later item by
+  // one position and still look plausible.
+  if (idx < 0) {
+    throw new Error(`Figure has ${attribute}="${String(f[attribute])}", which is not a valid value`)
+  }
+  return idx
 }
 
 /** Advance one attribute by `delta`, wrapping. Wrapping makes every rule total. */

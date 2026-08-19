@@ -18,6 +18,7 @@ import {
   planCheck,
   poolSize,
   isSuitableForPublicCheck,
+  questionsAreNearDuplicates,
   STRAND_BAND_PLAN,
   STRANDS_PER_CHECK,
   ITEMS_PER_STRAND,
@@ -321,6 +322,159 @@ describe('isSuitableForPublicCheck', () => {
 
   it('is case insensitive', () => {
     expect(isSuitableForPublicCheck('The WAR lasted 4 years.')).toBe(false)
+  })
+})
+
+describe('questionsAreNearDuplicates', () => {
+  it('does NOT catch a long rewording that shares only three words', () => {
+    // Documented limit, not an oversight. These two came out of one live Year 6
+    // English strand and they are duplicates in meaning. Catching them needs a
+    // threshold of three shared words, and at three the rule also collapses a
+    // perimeter question with an area question (see the test below). A false
+    // positive removes a good question from the pool, so the threshold stays at
+    // four and semantic duplicates are left to the pipeline's embedding dedup.
+    expect(
+      questionsAreNearDuplicates(
+        'Which sentence is written in the passive voice?',
+        'Which sentence uses the passive voice to avoid mentioning who performed the action?',
+      ),
+    ).toBe(false)
+  })
+
+  it('catches the same word problem with the numbers changed', () => {
+    expect(
+      questionsAreNearDuplicates(
+        'A rectangle is 9 cm long and 3 cm wide. What is its perimeter?',
+        'A rectangle is 9 cm long and 4 cm wide. What is the perimeter of the rectangle?',
+      ),
+    ).toBe(true)
+  })
+
+  it('catches one stem with different worked examples pasted after it', () => {
+    // Both were drawn into the same live Year 6 English strand. Word overlap
+    // alone scores these at 0.57, because the examples swamp the stem.
+    expect(
+      questionsAreNearDuplicates(
+        "Which sentence is written in the passive voice? 'A) The dog chased the ball.' 'B) The ball was chased by the dog.'",
+        "Which sentence is written in the passive voice? 'A) The firefighters rescued the family.' 'B) The family was rescued by the firefighters.'",
+      ),
+    ).toBe(true)
+  })
+
+  it('also flags a question that shares the stem and adds a condition', () => {
+    // "…in the passive voice?" against "…in the passive voice AND uses the past
+    // tense?" tests a bit more, but it reads as the same question twice inside a
+    // five-item strand. Preferring something else costs nothing: the second pass
+    // in takeSpreadAcrossTiers still fills the strand if there is no alternative.
+    expect(
+      questionsAreNearDuplicates(
+        "Which sentence is written in the passive voice? 'A) The dog chased the ball.'",
+        'Which sentence is written in the passive voice AND uses the past tense?',
+      ),
+    ).toBe(true)
+  })
+
+  it('does not flag two word problems that share a setup but ask different things', () => {
+    expect(
+      questionsAreNearDuplicates(
+        'A rectangle is 9 cm long and 3 cm wide. What is its perimeter?',
+        'A rectangle is 12 cm long and 5 cm wide. What is its area?',
+      ),
+    ).toBe(false)
+  })
+
+  it('sees through a singular/plural rewording of the same stem', () => {
+    expect(
+      questionsAreNearDuplicates(
+        "Which sentence is written in the passive voice? 'A) The dog chased the ball.'",
+        'Which of these sentences is written in the passive voice?',
+      ),
+    ).toBe(true)
+  })
+
+  it('leaves arithmetic alone, which shares almost no meaningful words', () => {
+    expect(questionsAreNearDuplicates('What is 3 x 4?', 'What is 5 x 6?')).toBe(false)
+    expect(questionsAreNearDuplicates('What is 1/4 of 20?', 'What is 1/3 of 12?')).toBe(false)
+  })
+
+  it('leaves genuinely different questions about one topic alone', () => {
+    expect(
+      questionsAreNearDuplicates(
+        'Which sentence is a question?',
+        'Which sentence is a command?',
+      ),
+    ).toBe(false)
+    expect(
+      questionsAreNearDuplicates(
+        'Which sentence uses a capital letter correctly?',
+        'Which sentence uses the correct punctuation?',
+      ),
+    ).toBe(false)
+  })
+
+  it('is symmetric and safe on empty input', () => {
+    const a = 'Which sentence is written in the passive voice?'
+    const b = 'Which sentence uses the passive voice to avoid mentioning who performed the action?'
+    expect(questionsAreNearDuplicates(a, b)).toBe(questionsAreNearDuplicates(b, a))
+    expect(questionsAreNearDuplicates('', '')).toBe(false)
+    expect(questionsAreNearDuplicates('What is it?', '')).toBe(false)
+  })
+})
+
+describe('planCheck — near-duplicate avoidance', () => {
+  /** A pool where three of the five questions are the same question reworded. */
+  function poolWithDuplicates(): TopicPool {
+    const p = pool('t', 'Grammar: Passive Voice', [3, 2, 1])
+    return {
+      ...p,
+      texts: {
+        // Same stem, different worked examples. This is the shape the guard is
+        // built for, and the shape the live English Year 6 pool actually had.
+        't-sprout-0': "Which sentence is written in the passive voice? 'A) The dog chased the ball.'",
+        't-sprout-1':
+          "Which sentence is written in the passive voice? 'A) The firefighters rescued the family.'",
+        't-sprout-2': "Which sentence is written in the passive voice? 'A) The chef baked a cake.'",
+        't-explorer-0': 'Name the tense used in this sentence.',
+        't-explorer-1': 'Rewrite this sentence so it starts with a fronted adverbial.',
+        't-lightning-0': 'Explain why an author might prefer one construction here.',
+      },
+    }
+  }
+
+  it('prefers a different question over a reworded one', () => {
+    const p = poolWithDuplicates()
+    const taken = takeSpreadAcrossTiers(p, 3, 0)
+    const texts = taken.map((id) => p.texts![id])
+    for (let i = 0; i < texts.length; i++) {
+      for (let j = i + 1; j < texts.length; j++) {
+        expect(questionsAreNearDuplicates(texts[i], texts[j])).toBe(false)
+      }
+    }
+  })
+
+  it('honours texts already used elsewhere in the check', () => {
+    const p = poolWithDuplicates()
+    const taken = takeSpreadAcrossTiers(p, 1, 0, undefined, [
+      "Which sentence is written in the passive voice? 'A) The cat sat on the mat.'",
+    ])
+    expect(p.texts![taken[0]]).not.toContain('passive voice')
+  })
+
+  it('still returns a full-length strand when the pool is all duplicates', () => {
+    // A blemish beats a short strand: a missing item would change the score.
+    const p: TopicPool = {
+      ...pool('t', 'Passive Voice', [3, 0, 0]),
+      texts: {
+        't-sprout-0': 'Which sentence is written in the passive voice today?',
+        't-sprout-1': 'Which sentence is written in the passive voice here?',
+        't-sprout-2': 'Which sentence is written in the passive voice now?',
+      },
+    }
+    expect(takeSpreadAcrossTiers(p, 3, 0)).toHaveLength(3)
+  })
+
+  it('works unchanged when a pool carries no texts at all', () => {
+    expect(takeSpreadAcrossTiers(pool('t', 'x', [3, 3, 3]), 3, 0)).toHaveLength(3)
   })
 })
 
