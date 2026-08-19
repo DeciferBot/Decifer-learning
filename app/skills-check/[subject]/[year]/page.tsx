@@ -21,10 +21,19 @@ export const revalidate = 3600
 export async function generateStaticParams(): Promise<Params[]> {
   try {
     const checks = await listPublishedChecks()
+    if (checks.length === 0) {
+      console.warn('[skills-check] no published checks found; no landing pages prerendered')
+    }
     return checks.map((c) => ({ subject: c.subjectSlug, year: c.yearLabel }))
-  } catch {
+  } catch (err) {
     // A DB blip at build time should not fail the build. These pages still
     // render on demand.
+    //
+    // It must not pass silently either. Swallowing this once shipped a build
+    // with zero landing pages and no hint as to why: the route still showed as
+    // SSG, just with nothing under it. Log loudly so a build that quietly drops
+    // every page meant to rank is visible in the build output.
+    console.error('[skills-check] generateStaticParams failed, prerendering no landing pages:', err)
     return []
   }
 }
