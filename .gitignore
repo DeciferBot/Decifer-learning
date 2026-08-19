@@ -49,3 +49,4 @@ graphify-out/graph.json
 /test-results/
 /playwright-report/
 /playwright/.cache/
+.reasoning-preview.html
