@@ -2,14 +2,21 @@ import { PrismaClient } from '@prisma/client'
 
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient }
 
-// connection_limit=1 is required for Vercel serverless + Supabase Transaction Pooler (pgbouncer).
-// Without it each function invocation tries to hold multiple connections, causing pool exhaustion
-// and connection-wait latency under concurrent load.
+// A low connection_limit matters for Vercel serverless + Supabase Transaction
+// Pooler (pgbouncer): without it each function invocation tries to hold several
+// connections, which exhausts the pool and adds connection-wait latency under
+// concurrent load.
 //
-// Note the guard below only ADDS these params when the DSN does not already
-// mention pgbouncer. A DSN that already carries its own connection_limit is
-// passed through untouched, which is deliberate: the deployment owns that
-// number at runtime.
+// Read the guard below carefully, because it does less than it looks like it
+// does. It only APPENDS `pgbouncer=true&connection_limit=1` when the DSN does
+// not already mention pgbouncer. A DSN that already says pgbouncer is passed
+// through exactly as written, whatever connection_limit it carries.
+//
+// That is deliberate: the deployment owns its own runtime pooling. But it does
+// mean the paragraph above is a statement of intent, not a guarantee. If the
+// deployed DATABASE_URL sets a high connection_limit, runtime gets that high
+// limit. The number lives in the environment, so it is changed there and not
+// here.
 
 /**
  * Force a small connection limit for the duration of a production build.

@@ -24,6 +24,27 @@
 
 const MAX_BACKOFF_MS = 5_000
 
+/**
+ * How hard to try, by where we are.
+ *
+ * The generous budget belongs to the build and nowhere else. A build has no
+ * user waiting on it, and the contention it hits is self-inflicted and clears
+ * on its own. A live request is the opposite: these same helpers sit behind
+ * POST /api/skills-check/start, which a child is waiting on, and behind the
+ * public curriculum pages. Spending twelve seconds of backoff there would turn
+ * a fast, honest failure into a hang.
+ *
+ * So: retry hard during a build, retry once at runtime to ride out a single
+ * blip, and never make anybody wait longer than a second for that.
+ */
+const BUILD_ATTEMPTS = 6
+const RUNTIME_ATTEMPTS = 2
+const RUNTIME_MAX_BACKOFF_MS = 400
+
+function isBuildPhase(): boolean {
+  return process.env.NEXT_PHASE === 'phase-production-build'
+}
+
 /** True for errors that more waiting cannot fix. */
 function isFatalDbError(err: unknown): boolean {
   const msg = err instanceof Error ? err.message : String(err)
@@ -34,18 +55,22 @@ function isFatalDbError(err: unknown): boolean {
   )
 }
 
-export async function withDbRetry<T>(fn: () => Promise<T>, attempts = 6): Promise<T> {
+export async function withDbRetry<T>(fn: () => Promise<T>, attempts?: number): Promise<T> {
+  const build = isBuildPhase()
+  const maxAttempts = attempts ?? (build ? BUILD_ATTEMPTS : RUNTIME_ATTEMPTS)
+  const maxBackoff = build ? MAX_BACKOFF_MS : RUNTIME_MAX_BACKOFF_MS
+
   let lastError: unknown
-  for (let i = 0; i < attempts; i++) {
+  for (let i = 0; i < maxAttempts; i++) {
     try {
       return await fn()
     } catch (err) {
       lastError = err
       if (isFatalDbError(err)) throw err
-      if (i < attempts - 1) {
+      if (i < maxAttempts - 1) {
         // Exponential backoff with jitter, capped. The jitter stops every worker
         // retrying on the same beat.
-        const backoff = Math.min(500 * 2 ** i, MAX_BACKOFF_MS)
+        const backoff = Math.min(500 * 2 ** i, maxBackoff)
         await new Promise((r) => setTimeout(r, backoff + Math.floor(Math.random() * 250)))
       }
     }
