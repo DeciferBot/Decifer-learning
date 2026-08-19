@@ -53,6 +53,7 @@ const PUBLIC_PREFIX = [
   '/auth/', '/_next/', '/help', '/curriculum', '/guides', '/sitemap', '/robots', '/legal/',
   '/api/cron/', '/api/parent-verification/', '/join', '/live/', '/api/live/', '/blitz',
   '/games', '/api/downtime/', '/skills-check', '/api/skills-check/',
+  '/reasoning', '/api/reasoning/',
 ]
 // Next.js metadata image routes (opengraph-image / twitter-image) live at any
 // depth — e.g. /opengraph-image AND /pricing/opengraph-image. Social crawlers

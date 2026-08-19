@@ -21,7 +21,17 @@ import {
   type Level,
   type ReasoningItem,
 } from '../lib/reasoning/generate'
-import { figureKey, figuresEqual, describeFigure, renderFigure, type Figure } from '../lib/reasoning/shapes'
+import {
+  figureKey,
+  figuresEqual,
+  describeFigure,
+  renderFigure,
+  SHAPE_KINDS,
+  SIZES,
+  FILLS,
+  COUNTS,
+  type Figure,
+} from '../lib/reasoning/shapes'
 
 const LEVELS: Level[] = [1, 2, 3, 4, 5, 6]
 
@@ -331,3 +341,61 @@ function everyLevelOf(
     for (let i = 0; i < 30; i++) fn(generateItem(type, level, `${type}-${level}-${i}`))
   }
 }
+
+/**
+ * Analogies must not wrap a bounded attribute below WRAP_FROM_LEVEL.
+ *
+ * REGRESSION. A level-3 analogy shipped reading "one circle becomes four
+ * hexagons, so four circles become three hexagons". The rule (one fewer,
+ * wrapping) is consistent, so validateItem passed it and the 24,000-item sweep
+ * saw nothing wrong. It still reads like a bug, which is the whole reason
+ * WRAP_FROM_LEVEL exists — and generateAnalogy was the one generator that never
+ * consulted it. Found by looking at the preview, not by a test, so here is the
+ * test.
+ *
+ * The check: with no wrapping, the plain (non-modular) index difference from A
+ * to B must equal the one from C to the answer. A wrap in one pair and not the
+ * other shows up as a mismatch.
+ */
+describe('analogies do not wrap below the wrap level', () => {
+  const DOMAINS = {
+    kind: SHAPE_KINDS,
+    size: SIZES,
+    fill: FILLS,
+    count: COUNTS,
+  } as const
+  // Rotation is excluded on purpose: it is ALWAYS allowed to wrap, because a
+  // shape turning past 315 degrees back to 0 is plainly a full turn.
+  const BOUNDED = ['kind', 'size', 'fill', 'count'] as const
+
+  it('applies the same literal step to both pairs at levels 1 to 4', () => {
+    for (const level of [1, 2, 3, 4] as Level[]) {
+      for (let i = 0; i < 300; i++) {
+        const item = generateItem('analogy', level, `wrap-${level}-${i}`)
+        if (item.stimulus.kind !== 'analogy') throw new Error('expected an analogy stimulus')
+        const { a, b, c } = item.stimulus
+        const answer = item.options[item.correctIndex]
+
+        for (const attr of BOUNDED) {
+          const domain = DOMAINS[attr] as readonly unknown[]
+          const firstStep = domain.indexOf(b[attr]) - domain.indexOf(a[attr])
+          const secondStep = domain.indexOf(answer[attr]) - domain.indexOf(c[attr])
+          expect(
+            secondStep,
+            `level ${level} seed wrap-${level}-${i}: ${attr} moved ${firstStep} then ${secondStep}`,
+          ).toBe(firstStep)
+        }
+      }
+    }
+  })
+
+  it('still allows wrapping at level 5 and above, where it is a difficulty feature', () => {
+    // Not an assertion that it MUST wrap, only that the guard is level-scoped
+    // and high-level analogies are still generated and valid.
+    for (const level of [5, 6] as Level[]) {
+      for (let i = 0; i < 50; i++) {
+        expect(validateItem(generateItem('analogy', level, `wrap-hi-${level}-${i}`))).toBeNull()
+      }
+    }
+  })
+})

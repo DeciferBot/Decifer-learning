@@ -23,6 +23,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Free Skills Check — a working tool, so it earns a high priority. Result
     // pages (/skills-check/r/*) are noindex and deliberately absent.
     { url: `${BASE}/skills-check`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
+    // Free Reasoning Check. Every question is generated from a seed, so these
+    // are static routes with NO database behind them — zero queries, not one per
+    // page. The result page (/reasoning/r/*) and the delete page are noindex and
+    // deliberately absent.
+    { url: `${BASE}/reasoning`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${BASE}/reasoning/non-verbal`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${BASE}/reasoning/cat4-practice`, lastModified: now, changeFrequency: 'monthly', priority: 0.9 },
+    { url: `${BASE}/reasoning/11-plus`, lastModified: now, changeFrequency: 'monthly', priority: 0.9 },
     { url: `${BASE}/blitz`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
     // Free games — public, no-login catalogue for SEO discoverability
     { url: `${BASE}/games`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
