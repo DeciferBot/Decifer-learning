@@ -283,13 +283,107 @@ export function isSuitableForPublicCheck(questionText: string): boolean {
 const UNSHOWN_VISUAL_RE =
   /\bthe (number line|line|diagram|picture|image|map|grid|chart|graph|array|model|table)\b/i
 
+/**
+ * Questions that assume the child sat a particular Decifer lesson.
+ *
+ * Found reading the built English checks: "According to the lesson, what can
+ * reading non-fiction help you develop?" and "What is the name of the text about
+ * the rescue of elephants in Myanmar?". Both are fine inside the lesson that
+ * taught them. In a public check taken by a child who has never used Decifer,
+ * they are unanswerable, and worse, they make the product look like it is
+ * testing whether you bought it.
+ */
+const LESSON_BOUND_RE =
+  /\b(according to (the|one|this) (lesson|video|clip|unit)|name of the (text|book|story|poem)|in (this|the) (lesson|video|clip)|in the [a-z ]{0,20}example)\b/i
+
+/**
+ * Questions about a specific set text.
+ *
+ * "In 'A Midsummer Night's Dream', why is Oberon angry with Puck?" and "In Mary
+ * Shelley's 'Frankenstein', which best describes Frankenstein's attitude?" both
+ * test whether a child studied that book, not whether they are working at their
+ * year. A public check has to measure the skill, so these go.
+ *
+ * Narrow on purpose: it fires only when the stem OPENS by naming a titled work.
+ * A question that quotes a sentence to analyse ("Read this sentence: 'The old
+ * man walked slowly…'") is untouched, because the quote is not at the start
+ * behind "In".
+ */
+// Lazy on the title, because titles contain apostrophes: "A Midsummer Night's
+// Dream" stops a greedy [^']* match dead at "Night". The lazy form keeps
+// extending until it finds the quote that is actually followed by a comma.
+const SET_TEXT_RE = /^\s*In\s+([A-Z][\w.]*(\s+[A-Z][\w.]*)*'s\s+)?['"‘“].{4,80}?['"’”]\s*,/
+
+/**
+ * Refers to a text, passage or source that the question does not include.
+ *
+ * This one needs care, because most good comprehension questions also say "the
+ * text" — they just quote it first. "Read the passage below… Maya trudged
+ * through the snow…" is fine. "What does the text say about different forms of
+ * reading?" is not, and both were in built English checks.
+ *
+ * The separator is whether the stem carries the text with it. A stem that quotes
+ * something, or runs long enough to contain a passage, is keeping its side of the
+ * bargain. A short one that just points at "the text" is not.
+ */
+const REFERS_TO_TEXT_RE = /\b(the|these|those) (text|texts|passage|passages|source|sources|extract|extracts|story|poem)\b/i
+
+/**
+ * A passage contains sentences. A title does not.
+ *
+ * Length and quotation marks both failed as signals. "Based on the sources,
+ * which statement best explains why someone might read a text like 'Bandoola:
+ * The Great Elephant Rescue'?" is long and quoted and shows none of its sources.
+ * A real comprehension stem, quoted or not, always contains more than one
+ * sentence: the instruction, the passage, and the question.
+ */
+const MIN_SENTENCES_FOR_A_PASSAGE = 2
+
+function carriesAPassage(text: string): boolean {
+  const sentences = (text.match(/[.!?]/g) ?? []).length
+  return sentences >= MIN_SENTENCES_FOR_A_PASSAGE
+}
+
 /** Below this, a stem with no numbers in it cannot be carrying its own context. */
 export const MIN_SELF_CONTAINED_LENGTH = 25
 
 export function isSelfContained(questionText: string): boolean {
   const text = questionText.trim()
   if (UNSHOWN_VISUAL_RE.test(text)) return false
+  if (LESSON_BOUND_RE.test(text)) return false
+  if (SET_TEXT_RE.test(text)) return false
+  if (REFERS_TO_TEXT_RE.test(text) && !carriesAPassage(text)) return false
+  // A stem that opens mid-sentence is a fill-in-the-blank that lost its blank:
+  // "is a type of story that is made up or imagined." The answer is guessable and
+  // it reads as broken, which is the worse problem on a first impression.
+  if (/^[a-z]/.test(text)) return false
   if (text.length < MIN_SELF_CONTAINED_LENGTH && !/\d/.test(text)) return false
+  return true
+}
+
+/**
+ * True when the stored correct answer is something a child can actually pick.
+ *
+ * Some rows store a bare option label — the answer is literally "C" — because the
+ * question was written with an A/B/C/D list that lived somewhere else. The
+ * options a check renders are the answer strings themselves, so such a question
+ * shows four meaningless letters. Thirteen published rows are like this.
+ */
+export function hasUsableAnswer(correctAnswer: string, distractors?: unknown): boolean {
+  const a = correctAnswer.trim()
+  if (a.length === 0) return false
+
+  // A single letter is only a problem when the WHOLE option set is option
+  // labels. "Which letter is silent in the word 'thumb'?" has the answer "b" and
+  // distractors like "m", "u", "h", and it is a perfectly good question. An
+  // orphaned multiple choice has the answer "C" and distractors "A", "B", "D".
+  // The difference is whether every option is drawn from A to D.
+  const list = Array.isArray(distractors) ? distractors : []
+  const options = [a, ...list.map((d) => (typeof d === 'string' ? d.trim() : ''))].filter(
+    (o) => o.length > 0,
+  )
+  if (options.length >= 3 && options.every((o) => /^[A-Da-d]$/.test(o))) return false
+
   return true
 }
 
@@ -302,7 +396,7 @@ export function isSelfContained(questionText: string): boolean {
  * always wrong here regardless of the distractors, and cheap to exclude.
  */
 const PLURAL_ANSWER_RE =
-  /\b(tick (all|both|the \w+s)|select all|choose all|which (two|three)|identify the \w+s|which of these \w+s are)\b/i
+  /\b(tick (all|both|the \w+s)|select all|choose all|which (two|three)|identify the \w+s|which of (these|the following) [\w ]{0,20}are)\b/i
 
 export function hasSingleAnswerPhrasing(questionText: string): boolean {
   return !PLURAL_ANSWER_RE.test(questionText)
