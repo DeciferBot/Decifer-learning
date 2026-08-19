@@ -236,6 +236,7 @@ model Topic {
   lessons             Lesson[]
   quiz_reflections    QuizReflection[]
   skill_check_items   SkillCheckItem[]    @relation("SkillCheckStrand")
+  skill_check_answers SkillCheckAnswer[]  @relation("SkillCheckAnswerStrand")
 
   @@unique([subject_id, slug])
   @@map("topics")
@@ -384,11 +385,12 @@ model QuizQuestion {
   calibration_n     Int           @default(0)
   calibrated_at     DateTime?
 
-  topic             Topic            @relation(fields: [topic_id], references: [id])
-  quiz_answers      QuizAnswer[]
-  session_answers   SessionAnswer[]
-  reports           QuestionReport[]
-  skill_check_items SkillCheckItem[]
+  topic               Topic              @relation(fields: [topic_id], references: [id])
+  quiz_answers        QuizAnswer[]
+  session_answers     SessionAnswer[]
+  reports             QuestionReport[]
+  skill_check_items   SkillCheckItem[]
+  skill_check_answers SkillCheckAnswer[]
 
   @@index([topic_id, status, tier])
   @@map("quiz_questions")
@@ -1253,6 +1255,7 @@ model SkillCheck {
   year_group YearGroup           @relation(fields: [year_group_id], references: [id])
   items      SkillCheckItem[]
   attempts   SkillCheckAttempt[]
+  answers    SkillCheckAnswer[]
 
   @@unique([subject_id, year_group_id, format])
   @@index([is_published])
@@ -1314,37 +1317,65 @@ model SkillCheckAttempt {
 /// Kept to calibrate lib/irt.ts, which has never had data. Deliberately separate
 /// from quiz_answers / session_answers: an anonymous check must never write into
 /// a child's learning record.
+///
+/// SELF-CONTAINED ON PURPOSE. An answer carries its own question, check, band,
+/// strand and position rather than reading them off `item`. Rebuilding a check
+/// deletes and re-creates every skill_check_items row (see persistCheck), and an
+/// answer that depended on the item row went with it. That is not hypothetical:
+/// it silently threw away the first 20 answers the live check ever recorded
+/// (2026-08-19). `item_id` is now nullable and SET NULL, so a rebuild loosens the
+/// link and keeps the data.
+///
+/// `question_id` is the unit that matters anyway. Difficulty belongs to a
+/// question, not to the slot a question happened to sit in, and lib/irt.ts
+/// calibrates per question.
 model SkillCheckAnswer {
-  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  attempt_id   String   @db.Uuid
-  item_id      String   @db.Uuid
-  child_answer String?
-  was_correct  Boolean
-  time_seconds Int?
-  created_at   DateTime @default(now())
+  id              String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  attempt_id      String         @db.Uuid
+  /// Null once the check has been rebuilt. Never the only route to the facts.
+  item_id         String?        @db.Uuid
+  /// The question actually asked. This is what IRT calibrates.
+  question_id     String         @db.Uuid
+  check_id        String         @db.Uuid
+  band            SkillCheckBand
+  /// The at-year topic this answer reports under, copied from the item.
+  strand_topic_id String         @db.Uuid
+  /// Position in the check as served, so a report can be reconstructed in order.
+  position        Int
+  child_answer    String?
+  was_correct     Boolean
+  time_seconds    Int?
+  created_at      DateTime       @default(now())
 
-  attempt SkillCheckAttempt @relation(fields: [attempt_id], references: [id], onDelete: Cascade)
-  item    SkillCheckItem    @relation(fields: [item_id], references: [id], onDelete: Cascade)
+  attempt  SkillCheckAttempt @relation(fields: [attempt_id], references: [id], onDelete: Cascade)
+  item     SkillCheckItem?   @relation(fields: [item_id], references: [id], onDelete: SetNull)
+  question QuizQuestion      @relation(fields: [question_id], references: [id], onDelete: Cascade)
+  check    SkillCheck        @relation(fields: [check_id], references: [id], onDelete: Cascade)
+  strand   Topic             @relation("SkillCheckAnswerStrand", fields: [strand_topic_id], references: [id])
 
-  @@unique([attempt_id, item_id])
+  /// One answer per question per attempt. Replaces the old key on item_id, which
+  /// stopped enforcing anything the moment item_id could be null.
+  @@unique([attempt_id, question_id])
+  @@index([question_id])
+  @@index([check_id])
   @@map("skill_check_answers")
 }
 
 /// The parent's email, and nothing else.
 model SkillCheckLead {
-  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  attempt_id   String    @unique @db.Uuid
-  parent_email String
-  consented_at DateTime  @default(now())
-  verified_at  DateTime?
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  attempt_id       String    @unique @db.Uuid
+  parent_email     String
+  consented_at     DateTime  @default(now())
+  verified_at      DateTime?
   /// Set by the one-click delete link in the report email. A tombstone, not a
   /// hard delete, so a deleted address is never re-emailed by a later cron.
-  deleted_at   DateTime?
+  deleted_at       DateTime?
   /// Set when the six-week retest reminder goes out, so it goes out once.
   reminder_sent_at DateTime?
-  source       String?
-  utm          Json?
-  created_at   DateTime  @default(now())
+  source           String?
+  utm              Json?
+  created_at       DateTime  @default(now())
 
   attempt SkillCheckAttempt @relation(fields: [attempt_id], references: [id], onDelete: Cascade)
 

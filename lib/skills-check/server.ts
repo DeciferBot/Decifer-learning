@@ -202,11 +202,14 @@ export async function submitAttempt(
       total_items: true,
       working_level: true,
       strand_results: true,
+      check_id: true,
       check: {
         select: {
           items: {
             select: {
               id: true,
+              position: true,
+              question_id: true,
               band: true,
               strand_topic_id: true,
               strand: { select: { title: true } },
@@ -242,7 +245,11 @@ export async function submitAttempt(
   const servedItems = attempt.check.items.filter((i) => i.question.status === 'published')
 
   const scored: CheckAnswer[] = []
-  const answerRows: { attempt_id: string; item_id: string; child_answer: string | null; was_correct: boolean; time_seconds: number | null }[] = []
+  // Each row copies the item's question, check, band, strand and position rather
+  // than pointing at the item and stopping there. Rebuilding a check deletes and
+  // re-creates every item row, and an answer that leaned on the item went with
+  // it. See the comment on SkillCheckAnswer in schema.prisma.
+  const answerRows: Prisma.SkillCheckAnswerCreateManyInput[] = []
 
   for (const item of servedItems) {
     const submitted = given.get(item.id)
@@ -258,6 +265,11 @@ export async function submitAttempt(
     answerRows.push({
       attempt_id: attempt.id,
       item_id: item.id,
+      question_id: item.question_id,
+      check_id: attempt.check_id,
+      band: item.band,
+      strand_topic_id: item.strand_topic_id,
+      position: item.position,
       child_answer: submitted?.answer ?? null,
       was_correct: correct,
       time_seconds: typeof submitted?.timeSeconds === 'number' ? Math.round(submitted.timeSeconds) : null,

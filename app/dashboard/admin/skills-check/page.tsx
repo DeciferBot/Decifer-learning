@@ -137,10 +137,18 @@ export default async function AdminSkillsCheckPage() {
         },
       }),
 
-      // Per-item correct rate. Two rows per item at most (was_correct true/false),
-      // folded below, so this is one query for the whole section.
+      // Per-question correct rate. Keyed on question_id, not item_id, for two
+      // reasons. Difficulty belongs to the question, so the same question asked
+      // in two checks should pool. And item_id goes null the moment a check is
+      // rebuilt, which used to take the whole row with it — see the comment on
+      // SkillCheckAnswer in schema.prisma.
+      //
+      // check/band/strand come along in the key so a question that appears in
+      // more than one place still reports each place separately. In practice a
+      // question sits in one check at one band, so this is one row per question
+      // per outcome.
       prisma.skillCheckAnswer.groupBy({
-        by: ['item_id', 'was_correct'],
+        by: ['question_id', 'check_id', 'band', 'strand_topic_id', 'position', 'was_correct'],
         _count: { _all: true },
       }),
     ])
@@ -198,39 +206,67 @@ export default async function AdminSkillsCheckPage() {
   ]
 
   // ── Item difficulty ────────────────────────────────────────────────────────
-  const itemStats = new Map<string, { correct: number; total: number }>()
+  type ItemStat = {
+    questionId: string
+    checkId: string
+    band: (typeof answerAgg)[number]['band']
+    strandTopicId: string
+    position: number
+    correct: number
+    total: number
+  }
+  const itemStats = new Map<string, ItemStat>()
   for (const row of answerAgg) {
-    const s = itemStats.get(row.item_id) ?? { correct: 0, total: 0 }
+    const key = `${row.question_id}:${row.check_id}`
+    const s = itemStats.get(key) ?? {
+      questionId: row.question_id,
+      checkId: row.check_id,
+      band: row.band,
+      strandTopicId: row.strand_topic_id,
+      position: row.position,
+      correct: 0,
+      total: 0,
+    }
     s.total += row._count._all
     if (row.was_correct) s.correct += row._count._all
-    itemStats.set(row.item_id, s)
+    itemStats.set(key, s)
   }
 
-  const answeredItems = itemStats.size > 0
-    ? await prisma.skillCheckItem.findMany({
-        where: { id: { in: [...itemStats.keys()] } },
-        select: {
-          id: true,
-          position: true,
-          band: true,
-          check: { select: { slug: true } },
-          strand: { select: { title: true } },
-          question: { select: { question_text: true, status: true } },
-        },
-      })
-    : []
+  const stats = [...itemStats.values()]
 
-  const itemRows = answeredItems
-    .map((i) => {
-      const s = itemStats.get(i.id) ?? { correct: 0, total: 0 }
+  // Question text and strand title come from the live tables. The answer row
+  // already knows which question and strand it was, so a rebuilt (or deleted)
+  // check item costs nothing here.
+  const [answeredQuestions, answeredStrands] = stats.length > 0
+    ? await Promise.all([
+        prisma.quizQuestion.findMany({
+          where: { id: { in: [...new Set(stats.map((s) => s.questionId))] } },
+          select: { id: true, question_text: true, status: true },
+        }),
+        prisma.topic.findMany({
+          where: { id: { in: [...new Set(stats.map((s) => s.strandTopicId))] } },
+          select: { id: true, title: true },
+        }),
+      ])
+    : [[], []]
+
+  const questionById = new Map(answeredQuestions.map((q) => [q.id, q]))
+  const strandTitleById = new Map(answeredStrands.map((t) => [t.id, t.title]))
+  const slugByCheckId = new Map(checks.map((c) => [c.id, c.slug]))
+
+  const itemRows = stats
+    .map((s) => {
+      const q = questionById.get(s.questionId)
       return {
-        id: i.id,
-        slug: i.check.slug,
-        position: i.position,
-        band: i.band,
-        strand: i.strand.title,
-        text: i.question.question_text,
-        retired: i.question.status !== 'published',
+        id: `${s.questionId}:${s.checkId}`,
+        slug: slugByCheckId.get(s.checkId) ?? '—',
+        position: s.position,
+        band: s.band,
+        strand: strandTitleById.get(s.strandTopicId) ?? '—',
+        // A question hard-deleted since the answer was given. The FK cascades,
+        // so this should be unreachable; shown honestly rather than as a blank.
+        text: q?.question_text ?? '(question deleted)',
+        retired: q ? q.status !== 'published' : true,
         correct: s.correct,
         total: s.total,
         // total is at least 1 here: an item only appears if it has answers.
