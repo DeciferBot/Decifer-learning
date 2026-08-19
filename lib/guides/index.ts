@@ -1,6 +1,7 @@
 import type { Guide } from './types'
 import { dubaiSchoolFees } from './content/dubai-school-fees'
 import { khdaRatingsExplained } from './content/khda-ratings-explained'
+import { adekRatingsExplained } from './content/adek-ratings-explained'
 import { choosingBritishSchoolDubai } from './content/choosing-british-school-dubai'
 import { abuDhabiSchoolFeesRatings } from './content/abu-dhabi-school-fees-ratings'
 import { britishCurriculumExplained } from './content/british-curriculum-explained'
@@ -22,6 +23,7 @@ const GUIDES: Guide[] = [
   khdaRatingsExplained,
   choosingBritishSchoolDubai,
   abuDhabiSchoolFeesRatings,
+  adekRatingsExplained,
   britishCurriculumExplained,
   cat4ExplainedUae,
   cat4ScoresExplained,
