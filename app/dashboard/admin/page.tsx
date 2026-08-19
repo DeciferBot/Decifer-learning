@@ -7,7 +7,7 @@ import { requireAdmin } from '@/lib/auth/admin-guard'
 import { getAuthUser } from '@/lib/supabase/server'
 import { getUserDisplayName } from '@/lib/auth/roles'
 import { prisma } from '@/lib/prisma'
-import { BarChart, Gift, Users, Flag, RefreshCw, TrendingUp, BookOpen, Bell, AlertTriangle } from '@/components/ui/icons'
+import { BarChart, Gift, Users, Flag, RefreshCw, TrendingUp, BookOpen, Bell, AlertTriangle, ClipboardList } from '@/components/ui/icons'
 import { LockButton } from './LockButton'
 
 export const metadata = { title: 'Admin' }
@@ -196,6 +196,12 @@ export default async function AdminDashboardPage() {
             icon={<TrendingUp className="w-5 h-5" aria-hidden />}
             title="Engagement"
             desc="Activation funnel, per-child status, re-engagement emails"
+          />
+          <NavCard
+            href="/dashboard/admin/skills-check"
+            icon={<ClipboardList className="w-5 h-5" aria-hidden />}
+            title="Skills Check"
+            desc="Public check funnel: attempts, emails captured, item difficulty"
           />
           <NavCard
             href="/dashboard/admin/users"
