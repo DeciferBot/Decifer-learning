@@ -1,22 +1,27 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ChevronRight } from '@/components/ui/icons'
+import { jsonLd } from '@/lib/json-ld'
+import { gamesIndexSchema } from '@/lib/games/schema'
 
 export const metadata: Metadata = {
-  title: 'Free Online Games for Kids — Chess, Checkers, Crossword & More | Decifer Learning',
+  // `absolute` opts out of the root layout's '%s | Decifer Learning'
+  // template, which was appending the brand a second time on top of the one
+  // already written here.
+  title: { absolute: 'Free Online Games for Kids: Chess, Checkers, Crossword & More' },
   description:
-    'Play chess, checkers, Connect 4, crossword puzzles and a word-tile game free in your browser — no sign-up, no download. Works on phone, tablet and computer.',
+    'Play chess, checkers, Connect 4, crossword puzzles and a word-tile game free in your browser. No sign-up, no download. Works on phone, tablet and computer.',
   alternates: { canonical: '/games' },
   openGraph: {
     title: 'Free Online Games for Kids | Decifer Learning',
     description:
-      'Chess, checkers, Connect 4, crossword and word-tile games — free, no sign-up required.',
+      'Chess, checkers, Connect 4, crossword and word-tile games. Free, no sign-up required.',
     url: 'https://www.deciferlearning.com/games',
   },
   twitter: {
     title: 'Free Online Games for Kids | Decifer Learning',
     description:
-      'Chess, checkers, Connect 4, crossword and word-tile games — free, no sign-up required.',
+      'Chess, checkers, Connect 4, crossword and word-tile games. Free, no sign-up required.',
   },
 }
 
@@ -31,7 +36,7 @@ const GAMES = [
     href: '/games/checkers',
     emoji: '⚫',
     name: 'Checkers',
-    blurb: 'Jump your way across the board and crown some kings — against the computer or a friend.',
+    blurb: 'Jump your way across the board and crown some kings, against the computer or a friend.',
   },
   {
     href: '/games/connect-4',
@@ -43,19 +48,29 @@ const GAMES = [
     href: '/games/crossword',
     emoji: '📝',
     name: 'Crossword',
-    blurb: 'Pick a theme — Animals, Space, Under the Sea, UK Geography — and fill in a fresh puzzle every time.',
+    blurb: 'Pick a theme, Animals, Space, Under the Sea or UK Geography, and fill in a fresh puzzle every time.',
   },
   {
     href: '/games/word-tiles',
     emoji: '🔤',
     name: 'Word Tiles',
-    blurb: 'A free word-tile game in the classic style — build words on a shared board with a friend, most points wins.',
+    blurb: 'A free word-tile game in the classic style. Build words on a shared board with a friend, most points wins.',
   },
 ]
+
+// Slugs come off the same GAMES array the cards render from, so the ItemList
+// can never list a game the page does not show.
+const schema = gamesIndexSchema(
+  GAMES.map((g) => ({ name: g.name, slug: g.href.replace('/games/', '') })),
+)
 
 export default function PublicGamesIndexPage() {
   return (
     <div className="mx-auto max-w-md space-y-6">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLd(schema) }}
+      />
       <header className="text-center">
         <h1 className="font-heading text-2xl font-extrabold text-ink sm:text-3xl">
           Free games for kids
