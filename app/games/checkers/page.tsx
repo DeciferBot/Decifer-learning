@@ -4,7 +4,7 @@ import { gamePageSchema } from '@/lib/games/schema'
 import { CheckersGame } from '@/components/games/CheckersGame'
 
 export const metadata: Metadata = {
-  title: { absolute: 'Play Checkers Online Free: No Sign-Up' },
+  title: { absolute: 'Play Checkers Online Free Against the Computer or a Friend' },
   description:
     'Play checkers (draughts) against the computer for free in your browser. Standard American rules with mandatory captures. Three difficulty levels.',
   alternates: { canonical: '/games/checkers' },

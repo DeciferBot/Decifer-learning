@@ -4,7 +4,7 @@ import { gamePageSchema } from '@/lib/games/schema'
 import { Connect4Game } from '@/components/games/Connect4Game'
 
 export const metadata: Metadata = {
-  title: { absolute: 'Play Connect 4 Online Free: No Sign-Up' },
+  title: { absolute: 'Play Connect 4 Free Against the Computer or a Friend' },
   description:
     'Play Connect 4 free in your browser. Line up four in a row before the computer does, at three difficulty levels, or play a friend with an invite code.',
   alternates: { canonical: '/games/connect-4' },

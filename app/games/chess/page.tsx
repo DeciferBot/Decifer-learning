@@ -4,7 +4,7 @@ import { gamePageSchema } from '@/lib/games/schema'
 import { ChessGame } from '@/components/games/ChessGame'
 
 export const metadata: Metadata = {
-  title: { absolute: 'Play Chess Online Free: No Sign-Up' },
+  title: { absolute: 'Play Chess Online Free Against the Computer or a Friend' },
   description:
     'Play chess against the computer for free, right in your browser. Three difficulty levels, or play a friend with an invite code. No account needed.',
   alternates: { canonical: '/games/chess' },
