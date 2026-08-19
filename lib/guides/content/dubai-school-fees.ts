@@ -2,10 +2,12 @@ import type { Guide } from '../types'
 
 export const dubaiSchoolFees: Guide = {
   slug: 'dubai-school-fees',
-  title: 'Dubai School Fees 2026-27: Real Ranges for British Curriculum Schools',
+  title: 'Dubai School Fees 2026-27: British Curriculum Ranges',
   h1: 'Dubai school fees in 2026-27: what parents actually pay',
   description:
     'Real annual fee ranges for British curriculum schools in Dubai, from about AED 25,000 to over AED 110,000, plus the 2026-27 fee freeze, how KHDA regulates increases, and what the extras cost.',
+  metaDescription:
+    'Real annual fee ranges for British curriculum schools in Dubai, from about AED 25,000 to over AED 110,000, plus the 2026-27 fee freeze and what extras cost.',
   keyAnswer:
     'British curriculum school fees in Dubai run from about AED 25,000 a year at value-tier schools to over AED 110,000 for sixth form at the most selective. Most Outstanding-rated schools charge between AED 45,000 and AED 105,000 depending on year group. Tuition is frozen for the 2026-27 academic year.',
   category: 'schools-and-fees',

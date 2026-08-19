@@ -19,13 +19,19 @@ export function generateStaticParams() {
 export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
   const guide = getGuide(params.slug)
   if (!guide) return {}
+  const metaDescription = guide.metaDescription ?? guide.description
   return {
-    title: guide.title,
-    description: guide.description,
+    // `absolute` opts out of the root layout's '%s | Decifer Learning'
+    // template. These are informational guides that a parent finds by
+    // searching for the topic, not the brand, and the suffix was spending 19
+    // of the roughly 60 characters Google displays on a word that does not
+    // help them decide whether to click.
+    title: { absolute: guide.title },
+    description: metaDescription,
     alternates: { canonical: `/guides/${guide.slug}` },
     openGraph: {
       title: guide.title,
-      description: guide.description,
+      description: metaDescription,
       type: 'article',
       publishedTime: guide.datePublished,
       modifiedTime: guide.dateModified,

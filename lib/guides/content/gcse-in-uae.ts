@@ -2,10 +2,12 @@ import type { Guide } from '../types'
 
 export const gcseInUae: Guide = {
   slug: 'gcse-in-uae',
-  title: 'GCSEs in the UAE: Exam Boards, 9-1 Grades and How to Support Your Child',
+  title: 'GCSEs in the UAE: Exam Boards and 9-1 Grades Explained',
   h1: 'GCSEs in the UAE: a parent’s guide',
   description:
     'How GCSEs and IGCSEs work at British schools in the UAE: the exam boards schools use, what the 9-1 grades mean, what happened to the 2026 exam series, and how to help in Years 10 and 11.',
+  metaDescription:
+    'How GCSEs and IGCSEs work at British schools in the UAE: the exam boards schools use, what the 9-1 grades mean, and how to help in Years 10 and 11.',
   keyAnswer:
     'Most British schools in the UAE enter students for international GCSEs from Pearson Edexcel, Cambridge International or OxfordAQA. Grades run 9 down to 1, where grade 4 is a standard pass and grade 5 a strong pass. Cambridge also lets schools use the older A* to G scale.',
   category: 'curriculum-explained',
