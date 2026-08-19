@@ -60,7 +60,7 @@ export function ChildDetailTabs({
                 'flex-none whitespace-nowrap px-4 py-2.5 text-sm font-semibold transition-colors',
                 'border-b-2 -mb-px min-h-[44px]',
                 active === tab.id
-                  ? 'border-maths text-maths'
+                  ? 'border-brand text-on-maths'
                   : 'border-transparent text-muted hover:text-ink',
               ].join(' ')}
             >

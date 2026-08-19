@@ -58,7 +58,7 @@ export default async function PreTestPage({ params }: { params: { id: string } }
       </nav>
 
       <div className="flex gap-2">
-        <span className="rounded-full bg-explorer px-3 py-1 text-xs font-bold text-white">0 Try It</span>
+        <span className="rounded-full bg-explorer px-3 py-1 text-xs font-bold text-on-maths">0 Try It</span>
         <span className="rounded-full bg-black/10 px-3 py-1 text-xs font-bold text-muted">1 Learn</span>
         <span className="rounded-full bg-black/10 px-3 py-1 text-xs font-bold text-muted">2 Quiz</span>
       </div>

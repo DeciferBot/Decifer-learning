@@ -8,6 +8,7 @@ import {
 } from '@/lib/public-curriculum'
 import { jsonLd } from '@/lib/json-ld'
 import { MarketingNav } from '@/components/marketing/MarketingNav'
+import { inkOn } from '@/lib/subject-colour'
 
 export const revalidate = 86400
 
@@ -77,8 +78,8 @@ export default async function SubjectCurriculumPage({ params }: Props) {
 
         <header>
           <span
-            className="inline-block rounded-full px-3 py-1 text-xs font-bold text-white"
-            style={{ backgroundColor: detail.colourToken }}
+            className="inline-block rounded-full px-3 py-1 text-xs font-bold "
+            style={{ backgroundColor: detail.colourToken, color: inkOn(detail.colourToken) }}
           >
             {detail.name}
           </span>
@@ -113,7 +114,7 @@ export default async function SubjectCurriculumPage({ params }: Props) {
                 </div>
                 <Link
                   href={`/curriculum/${detail.slug}/${year.label}`}
-                  className="text-sm font-semibold text-maths hover:underline"
+                  className="text-sm font-semibold text-on-maths hover:underline"
                 >
                   {year.displayLabel} {detail.name} topics <span aria-hidden>→</span>
                 </Link>
@@ -133,7 +134,7 @@ export default async function SubjectCurriculumPage({ params }: Props) {
           ))}
         </div>
 
-        <div className="mt-12 rounded-2xl border border-maths/20 bg-maths/5 p-8 text-center">
+        <div className="mt-12 rounded-2xl border border-brand/20 bg-brand/5 p-8 text-center">
           <h2 className="font-heading text-2xl font-bold text-ink">
             Start learning {detail.name}
           </h2>
@@ -142,7 +143,7 @@ export default async function SubjectCurriculumPage({ params }: Props) {
           </p>
           <Link
             href="/register"
-            className="mt-6 inline-flex h-12 items-center rounded-xl bg-maths px-8 font-semibold text-white"
+            className="mt-6 inline-flex h-12 items-center rounded-xl bg-brand-600 transition-colors hover:bg-brand-700 px-8 font-semibold text-white"
           >
             Create a free account
           </Link>

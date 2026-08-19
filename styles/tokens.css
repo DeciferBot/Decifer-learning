@@ -72,7 +72,17 @@
   --tw-violet:          155 124 255;   /* #9B7CFF */
   --tw-ink:             31 26 20;      /* #1F1A14 */
   --tw-ink-2:           92 81 71;      /* #5C5147 */
-  --tw-muted:           121 108 95;    /* #796C5F */
+  --tw-muted:           110 98 85;     /* #6E6255 */
+
+  /* Text that sits ON a subject colour. The subject hues are light, so white
+     on them fails badly: white on --maths is 2.63:1, on --english 2.15:1, on
+     --science 1.78:1, all below the 3:1 floor for even large text. These
+     darkened tints of each hue clear 4.5:1 (4.61 / 4.75 / 5.93). The hex
+     equivalents have existed as --text-on-maths and friends since v2; these
+     are the Tailwind channels so a component can actually reach them. */
+  --tw-on-maths:        26 54 93;      /* #1A365D */
+  --tw-on-english:      123 28 51;     /* #7B1C33 */
+  --tw-on-science:      26 71 49;      /* #1A4731 */
 
   /* ─────────────────────────────────────────────────────────
      1. EXISTING BRAND COLOURS (non-negotiable)
@@ -120,7 +130,7 @@
 
   /* Text (warm — Learning adaptation) */
   --text-primary: #1F1A14;   /* main ink — warm dark                         */
-  --text-muted:   #796C5F;   /* captions, meta — ink-3 (AA on paper/white)   */
+  --text-muted:   #6E6255;   /* captions, meta — AA on every surface, incl. tints */
 
 
   /* ─────────────────────────────────────────────────────────
@@ -200,9 +210,16 @@
   --history-bg:       #FAF5FF;
   --history-bdr:      #D8B4FE;
 
-  --geography:        #F97316;   /* amber-orange   — geography curriculum        */
-  --geography-bg:     #FFF7ED;
-  --geography-bdr:    #FED7AA;
+  /* Deep atlas teal. Was #F97316, an amber-orange that sat 10 degrees from
+     Ember and is on the deprecated-orange list in scripts/check-brand-hex.mjs.
+     The database had drifted further still: Geography was stored as #34D399,
+     three degrees of hue from Science's #52D9A0, so the two subjects rendered
+     as the same green. This sits 35 degrees from Science and 27 points darker,
+     so hue and lightness both separate them, and it clears 4.5:1 as a fill
+     (5.13:1 with white) and as text on white. */
+  --geography:        #15788C;   /* deep atlas teal — geography curriculum       */
+  --geography-bg:     #E7F1F4;
+  --geography-bdr:    #A8CBD4;
 
 
   /* ─────────────────────────────────────────────────────────
@@ -211,7 +228,7 @@
   --text-heading:     #1F1A14;   /* headings — warm dark (Learning ink)           */
   --text-body:        #1F1A14;   /* body copy — ink                               */
   --text-secondary:   #5C5147;   /* secondary — ink-2                             */
-  --text-muted:       #796C5F;   /* captions, timestamps — ink-3 (AA contrast)    */
+  --text-muted:       #6E6255;   /* captions, timestamps — AA on every surface     */
   --text-placeholder: #C4B8AC;   /* input placeholders                            */
   --text-disabled:    #D4C8BC;   /* disabled labels                               */
   --text-inverse:     #FFFFFF;   /* text on dark/coloured backgrounds             */
@@ -589,6 +606,98 @@
   --english-bdr: var(--border-english);
   --science-bg:  var(--science-bg);
   --science-bdr: var(--border-science);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   14. GAME SURFACES — Downtime (/downtime/*) and public games (/games/*)
+   ═══════════════════════════════════════════════════════════════════
+
+   Why this section exists
+   ───────────────────────
+   The five board games used to carry their own raw hex inline (#B7C4D9,
+   #F3F6FB, #8B5E3C, #3D6FD6, #FF6B6B, #2D3748 …). Two problems with that:
+
+   1. It broke the colour contract. #FF6B6B and #2D3748 are v1 tokens that
+      were retired when the warm Ember palette landed — the boards were
+      rendering an obsolete palette nothing else on the site uses.
+   2. It shipped a real contrast failure. A white chess piece (#FFFFFF) on
+      a light square (#F3F6FB) measures 1.08:1. The piece was invisible
+      except for a 1px drop shadow.
+
+   The fix for #2 is structural, not a colour swap: no single fill can
+   clear 3:1 against BOTH square colours, so every piece carries a
+   contrasting rim (--game-piece-*-rim). The rim is what separates the
+   piece from the board; the fill only says which side owns it. Measured:
+   light piece rim on a light square = 10.8:1, dark piece rim on a dark
+   square = 13.6:1.
+
+   Direction: real objects on a warm table. Chess and checkers share one
+   maple/walnut board, Connect 4 is an indigo cabinet (Indigo is the brand
+   anchor colour), crossword and word tiles are paper. Warm throughout, to
+   match --background, rather than the cold blue-grey these boards had.
+
+   Colour is never the only signal. Selection, legal moves, last move and
+   errors each pair their colour with a shape (ring, dot, corner notch,
+   slash) so the boards stay playable with any colour-vision deficiency.
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── The table everything sits on ─────────────────────────── */
+  --game-table:        #2A211A;   /* deep walnut behind a board's bezel   */
+  --game-table-lit:    #3A2C21;   /* where the light falls on it          */
+  --game-table-far:    #1E1712;   /* the far edge, away from the light    */
+  --game-bezel:        #4A3728;   /* the board's raised wooden frame      */
+  --game-bezel-lip:    #6B5138;   /* top-lit edge of that frame           */
+
+  /* ── Chess + checkers board ───────────────────────────────── */
+  --game-sq-light:     #EDDCC0;   /* maple                                */
+  --game-sq-dark:      #B08356;   /* walnut — 2.5:1 against maple         */
+  --game-coord-light:  #8A6A44;   /* rank/file label sitting on maple     */
+  --game-coord-dark:   #F0E2C9;   /* …and on walnut                       */
+
+  /* ── Pieces. Rim carries the contrast, fill carries identity ─ */
+  --game-piece-light:      #FFFDF8;
+  --game-piece-light-rim:  #3B2415;   /* 10.8:1 on maple, 8.4:1 on walnut */
+  --game-piece-dark:       #241A11;
+  --game-piece-dark-rim:   #F2E4CC;   /* 13.6:1 on the dark fill          */
+  --game-piece-red:        #D6452F;   /* checkers "your" disc             */
+  --game-piece-red-rim:    #FFD9CD;
+  --game-piece-shadow:     0 2px 3px rgba(20, 12, 6, .45);
+
+  /* ── Board state. Each pairs with a shape, never colour alone ─ */
+  --game-sel:          rgba(251, 90, 36, .55);   /* ember — tap selection */
+  --game-sel-ring:     #B83300;
+  --game-last:         rgba(253, 216, 104, .45); /* fig — previous move   */
+  --game-last-ring:    #A87C00;
+  --game-hint:         #B83300;                  /* legal-move dot/ring   */
+  --game-danger:       #C0392B;                  /* check, wrong letter   */
+
+  /* ── Connect 4 cabinet ────────────────────────────────────── */
+  --game-c4-cabinet:      #2C3160;   /* brand indigo                      */
+  --game-c4-cabinet-deep: #1B1F42;   /* the hole, and the cabinet's base  */
+  --game-c4-red:          #F0533F;   /* 3.5:1 on cabinet, 4.6:1 in a hole */
+  --game-c4-yellow:       #FFCE3A;   /* 10.7:1 in a hole                  */
+
+  /* ── Crossword + word tiles: paper ────────────────────────── */
+  --game-paper:        #FFFFFF;
+  --game-paper-rule:   rgba(31, 26, 20, .22);   /* grid lines on paper    */
+  --game-active-word:  #FFF1CC;                 /* fig tint, 15.4:1 w ink */
+  --game-tile:         #F7ECD8;                 /* a letter tile          */
+  --game-tile-lit:     #FFFDF8;                 /* its top, catching light */
+  --game-tile-edge:    #D8C4A4;                 /* its bottom bevel       */
+
+  /* Word-tile premium squares. All ≥11.7:1 against --text-primary. */
+  --game-prem-tw:      #FFD9C7;   /* triple word  — ember family          */
+  --game-prem-dw:      #FFD6E2;   /* double word  — rose family           */
+  --game-prem-tl:      #CFD4F0;   /* triple letter — indigo family        */
+  --game-prem-dl:      #D6E6FF;   /* double letter — azure family         */
+
+  /* ── Depth. Boards are recessed into their frame, not flat. ── */
+  --game-inset:        inset 0 2px 6px rgba(20, 12, 6, .38),
+                       inset 0 -1px 0 rgba(255, 245, 230, .10);
+  --game-lift:         0 10px 28px rgba(42, 33, 26, .26),
+                       0 2px 6px rgba(42, 33, 26, .18);
 }
 
 

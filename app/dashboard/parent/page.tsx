@@ -34,7 +34,7 @@ export const metadata = { title: 'Parent dashboard' }
 const VAULT_STATUS_LABELS: Record<string, { label: string; colour: string; bg: string }> = {
   pending:         { label: 'Waiting for parent', colour: 'text-points-gold-700', bg: 'bg-points-gold/20' },
   deferred:        { label: 'Deferred',           colour: 'text-muted',       bg: 'bg-black/5'        },
-  counter_offered: { label: 'Waiting for child',  colour: 'text-maths',       bg: 'bg-maths/15'       },
+  counter_offered: { label: 'Waiting for child',  colour: 'text-on-maths',       bg: 'bg-maths/15'       },
 }
 
 export default async function ParentDashboardPage() {
@@ -223,21 +223,21 @@ export default async function ParentDashboardPage() {
                 <div>
                   <div className="mb-1 flex items-center justify-between text-xs">
                     <span className="text-muted">Curriculum</span>
-                    <span className="font-bold text-maths">{curriculumPct}%</span>
+                    <span className="font-bold text-on-maths">{curriculumPct}%</span>
                   </div>
                   <div className="h-1.5 overflow-hidden rounded-full bg-black/[0.06]">
-                    <div className="h-full rounded-full bg-maths" style={{ width: `${curriculumPct}%` }} />
+                    <div className="h-full rounded-full bg-teal" style={{ width: `${curriculumPct}%` }} />
                   </div>
                 </div>
               )}
 
               {/* Weak areas — count only, detail is in full report */}
               {weakAreas.length > 0 ? (
-                <p className="text-xs text-incorrect font-medium">
+                <p className="text-xs text-incorrect-700 font-medium">
                   ⚠ {weakAreas.length} area{weakAreas.length === 1 ? '' : 's'} to strengthen, see full report
                 </p>
               ) : progress.quizAttempts > 0 ? (
-                <p className="text-xs text-science font-medium flex items-center gap-1">
+                <p className="text-xs text-on-science font-medium flex items-center gap-1">
                   <Check className="w-3 h-3" aria-hidden /> No struggle areas yet
                 </p>
               ) : null}
@@ -259,7 +259,7 @@ export default async function ParentDashboardPage() {
                 {vault.pendingRequestCount > 0 && (
                   <Link
                     href={`/dashboard/parent/vault/${child.profileId}`}
-                    className="inline-flex min-h-[40px] items-center gap-1.5 rounded-xl bg-brand/10 px-3 py-2 text-xs font-semibold text-brand hover:bg-brand/20 transition-colors"
+                    className="inline-flex min-h-[40px] items-center gap-1.5 rounded-xl bg-brand/10 px-3 py-2 text-xs font-semibold text-brand-700 hover:bg-brand/20 transition-colors"
                   >
                     <Gift className="w-3.5 h-3.5" aria-hidden /> Vault ({vault.pendingRequestCount})
                   </Link>
@@ -271,7 +271,7 @@ export default async function ParentDashboardPage() {
             <div className="border-t border-black/5 px-5 py-3">
               <Link
                 href={`/dashboard/parent/children/${child.profileId}`}
-                className="flex w-full items-center justify-center rounded-xl bg-maths py-3 font-heading text-sm font-bold text-white transition-colors hover:bg-maths/90 min-h-[48px]"
+                className="flex w-full items-center justify-center rounded-xl bg-brand-600 py-3 font-heading text-sm font-bold text-white transition-colors hover:bg-brand-700 min-h-[48px]"
               >
                 Open {child.displayName}&apos;s full report →
               </Link>
@@ -284,8 +284,8 @@ export default async function ParentDashboardPage() {
       {pendingVaultRequests.length > 0 && (
         <div className="rounded-2xl border border-brand/20 bg-brand/5 px-5 py-4 shadow-sm space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="font-heading text-sm font-semibold text-brand flex items-center gap-1"><Gift className="w-4 h-4" aria-hidden /> Reward Vault</h2>
-            <span className="rounded-full bg-brand px-2 py-0.5 text-xs font-bold text-white">
+            <h2 className="font-heading text-sm font-semibold text-brand-700 flex items-center gap-1"><Gift className="w-4 h-4" aria-hidden /> Reward Vault</h2>
+            <span className="rounded-full bg-brand-600 px-2 py-0.5 text-xs font-bold text-white">
               {pendingVaultRequests.length} pending
             </span>
           </div>
@@ -310,7 +310,7 @@ export default async function ParentDashboardPage() {
               )}
               <Link
                 href={`/dashboard/parent/vault/${req.childProfileId}`}
-                className="inline-flex h-9 items-center rounded-xl bg-brand px-4 text-xs font-bold text-white transition-colors hover:bg-brand-600"
+                className="inline-flex h-9 items-center rounded-xl bg-brand-600 px-4 text-xs font-bold text-white transition-colors hover:bg-brand-600"
               >
                 Respond →
               </Link>
@@ -352,7 +352,7 @@ function CurriculumMini({
         <p className="text-xs font-bold uppercase tracking-wide text-muted">Curriculum progress</p>
         <Link
           href={`/dashboard/parent/children/${childId}`}
-          className="text-xs text-brand hover:underline"
+          className="text-xs text-brand-700 hover:underline"
         >
           Full breakdown →
         </Link>
@@ -362,10 +362,10 @@ function CurriculumMini({
       <div>
         <div className="mb-1 flex items-center justify-between text-xs">
           <span className="text-ink">{completedTopics} of {totalTopics} topics done</span>
-          <span className="font-bold text-maths">{pct}%</span>
+          <span className="font-bold text-on-maths">{pct}%</span>
         </div>
         <div className="h-1.5 overflow-hidden rounded-full bg-black/[0.06]">
-          <div className="h-full rounded-full bg-maths" style={{ width: `${pct}%` }} />
+          <div className="h-full rounded-full bg-teal" style={{ width: `${pct}%` }} />
         </div>
       </div>
 
@@ -439,7 +439,7 @@ function Stat({
     <div className="rounded-xl bg-black/[0.03] px-2 py-3">
       <p className="font-heading text-xl font-bold text-ink">{value}</p>
       <p className="mt-0.5 text-xs text-muted">{label}</p>
-      {sub && <p className="mt-0.5 text-xs font-semibold text-science">{sub}</p>}
+      {sub && <p className="mt-0.5 text-xs font-semibold text-on-science">{sub}</p>}
     </div>
   )
 }

@@ -13,7 +13,7 @@ export default function ContentQualityPage() {
     <div className="space-y-8">
       <HelpBreadcrumbSchema title="Content quality" path="/help/content-quality" />
       <div>
-        <Link href="/help" className="mb-4 inline-block text-sm font-semibold text-brand hover:underline">
+        <Link href="/help" className="mb-4 inline-block text-sm font-semibold text-brand-700 hover:underline">
           ← All guides
         </Link>
         <h1 className="font-heading text-3xl font-bold text-ink">Content quality</h1>
@@ -33,7 +33,7 @@ export default function ContentQualityPage() {
         <ol className="space-y-3">
           {PIPELINE_STAGES.map((stage, i) => (
             <li key={i} className="flex items-start gap-4 rounded-xl border border-black/5 bg-surface px-4 py-4 shadow-sm">
-              <span className="flex h-7 w-7 flex-none items-center justify-center rounded-full bg-brand-50 text-sm font-black text-brand font-heading">
+              <span className="flex h-7 w-7 flex-none items-center justify-center rounded-full bg-brand-50 text-sm font-black text-brand-700 font-heading">
                 {i + 1}
               </span>
               <div>
@@ -88,7 +88,7 @@ export default function ContentQualityPage() {
       </section>
 
       <div className="flex flex-wrap gap-3 text-sm">
-        <Link href="/help/how-decifer-works" className="font-semibold text-brand hover:underline">
+        <Link href="/help/how-decifer-works" className="font-semibold text-brand-700 hover:underline">
           How Decifer works →
         </Link>
         <Link href="/help" className="text-muted hover:text-ink hover:underline">

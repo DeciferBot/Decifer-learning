@@ -37,7 +37,7 @@ export function ReportProblemButton({ questionId }: Props) {
 
   if (state === 'done') {
     return (
-      <p className="mt-3 text-center text-xs text-correct flex items-center justify-center gap-1">
+      <p className="mt-3 text-center text-xs text-correct-700 flex items-center justify-center gap-1">
         <Check className="w-3.5 h-3.5" aria-hidden /> Report received. Our team will review it.
       </p>
     )
@@ -69,7 +69,7 @@ export function ReportProblemButton({ questionId }: Props) {
           aria-describedby={error ? 'report-error' : undefined}
         />
         {error && (
-          <p id="report-error" role="alert" className="text-xs text-incorrect">
+          <p id="report-error" role="alert" className="text-xs text-incorrect-700">
             {error}
           </p>
         )}
@@ -77,7 +77,7 @@ export function ReportProblemButton({ questionId }: Props) {
           <button
             onClick={submit}
             disabled={state === 'submitting'}
-            className="inline-flex min-h-[48px] items-center justify-center rounded-xl bg-brand px-4 text-xs font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+            className="inline-flex min-h-[48px] items-center justify-center rounded-xl bg-brand-600 px-4 text-xs font-bold text-white transition-colors hover:bg-brand-700 disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
           >
             {state === 'submitting' ? 'Sending…' : 'Send report'}
           </button>

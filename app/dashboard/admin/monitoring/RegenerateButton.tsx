@@ -44,7 +44,7 @@ export function RegenerateButton() {
       <button
         onClick={trigger}
         disabled={state === 'running'}
-        className="flex h-9 items-center gap-1.5 rounded-xl bg-brand px-4 text-xs font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+        className="flex h-9 items-center gap-1.5 rounded-xl bg-brand-600 px-4 text-xs font-bold text-white transition-colors hover:bg-brand-700 disabled:opacity-60"
       >
         {state === 'running' ? (
           <>
@@ -56,7 +56,7 @@ export function RegenerateButton() {
         )}
       </button>
       {summary && (
-        <p className={`text-xs ${state === 'error' ? 'text-incorrect' : 'text-correct'}`}>
+        <p className={`text-xs ${state === 'error' ? 'text-incorrect-700' : 'text-correct-700'}`}>
           {summary}
         </p>
       )}

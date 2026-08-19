@@ -35,10 +35,16 @@ const config: Config = {
         rose: 'rgb(var(--tw-rose) / <alpha-value>)',
         'rose-700': 'rgb(var(--tw-rose-700) / <alpha-value>)',
 
-        // Subject colours
+        // Subject colours. These are light hues meant for tints, borders and
+        // chips — never as the background under white text (white on maths is
+        // 2.63:1). When a surface IS the subject colour, its text must be the
+        // matching `on-*` ink below.
         maths: 'rgb(var(--tw-maths) / <alpha-value>)',
         english: 'rgb(var(--tw-english) / <alpha-value>)',
         science: 'rgb(var(--tw-science) / <alpha-value>)',
+        'on-maths': 'rgb(var(--tw-on-maths) / <alpha-value>)',
+        'on-english': 'rgb(var(--tw-on-english) / <alpha-value>)',
+        'on-science': 'rgb(var(--tw-on-science) / <alpha-value>)',
 
         // Semantic
         correct: 'rgb(var(--tw-correct) / <alpha-value>)',

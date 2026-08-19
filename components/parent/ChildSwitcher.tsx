@@ -27,7 +27,7 @@ export function ChildSwitcher({ currentChildId, links }: Props) {
             className={[
               'min-h-[48px] rounded-xl px-4 py-2 text-sm font-semibold transition-colors',
               isCurrent
-                ? 'bg-maths/10 text-maths'
+                ? 'bg-maths/10 text-on-maths'
                 : 'bg-black/[0.04] text-muted hover:bg-black/[0.08] hover:text-ink',
             ].join(' ')}
           >

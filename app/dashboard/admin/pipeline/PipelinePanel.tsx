@@ -102,7 +102,7 @@ export function PipelinePanel({
             type="button"
             onClick={checkHealth}
             disabled={healthLoading}
-            className="h-10 rounded-lg bg-maths px-4 text-sm font-semibold text-white disabled:opacity-60"
+            className="h-10 rounded-lg bg-brand-600 transition-colors hover:bg-brand-700 px-4 text-sm font-semibold text-white disabled:opacity-60"
           >
             {healthLoading ? 'Checking…' : 'Check pipeline'}
           </button>
@@ -180,7 +180,7 @@ export function PipelinePanel({
             <button
               type="submit"
               disabled={generateLoading || !topicId}
-              className="h-12 w-full rounded-lg bg-maths font-semibold text-white disabled:opacity-60"
+              className="h-12 w-full rounded-lg bg-brand-600 transition-colors hover:bg-brand-700 font-semibold text-white disabled:opacity-60"
             >
               {generateLoading ? 'Generating…' : 'Run pipeline'}
             </button>

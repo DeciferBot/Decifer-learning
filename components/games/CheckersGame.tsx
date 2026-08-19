@@ -2,9 +2,7 @@
 
 import { useCallback, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import Link from 'next/link'
 import { fireFeedback } from '@/lib/feedback'
-import { WinBurst } from '@/components/quiz/WinBurst'
 import {
   createInitialBoard, legalMoves, applyMove, determineOutcome, pickComputerMove,
   type Board, type CheckersColor, type CheckersDifficulty, type Move,
@@ -12,9 +10,14 @@ import {
 import { useBoardGame } from '@/lib/downtime/useBoardGame'
 import { OnlineLobby } from '@/components/games/OnlineLobby'
 import { WaitingRoom, TurnBanner, PlayAFriendDivider } from '@/components/games/OnlineBoardStatus'
-import { ChevronLeft, RefreshCw, Trophy, Crown } from '@/components/ui/icons'
+import { Crown } from '@/components/ui/icons'
+import {
+  GameShell, GameBackLink, GameToolbar, GameMessage, GameMenu, GameCrest,
+  BoardFrame, PlayerStrip, GameEndCard,
+  menuHeadingLevel,
+} from '@/components/games/GameChrome'
 
-const DIFFICULTIES: { id: CheckersDifficulty; label: string; blurb: string }[] = [
+const DIFFICULTIES = [
   { id: 'easy', label: 'Easy', blurb: 'Good for a first game' },
   { id: 'medium', label: 'Medium', blurb: 'Plays sensibly, still beatable' },
   { id: 'hard', label: 'Hard', blurb: 'Never misses a forced capture' },
@@ -118,117 +121,112 @@ export function CheckersGame({ backHref = '/downtime' }: { backHref?: string }) 
 
   if (screen === 'online-lobby') {
     return (
-      <div className="mx-auto max-w-sm space-y-4">
-        <BackLink href={backHref} />
+      <GameShell>
+        <GameBackLink href={backHref} />
         <OnlineLobby gameType="checkers" onReady={setOnlineGameId} onBack={() => setScreen('difficulty')} />
-      </div>
+      </GameShell>
     )
   }
 
   if (!difficulty) {
     return (
-      <div className="mx-auto max-w-sm space-y-4">
-        <BackLink href={backHref} />
-        <div className="rounded-2xl border border-black/5 bg-surface p-6 text-center shadow-sm">
-          <p className="mb-4 text-5xl" aria-hidden>⚫🔴</p>
-          <h1 className="font-heading text-2xl font-bold text-ink">Checkers</h1>
-          <p className="mt-1 mb-5 text-sm text-muted">Pick a difficulty</p>
-          <div className="space-y-2">
-            {DIFFICULTIES.map((d) => (
-              <button
-                key={d.id}
-                onClick={() => setDifficulty(d.id)}
-                className="w-full rounded-xl border-2 border-black/10 bg-background px-4 py-3 text-left transition-colors hover:border-maths hover:bg-maths/5"
-              >
-                <span className="font-heading font-bold text-ink">{d.label}</span>
-                <span className="block text-xs text-muted">{d.blurb}</span>
-              </button>
-            ))}
-          </div>
-          <PlayAFriendDivider onClick={() => setScreen('online-lobby')} />
-        </div>
-      </div>
+      <GameShell>
+        <GameBackLink href={backHref} />
+        <GameMenu
+          headingLevel={menuHeadingLevel(backHref)}
+          crest={<GameCrest glyph={<CheckerDisc colour="red" size={44} />} />}
+          title="Checkers"
+          blurb="Jump across the board and crown some kings. Play the computer, or a friend."
+          options={DIFFICULTIES}
+          onPick={(id) => setDifficulty(id as CheckersDifficulty)}
+          footer={<PlayAFriendDivider onClick={() => setScreen('online-lobby')} />}
+        />
+      </GameShell>
     )
   }
 
   return (
-    <div className="mx-auto max-w-sm space-y-4">
-      <div className="flex items-center justify-between">
-        <BackLink href={backHref} />
-        <button
-          onClick={restart}
-          className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl px-3 text-sm font-semibold text-ink-2 transition-colors hover:bg-black/5"
-        >
-          <RefreshCw className="h-4 w-4" aria-hidden /> New game
-        </button>
-      </div>
+    <GameShell>
+      <GameToolbar backHref={backHref} onReset={restart} />
 
-      <div className="flex items-center justify-between px-1 text-sm">
-        <span className="inline-flex items-center gap-1.5 font-semibold text-ink">
-          <span className="h-3.5 w-3.5 rounded-full bg-[#FF6B6B]" aria-hidden /> You
-        </span>
-        <AnimatePresence mode="wait">
-          {thinking ? (
-            <motion.span
-              key="thinking"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="text-xs font-semibold text-muted"
-            >
-              Computer is thinking…
-            </motion.span>
-          ) : mustCapture && !end ? (
-            <motion.span
-              key="capture"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-xs font-bold text-incorrect"
-            >
-              You must capture!
-            </motion.span>
-          ) : null}
-        </AnimatePresence>
-        <span className="inline-flex items-center gap-1.5 font-semibold text-muted">
-          Computer <span className="h-3.5 w-3.5 rounded-full bg-[#2D3748]" aria-hidden />
-        </span>
-      </div>
+      <PlayerStrip
+        you={{ name: 'You', swatch: 'var(--game-piece-red)', active: !thinking && !end }}
+        them={{ name: 'Computer', swatch: 'var(--game-piece-dark)', active: thinking }}
+        status={
+          thinking
+            ? { text: 'Thinking…', tone: 'neutral' }
+            : mustCapture && !end
+              ? { text: 'You must capture!', tone: 'alert' }
+              : null
+        }
+      />
 
-      <CheckersGrid board={board} targets={targets} movableFrom={movableFrom} selected={selected} lastMove={lastMove} onTap={tapSquare} disabled={!!end} />
+      <CheckersGrid
+        board={board}
+        targets={targets}
+        movableFrom={movableFrom}
+        selected={selected}
+        lastMove={lastMove}
+        onTap={tapSquare}
+        disabled={!!end}
+      />
 
       <AnimatePresence>
         {end && (
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="relative overflow-hidden rounded-2xl border border-black/5 bg-surface p-6 text-center shadow-sm"
-          >
-            {end === 'win' && <WinBurst />}
-            <div className="mb-2 flex justify-center">
-              {end === 'win' ? (
-                <Trophy className="h-10 w-10 text-points-gold" aria-hidden />
-              ) : (
-                <span className="text-4xl" aria-hidden>⚫</span>
-              )}
-            </div>
-            <h2 className="font-heading text-xl font-bold text-ink">
-              {end === 'win' ? 'You won!' : 'Good game!'}
-            </h2>
-            <p className="mt-1 text-sm text-muted">
-              {end === 'win'
-                ? 'You captured every piece — or the computer had nowhere left to move.'
-                : 'The computer got you this time — have another go.'}
-            </p>
-            <button
-              onClick={restart}
-              className="mt-4 inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl bg-maths px-6 font-heading font-bold text-white transition-opacity hover:opacity-90"
-            >
-              Play again
-            </button>
-          </motion.div>
+          <GameEndCard
+            outcome={end === 'win' ? 'win' : 'loss'}
+            title={end === 'win' ? 'You won!' : 'Good game!'}
+            detail={
+              end === 'win'
+                ? 'You captured every piece, or the computer had nowhere left to move.'
+                : 'The computer got you this time. Have another go.'
+            }
+            actionLabel="Play again"
+            onAction={restart}
+          />
         )}
       </AnimatePresence>
-    </div>
+    </GameShell>
+  )
+}
+
+/**
+ * One disc: a moulded piece with a rim, a ring groove and a cast shadow.
+ *
+ * The rim is load-bearing, not decoration. A red disc on a walnut square is
+ * 1.3:1 on fill alone, so the light rim is what tells you a piece is there.
+ * Kings carry a crown, which also means "king" survives greyscale.
+ */
+function CheckerDisc({
+  colour, king, size,
+}: {
+  colour: CheckersColor
+  king?: boolean
+  size?: number
+}) {
+  const red = colour === 'red'
+  const fill = red ? 'var(--game-piece-red)' : 'var(--game-piece-dark)'
+  const rim = red ? 'var(--game-piece-red-rim)' : 'var(--game-piece-dark-rim)'
+  return (
+    <span
+      className="relative flex items-center justify-center rounded-full"
+      style={{
+        width: size ?? '74%',
+        height: size ?? '74%',
+        background: `radial-gradient(circle at 34% 28%, rgba(255,255,255,.30) 0%, rgba(255,255,255,0) 55%), ${fill}`,
+        boxShadow: `inset 0 0 0 2px ${rim}, inset 0 -3px 5px rgba(20,12,6,.35), var(--game-piece-shadow)`,
+      }}
+    >
+      {/* The groove a moulded checker has. Kept faint on purpose: at full
+          strength it competes with the outer rim and the disc starts reading
+          as a doughnut rather than a piece. */}
+      <span
+        aria-hidden
+        className="absolute inset-[22%] rounded-full"
+        style={{ boxShadow: `inset 0 0 0 1px ${rim}`, opacity: 0.22 }}
+      />
+      {king && <Crown className="relative h-[52%] w-[52%] text-points-gold" aria-hidden />}
+    </span>
   )
 }
 
@@ -246,59 +244,78 @@ function CheckersGrid({
   disabled: boolean
 }) {
   return (
-    <div
-      className="grid aspect-square w-full grid-cols-8 overflow-hidden rounded-2xl border border-black/10 shadow-sm"
-      role="group"
-      aria-label="Checkers board"
-    >
-      {Array.from({ length: 8 }, (_, rowFromTop) => {
-        const row = 7 - rowFromTop
-        return Array.from({ length: 8 }, (_, col) => {
-          const piece = board[row][col]
-          const dark = (row + col) % 2 === 1
-          const isSelected = selected && selected[0] === row && selected[1] === col
-          const isTarget = targets.some((m) => m.to[0] === row && m.to[1] === col)
-          const isLastMove = lastMove
-            && ((lastMove.from[0] === row && lastMove.from[1] === col)
-              || (lastMove.to[0] === row && lastMove.to[1] === col))
-          const canTap = dark && (isTarget || movableFrom.has(`${row},${col}`))
-          return (
-            <button
-              key={`${row}-${col}`}
-              onClick={() => onTap(row, col)}
-              disabled={disabled || !canTap}
-              aria-label={
-                piece ? `${row + 1},${col + 1}, ${piece.color}${piece.king ? ' king' : ''}` : `${row + 1},${col + 1}`
-              }
-              className="relative flex aspect-square items-center justify-center transition-colors disabled:cursor-default"
-              style={{
-                backgroundColor: !dark
-                  ? '#F5EBDD'
-                  : isSelected
-                    ? 'rgba(108,158,255,0.55)'
-                    : isLastMove
-                      ? 'rgba(255,193,7,0.35)'
-                      : '#8B5E3C',
-              }}
-            >
-              {piece && (
-                <span
-                  className="relative flex h-[72%] w-[72%] items-center justify-center rounded-full shadow-[0_2px_3px_rgba(0,0,0,0.35)]"
-                  style={{ backgroundColor: piece.color === 'red' ? '#FF6B6B' : '#2D3748' }}
-                >
-                  {piece.king && (
-                    <Crown className="h-[55%] w-[55%] text-points-gold" aria-hidden />
-                  )}
-                </span>
-              )}
-              {isTarget && !piece && (
-                <span className="absolute h-[26%] w-[26%] rounded-full bg-maths/60" aria-hidden />
-              )}
-            </button>
-          )
-        })
-      })}
-    </div>
+    <BoardFrame>
+      <div className="grid aspect-square w-full grid-cols-8" role="group" aria-label="Checkers board">
+        {Array.from({ length: 8 }, (_, rowFromTop) => {
+          const row = 7 - rowFromTop
+          return Array.from({ length: 8 }, (_, col) => {
+            const piece = board[row][col]
+            const dark = (row + col) % 2 === 1
+            const isSelected = !!selected && selected[0] === row && selected[1] === col
+            const isTarget = targets.some((m) => m.to[0] === row && m.to[1] === col)
+            const isLastMove = !!lastMove
+              && ((lastMove.from[0] === row && lastMove.from[1] === col)
+                || (lastMove.to[0] === row && lastMove.to[1] === col))
+            const canMove = dark && movableFrom.has(`${row},${col}`)
+            const canTap = dark && (isTarget || canMove)
+            return (
+              <button
+                key={`${row}-${col}`}
+                onClick={() => onTap(row, col)}
+                disabled={disabled || !canTap}
+                aria-pressed={isSelected}
+                aria-label={
+                  piece
+                    ? `${row + 1},${col + 1}, ${piece.color}${piece.king ? ' king' : ''}${canMove ? ', can move' : ''}`
+                    : `${row + 1},${col + 1}${isTarget ? ', can move here' : ''}`
+                }
+                className="relative flex aspect-square items-center justify-center transition-[background-color] duration-150 disabled:cursor-default"
+                style={{ backgroundColor: dark ? 'var(--game-sq-dark)' : 'var(--game-sq-light)' }}
+              >
+                {isLastMove && (
+                  <>
+                    <span className="absolute inset-0" style={{ background: 'var(--game-last)' }} aria-hidden />
+                    <span
+                      className="absolute left-0 top-0 h-1.5 w-1.5"
+                      style={{ background: 'var(--game-last-ring)' }}
+                      aria-hidden
+                    />
+                  </>
+                )}
+
+                {isSelected && (
+                  <span
+                    className="absolute inset-0"
+                    style={{ background: 'var(--game-sel)', boxShadow: 'inset 0 0 0 3px var(--game-sel-ring)' }}
+                    aria-hidden
+                  />
+                )}
+
+                {/* A piece you can move gets a corner tick, so "movable" is
+                    legible before you have tapped anything. */}
+                {canMove && !isSelected && (
+                  <span
+                    className="absolute right-[6%] top-[6%] h-1.5 w-1.5 rounded-full opacity-80"
+                    style={{ background: 'var(--game-sel-ring)', boxShadow: '0 0 0 1.5px rgba(255,245,230,.55)' }}
+                    aria-hidden
+                  />
+                )}
+
+                {piece && <CheckerDisc colour={piece.color} king={piece.king} />}
+
+                {isTarget && !piece && (
+                  <span
+                    className="absolute h-[26%] w-[26%] rounded-full"
+                    style={{ background: 'var(--game-hint)', opacity: 0.8 }}
+                    aria-hidden
+                  />
+                )}
+              </button>
+            )
+          })
+        })}
+      </div>
+    </BoardFrame>
   )
 }
 
@@ -316,16 +333,16 @@ function CheckersOnlineGame({
   const { game, side, inviteCode, ready, notFound, sendMove } = useBoardGame(gameId)
   const [selected, setSelected] = useState<Coord | null>(null)
 
-  if (!ready) return <CenteredMessage backHref={backHref} text="Loading…" />
-  if (notFound) return <CenteredMessage backHref={backHref} text="That game couldn't be found." />
-  if (!side || !game) return <CenteredMessage backHref={backHref} text="This game isn't yours." />
+  if (!ready) return <GameMessage backHref={backHref} text="Loading…" />
+  if (notFound) return <GameMessage backHref={backHref} text="That game couldn't be found." />
+  if (!side || !game) return <GameMessage backHref={backHref} text="This game isn't yours." />
 
   if (game.status === 'waiting') {
     return (
-      <div className="mx-auto max-w-sm space-y-4">
-        <BackLink href={backHref} onClick={onExit} />
+      <GameShell>
+        <GameBackLink href={backHref} onClick={onExit} />
         <WaitingRoom inviteCode={inviteCode} onCancel={onExit} />
-      </div>
+      </GameShell>
     )
   }
 
@@ -362,72 +379,44 @@ function CheckersOnlineGame({
   }
 
   return (
-    <div className="mx-auto max-w-sm space-y-4">
-      <BackLink href={backHref} onClick={onExit} />
+    <GameShell>
+      <GameBackLink href={backHref} onClick={onExit} />
 
-      <div className="flex items-center justify-between px-1 text-sm">
-        <span className="inline-flex items-center gap-1.5 font-semibold text-ink">
-          <span className="h-3.5 w-3.5 rounded-full bg-[#FF6B6B]" aria-hidden /> {side === 'host' ? 'You' : game.host_display_name}
-        </span>
-        <span className="inline-flex items-center gap-1.5 font-semibold text-muted">
-          {side === 'guest' ? 'You' : (game.guest_display_name ?? 'Friend')} <span className="h-3.5 w-3.5 rounded-full bg-[#2D3748]" aria-hidden />
-        </span>
-      </div>
+      <PlayerStrip
+        you={{
+          name: side === 'host' ? 'You' : game.host_display_name,
+          swatch: 'var(--game-piece-red)',
+          active: myTurn && side === 'host',
+        }}
+        them={{
+          name: side === 'guest' ? 'You' : (game.guest_display_name ?? 'Friend'),
+          swatch: 'var(--game-piece-dark)',
+          active: myTurn && side === 'guest',
+        }}
+      />
 
       <TurnBanner game={game} side={side} />
 
-      <CheckersGrid board={board} targets={targets} movableFrom={movableFrom} selected={selected} lastMove={null} onTap={handleTap} disabled={!myTurn || !!won} />
+      <CheckersGrid
+        board={board}
+        targets={targets}
+        movableFrom={movableFrom}
+        selected={selected}
+        lastMove={null}
+        onTap={handleTap}
+        disabled={!myTurn || !!won}
+      />
 
       <AnimatePresence>
         {won && (
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="relative overflow-hidden rounded-2xl border border-black/5 bg-surface p-6 text-center shadow-sm"
-          >
-            {iWon && <WinBurst />}
-            <div className="mb-2 flex justify-center">
-              {iWon ? (
-                <Trophy className="h-10 w-10 text-points-gold" aria-hidden />
-              ) : (
-                <span className="text-4xl" aria-hidden>⚫</span>
-              )}
-            </div>
-            <h2 className="font-heading text-xl font-bold text-ink">{iWon ? 'You won!' : 'Good game!'}</h2>
-            <button
-              onClick={onExit}
-              className="mt-4 inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl bg-maths px-6 font-heading font-bold text-white transition-opacity hover:opacity-90"
-            >
-              Back to Downtime
-            </button>
-          </motion.div>
+          <GameEndCard
+            outcome={iWon ? 'win' : 'loss'}
+            title={iWon ? 'You won!' : 'Good game!'}
+            actionLabel={backHref === '/downtime' ? 'Back to Downtime' : 'Back to Games'}
+            onAction={onExit}
+          />
         )}
       </AnimatePresence>
-    </div>
-  )
-}
-
-function CenteredMessage({ backHref, text }: { backHref: string; text: string }) {
-  return (
-    <div className="mx-auto max-w-sm space-y-4">
-      <BackLink href={backHref} />
-      <p className="rounded-2xl border border-black/5 bg-surface p-6 text-center text-sm text-muted shadow-sm">{text}</p>
-    </div>
-  )
-}
-
-function BackLink({ href, onClick }: { href: string; onClick?: () => void }) {
-  // The same components render both inside the logged-in Downtime section
-  // and on the public, no-login /games/* pages (see app/games/) — the label
-  // should match whichever one this instance actually links back to.
-  const label = href === '/downtime' ? 'Downtime' : 'Games'
-  return (
-    <Link
-      href={href}
-      onClick={onClick}
-      className="inline-flex min-h-[44px] items-center gap-1 rounded-xl px-2 text-sm font-semibold text-ink-2 transition-colors hover:bg-black/5"
-    >
-      <ChevronLeft className="h-4 w-4" aria-hidden /> {label}
-    </Link>
+    </GameShell>
   )
 }

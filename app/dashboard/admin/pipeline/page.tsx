@@ -69,7 +69,7 @@ export default async function PipelineAdminPage() {
       </header>
 
       {!pipelineConfigured && (
-        <div className="rounded-lg border border-incorrect/40 bg-incorrect/5 p-3 text-sm text-incorrect">
+        <div className="rounded-lg border border-incorrect/40 bg-incorrect/5 p-3 text-sm text-incorrect-700">
           <strong>PIPELINE_SERVICE_URL is not set.</strong> Calls will fail
           closed with 503. Set the env var on Vercel to the Railway public
           URL and redeploy.

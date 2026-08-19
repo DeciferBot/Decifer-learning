@@ -86,7 +86,7 @@ export function PushNotificationButton() {
     return (
       <button
         onClick={unsubscribe}
-        className="flex min-h-[44px] items-center gap-1.5 rounded-xl border border-black/10 bg-maths/10 px-3 py-2 text-sm font-medium text-maths transition-colors hover:bg-maths/20"
+        className="flex min-h-[44px] items-center gap-1.5 rounded-xl border border-black/10 bg-maths/10 px-3 py-2 text-sm font-medium text-on-maths transition-colors hover:bg-maths/20"
         aria-label="Turn off streak notifications"
       >
         <Bell size={16} aria-hidden /> Streak alerts on

@@ -183,7 +183,7 @@ function Lobby({
         <motion.button
           whileTap={{ scale: 0.97 }}
           onClick={share}
-          className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-brand py-3.5 font-heading text-sm font-extrabold text-white shadow-sm transition hover:bg-brand-700"
+          className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-600 py-3.5 font-heading text-sm font-extrabold text-white shadow-sm transition hover:bg-brand-700"
         >
           {copied ? (
             <><Check className="h-4 w-4" /> Link copied!</>
@@ -202,7 +202,7 @@ function Lobby({
           <h2 className="flex items-center gap-2 font-heading text-base font-extrabold text-ink">
             <Users className="h-4 w-4 text-muted" /> Players
           </h2>
-          <span className="rounded-full bg-brand-50 px-2.5 py-1 font-mono text-sm font-bold text-brand-600">
+          <span className="rounded-full bg-brand-50 px-2.5 py-1 font-mono text-sm font-bold text-brand-700">
             {players.length}
           </span>
         </div>
@@ -240,7 +240,7 @@ function Lobby({
             whileTap={{ scale: 0.97 }}
             disabled={busy || players.length === 0}
             onClick={start}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brand py-4 font-heading text-base font-extrabold text-white shadow-md transition hover:bg-brand-700 disabled:opacity-50"
+            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-600 py-4 font-heading text-base font-extrabold text-white shadow-md transition hover:bg-brand-700 disabled:opacity-50"
           >
             {busy ? 'Starting…' : players.length === 0 ? 'Waiting for players…' : 'Start game'}
             {!busy && players.length > 0 ? <Zap className="h-5 w-5" /> : null}
@@ -416,7 +416,7 @@ function QuestionView({
             Question {index + 1} / {total}
           </p>
           <div className="mt-1.5 flex items-center gap-2">
-            <span className="rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-bold text-brand-600">
+            <span className="rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-bold text-brand-700">
               {TIER_LABEL[payload.tier] ?? payload.tier}
             </span>
             {isHost && tally ? (
@@ -448,7 +448,7 @@ function QuestionView({
             initial={{ y: 12, opacity: 0, scale: 0.97 }}
             animate={{ y: 0, opacity: 1, scale: 1 }}
             className={`mt-5 flex items-center justify-center gap-2 rounded-2xl p-4 text-center font-heading text-lg font-extrabold ${
-              result.correct ? 'bg-correct/15 text-correct' : 'bg-rose/15 text-rose-700'
+              result.correct ? 'bg-correct/15 text-correct-700' : 'bg-rose/15 text-rose-700'
             }`}
           >
             {result.correct ? (
@@ -689,7 +689,7 @@ function Podium({
           <>
             <Link
               href="/play"
-              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brand py-4 font-heading text-base font-extrabold text-white shadow-md transition hover:bg-brand-700"
+              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-600 py-4 font-heading text-base font-extrabold text-white shadow-md transition hover:bg-brand-700"
             >
               Play again <Zap className="h-5 w-5" />
             </Link>

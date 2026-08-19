@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
+import { inkOn, onPaper } from '@/lib/subject-colour'
 
 // Chapter content is ingested from Oak National Academy (OGL v3.0) on the droplet
 // and served from curriculum_units.content_json — never fetched live (CLAUDE.md §6).
@@ -72,7 +73,7 @@ export default async function ChapterPage({
         className="rounded-2xl border border-black/5 bg-surface px-5 py-4 shadow-sm"
         style={{ borderLeft: `4px solid ${subjectColor}` }}
       >
-        <p className="text-xs font-bold uppercase tracking-wide mb-1" style={{ color: subjectColor }}>
+        <p className="text-xs font-bold uppercase tracking-wide mb-1" style={{ color: onPaper(subjectColor) }}>
           Chapter {unit.order_index + 1}
         </p>
         <h1 className="font-heading text-xl font-bold text-ink">{unit.title}</h1>
@@ -183,8 +184,8 @@ export default async function ChapterPage({
         </Link>
         <Link
           href={`/topics/${params.id}/quiz`}
-          className="inline-flex min-h-[48px] items-center rounded-xl px-5 py-3 text-sm font-bold text-white shadow-sm"
-          style={{ backgroundColor: subjectColor }}
+          className="inline-flex min-h-[48px] items-center rounded-xl px-5 py-3 text-sm font-bold shadow-sm"
+          style={{ backgroundColor: subjectColor, color: inkOn(subjectColor) }}
         >
           Take Quiz →
         </Link>

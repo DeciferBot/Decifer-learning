@@ -22,7 +22,7 @@ export default function LoginPage() {
 
       <p className="mt-6 text-center text-sm text-muted">
         New to Decifer?{' '}
-        <Link href="/register" className="font-semibold text-brand underline">
+        <Link href="/register" className="font-semibold text-brand-700 underline">
           Create an account
         </Link>
       </p>

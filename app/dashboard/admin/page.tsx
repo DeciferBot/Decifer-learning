@@ -111,7 +111,7 @@ export default async function AdminDashboardPage() {
               <>
                 <span className="flex-none">{a.icon}</span>
                 <span className="flex-1"><strong>{a.message}</strong></span>
-                {a.href && <span className="flex-none text-xs font-medium text-brand">Review →</span>}
+                {a.href && <span className="flex-none text-xs font-medium text-brand-700">Review →</span>}
               </>
             )
             const cls = `rounded-xl border px-4 py-3 text-sm text-ink flex items-center gap-2 ${
@@ -156,7 +156,7 @@ export default async function AdminDashboardPage() {
       {qCountBySubject.size > 0 && (
         <div className="rounded-2xl border border-black/5 bg-surface p-4 shadow-sm">
           <h2 className="font-heading text-base font-bold text-ink mb-3 flex items-center gap-1.5">
-            <BookOpen className="w-4 h-4 text-brand" aria-hidden /> Published questions by subject
+            <BookOpen className="w-4 h-4 text-brand-700" aria-hidden /> Published questions by subject
           </h2>
           <div className="space-y-2">
             {Array.from(qCountBySubject.entries())
@@ -264,9 +264,9 @@ function Kpi({
   accent?: 'brand' | 'correct' | 'red'
 }) {
   const colour =
-    accent === 'brand' ? 'text-brand' :
-    accent === 'correct' ? 'text-correct' :
-    accent === 'red' ? 'text-incorrect' :
+    accent === 'brand' ? 'text-brand-700' :
+    accent === 'correct' ? 'text-correct-700' :
+    accent === 'red' ? 'text-incorrect-700' :
     'text-ink'
   return (
     <div className="rounded-xl border border-black/5 bg-surface px-3 py-3 shadow-sm">
@@ -299,19 +299,19 @@ function NavCard({
         brand ? 'border-brand/20 bg-brand/5 hover:bg-brand/10' : 'border-black/5 bg-surface hover:bg-black/[0.03]'
       }`}
     >
-      <span className={`flex-none ${brand ? 'text-brand' : 'text-ink'}`}>{icon}</span>
+      <span className={`flex-none ${brand ? 'text-brand-700' : 'text-ink'}`}>{icon}</span>
       <span className="min-w-0 flex-1">
-        <span className={`flex items-center gap-2 font-heading text-sm font-semibold ${brand ? 'text-brand' : 'text-ink'}`}>
+        <span className={`flex items-center gap-2 font-heading text-sm font-semibold ${brand ? 'text-brand-700' : 'text-ink'}`}>
           {title}
           {badge !== undefined && (
-            <span className="inline-flex min-w-[20px] items-center justify-center rounded-full bg-incorrect px-1.5 text-[11px] font-bold text-white">
+            <span className="inline-flex min-w-[20px] items-center justify-center rounded-full bg-incorrect-700 px-1.5 text-[11px] font-bold text-white">
               {badge}
             </span>
           )}
         </span>
         <span className="block text-xs text-muted">{desc}</span>
       </span>
-      <span className={`text-xs ${brand ? 'text-brand' : 'text-muted'}`}>→</span>
+      <span className={`text-xs ${brand ? 'text-brand-700' : 'text-muted'}`}>→</span>
     </Link>
   )
 }

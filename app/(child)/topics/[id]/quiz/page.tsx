@@ -162,7 +162,7 @@ export default async function QuizPage({ params }: { params: { id: string } }) {
     return (
       <div className="space-y-4 py-8 text-center">
         <p className="text-muted">No quiz questions are available for this topic yet.</p>
-        <Link href="/dashboard/child" className="text-maths underline">
+        <Link href="/dashboard/child" className="text-on-maths underline">
           Back to home
         </Link>
       </div>
@@ -217,7 +217,7 @@ export default async function QuizPage({ params }: { params: { id: string } }) {
       <div className="flex gap-2" aria-label="Topic steps">
         <span className="rounded-full bg-black/10 px-3 py-1 text-xs font-bold text-muted">1 Learn</span>
         <span className="rounded-full bg-black/10 px-3 py-1 text-xs font-bold text-muted">2 Practise</span>
-        <span className="rounded-full bg-maths px-3 py-1 text-xs font-bold text-white" aria-current="step">3 Quiz</span>
+        <span className="rounded-full bg-brand-600 px-3 py-1 text-xs font-bold text-white" aria-current="step">3 Quiz</span>
       </div>
 
       <h1 className="font-heading text-2xl font-bold text-ink">{topic.title}: Quiz</h1>

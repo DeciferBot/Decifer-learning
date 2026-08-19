@@ -110,7 +110,7 @@ export function ConsentBanner({ state, hasParentEmail, userId }: Props) {
               onChange={(e) => setParentEmail(e.target.value)}
               placeholder="Parent or guardian's email"
               aria-label="Parent or guardian's email"
-              className="min-h-[48px] flex-1 rounded-xl border border-black/10 bg-surface px-3 text-sm outline-none focus:border-maths"
+              className="min-h-[48px] flex-1 rounded-xl border border-black/10 bg-surface px-3 text-sm outline-none focus:border-brand"
             />
             <button
               type="submit"

@@ -19,7 +19,7 @@ type IconComponent = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
 const ACTIONS: { action: Action; label: string; className: string; Icon?: IconComponent }[] = [
   { action: 'reviewed',      label: 'Reviewed', className: 'bg-surface border border-black/10 text-ink hover:bg-black/5' },
   { action: 'dismissed',     label: 'Dismiss',  className: 'bg-surface border border-black/10 text-muted hover:bg-black/5' },
-  { action: 'flag_question', label: 'Flag',     className: 'bg-incorrect/10 border border-incorrect/20 text-incorrect hover:bg-incorrect/20', Icon: Flag },
+  { action: 'flag_question', label: 'Flag',     className: 'bg-incorrect/10 border border-incorrect/20 text-incorrect-700 hover:bg-incorrect/20', Icon: Flag },
 ]
 
 export function MonitoringActions({ reportId, questionId }: Props) {
@@ -46,7 +46,7 @@ export function MonitoringActions({ reportId, questionId }: Props) {
 
   if (done) {
     return (
-      <span className="inline-flex items-center gap-1 text-xs text-correct font-medium">
+      <span className="inline-flex items-center gap-1 text-xs text-correct-700 font-medium">
         Done <Check className="w-3.5 h-3.5" aria-hidden />
       </span>
     )

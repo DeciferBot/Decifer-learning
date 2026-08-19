@@ -17,18 +17,18 @@ export default async function AdminVaultPage() {
 
   const STATUS_COLOUR: Record<string, string> = {
     pending:        'bg-points-gold/20 text-points-gold-700',
-    approved:       'bg-correct/20 text-correct',
-    rejected:       'bg-incorrect/20 text-incorrect',
-    completed:      'bg-science/20 text-science',
+    approved:       'bg-correct/20 text-correct-700',
+    rejected:       'bg-incorrect/20 text-incorrect-700',
+    completed:      'bg-science/20 text-on-science',
     deferred:       'bg-black/10 text-muted',
-    counter_offered:'bg-maths/20 text-maths',
+    counter_offered:'bg-maths/20 text-on-maths',
     cancelled:      'bg-black/10 text-muted',
   }
 
   const FULFILMENT_COLOUR: Record<string, string> = {
     approved:   'bg-points-gold/20 text-points-gold-700',
-    dispatched: 'bg-brand/15 text-brand',
-    delivered:  'bg-correct/20 text-correct',
+    dispatched: 'bg-brand/15 text-brand-700',
+    delivered:  'bg-correct/20 text-correct-700',
   }
 
   return (
@@ -38,13 +38,13 @@ export default async function AdminVaultPage() {
         <div className="flex items-center gap-3">
           <Link
             href="/dashboard/admin/vault/catalogue"
-            className="rounded-xl border border-black/10 px-3 py-1.5 text-xs font-semibold text-muted hover:border-brand/40 hover:text-brand flex items-center gap-1"
+            className="rounded-xl border border-black/10 px-3 py-1.5 text-xs font-semibold text-muted hover:border-brand/40 hover:text-brand-700 flex items-center gap-1"
           >
             <Gift className="w-3.5 h-3.5" aria-hidden /> Catalogue
           </Link>
           <a
             href="/api/admin/vault/requests?format=csv&limit=1000"
-            className="rounded-xl border border-black/10 px-3 py-1.5 text-xs font-semibold text-muted hover:border-brand/40 hover:text-brand"
+            className="rounded-xl border border-black/10 px-3 py-1.5 text-xs font-semibold text-muted hover:border-brand/40 hover:text-brand-700"
           >
             ↓ Export CSV
           </a>
@@ -63,7 +63,7 @@ export default async function AdminVaultPage() {
           { label: 'Credits awarded',  value: stats.totalCreditsAwarded },
         ].map((s) => (
           <div key={s.label} className="rounded-2xl border border-black/5 bg-surface p-4 text-center shadow-sm">
-            <div className="font-heading text-2xl font-bold text-brand">{s.value}</div>
+            <div className="font-heading text-2xl font-bold text-brand-700">{s.value}</div>
             <div className="mt-0.5 text-xs text-muted">{s.label}</div>
           </div>
         ))}
@@ -88,7 +88,7 @@ export default async function AdminVaultPage() {
                   </div>
                   <div className="flex items-center gap-1.5 flex-shrink-0">
                     {r.rewardType === 'physical' && (
-                      <span className="rounded-full bg-science/15 px-2 py-0.5 text-xs font-bold text-science flex items-center gap-1">
+                      <span className="rounded-full bg-science/15 px-2 py-0.5 text-xs font-bold text-on-science flex items-center gap-1">
                         <Package className="w-3.5 h-3.5" aria-hidden /> Physical
                       </span>
                     )}
@@ -120,7 +120,7 @@ export default async function AdminVaultPage() {
                           href={r.shopifyOrderUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-xs text-brand hover:underline"
+                          className="text-xs text-brand-700 hover:underline"
                         >
                           Shopify ↗
                         </a>

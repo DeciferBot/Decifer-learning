@@ -26,7 +26,7 @@ export function DailyGoalRing({ done, streak }: { done: boolean; streak: number 
         color={done ? 'var(--correct)' : 'var(--points-gold)'}
       >
         {done ? (
-          <Check className="w-4 h-4 text-correct" aria-hidden />
+          <Check className="w-4 h-4 text-correct-700" aria-hidden />
         ) : (
           <span className="text-[10px] font-bold tabular-nums text-muted" aria-hidden>0/1</span>
         )}

@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { getPublicCurriculumSummary } from '@/lib/public-curriculum'
 import { jsonLd } from '@/lib/json-ld'
 import { MarketingNav } from '@/components/marketing/MarketingNav'
+import { inkOn } from '@/lib/subject-colour'
 
 export const revalidate = 86400 // rebuild at most once a day — content changes slowly
 
@@ -69,8 +70,8 @@ export default async function CurriculumIndexPage() {
               className="group rounded-2xl border border-black/5 bg-surface p-6 shadow-sm transition-opacity hover:opacity-90"
             >
               <span
-                className="inline-block rounded-full px-3 py-1 text-xs font-bold text-white"
-                style={{ backgroundColor: s.colourToken }}
+                className="inline-block rounded-full px-3 py-1 text-xs font-bold"
+                style={{ backgroundColor: s.colourToken, color: inkOn(s.colourToken) }}
               >
                 {s.name}
               </span>
@@ -78,19 +79,19 @@ export default async function CurriculumIndexPage() {
               <p className="mt-1 text-sm text-muted">
                 Across {s.yearCount} year {s.yearCount === 1 ? 'group' : 'groups'}
               </p>
-              <span className="mt-4 inline-block text-sm font-semibold text-maths group-hover:underline">
+              <span className="mt-4 inline-block text-sm font-semibold text-on-maths group-hover:underline">
                 Browse {s.name} →
               </span>
             </Link>
           ))}
         </div>
 
-        <div className="mt-12 rounded-2xl border border-maths/20 bg-maths/5 p-8 text-center">
+        <div className="mt-12 rounded-2xl border border-brand/20 bg-brand/5 p-8 text-center">
           <h2 className="font-heading text-2xl font-bold text-ink">Ready to start?</h2>
           <p className="mt-2 text-muted">Every subject and year group, free while we are in beta. No card required.</p>
           <Link
             href="/register"
-            className="mt-6 inline-flex h-12 items-center rounded-xl bg-maths px-8 font-semibold text-white"
+            className="mt-6 inline-flex h-12 items-center rounded-xl bg-brand-600 transition-colors hover:bg-brand-700 px-8 font-semibold text-white"
           >
             Create a free account
           </Link>

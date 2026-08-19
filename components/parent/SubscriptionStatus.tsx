@@ -30,8 +30,8 @@ export function SubscriptionStatus({ plan, status, periodEnd }: Props) {
   // told parents they were limited when they were not.
   if (isFree) {
     return (
-      <div className="rounded-2xl border border-maths/20 bg-maths/5 p-5">
-        <p className="text-xs font-bold uppercase tracking-wide text-maths">Beta</p>
+      <div className="rounded-2xl border border-brand/20 bg-brand/5 p-5">
+        <p className="text-xs font-bold uppercase tracking-wide text-on-maths">Beta</p>
         <p className="mt-1 text-sm text-muted">
           Everything is included and free while we are in beta: all five subjects, every year
           group from Year 1 to Year 11, and unlimited quizzes.
@@ -44,7 +44,7 @@ export function SubscriptionStatus({ plan, status, periodEnd }: Props) {
     <div className={`rounded-2xl border p-5 ${isPastDue ? 'border-incorrect/30 bg-incorrect/5' : 'border-correct/20 bg-correct/5'}`}>
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className={`text-xs font-bold uppercase tracking-wide ${isPastDue ? 'text-incorrect' : 'text-correct'}`}>
+          <p className={`text-xs font-bold uppercase tracking-wide ${isPastDue ? 'text-incorrect-700' : 'text-correct-700'}`}>
             Family plan {isPastDue ? '· Payment failed' : '· Active'}
           </p>
           <p className="mt-1 text-sm text-muted">
@@ -52,7 +52,7 @@ export function SubscriptionStatus({ plan, status, periodEnd }: Props) {
             {formattedEnd && !isPastDue ? ` · Renews ${formattedEnd}` : ''}
           </p>
           {isPastDue && (
-            <p className="mt-1 text-sm font-semibold text-incorrect">
+            <p className="mt-1 text-sm font-semibold text-incorrect-700">
               Update your payment method to keep access.
             </p>
           )}

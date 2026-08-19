@@ -18,7 +18,7 @@ export default function HowDeciferWorksPage() {
     <div className="space-y-8">
       <HelpBreadcrumbSchema title="How Decifer works" path="/help/how-decifer-works" />
       <div>
-        <Link href="/help" className="mb-4 inline-block text-sm font-semibold text-brand hover:underline">
+        <Link href="/help" className="mb-4 inline-block text-sm font-semibold text-brand-700 hover:underline">
           ← All guides
         </Link>
         <h1 className="font-heading text-3xl font-bold text-ink">How Decifer works</h1>
@@ -90,10 +90,10 @@ export default function HowDeciferWorksPage() {
       </section>
 
       <div className="flex flex-wrap gap-3 text-sm">
-        <Link href="/help/content-quality" className="font-semibold text-brand hover:underline">
+        <Link href="/help/content-quality" className="font-semibold text-brand-700 hover:underline">
           Content quality →
         </Link>
-        <Link href="/help/gamification" className="font-semibold text-brand hover:underline">
+        <Link href="/help/gamification" className="font-semibold text-brand-700 hover:underline">
           Gamification explained →
         </Link>
         <Link href="/help" className="text-muted hover:text-ink hover:underline">

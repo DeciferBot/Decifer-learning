@@ -17,7 +17,7 @@ export function WidgetWrapper({ title, instructions, completed, children }: Prop
       className={`my-6 rounded-2xl border-2 p-4 transition-colors ${
         completed
           ? 'border-correct/40 bg-correct/5'
-          : 'border-maths/20 bg-surface'
+          : 'border-brand/20 bg-surface'
       } shadow-sm`}
     >
       {title && (
@@ -31,7 +31,7 @@ export function WidgetWrapper({ title, instructions, completed, children }: Prop
         <motion.p
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="mt-3 text-center text-sm font-bold text-correct"
+          className="mt-3 text-center text-sm font-bold text-correct-700"
         >
           ✓ Well done!
         </motion.p>

@@ -54,7 +54,7 @@ export function RunAnomalyButton() {
           }
         </span>
       )}
-      {error && <span className="text-xs text-incorrect">Run failed, check server logs</span>}
+      {error && <span className="text-xs text-incorrect-700">Run failed, check server logs</span>}
     </div>
   )
 }

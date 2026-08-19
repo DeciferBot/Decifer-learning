@@ -1,5 +1,7 @@
 import Link from 'next/link'
 import { Gamepad, Swords, Star, ArrowRight } from '@/components/ui/icons'
+import { GAME_CATALOGUE } from '@/lib/games/catalogue'
+import { GameCard, GameTable } from '@/components/games/GameCard'
 
 export const metadata = { title: 'Games' }
 
@@ -11,6 +13,10 @@ export const metadata = { title: 'Games' }
 //
 // Two groups, because "who am I playing with" is the question a child actually
 // has: something live against other people, or something quiet on their own.
+//
+// The board games themselves come from lib/games/catalogue.ts, shared with the
+// public /games pages. They used to be a second hardcoded list here, which had
+// already drifted: the same game carried a different blurb on each surface.
 
 // Live / points-earning play. These belong to the learning loop and are listed
 // first because they are the ones with a reason to come back tomorrow.
@@ -31,59 +37,16 @@ const FEATURED = [
   },
 ] as const
 
-// Decifer Downtime — just-for-fun board games. No points, no curriculum
-// content, nothing to pass or fail. Chess, Connect 4 and Checkers default to
-// single-player against the computer, with "play a friend" (invite code) as a
-// one-tap secondary option. Crossword is solo — a fresh puzzle every time via
-// lib/games/crossword-generator.ts. Word Tiles is two-player.
-const DOWNTIME = [
-  {
-    href: '/downtime/chess',
-    emoji: '♟️',
-    name: 'Chess',
-    mode: 'vs computer',
-    blurb: 'Three difficulty levels.',
-  },
-  {
-    href: '/downtime/connect4',
-    emoji: '🔴',
-    name: 'Connect 4',
-    mode: 'vs computer',
-    blurb: 'Four in a row wins.',
-  },
-  {
-    href: '/downtime/checkers',
-    emoji: '⚫',
-    name: 'Checkers',
-    mode: 'vs computer',
-    blurb: 'Jump across and crown kings.',
-  },
-  {
-    href: '/downtime/crossword',
-    emoji: '📝',
-    name: 'Crossword',
-    mode: 'on your own',
-    blurb: 'A fresh puzzle every time.',
-  },
-  {
-    href: '/downtime/word-tiles',
-    emoji: '🔤',
-    name: 'Word Tiles',
-    mode: 'with a friend',
-    blurb: 'Most points wins.',
-  },
-] as const
-
 export default function GamesPage() {
   return (
-    <section className="mx-auto max-w-md space-y-6 pb-4">
+    <section className="mx-auto max-w-2xl space-y-6 pb-4">
       <header className="pt-1">
         <div className="mb-1 flex items-center gap-2">
-          <Gamepad className="h-6 w-6 text-brand" aria-hidden />
-          <h1 className="font-heading text-2xl font-extrabold text-ink">Games</h1>
+          <Gamepad className="h-6 w-6 text-brand-700" aria-hidden />
+          <h1 className="font-heading text-2xl font-extrabold tracking-[-0.02em] text-ink">Games</h1>
         </div>
-        <p className="text-sm leading-snug text-muted">
-          Pick something to play — on your own, or against someone else.
+        <p className="text-sm leading-snug text-ink-2">
+          Pick something to play, on your own or against someone else.
         </p>
       </header>
 
@@ -117,23 +80,14 @@ export default function GamesPage() {
       <div className="space-y-3">
         <div>
           <h2 className="font-heading text-lg font-extrabold text-ink">Just for fun</h2>
-          <p className="text-xs text-muted">No points, no pressure — Decifer Downtime.</p>
+          <p className="text-xs text-muted">No points, no pressure. Decifer Downtime.</p>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          {DOWNTIME.map(({ href, emoji, name, mode, blurb }) => (
-            <Link
-              key={href}
-              href={href}
-              className="flex min-h-[124px] flex-col items-center justify-center gap-1 rounded-2xl border border-black/5 bg-surface px-3 py-4 text-center shadow-sm transition-colors hover:bg-black/[0.02] active:scale-[0.98]"
-            >
-              <span className="text-4xl" aria-hidden>{emoji}</span>
-              <p className="font-heading text-sm font-bold text-ink">{name}</p>
-              <p className="text-[11px] font-semibold text-brand">{mode}</p>
-              <p className="text-[11px] leading-tight text-muted">{blurb}</p>
-            </Link>
+        <GameTable>
+          {GAME_CATALOGUE.map((g) => (
+            <GameCard key={g.id} game={g} href={`/downtime/${g.appSlug}`} />
           ))}
-        </div>
+        </GameTable>
       </div>
     </section>
   )

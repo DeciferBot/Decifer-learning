@@ -77,12 +77,12 @@ export function FulfilmentControls({ requestId, currentStatus }: Props) {
         <button
           onClick={advance}
           disabled={saving}
-          className="rounded-lg bg-brand/10 px-3 py-1 text-xs font-semibold text-brand hover:bg-brand/20 disabled:opacity-50 min-h-[32px] min-w-[120px]"
+          className="rounded-lg bg-brand/10 px-3 py-1 text-xs font-semibold text-brand-700 hover:bg-brand/20 disabled:opacity-50 min-h-[32px] min-w-[120px]"
         >
           {saving ? 'Saving…' : next.label}
         </button>
       </div>
-      {error && <p className="text-xs text-incorrect">{error}</p>}
+      {error && <p className="text-xs text-incorrect-700">{error}</p>}
     </div>
   )
 }

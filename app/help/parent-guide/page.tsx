@@ -16,7 +16,7 @@ export default function ParentGuidePage() {
     <div className="space-y-8">
       <HelpBreadcrumbSchema title="Parent guide" path="/help/parent-guide" />
       <div>
-        <Link href="/help" className="mb-4 inline-block text-sm font-semibold text-brand hover:underline">
+        <Link href="/help" className="mb-4 inline-block text-sm font-semibold text-brand-700 hover:underline">
           ← All guides
         </Link>
         <h1 className="font-heading text-3xl font-bold text-ink">Parent guide</h1>
@@ -71,7 +71,7 @@ export default function ParentGuidePage() {
         <Prose>
           <p>Every question that your child sees has passed an automated quality pipeline. Questions are verified mathematically, checked by a second AI pass for accuracy and age-appropriateness, and reviewed for clarity and distractor quality. Only questions that pass all checks reach children.</p>
           <p>
-            <Link href="/help/content-quality" className="font-semibold text-brand hover:underline">
+            <Link href="/help/content-quality" className="font-semibold text-brand-700 hover:underline">
               Read more about our content quality process →
             </Link>
           </p>
@@ -82,7 +82,7 @@ export default function ParentGuidePage() {
         <ul className="space-y-2 text-muted">
           {SUPPORT_TIPS.map((tip, i) => (
             <li key={i} className="flex items-start gap-2">
-              <span className="mt-0.5 flex-none text-brand font-bold">·</span>
+              <span className="mt-0.5 flex-none text-brand-700 font-bold">·</span>
               <span className="text-sm">{tip}</span>
             </li>
           ))}
@@ -93,9 +93,9 @@ export default function ParentGuidePage() {
         <p className="text-sm font-semibold text-ink">Questions?</p>
         <p className="mt-1 text-sm text-muted">
           Check the{' '}
-          <Link href="/help/faq" className="font-semibold text-brand hover:underline">FAQ</Link>
+          <Link href="/help/faq" className="font-semibold text-brand-700 hover:underline">FAQ</Link>
           {' '}or browse the other guides in{' '}
-          <Link href="/help" className="font-semibold text-brand hover:underline">Help</Link>.
+          <Link href="/help" className="font-semibold text-brand-700 hover:underline">Help</Link>.
         </p>
       </div>
     </div>
@@ -118,7 +118,7 @@ function Steps({ items }: { items: { n: number; title: string; body: string }[] 
     <ol className="space-y-3">
       {items.map((item) => (
         <li key={item.n} className="flex items-start gap-4 rounded-xl border border-black/5 bg-surface px-4 py-3 shadow-sm">
-          <span className="flex h-7 w-7 flex-none items-center justify-center rounded-full bg-brand-50 text-sm font-black text-brand font-heading">
+          <span className="flex h-7 w-7 flex-none items-center justify-center rounded-full bg-brand-50 text-sm font-black text-brand-700 font-heading">
             {item.n}
           </span>
           <div>

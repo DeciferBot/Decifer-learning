@@ -8,7 +8,7 @@ interface XPBadgeProps {
 
 const VARIANT_STYLES = {
   gold:  'bg-points-gold/15 text-amber-700 border-points-gold/30',
-  brand: 'bg-brand-50 text-brand-600 border-brand/20',
+  brand: 'bg-brand-50 text-brand-700 border-brand/20',
   muted: 'bg-black/[0.04] text-muted border-black/10',
 }
 

@@ -75,7 +75,7 @@ export default async function VerifyParentPage({
         </p>
         <Link
           href="/register"
-          className="mt-4 flex h-12 w-full items-center justify-center rounded-lg bg-maths font-semibold text-white"
+          className="mt-4 flex h-12 w-full items-center justify-center rounded-lg bg-brand-600 transition-colors hover:bg-brand-700 font-semibold text-white"
         >
           Create a parent account
         </Link>
@@ -129,7 +129,7 @@ export default async function VerifyParentPage({
         {childName} created a Decifer Learning account and named you as their parent or guardian.
         Decifer Learning collects limited personal data (name, email, learning progress) to operate
         the service.{' '}
-        <Link href="/legal/privacy" className="font-semibold text-maths underline">
+        <Link href="/legal/privacy" className="font-semibold text-on-maths underline">
           Read our privacy policy.
         </Link>
       </p>
@@ -141,7 +141,7 @@ export default async function VerifyParentPage({
         <input type="hidden" name="token" value={token} />
         <button
           type="submit"
-          className="flex h-12 w-full items-center justify-center rounded-lg bg-maths font-semibold text-white transition active:scale-[0.98]"
+          className="flex h-12 w-full items-center justify-center rounded-lg bg-brand-600 hover:bg-brand-700 font-semibold text-white transition active:scale-[0.98]"
         >
           Confirm: I’m {childName}’s parent or guardian
         </button>

@@ -127,7 +127,7 @@ export default async function VaultPage() {
           </div>
           {status.creditBalance > 0 && !hasPendingRequest && (
             <div className="inline-flex items-center gap-1 rounded-full bg-correct/15 px-3 py-1">
-              <span className="inline-flex items-center gap-1 text-xs font-bold text-correct"><Gift className="w-3.5 h-3.5" aria-hidden /> Reward earned</span>
+              <span className="inline-flex items-center gap-1 text-xs font-bold text-correct-700"><Gift className="w-3.5 h-3.5" aria-hidden /> Reward earned</span>
             </div>
           )}
         </div>

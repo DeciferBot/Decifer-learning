@@ -55,7 +55,7 @@ export function DeliveryAddressForm({ childId, initialAddress }: Props) {
         ) : (
           <button
             onClick={() => setEditing(true)}
-            className="text-xs text-brand hover:text-brand/80 underline underline-offset-2"
+            className="text-xs text-brand-700 hover:text-brand-700 underline underline-offset-2"
           >
             + Add delivery address
           </button>
@@ -132,7 +132,7 @@ export function DeliveryAddressForm({ childId, initialAddress }: Props) {
         <option value="NZ">New Zealand</option>
       </select>
 
-      {error && <p className="text-sm text-incorrect">{error}</p>}
+      {error && <p className="text-sm text-incorrect-700">{error}</p>}
 
       <div className="flex gap-2">
         <button
@@ -182,7 +182,7 @@ export function DeliveryAddressForm({ childId, initialAddress }: Props) {
             }
           }}
           disabled={saving}
-          className="flex h-9 flex-1 items-center justify-center rounded-xl bg-brand text-sm font-bold text-white hover:opacity-90 disabled:opacity-60"
+          className="flex h-9 flex-1 items-center justify-center rounded-xl bg-brand-600 text-sm font-bold text-white hover:bg-brand-700 disabled:opacity-60"
         >
           {saving ? 'Saving…' : 'Save address'}
         </button>

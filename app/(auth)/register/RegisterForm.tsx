@@ -140,7 +140,7 @@ export function RegisterForm() {
                 aria-pressed={active}
                 className={`h-12 rounded-lg border text-sm font-semibold capitalize transition ${
                   active
-                    ? 'border-maths bg-maths/10 text-maths'
+                    ? 'border-brand bg-brand/10 text-on-maths'
                     : 'border-black/10 bg-surface text-ink'
                 }`}
               >
@@ -169,7 +169,7 @@ export function RegisterForm() {
                   aria-pressed={active}
                   className={`h-12 rounded-lg border text-sm font-semibold transition ${
                     active
-                      ? 'border-maths bg-maths/10 text-maths'
+                      ? 'border-brand bg-brand/10 text-on-maths'
                       : 'border-black/10 bg-surface text-ink'
                   }`}
                 >
@@ -202,7 +202,7 @@ export function RegisterForm() {
                   aria-pressed={active}
                   className={`h-12 rounded-lg border text-sm font-semibold transition ${
                     active
-                      ? 'border-maths bg-maths/10 text-maths'
+                      ? 'border-brand bg-brand/10 text-on-maths'
                       : 'border-black/10 bg-surface text-ink'
                   }`}
                 >
@@ -225,7 +225,7 @@ export function RegisterForm() {
           required
           value={displayName}
           onChange={(e) => setDisplayName(e.target.value)}
-          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base outline-none focus:border-maths focus:ring-2 focus:ring-maths/30"
+          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/30"
         />
       </label>
 
@@ -237,7 +237,7 @@ export function RegisterForm() {
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base outline-none focus:border-maths focus:ring-2 focus:ring-maths/30"
+          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/30"
         />
       </label>
 
@@ -251,7 +251,7 @@ export function RegisterForm() {
             required
             value={parentEmail}
             onChange={(e) => setParentEmail(e.target.value)}
-            className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base outline-none focus:border-maths focus:ring-2 focus:ring-maths/30"
+            className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/30"
           />
           <span className="mt-1 block text-xs text-muted">
             We&apos;ll send them one email to confirm it&apos;s OK for you to use Decifer Learning.
@@ -268,7 +268,7 @@ export function RegisterForm() {
           minLength={8}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base outline-none focus:border-maths focus:ring-2 focus:ring-maths/30"
+          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/30"
         />
         <span className="mt-1 block text-xs text-muted">At least 8 characters.</span>
       </label>
@@ -283,7 +283,7 @@ export function RegisterForm() {
             Decifer Learning collects limited personal data (name, email, learning progress) to
             operate the service. Under the UK Children&apos;s Code, a parent or guardian must
             consent before a child account can be created.{' '}
-            <Link href="/legal/privacy" className="font-semibold text-maths underline">
+            <Link href="/legal/privacy" className="font-semibold text-on-maths underline">
               Read our privacy policy.
             </Link>
           </p>
@@ -319,12 +319,12 @@ export function RegisterForm() {
       ) : null}
 
       {error ? (
-        <p role="alert" className="rounded-md bg-incorrect/10 px-3 py-2 text-sm text-incorrect">
+        <p role="alert" className="rounded-md bg-incorrect/10 px-3 py-2 text-sm text-incorrect-700">
           {error}
         </p>
       ) : null}
       {notice ? (
-        <p role="status" className="rounded-md bg-maths/10 px-3 py-2 text-sm text-maths">
+        <p role="status" className="rounded-md bg-brand/10 px-3 py-2 text-sm text-on-maths">
           {notice}
         </p>
       ) : null}
@@ -332,7 +332,7 @@ export function RegisterForm() {
       <button
         type="submit"
         disabled={isPending}
-        className="flex h-12 w-full items-center justify-center rounded-lg bg-maths font-semibold text-white transition active:scale-[0.98] disabled:opacity-60"
+        className="flex h-12 w-full items-center justify-center rounded-lg bg-brand-600 hover:bg-brand-700 font-semibold text-white transition active:scale-[0.98] disabled:opacity-60"
       >
         {isPending ? 'Creating…' : 'Create account'}
       </button>

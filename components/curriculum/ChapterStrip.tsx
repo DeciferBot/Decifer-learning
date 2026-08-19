@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { BookOpen } from '@/components/ui/icons'
+import { onPaper } from '@/lib/subject-colour'
 
 export type CurriculumUnit = {
   id: string
@@ -26,8 +27,8 @@ export function ChapterStrip({ units, subjectColor = '#6C9EFF', topicId }: Props
       style={{ borderLeft: `4px solid ${subjectColor}` }}
     >
       <div className="mb-2 flex items-center gap-2">
-        <BookOpen size={15} style={{ color: subjectColor }} aria-hidden />
-        <p className="text-xs font-bold uppercase tracking-wide" style={{ color: subjectColor }}>
+        <BookOpen size={15} style={{ color: onPaper(subjectColor) }} aria-hidden />
+        <p className="text-xs font-bold uppercase tracking-wide" style={{ color: onPaper(subjectColor) }}>
           This topic covers {units.length} chapter{units.length !== 1 ? 's' : ''}
         </p>
       </div>

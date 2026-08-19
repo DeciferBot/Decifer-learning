@@ -90,7 +90,7 @@ export function CataloguePanel({ items: initialItems }: Props) {
       {!adding ? (
         <button
           onClick={() => setAdding(true)}
-          className="rounded-xl bg-brand/10 px-4 py-2 text-sm font-bold text-brand hover:bg-brand/20"
+          className="rounded-xl bg-brand/10 px-4 py-2 text-sm font-bold text-brand-700 hover:bg-brand/20"
         >
           + Add prize
         </button>
@@ -142,7 +142,7 @@ export function CataloguePanel({ items: initialItems }: Props) {
             onChange={(e) => setForm({ ...form, price_pence: e.target.value })}
             className="w-full rounded-xl border border-black/10 bg-surface px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-brand focus:outline-none"
           />
-          {error && <p className="text-sm text-incorrect">{error}</p>}
+          {error && <p className="text-sm text-incorrect-700">{error}</p>}
           <div className="flex gap-2">
             <button
               onClick={() => { setAdding(false); setError(null) }}
@@ -153,7 +153,7 @@ export function CataloguePanel({ items: initialItems }: Props) {
             <button
               onClick={createItem}
               disabled={saving || !form.name.trim()}
-              className="flex h-9 flex-1 items-center justify-center rounded-xl bg-brand text-sm font-bold text-white hover:opacity-90 disabled:opacity-60"
+              className="flex h-9 flex-1 items-center justify-center rounded-xl bg-brand-600 text-sm font-bold text-white hover:bg-brand-700 disabled:opacity-60"
             >
               {saving ? 'Saving…' : 'Add prize'}
             </button>
@@ -190,7 +190,7 @@ export function CataloguePanel({ items: initialItems }: Props) {
                     disabled={togglingId === item.id}
                     className={`flex-none rounded-lg px-3 py-1 text-xs font-bold transition-colors disabled:opacity-60 ${
                       item.is_active
-                        ? 'bg-correct/10 text-correct hover:bg-correct/20'
+                        ? 'bg-correct/10 text-correct-700 hover:bg-correct/20'
                         : 'bg-black/5 text-muted hover:bg-black/10'
                     }`}
                   >

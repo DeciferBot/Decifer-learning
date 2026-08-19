@@ -71,7 +71,7 @@ export default function MissionsPage() {
         <p className="text-sm text-muted">Couldn&apos;t load your missions right now.</p>
         <button
           onClick={() => void load()}
-          className="rounded-xl bg-brand px-5 py-2.5 text-sm font-bold text-white hover:opacity-90"
+          className="rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-700"
         >
           Try again
         </button>
@@ -98,7 +98,7 @@ export default function MissionsPage() {
           <button
             onClick={generateMissions}
             disabled={generating}
-            className="rounded-xl bg-brand px-5 py-2.5 text-sm font-bold text-white hover:opacity-90 disabled:opacity-60"
+            className="rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-700 disabled:opacity-60"
           >
             {generating ? 'Generating…' : 'Get missions'}
           </button>
@@ -126,7 +126,7 @@ export default function MissionsPage() {
                   </p>
                 )}
               </div>
-              <Check className="flex-none w-5 h-5 text-correct" aria-hidden />
+              <Check className="flex-none w-5 h-5 text-correct-700" aria-hidden />
             </div>
           ))}
         </div>
@@ -141,7 +141,7 @@ function MissionCard({ mission: m }: { mission: Mission }) {
   return (
     <div className="rounded-2xl border border-black/5 bg-surface p-5 shadow-sm space-y-3">
       <div className="flex items-start gap-3">
-        {(() => { const Icon = MISSION_ICONS[m.iconName] ?? Target; return <Icon className="w-6 h-6 flex-none text-brand" aria-hidden /> })()}
+        {(() => { const Icon = MISSION_ICONS[m.iconName] ?? Target; return <Icon className="w-6 h-6 flex-none text-brand-700" aria-hidden /> })()}
         <div className="flex-1 min-w-0">
           <p className="font-semibold text-ink text-sm leading-snug">{m.title}</p>
           {m.targetValue !== null && (

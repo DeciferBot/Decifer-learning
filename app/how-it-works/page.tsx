@@ -139,7 +139,7 @@ export default function HowItWorksPage() {
         <div className="mt-6 space-y-6">
           {CHILD_STEPS.map((s) => (
             <div key={s.number} className="flex gap-5">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-maths font-heading text-lg font-bold text-white">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-600 font-heading text-lg font-bold text-white">
                 {s.number}
               </div>
               <div>
@@ -158,7 +158,7 @@ export default function HowItWorksPage() {
         <div className="mt-6 divide-y divide-black/5 rounded-2xl border border-black/10 bg-surface">
           {QUALITY_STEPS.map((s) => (
             <div key={s.step} className="flex gap-4 px-5 py-4">
-              <span className="shrink-0 text-correct">✓</span>
+              <span className="shrink-0 text-correct-700">✓</span>
               <div>
                 <p className="text-sm font-semibold text-ink">{s.step}</p>
                 <p className="mt-0.5 text-sm text-muted">{s.detail}</p>
@@ -167,14 +167,14 @@ export default function HowItWorksPage() {
           ))}
         </div>
 
-        <div className="mt-10 rounded-2xl border border-maths/20 bg-maths/5 p-8 text-center">
+        <div className="mt-10 rounded-2xl border border-brand/20 bg-brand/5 p-8 text-center">
           <h2 className="font-heading text-2xl font-bold text-ink">Try it free</h2>
           <p className="mt-2 text-muted">
             Everything is free while we are in beta. No card required.
           </p>
           <Link
             href="/register"
-            className="mt-6 inline-flex h-12 items-center rounded-xl bg-maths px-8 font-semibold text-white"
+            className="mt-6 inline-flex h-12 items-center rounded-xl bg-brand-600 transition-colors hover:bg-brand-700 px-8 font-semibold text-white"
           >
             Create a free account
           </Link>

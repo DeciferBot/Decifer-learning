@@ -35,13 +35,13 @@ const STATUS_COPY: Record<string, { label: string; description: string; colour: 
   counter_offered: {
     label: 'Parent has a suggestion',
     description: 'Your parent has a different reward idea for you. See the message below.',
-    colour: 'text-maths',
+    colour: 'text-on-maths',
     Icon: Clock,
   },
   approved: {
     label: 'Your reward is approved!',
     description: 'Amazing work! Your parent has approved your reward. Ask them about it when you next see them!',
-    colour: 'text-correct',
+    colour: 'text-correct-700',
     Icon: Sparkles,
   },
 }
@@ -102,7 +102,7 @@ export function RequestSection({ hasCredits, hasPendingRequest, pendingRequest, 
             <p className="text-sm text-ink">&ldquo;{pendingRequest.parentResponseNote}&rdquo;</p>
             <div className="mt-3 flex gap-2">
               <button
-                className="flex h-10 flex-1 items-center justify-center rounded-xl bg-correct text-sm font-bold text-white transition-colors hover:opacity-90"
+                className="flex h-10 flex-1 items-center justify-center rounded-xl bg-correct-700 text-sm font-bold text-white transition-colors hover:opacity-90"
                 onClick={() => {
                   fetch('/api/vault/parent/respond', {
                     method: 'POST',
@@ -149,7 +149,7 @@ export function RequestSection({ hasCredits, hasPendingRequest, pendingRequest, 
   if (done) {
     return (
       <div className="rounded-2xl border border-correct/20 bg-correct/5 p-5 text-center">
-        <Sparkles className="w-8 h-8 text-correct mx-auto mb-2" aria-hidden />
+        <Sparkles className="w-8 h-8 text-correct-700 mx-auto mb-2" aria-hidden />
         <p className="font-heading font-bold text-ink">Request sent!</p>
         <p className="mt-1 text-sm text-muted">Your parent will be notified.</p>
       </div>
@@ -160,7 +160,7 @@ export function RequestSection({ hasCredits, hasPendingRequest, pendingRequest, 
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex w-full min-h-[52px] items-center justify-center rounded-2xl bg-brand px-5 font-heading text-sm font-bold text-white shadow-sm transition-colors hover:bg-brand-600 active:scale-[0.98]"
+        className="flex w-full min-h-[52px] items-center justify-center rounded-2xl bg-brand-600 px-5 font-heading text-sm font-bold text-white shadow-sm transition-colors hover:bg-brand-600 active:scale-[0.98]"
       >
         <span className="flex items-center gap-2"><Gift className="w-4 h-4" aria-hidden /> Ask for a reward</span>
       </button>
@@ -180,7 +180,7 @@ export function RequestSection({ hasCredits, hasPendingRequest, pendingRequest, 
                       onClick={() => setMessage(opt.label)}
                       className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors ${
                         message === opt.label
-                          ? 'border-brand bg-brand text-white'
+                          ? 'border-brand bg-brand-600 text-white'
                           : 'border-black/10 text-ink hover:border-brand/40'
                       }`}
                     >
@@ -207,7 +207,7 @@ export function RequestSection({ hasCredits, hasPendingRequest, pendingRequest, 
             </div>
 
             {error && (
-              <p className="rounded-xl bg-incorrect/10 px-3 py-2 text-sm text-incorrect">{error}</p>
+              <p className="rounded-xl bg-incorrect/10 px-3 py-2 text-sm text-incorrect-700">{error}</p>
             )}
 
             <div className="flex gap-3">
@@ -220,7 +220,7 @@ export function RequestSection({ hasCredits, hasPendingRequest, pendingRequest, 
               <button
                 onClick={submit}
                 disabled={submitting}
-                className="flex h-12 flex-1 items-center justify-center rounded-2xl bg-brand text-sm font-bold text-white transition-colors hover:bg-brand-600 disabled:opacity-60"
+                className="flex h-12 flex-1 items-center justify-center rounded-2xl bg-brand-600 text-sm font-bold text-white transition-colors hover:bg-brand-600 disabled:opacity-60"
               >
                 {submitting ? 'Sending…' : 'Send Request'}
               </button>

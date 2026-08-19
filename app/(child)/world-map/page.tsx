@@ -101,12 +101,12 @@ export default async function WorldMapPage() {
         href="/downtime"
         className="flex min-h-[56px] items-center gap-3 rounded-2xl border border-black/5 bg-surface px-5 py-3 shadow-sm transition-colors hover:bg-black/[0.02]"
       >
-        <Gamepad className="h-5 w-5 shrink-0 text-brand" aria-hidden />
+        <Gamepad className="h-5 w-5 shrink-0 text-brand-700" aria-hidden />
         <div className="min-w-0 flex-1">
           <p className="font-heading text-sm font-bold text-ink">Games</p>
           <p className="text-xs text-muted">Chess, Connect 4, crosswords and more</p>
         </div>
-        <span className="shrink-0 text-xs font-bold text-brand">Play &rarr;</span>
+        <span className="shrink-0 text-xs font-bold text-brand-700">Play &rarr;</span>
       </Link>
 
       {zonesWithContent.length === 0 && (

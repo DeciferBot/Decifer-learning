@@ -75,7 +75,7 @@ export default function SourceAnalysis({
           aria-expanded={sourceExpanded}
         >
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold uppercase tracking-wide text-english bg-english/20 rounded-full px-2 py-0.5">
+            <span className="text-xs font-bold uppercase tracking-wide text-on-english bg-english/20 rounded-full px-2 py-0.5">
               {sourceTypeLabel}
             </span>
             <span className="text-sm font-medium text-ink">{sourceLabel}</span>
@@ -148,9 +148,9 @@ export default function SourceAnalysis({
               if (state === 'unanswered') {
                 cls += ' border-ink/15 bg-surface hover:border-english/60 hover:bg-english/5 active:scale-95'
               } else if (isCorrect) {
-                cls += ' border-correct bg-correct/10 text-correct'
+                cls += ' border-correct bg-correct/10 text-correct-700'
               } else if (selected) {
-                cls += ' border-incorrect bg-incorrect/10 text-incorrect'
+                cls += ' border-incorrect bg-incorrect/10 text-incorrect-700'
               } else {
                 cls += ' border-ink/10 bg-surface/50 text-muted'
               }
@@ -170,13 +170,13 @@ export default function SourceAnalysis({
               animate={{ opacity: 1, y: 0 }}
               className="space-y-2"
             >
-              <p className={`text-sm font-semibold ${states[current] === 'correct' ? 'text-correct' : 'text-incorrect'}`}>
+              <p className={`text-sm font-semibold ${states[current] === 'correct' ? 'text-correct-700' : 'text-incorrect-700'}`}>
                 {states[current] === 'correct' ? 'Correct, well spotted!' : `The answer was: ${q.options[q.correct]}`}
               </p>
               {current < subQuestions.length - 1 && (
                 <button
                   onClick={nextSub}
-                  className="rounded-xl bg-english text-white font-bold px-5 py-3 text-sm min-h-[48px] active:scale-95 transition-transform"
+                  className="rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold px-5 py-3 text-sm min-h-[48px] active:scale-95 transition-transform"
                 >
                   Next question →
                 </button>

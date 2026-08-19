@@ -59,7 +59,7 @@ export function QualityPipeline() {
               <div className="min-w-0">
                 <p className="font-heading text-sm font-bold text-ink">{stage.name}</p>
                 <p className="mt-0.5 text-xs leading-relaxed text-muted">{stage.desc}</p>
-                <p className="mt-1 text-[10px] font-semibold uppercase tracking-widest text-brand/60">
+                <p className="mt-1 text-[10px] font-semibold uppercase tracking-widest text-brand-700">
                   {stage.detail}
                 </p>
               </div>
@@ -72,7 +72,7 @@ export function QualityPipeline() {
         <p className="mt-6 text-center">
           <Link
             href="/help/content-quality"
-            className="inline-flex items-center gap-1 text-sm font-semibold text-brand hover:underline"
+            className="inline-flex items-center gap-1 text-sm font-semibold text-brand-700 hover:underline"
           >
             Read how content is verified
             <span aria-hidden>→</span>

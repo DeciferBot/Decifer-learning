@@ -95,7 +95,7 @@ export function OrderedList({ items, onAnswer, disabled }: Props) {
                     onClick={() => moveUp(index)}
                     disabled={index === 0 || disabled}
                     aria-label={`Move "${item}" up`}
-                    className="flex h-12 w-12 items-center justify-center rounded-lg border border-black/10 bg-surface text-ink-2 transition-colors hover:border-maths hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink disabled:opacity-30 disabled:cursor-not-allowed"
+                    className="flex h-12 w-12 items-center justify-center rounded-lg border border-black/10 bg-surface text-ink-2 transition-colors hover:border-brand hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink disabled:opacity-30 disabled:cursor-not-allowed"
                   >
                     ▲
                   </button>
@@ -103,7 +103,7 @@ export function OrderedList({ items, onAnswer, disabled }: Props) {
                     onClick={() => moveDown(index)}
                     disabled={index === currentOrder.length - 1 || disabled}
                     aria-label={`Move "${item}" down`}
-                    className="flex h-12 w-12 items-center justify-center rounded-lg border border-black/10 bg-surface text-ink-2 transition-colors hover:border-maths hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink disabled:opacity-30 disabled:cursor-not-allowed"
+                    className="flex h-12 w-12 items-center justify-center rounded-lg border border-black/10 bg-surface text-ink-2 transition-colors hover:border-brand hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink disabled:opacity-30 disabled:cursor-not-allowed"
                   >
                     ▼
                   </button>
@@ -116,7 +116,7 @@ export function OrderedList({ items, onAnswer, disabled }: Props) {
                   <motion.span
                     initial={{ opacity: 0, scale: 0.5 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className={`shrink-0 text-lg ${isCorrect ? 'text-correct' : 'text-incorrect'}`}
+                    className={`shrink-0 text-lg ${isCorrect ? 'text-correct-700' : 'text-incorrect-700'}`}
                   >
                     <span aria-hidden>{isCorrect ? '✓' : '✗'}</span>
                     <span className="sr-only">{isCorrect ? 'Correct position' : 'Incorrect position'}</span>
@@ -150,7 +150,7 @@ export function OrderedList({ items, onAnswer, disabled }: Props) {
         <button
           onClick={submit}
           disabled={disabled}
-          className="min-h-[48px] w-full rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="min-h-[48px] w-full rounded-xl bg-brand-600 px-6 py-3 font-heading font-bold text-white transition-colors hover:bg-brand-700 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           <Check className="w-4 h-4" aria-hidden />
           Submit Order

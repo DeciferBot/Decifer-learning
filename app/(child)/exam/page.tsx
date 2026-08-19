@@ -57,7 +57,7 @@ export default function ExamLobbyPage() {
   return (
     <div className="space-y-5 pb-24">
       <div className="flex items-center gap-3 pt-2">
-        <ClipboardList className="h-6 w-6 text-maths" aria-hidden />
+        <ClipboardList className="h-6 w-6 text-on-maths" aria-hidden />
         <h1 className="font-heading text-2xl font-bold text-ink">Exam Revision</h1>
       </div>
       <p className="text-sm text-muted">
@@ -108,10 +108,10 @@ export default function ExamLobbyPage() {
                         <span
                           className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold ${
                             pct >= 80
-                              ? 'bg-correct/10 text-correct'
+                              ? 'bg-correct/10 text-correct-700'
                               : pct >= 60
                               ? 'bg-lightning/20 text-ink'
-                              : 'bg-incorrect/10 text-incorrect'
+                              : 'bg-incorrect/10 text-incorrect-700'
                           }`}
                         >
                           <Check className="h-3 w-3" aria-hidden />
@@ -119,7 +119,7 @@ export default function ExamLobbyPage() {
                         </span>
                         <Link
                           href={`/exam/${exam.id}/result?attemptId=${attempt.id}`}
-                          className="text-xs font-semibold text-maths underline underline-offset-2"
+                          className="text-xs font-semibold text-on-maths underline underline-offset-2"
                         >
                           View results
                         </Link>
@@ -127,7 +127,7 @@ export default function ExamLobbyPage() {
                     ) : (
                       <Link
                         href={`/exam/${exam.id}`}
-                        className="flex-none rounded-xl bg-maths px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-maths/90 min-h-[44px] flex items-center"
+                        className="flex-none rounded-xl bg-brand-600 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-brand-700 min-h-[44px] flex items-center"
                       >
                         Start
                       </Link>

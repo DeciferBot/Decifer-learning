@@ -38,7 +38,7 @@ export function OfflineBanner() {
       role="status"
       aria-live="polite"
       className={`fixed inset-x-0 top-0 z-50 flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-white ${
-        syncing ? 'bg-maths' : 'bg-muted'
+        syncing ? 'bg-brand' : 'bg-muted'
       }`}
     >
       {syncing ? (

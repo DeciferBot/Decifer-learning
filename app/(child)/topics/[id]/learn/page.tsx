@@ -148,7 +148,7 @@ export default async function LearnPage({
           <p className="text-sm text-muted">This lesson is being prepared. Check back soon.</p>
           <a
             href="/dashboard/child"
-            className="inline-flex min-h-[48px] items-center rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white"
+            className="inline-flex min-h-[48px] items-center rounded-xl bg-brand-600 transition-colors hover:bg-brand-700 px-6 py-3 font-heading font-bold text-white"
           >
             ← Back to Home
           </a>
@@ -196,7 +196,7 @@ export default async function LearnPage({
       </nav>
 
       <div className="flex gap-2" aria-label="Topic steps">
-        <span className="rounded-full bg-maths px-3 py-1 text-xs font-bold text-white" aria-current="step">1 Learn</span>
+        <span className="rounded-full bg-brand-600 px-3 py-1 text-xs font-bold text-white" aria-current="step">1 Learn</span>
         {hasPractice && (
           <span className="rounded-full bg-black/10 px-3 py-1 text-xs font-bold text-muted">2 Practise</span>
         )}
@@ -255,7 +255,7 @@ export default async function LearnPage({
               topicId={topic.id}
               lessonId={topic.id}
               subjectId={topic.subject_id ?? null}
-              className="inline-flex min-h-[48px] items-center gap-2 rounded-xl px-6 py-3 font-heading font-bold text-white shadow-sm transition-opacity hover:opacity-90 bg-maths"
+              className="inline-flex min-h-[48px] items-center gap-2 rounded-xl px-6 py-3 font-heading font-bold text-white shadow-sm transition-colors hover:bg-brand-700 bg-brand-600"
             >
               {nextLabel}
             </LessonCompleteCTA>
@@ -289,7 +289,7 @@ export default async function LearnPage({
               topicId={topic.id}
               lessonId={topic.id}
               subjectId={topic.subject_id ?? null}
-              className="inline-flex min-h-[48px] items-center gap-2 rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white shadow-sm transition-opacity hover:opacity-90"
+              className="inline-flex min-h-[48px] items-center gap-2 rounded-xl bg-brand-600 px-6 py-3 font-heading font-bold text-white shadow-sm transition-colors hover:bg-brand-700"
             >
               {nextLabel}
             </LessonCompleteCTA>

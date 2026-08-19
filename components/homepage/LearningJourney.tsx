@@ -2,20 +2,16 @@
 
 import { ScrollReveal } from '@/components/ui/ScrollReveal'
 import { BookOpen, PencilLine, Zap, BarChart } from '@/components/ui/icons'
+import { inkOn, onPaper, tint } from '@/lib/subject-colour'
 import type { ComponentType, SVGProps } from 'react'
 
 type IconType = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
 
-const STEPS: {
-  step: number; label: string; color: string; colorBg: string; textColor: string
-  Icon: IconType; body: string
-}[] = [
+const STEPS: { step: number; label: string; color: string; Icon: IconType; body: string }[] = [
   {
     step: 1,
     label: 'Learn',
     color: '#6C9EFF',
-    colorBg: 'rgba(108,158,255,0.10)',
-    textColor: '#6C9EFF',
     Icon: BookOpen,
     body: 'Clear explanations and worked examples at the right level. No pressure, no time limit.',
   },
@@ -23,8 +19,6 @@ const STEPS: {
     step: 2,
     label: 'Practise',
     color: '#52D9A0',
-    colorBg: 'rgba(82,217,160,0.10)',
-    textColor: '#52D9A0',
     Icon: PencilLine,
     body: 'Guided exercises with up to three hint levels and instant feedback. Retries are never penalised.',
   },
@@ -32,21 +26,20 @@ const STEPS: {
     step: 3,
     label: 'Quiz',
     color: '#FFD43B',
-    colorBg: 'rgba(255,212,59,0.12)',
-    textColor: '#A08000',
     Icon: Zap,
     body: 'Ten questions across three difficulty tiers. Instant feedback. Every mistake is explained, not just marked wrong.',
   },
   {
     step: 4,
     label: 'Progress',
-    color: 'var(--brand)',
-    colorBg: 'rgba(240,90,40,0.08)',
-    textColor: 'var(--brand)',
+    color: '#2EC4A0',
     Icon: BarChart,
     body: 'Scores, XP, streaks, and topic completion tracked automatically. Parents see results the same day.',
   },
 ]
+
+/** The card sits on --background, so a 10% step tint composites over that. */
+const chipBg = (colour: string) => tint(colour, '#FDF8F2', 0.1)
 
 export function LearningJourney() {
   return (
@@ -76,13 +69,13 @@ export function LearningJourney() {
               <div className="mb-3 flex items-center gap-2.5 pt-1">
                 {/* Step number */}
                 <span
-                  className="flex h-8 w-8 flex-none items-center justify-center rounded-full font-heading text-sm font-black text-white"
-                  style={{ backgroundColor: step.color }}
+                  className="flex h-8 w-8 flex-none items-center justify-center rounded-full font-heading text-sm font-black"
+                  style={{ backgroundColor: step.color, color: inkOn(step.color) }}
                   aria-label={`Step ${step.step}`}
                 >
                   {step.step}
                 </span>
-                <span style={{ color: step.color }} aria-hidden>
+                <span style={{ color: onPaper(step.color) }} aria-hidden>
                   <step.Icon size={20} />
                 </span>
               </div>
@@ -93,7 +86,7 @@ export function LearningJourney() {
               <div className="mt-3">
                 <span
                   className="inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-semibold"
-                  style={{ backgroundColor: step.colorBg, color: step.textColor }}
+                  style={{ backgroundColor: chipBg(step.color), color: onPaper(step.color, chipBg(step.color)) }}
                 >
                   Step {step.step} of 4
                 </span>

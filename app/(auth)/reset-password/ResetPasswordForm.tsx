@@ -85,12 +85,12 @@ export function ResetPasswordForm() {
   if (error && !sessionReady) {
     return (
       <>
-        <p role="alert" className="mt-5 rounded-md bg-incorrect/10 px-3 py-2 text-sm text-incorrect">
+        <p role="alert" className="mt-5 rounded-md bg-incorrect/10 px-3 py-2 text-sm text-incorrect-700">
           {error}
         </p>
         <button
           onClick={() => router.push('/login')}
-          className="mt-4 flex h-12 w-full items-center justify-center rounded-lg bg-maths font-semibold text-white transition active:scale-[0.98]"
+          className="mt-4 flex h-12 w-full items-center justify-center rounded-lg bg-brand-600 hover:bg-brand-700 font-semibold text-white transition active:scale-[0.98]"
         >
           Back to sign in
         </button>
@@ -109,7 +109,7 @@ export function ResetPasswordForm() {
           minLength={8}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base outline-none focus:border-maths focus:ring-2 focus:ring-maths/30"
+          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/30"
         />
       </label>
       <label className="block">
@@ -121,18 +121,18 @@ export function ResetPasswordForm() {
           minLength={8}
           value={confirm}
           onChange={(e) => setConfirm(e.target.value)}
-          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base outline-none focus:border-maths focus:ring-2 focus:ring-maths/30"
+          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/30"
         />
       </label>
       {error ? (
-        <p role="alert" className="rounded-md bg-incorrect/10 px-3 py-2 text-sm text-incorrect">
+        <p role="alert" className="rounded-md bg-incorrect/10 px-3 py-2 text-sm text-incorrect-700">
           {error}
         </p>
       ) : null}
       <button
         type="submit"
         disabled={isPending}
-        className="flex h-12 w-full items-center justify-center rounded-lg bg-maths font-semibold text-white transition active:scale-[0.98] disabled:opacity-60"
+        className="flex h-12 w-full items-center justify-center rounded-lg bg-brand-600 hover:bg-brand-700 font-semibold text-white transition active:scale-[0.98] disabled:opacity-60"
       >
         {isPending ? 'Saving…' : 'Set new password'}
       </button>

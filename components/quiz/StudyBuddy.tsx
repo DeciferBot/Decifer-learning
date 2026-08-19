@@ -10,7 +10,7 @@ const MOOD_STYLE: Record<BuddyMood, { bg: string; ring: string; rotate: number; 
   happy:        { bg: 'bg-correct/15',   ring: 'ring-correct/40',  rotate: -6,  scale: 1.08 },
   excited:      { bg: 'bg-points-gold/20', ring: 'ring-points-gold/50', rotate: 8, scale: 1.14 },
   oops:         { bg: 'bg-incorrect/10', ring: 'ring-incorrect/30', rotate: 0,  scale: 0.96 },
-  anticipation: { bg: 'bg-maths/15',     ring: 'ring-maths/40',    rotate: 0,   scale: 1.05 },
+  anticipation: { bg: 'bg-brand/15',     ring: 'ring-brand/40',    rotate: 0,   scale: 1.05 },
 }
 
 /**

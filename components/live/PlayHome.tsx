@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Swords, Users, ArrowRight, Zap, Clock, Target } from '@/components/ui/icons'
+import { inkOn } from '@/lib/subject-colour'
 
 export type HostSubject = {
   id: string
@@ -46,7 +47,7 @@ export function PlayHome({
   return (
     <div className="mx-auto max-w-md">
       <header className="mb-6 text-center">
-        <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-brand-50 px-3 py-1 text-sm font-semibold text-brand-600">
+        <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-brand-50 px-3 py-1 text-sm font-semibold text-brand-700">
           <Swords className="h-4 w-4" /> Decifer Blitz
         </div>
         <h1 className="font-heading text-2xl font-extrabold text-ink">Quiz battle!</h1>
@@ -61,7 +62,7 @@ export function PlayHome({
             key={t}
             onClick={() => setTab(t)}
             className={`flex items-center justify-center gap-2 rounded-xl py-3 text-sm font-bold transition ${
-              tab === t ? 'bg-brand text-white shadow-sm' : 'text-muted hover:text-ink'
+              tab === t ? 'bg-brand-600 text-white shadow-sm' : 'text-muted hover:text-ink'
             }`}
           >
             {t === 'host' ? <Zap className="h-4 w-4" /> : <Users className="h-4 w-4" />}
@@ -208,7 +209,7 @@ function HostForm({
                 onClick={() => onPickYearGroup(yg.id)}
                 className={`rounded-xl px-3 py-2 text-sm font-bold transition ${
                   selectedYgId === yg.id
-                    ? 'bg-brand text-white shadow-sm'
+                    ? 'bg-brand-600 text-white shadow-sm'
                     : 'bg-background text-ink hover:opacity-90'
                 }`}
               >
@@ -237,9 +238,9 @@ function HostForm({
               key={s.id}
               onClick={() => onPickSubject(s.id)}
               className={`rounded-xl px-3 py-2 text-sm font-bold transition ${
-                subjectId === s.id ? 'text-white shadow-sm' : 'bg-background text-ink hover:opacity-90'
+                subjectId === s.id ? 'shadow-sm' : 'bg-background text-ink hover:opacity-90'
               }`}
-              style={subjectId === s.id ? { backgroundColor: s.colourToken } : undefined}
+              style={subjectId === s.id ? { backgroundColor: s.colourToken, color: inkOn(s.colourToken) } : undefined}
             >
               {s.name}
             </button>
@@ -313,7 +314,7 @@ function HostForm({
         whileTap={{ scale: 0.97 }}
         disabled={!canCreate}
         onClick={create}
-        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brand py-4 font-heading text-base font-extrabold text-white shadow-sm transition hover:opacity-90 disabled:opacity-50"
+        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-600 py-4 font-heading text-base font-extrabold text-white shadow-sm transition-colors hover:bg-brand-700 disabled:opacity-50"
       >
         {busy ? 'Setting up…' : subject ? `Create ${subject.name} game` : 'Create game'}{' '}
         <ArrowRight className="h-5 w-5" />
@@ -373,7 +374,7 @@ function JoinForm({ onJoined }: { onJoined: (gameId: string) => void }) {
         whileTap={{ scale: 0.97 }}
         disabled={busy || pin.length !== 6}
         onClick={join}
-        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brand py-4 font-heading text-base font-extrabold text-white shadow-sm transition hover:opacity-90 disabled:opacity-50"
+        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-600 py-4 font-heading text-base font-extrabold text-white shadow-sm transition-colors hover:bg-brand-700 disabled:opacity-50"
       >
         {busy ? 'Joining…' : 'Join game'} <ArrowRight className="h-5 w-5" />
       </motion.button>
@@ -405,7 +406,7 @@ function Chip({
     <button
       onClick={onClick}
       className={`flex items-center justify-center gap-1.5 rounded-xl py-3 text-sm font-bold transition ${
-        active ? 'bg-brand text-white shadow-sm' : 'bg-background text-ink hover:opacity-90'
+        active ? 'bg-brand-600 text-white shadow-sm' : 'bg-background text-ink hover:bg-brand-700'
       }`}
     >
       {icon}

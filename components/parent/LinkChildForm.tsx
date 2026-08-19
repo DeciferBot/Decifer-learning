@@ -108,13 +108,13 @@ function LinkByEmailForm({ onLinked }: { onLinked: () => void }) {
         <div className="rounded-2xl border border-black/5 bg-surface p-5 text-center space-y-2">
           <div className="flex justify-center"><UserCircle className="w-10 h-10 text-muted" aria-hidden /></div>
           <p className="font-semibold text-ink">Is this your child?</p>
-          <p className="text-lg font-bold text-maths">{pendingLink.displayName}</p>
+          <p className="text-lg font-bold text-on-maths">{pendingLink.displayName}</p>
           <p className="text-xs text-muted">{pendingLink.email}</p>
         </div>
         <button
           onClick={handleConfirm}
           disabled={isPending}
-          className="flex h-12 w-full items-center justify-center rounded-lg bg-maths font-semibold text-white transition active:scale-[0.98] disabled:opacity-60"
+          className="flex h-12 w-full items-center justify-center rounded-lg bg-brand-600 hover:bg-brand-700 font-semibold text-white transition active:scale-[0.98] disabled:opacity-60"
         >
           {isPending ? 'Linking…' : 'Yes, link this account'}
         </button>
@@ -125,7 +125,7 @@ function LinkByEmailForm({ onLinked }: { onLinked: () => void }) {
           No, go back
         </button>
         {error && (
-          <p role="alert" className="rounded-md bg-incorrect/10 px-3 py-2 text-sm text-incorrect">
+          <p role="alert" className="rounded-md bg-incorrect/10 px-3 py-2 text-sm text-incorrect-700">
             {error}
           </p>
         )}
@@ -149,17 +149,17 @@ function LinkByEmailForm({ onLinked }: { onLinked: () => void }) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="child@example.com"
-          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base outline-none focus:border-maths focus:ring-2 focus:ring-maths/30"
+          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/30"
         />
       </label>
 
       {error && (
-        <p role="alert" className="rounded-md bg-incorrect/10 px-3 py-2 text-sm text-incorrect">
+        <p role="alert" className="rounded-md bg-incorrect/10 px-3 py-2 text-sm text-incorrect-700">
           {error}
         </p>
       )}
       {success && (
-        <p role="status" className="rounded-md bg-science/10 px-3 py-2 text-sm text-science">
+        <p role="status" className="rounded-md bg-science/10 px-3 py-2 text-sm text-on-science">
           <Check className="w-4 h-4 inline mr-1" aria-hidden />{success}
         </p>
       )}
@@ -167,7 +167,7 @@ function LinkByEmailForm({ onLinked }: { onLinked: () => void }) {
       <button
         type="submit"
         disabled={isPending}
-        className="flex h-12 w-full items-center justify-center rounded-lg bg-maths font-semibold text-white transition active:scale-[0.98] disabled:opacity-60"
+        className="flex h-12 w-full items-center justify-center rounded-lg bg-brand-600 hover:bg-brand-700 font-semibold text-white transition active:scale-[0.98] disabled:opacity-60"
       >
         {isPending ? 'Looking up…' : 'Find child account'}
       </button>
@@ -239,7 +239,7 @@ function CreateChildForm({ onCreated }: { onCreated: () => void }) {
           onChange={(e) => setDisplayName(e.target.value)}
           placeholder="e.g. Aaina"
           autoComplete="off"
-          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base outline-none focus:border-maths focus:ring-2 focus:ring-maths/30"
+          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/30"
         />
       </label>
 
@@ -256,7 +256,7 @@ function CreateChildForm({ onCreated }: { onCreated: () => void }) {
                 aria-pressed={active}
                 className={`h-12 rounded-lg border text-sm font-semibold transition ${
                   active
-                    ? 'border-maths bg-maths/10 text-maths'
+                    ? 'border-brand bg-brand/10 text-on-maths'
                     : 'border-black/10 bg-surface text-ink'
                 }`}
               >
@@ -279,7 +279,7 @@ function CreateChildForm({ onCreated }: { onCreated: () => void }) {
           onChange={(e) => setPin(e.target.value)}
           placeholder="••••"
           autoComplete="new-password"
-          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base outline-none focus:border-maths focus:ring-2 focus:ring-maths/30"
+          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/30"
         />
       </label>
 
@@ -294,17 +294,17 @@ function CreateChildForm({ onCreated }: { onCreated: () => void }) {
           onChange={(e) => setConfirmPin(e.target.value)}
           placeholder="••••"
           autoComplete="new-password"
-          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base outline-none focus:border-maths focus:ring-2 focus:ring-maths/30"
+          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/30"
         />
       </label>
 
       {error && (
-        <p role="alert" className="rounded-md bg-incorrect/10 px-3 py-2 text-sm text-incorrect">
+        <p role="alert" className="rounded-md bg-incorrect/10 px-3 py-2 text-sm text-incorrect-700">
           {error}
         </p>
       )}
       {success && (
-        <p role="status" className="rounded-md bg-science/10 px-3 py-2 text-sm text-science">
+        <p role="status" className="rounded-md bg-science/10 px-3 py-2 text-sm text-on-science">
           <Check className="w-4 h-4 inline mr-1" aria-hidden />{success}
         </p>
       )}
@@ -312,7 +312,7 @@ function CreateChildForm({ onCreated }: { onCreated: () => void }) {
       <button
         type="submit"
         disabled={isPending}
-        className="flex h-12 w-full items-center justify-center rounded-lg bg-maths font-semibold text-white transition active:scale-[0.98] disabled:opacity-60"
+        className="flex h-12 w-full items-center justify-center rounded-lg bg-brand-600 hover:bg-brand-700 font-semibold text-white transition active:scale-[0.98] disabled:opacity-60"
       >
         {isPending ? 'Creating…' : "Create child's account"}
       </button>

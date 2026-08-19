@@ -57,13 +57,13 @@ export default function Home({
           <div className="grid gap-10 md:grid-cols-2 md:items-center">
 
             <div>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-brand/20 bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-600">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-brand/20 bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-700">
                 UK National Curriculum · Years 1 to 11
               </span>
 
               <h1 className="mt-4 font-heading text-3xl font-black leading-tight text-ink sm:text-4xl lg:text-5xl">
                 See your child build confidence,{' '}
-                <DecipherText as="span" className="text-brand" text="one topic at a time." />
+                <DecipherText as="span" className="text-brand-700" text="one topic at a time." />
               </h1>
 
               <p className="mt-4 text-base leading-relaxed text-muted">
@@ -110,7 +110,7 @@ export default function Home({
                   footer. */}
               <Link
                 href="/games"
-                className="mt-4 inline-flex min-h-[44px] items-center gap-2 rounded-xl px-1 text-sm font-semibold text-brand-600 transition-colors hover:text-brand-700"
+                className="mt-4 inline-flex min-h-[44px] items-center gap-2 rounded-xl px-1 text-sm font-semibold text-brand-700 transition-colors hover:text-brand-700"
               >
                 <Gamepad size={16} aria-hidden />
                 Or play free games &mdash; no sign-up needed
@@ -146,7 +146,7 @@ export default function Home({
         {/* ── Learning Intelligence ─────────────────────────────────────────── */}
         <section className="py-16">
           <div className="mx-auto max-w-5xl px-4">
-            <p className="mb-2 text-center text-xs font-bold uppercase tracking-widest text-brand-600">
+            <p className="mb-2 text-center text-xs font-bold uppercase tracking-widest text-brand-700">
               Learning intelligence
             </p>
             <h2 className="mb-2 text-center font-heading text-2xl font-bold text-ink md:text-3xl">
@@ -159,7 +159,7 @@ export default function Home({
             <div className="grid gap-5 md:grid-cols-3">
               {LEARNING_INTELLIGENCE_CARDS.map((card, i) => (
                 <div key={i} className="rounded-2xl border border-brand/10 bg-brand-50 p-6">
-                  <card.Icon size={24} className="mb-3 text-brand" aria-hidden />
+                  <card.Icon size={24} className="mb-3 text-brand-700" aria-hidden />
                   <p className="mb-1 font-heading font-bold text-ink">{card.title}</p>
                   <p className="text-sm leading-relaxed text-muted">{card.body}</p>
                   {card.example && (
@@ -182,7 +182,7 @@ export default function Home({
         {/* ── The learning loop ────────────────────────────────────────────── */}
         <section className="bg-surface py-16">
           <div className="mx-auto max-w-5xl px-4">
-            <p className="mb-2 text-center text-xs font-bold uppercase tracking-widest text-brand-600">
+            <p className="mb-2 text-center text-xs font-bold uppercase tracking-widest text-brand-700">
               The learning loop
             </p>
             <h2 className="mb-2 text-center font-heading text-2xl font-bold text-ink md:text-3xl">
@@ -208,7 +208,7 @@ export default function Home({
         {/* ── Content quality pipeline ─────────────────────────────────────── */}
         <section className="py-16">
           <div className="mx-auto max-w-5xl px-4">
-            <p className="mb-2 text-center text-xs font-bold uppercase tracking-widest text-brand-600">
+            <p className="mb-2 text-center text-xs font-bold uppercase tracking-widest text-brand-700">
               Content quality
             </p>
             <h2 className="mb-2 text-center font-heading text-2xl font-bold text-ink md:text-3xl">
@@ -234,7 +234,7 @@ export default function Home({
             <div className="grid gap-5 md:grid-cols-2">
 
               {/* Child column */}
-              <div className="rounded-2xl border border-maths/20 bg-maths/5 p-6">
+              <div className="rounded-2xl border border-brand/20 bg-brand/5 p-6">
                 <p className="mb-1 text-xs font-bold uppercase tracking-widest text-ink">
                   For children
                 </p>
@@ -244,7 +244,7 @@ export default function Home({
                 <ul className="space-y-4">
                   {CHILD_FEATURES.map((f, i) => (
                     <li key={i} className="flex items-start gap-3">
-                      <f.Icon size={18} className="mt-0.5 flex-none text-maths" aria-hidden />
+                      <f.Icon size={18} className="mt-0.5 flex-none text-on-maths" aria-hidden />
                       <div>
                         <p className="text-sm font-semibold text-ink">{f.title}</p>
                         <p className="mt-0.5 text-xs leading-relaxed text-muted">{f.body}</p>
@@ -256,7 +256,7 @@ export default function Home({
 
               {/* Parent column */}
               <div className="rounded-2xl border border-brand/20 bg-brand-50 p-6">
-                <p className="mb-1 text-xs font-bold uppercase tracking-widest text-brand-600">
+                <p className="mb-1 text-xs font-bold uppercase tracking-widest text-brand-700">
                   For parents
                 </p>
                 <h3 className="mb-2 font-heading text-lg font-bold text-ink">
@@ -268,7 +268,7 @@ export default function Home({
                 <ul className="space-y-4">
                   {PARENT_FEATURES.map((f, i) => (
                     <li key={i} className="flex items-start gap-3">
-                      <f.Icon size={18} className="mt-0.5 flex-none text-brand" aria-hidden />
+                      <f.Icon size={18} className="mt-0.5 flex-none text-brand-700" aria-hidden />
                       <div>
                         <p className="text-sm font-semibold text-ink">{f.title}</p>
                         <p className="mt-0.5 text-xs leading-relaxed text-muted">{f.body}</p>
@@ -278,7 +278,7 @@ export default function Home({
                 </ul>
                 <Link
                   href="/help/parent-guide"
-                  className="mt-6 inline-flex min-h-[44px] items-center rounded-xl border border-brand-600/40 px-5 text-sm font-semibold text-brand-600 transition-colors hover:bg-brand-50"
+                  className="mt-6 inline-flex min-h-[44px] items-center rounded-xl border border-brand-600/40 px-5 text-sm font-semibold text-brand-700 transition-colors hover:bg-brand-50"
                 >
                   Read the parent guide <span aria-hidden="true">→</span>
                 </Link>
@@ -350,7 +350,7 @@ export default function Home({
                     <p className="mt-1 font-heading font-bold text-ink">{topic.title}</p>
                     <p className="mt-1 text-xs leading-relaxed text-muted">{topic.description}</p>
                     <div className="mt-3 flex gap-1.5 text-xs font-semibold">
-                      <span className="rounded-lg bg-maths/10 px-2 py-1.5 text-ink">Learn</span>
+                      <span className="rounded-lg bg-brand/10 px-2 py-1.5 text-ink">Learn</span>
                       <span className="rounded-lg bg-science/10 px-2 py-1.5 text-ink">Practise</span>
                       <span className="rounded-lg bg-lightning/20 px-2 py-1.5 text-ink">Quiz</span>
                     </div>
@@ -386,7 +386,7 @@ export default function Home({
                   only contextual links into /curriculum/[subject] from the homepage,
                   and the label doubles as descriptive anchor text. */}
               <div className="flex flex-wrap justify-center gap-3 text-sm">
-                <Link href="/curriculum/maths" className="flex min-h-[48px] items-center gap-1.5 rounded-full bg-maths/10 px-4 py-1.5 font-semibold text-ink hover:underline underline-offset-4">
+                <Link href="/curriculum/maths" className="flex min-h-[48px] items-center gap-1.5 rounded-full bg-brand/10 px-4 py-1.5 font-semibold text-ink hover:underline underline-offset-4">
                   <Check className="w-4 h-4" aria-hidden /> Maths: Years 1 to 11
                 </Link>
                 <Link href="/curriculum/english" className="flex min-h-[48px] items-center gap-1.5 rounded-full bg-english/10 px-4 py-1.5 font-semibold text-ink hover:underline underline-offset-4">

@@ -37,7 +37,7 @@ export function ScreenTimeControls({ childId, initialLimit, leaderboardVisible }
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <p className="text-sm font-semibold text-ink">Daily quiz time limit</p>
-          <span className="rounded-full bg-brand/10 px-3 py-0.5 text-xs font-bold text-brand">
+          <span className="rounded-full bg-brand/10 px-3 py-0.5 text-xs font-bold text-brand-700">
             {limit} min
           </span>
         </div>
@@ -57,7 +57,7 @@ export function ScreenTimeControls({ childId, initialLimit, leaderboardVisible }
               onClick={() => { setLimit(p); setSaved(false) }}
               className={`rounded-xl px-3 py-1.5 text-xs font-bold transition-colors ${
                 limit === p
-                  ? 'bg-brand text-white'
+                  ? 'bg-brand-600 text-white'
                   : 'bg-black/5 text-muted hover:bg-black/10'
               }`}
             >
@@ -91,7 +91,7 @@ export function ScreenTimeControls({ childId, initialLimit, leaderboardVisible }
       <button
         onClick={save}
         disabled={saving}
-        className="w-full rounded-xl bg-brand py-3 text-sm font-bold text-white hover:opacity-90 disabled:opacity-60"
+        className="w-full rounded-xl bg-brand-600 py-3 text-sm font-bold text-white hover:bg-brand-700 disabled:opacity-60"
       >
         {saving ? 'Saving…' : saved ? '✓ Saved' : 'Save settings'}
       </button>

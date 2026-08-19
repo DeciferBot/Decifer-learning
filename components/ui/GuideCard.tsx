@@ -10,7 +10,7 @@ interface GuideCardProps {
 }
 
 const AUDIENCE_ACCENT: Record<string, string> = {
-  parent:  'border-maths/20 hover:border-maths/40 hover:bg-maths/5',
+  parent:  'border-brand/20 hover:border-brand/40 hover:bg-brand/5',
   student: 'border-brand/20 hover:border-brand/40 hover:bg-brand-50',
   general: 'border-black/8 hover:border-black/15 hover:bg-black/[0.02]',
 }

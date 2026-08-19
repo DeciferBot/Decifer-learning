@@ -165,7 +165,7 @@ export default async function AdminUsersPage() {
     <section className="space-y-6 pb-10">
       <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
         <h1 className="font-heading text-2xl font-bold text-ink flex items-center gap-2">
-          <Users className="w-6 h-6 text-brand" aria-hidden /> Users &amp; Activity
+          <Users className="w-6 h-6 text-brand-700" aria-hidden /> Users &amp; Activity
         </h1>
         <Link href="/dashboard/admin" className="text-sm text-muted hover:text-ink">
           ← Admin
@@ -184,7 +184,7 @@ export default async function AdminUsersPage() {
       <div className="rounded-2xl border border-black/5 bg-surface p-4 shadow-sm">
         <div className="flex items-center justify-between mb-3">
           <h2 className="font-heading text-base font-bold text-ink flex items-center gap-1.5">
-            <TrendingUp className="w-4 h-4 text-brand" aria-hidden /> Registrations · last 14 days
+            <TrendingUp className="w-4 h-4 text-brand-700" aria-hidden /> Registrations · last 14 days
           </h2>
           <span className="text-xs text-muted">{new30d} in 30d</span>
         </div>
@@ -256,7 +256,7 @@ function KpiCard({
   sub?: string
   accent?: 'brand' | 'correct'
 }) {
-  const valueColour = accent === 'brand' ? 'text-brand' : accent === 'correct' ? 'text-correct' : 'text-ink'
+  const valueColour = accent === 'brand' ? 'text-brand-700' : accent === 'correct' ? 'text-correct-700' : 'text-ink'
   return (
     <div className="rounded-2xl border border-black/5 bg-surface p-4 shadow-sm">
       <p className={`font-heading text-2xl font-bold ${valueColour}`}>{value.toLocaleString()}</p>
@@ -269,7 +269,7 @@ function KpiCard({
 function MiniStat({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
     <div className="flex items-center gap-3 rounded-2xl border border-black/5 bg-surface px-4 py-3 shadow-sm">
-      <span className="flex-none text-brand">{icon}</span>
+      <span className="flex-none text-brand-700">{icon}</span>
       <div className="min-w-0">
         <p className="font-heading text-lg font-bold text-ink leading-none">{value}</p>
         <p className="text-[11px] text-muted mt-1 truncate">{label}</p>
