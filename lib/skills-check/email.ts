@@ -16,6 +16,7 @@ import 'server-only'
 import { Resend } from 'resend'
 import type { AttemptView } from './server'
 import { prettyYear, prettySubject } from './server'
+import { countWord } from './score'
 
 const FROM = 'Decifer Learning <hello@deciferlearning.com>'
 
@@ -62,6 +63,9 @@ export async function sendSkillsCheckReport(view: AttemptView, to: string): Prom
 
     const year = prettyYear(view.yearLabel)
     const subject = prettySubject(view.subjectName)
+    // Name the sample this child actually got. The item count was already read
+    // from the result; the area count was not, and said "four" regardless.
+    const areas = countWord(view.report.strands.length).toLowerCase()
     const reportUrl = `${appUrl()}/skills-check/r/${view.token}`
     const deleteUrl = `${appUrl()}/skills-check/forget/${view.token}`
 
@@ -106,7 +110,7 @@ export async function sendSkillsCheckReport(view: AttemptView, to: string): Prom
     </p>
   </td></tr>
   <tr><td>
-    <h2 style="margin:0 0 4px;font-size:16px;color:#2D3748">The four areas we checked</h2>
+    <h2 style="margin:0 0 4px;font-size:16px;color:#2D3748">The ${areas} areas we checked</h2>
     <table width="100%" cellpadding="0" cellspacing="0">${strandRows}</table>
   </td></tr>
   <tr><td>${nextSteps}</td></tr>
@@ -116,7 +120,7 @@ export async function sendSkillsCheckReport(view: AttemptView, to: string): Prom
   <tr><td style="padding:24px 0 0">
     <p style="margin:0;font-size:12px;line-height:1.6;color:#718096;background:#fff;border:1px solid #eee;border-radius:10px;padding:14px">
       <strong style="color:#2D3748">What this does and does not tell you.</strong><br>
-      This is ${view.report.totalItems} questions on one day, covering four areas of the ${year} curriculum. It is not an IQ test and not a standardised score, and it does not compare your child with anyone else. One tired morning moves the result.
+      This is ${view.report.totalItems} questions on one day, covering ${areas} areas of the ${year} curriculum. It is not an IQ test and not a standardised score, and it does not compare your child with anyone else. One tired morning moves the result.
     </p>
   </td></tr>
   <tr><td style="padding:24px 0 0;font-size:11px;color:#a0aec0;border-top:1px solid #eee">
@@ -130,7 +134,7 @@ export async function sendSkillsCheckReport(view: AttemptView, to: string): Prom
       view.teaser.headline,
       `Score ${view.report.rawScore} out of ${view.report.totalItems}, covering ${year} ${subject}.`,
       '',
-      'The four areas we checked:',
+      `The ${areas} areas we checked:`,
       ...view.report.strands.map(
         (s) => `- ${s.strandTitle}: ${VERDICT_LABEL[s.verdict] ?? s.verdict} (${s.correct}/${s.total})`,
       ),
