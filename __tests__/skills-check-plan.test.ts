@@ -19,6 +19,9 @@ import {
   poolSize,
   isSuitableForPublicCheck,
   questionsAreNearDuplicates,
+  strandFamily,
+  isSelfContained,
+  hasSingleAnswerPhrasing,
   STRAND_BAND_PLAN,
   STRANDS_PER_CHECK,
   ITEMS_PER_STRAND,
@@ -105,6 +108,65 @@ describe('findCounterpart', () => {
     const tied = [pool('a', 'Fractions', [1, 0, 0]), pool('b', 'Fractions', [1, 0, 0])]
     expect(findCounterpart('Fractions', tied)?.topicId).toBe('a')
     expect(findCounterpart('Fractions', tied)?.topicId).toBe('a')
+  })
+})
+
+describe('findCounterpart — the strand-family fallback', () => {
+  // English topics are renamed every year, so a full-title match scores near
+  // zero. Without this fallback every English check came out with all four
+  // strands incomplete, which collapses the whole working-level ladder.
+  const y5English = [
+    pool('y5-read', 'Reading: Figurative Language and Authorial Choices', [5, 3, 2]),
+    pool('y5-spell', 'Spelling: Silent Letters and Etymology', [5, 3, 2]),
+    pool('y5-gram', 'Grammar: Relative Clauses', [8, 4, 3]),
+    pool('y5-gram2', 'Grammar: Modal Verbs and Adverbs for Possibility', [2, 1, 1]),
+  ]
+
+  it('pairs a Year 6 reading strand with Year 5 reading', () => {
+    expect(findCounterpart('Reading: Inference and Authorial Intent', y5English)?.topicId).toBe(
+      'y5-read',
+    )
+  })
+
+  it('prefers the deepest pool when a family has several members', () => {
+    expect(findCounterpart('Grammar: Subjunctive and Passive Voice', y5English)?.topicId).toBe(
+      'y5-gram',
+    )
+  })
+
+  it('still returns null when no family matches', () => {
+    expect(findCounterpart('Handwriting: Joins', y5English)).toBeNull()
+  })
+
+  it('prefers a real title match over the family fallback', () => {
+    const mixed = [
+      pool('exact', 'Reading: Inference and Authorial Intent', [1, 0, 0]),
+      pool('family', 'Reading: Something Else Entirely', [9, 9, 9]),
+    ]
+    expect(findCounterpart('Reading: Inference and Authorial Intent', mixed)?.topicId).toBe('exact')
+  })
+})
+
+describe('strandFamily', () => {
+  it('takes the part before the colon', () => {
+    expect(strandFamily('Reading: Inference and Authorial Intent')).toBe('reading')
+    expect(strandFamily('Grammar: Relative Clauses')).toBe('grammar')
+  })
+
+  it('returns null for a title with no colon, which is most maths topics', () => {
+    expect(strandFamily('Multiplication and Division')).toBeNull()
+    expect(strandFamily('Addition and Subtraction')).toBeNull()
+  })
+
+  it('refuses "Number", which prefixes half the maths topics and pairs nothing', () => {
+    // "Number: Fractions" and "Number: Place Value" are not the same strand.
+    expect(strandFamily('Number: Fractions')).toBeNull()
+    expect(strandFamily('Number: Place Value')).toBeNull()
+  })
+
+  it('does not pair unrelated maths topics through the fallback', () => {
+    const y3 = [pool('y3-frac', 'Number: Fractions', [5, 3, 2])]
+    expect(findCounterpart('Number: Place Value', y3)).toBeNull()
   })
 })
 
@@ -475,6 +537,77 @@ describe('planCheck — near-duplicate avoidance', () => {
 
   it('works unchanged when a pool carries no texts at all', () => {
     expect(takeSpreadAcrossTiers(pool('t', 'x', [3, 3, 3]), 3, 0)).toHaveLength(3)
+  })
+})
+
+describe('isSelfContained', () => {
+  // Every rejection below is a real question that reached a built Year 1 Maths
+  // check and could not be answered, because the thing it asks about was in a
+  // lesson the Skills Check does not show.
+  it('rejects a question about a picture that is not there', () => {
+    for (const q of [
+      'Which equation matches the number line.',
+      'Which toy is at the front of the line?',
+      'Look at the diagram and answer.',
+      'What does the chart show about rainfall?',
+    ]) {
+      expect(isSelfContained(q)).toBe(false)
+    }
+  })
+
+  it('rejects a stem too short to carry its own context', () => {
+    expect(isSelfContained('Identify the verbs.')).toBe(false)
+    expect(isSelfContained('An author is ...')).toBe(false)
+  })
+
+  it('keeps a short question whose numbers make it self-contained', () => {
+    expect(isSelfContained('What is 10 × 4?')).toBe(true)
+    expect(isSelfContained('Expand 7(y+8).')).toBe(true)
+    expect(isSelfContained('What is 50 + 7?')).toBe(true)
+  })
+
+  it('keeps questions about shapes named indefinitely', () => {
+    expect(isSelfContained('How many corners does a triangle have?')).toBe(true)
+    expect(isSelfContained('A shape has 4 equal sides and 4 equal corners. What is it called?')).toBe(true)
+    expect(isSelfContained('How many sides does an octagon have?')).toBe(true)
+  })
+
+  it('keeps a question that quotes the text it asks about', () => {
+    expect(
+      isSelfContained("Which word is the verb in this sentence?\n\n'The hungry fox ran across the field.'"),
+    ).toBe(true)
+  })
+})
+
+describe('hasSingleAnswerPhrasing', () => {
+  it('rejects plural phrasing, which cannot have one right answer', () => {
+    for (const q of [
+      'Identify the verbs.',
+      'Tick the verbs in this sentence.',
+      'Which of these shapes are quadrilaterals?',
+      'Select all the prime numbers.',
+      'Which two numbers add to 10?',
+    ]) {
+      expect(hasSingleAnswerPhrasing(q)).toBe(false)
+    }
+  })
+
+  it('keeps singular phrasing', () => {
+    expect(hasSingleAnswerPhrasing('Which word is the verb in this sentence?')).toBe(true)
+    expect(hasSingleAnswerPhrasing('Which shape is a quadrilateral?')).toBe(true)
+    expect(hasSingleAnswerPhrasing('Tick the correct punctuation mark.')).toBe(true)
+  })
+})
+
+describe('isSuitableForPublicCheck — all three gates together', () => {
+  it('rejects a question that fails any one of them', () => {
+    expect(isSuitableForPublicCheck('In the battle, 1,200 soldiers were killed. How many remained?')).toBe(false)
+    expect(isSuitableForPublicCheck('Which equation matches the number line.')).toBe(false)
+    expect(isSuitableForPublicCheck('Identify the verbs.')).toBe(false)
+  })
+
+  it('keeps an ordinary question', () => {
+    expect(isSuitableForPublicCheck('A baker makes 9 batches of 6 cookies. How many cookies?')).toBe(true)
   })
 })
 

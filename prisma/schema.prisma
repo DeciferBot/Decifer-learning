@@ -1339,6 +1339,8 @@ model SkillCheckLead {
   /// Set by the one-click delete link in the report email. A tombstone, not a
   /// hard delete, so a deleted address is never re-emailed by a later cron.
   deleted_at   DateTime?
+  /// Set when the six-week retest reminder goes out, so it goes out once.
+  reminder_sent_at DateTime?
   source       String?
   utm          Json?
   created_at   DateTime  @default(now())
