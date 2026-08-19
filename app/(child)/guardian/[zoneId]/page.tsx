@@ -90,6 +90,7 @@ export default async function GuardianPage({ params }: { params: { zoneId: strin
       source_label: true,
       source_type: true,
       foundation_images: true,
+      option_images: true,
     },
   })
 
@@ -118,6 +119,7 @@ export default async function GuardianPage({ params }: { params: { zoneId: strin
       source_label: q.source_label ?? null,
       source_type: q.source_type ?? null,
       foundation_images: (q.foundation_images as { url: string; alt?: string }[] | null) ?? null,
+      option_images: (q.option_images as Record<string, string> | null) ?? null,
     }))
 
   return (
@@ -132,6 +134,7 @@ export default async function GuardianPage({ params }: { params: { zoneId: strin
         winMessage="Guardian defeated!"
         isGuardian={true}
         zoneName={zone.name}
+        yearGroupLabel={profile.year_group_label}
       />
     </div>
   )

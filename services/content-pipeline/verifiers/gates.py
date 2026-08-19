@@ -8,6 +8,7 @@ because the checks below are too important to leave to a model's judgement:
   structure     — distractor count, answer-in-distractors, hint/explanation shape
   containment   — stems that reference a source, image, or table the child never sees
   markup        — cloze placeholders, stray markdown, duplicated inline option blocks
+  readability   — reading age of the prose itself, see verifiers/readability.py
 
 WHY THE SENSITIVITY GATE EXISTS (2026-08-03):
 40 published primary-maths questions used the transatlantic slave trade and WWII
@@ -27,7 +28,9 @@ from __future__ import annotations
 import re
 from typing import Any
 
-GATES_VERSION = "1.0.0"
+from verifiers.readability import check_readability
+
+GATES_VERSION = "1.1.0"
 
 # ── Key stages ────────────────────────────────────────────────────────────
 # Duplicated deliberately from config.YEAR_KEY_STAGE: gates must be importable
@@ -388,6 +391,7 @@ def run_all(question_data: dict, topic: dict) -> tuple[bool, list[str]]:
         lambda: check_structure(question_data),
         lambda: check_self_contained(question_data),
         lambda: check_markup(question_data),
+        lambda: check_readability(question_data, topic),
     ):
         _, found = check()
         violations.extend(found)

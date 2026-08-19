@@ -761,3 +761,15 @@ export function VolumeX(p: IconProps) {
     </Icon>
   )
 }
+
+// ─── Downtime ───────────────────────────────────────────────────────────────
+
+export function Gamepad(p: IconProps) {
+  return (
+    <Icon {...p}>
+      <rect x="2" y="7" width="20" height="11" rx="4" />
+      <path d="M7 11v4M5 13h4" />
+      <path d="M16.5 12.5h.01M19 14.5h.01" />
+    </Icon>
+  )
+}

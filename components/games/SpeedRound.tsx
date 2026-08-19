@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { Zap, Target, RefreshCw, Clock } from '@/components/ui/icons'
 import MathText from '@/components/ui/MathText'
+import { fireFeedback } from '@/lib/feedback'
 
 export type SpeedRoundConfig = {
   title: string
@@ -29,17 +30,31 @@ export function SpeedRound({ config, topicId }: { config: SpeedRoundConfig; topi
   const [timeLeft, setTimeLeft] = useState(timeLimit)
   const [results, setResults] = useState<AnswerState[]>([])
   const [done, setDone] = useState(false)
+  const [streak, setStreak] = useState(0)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const advance = useCallback(
     (state: AnswerState) => {
       if (timerRef.current) clearInterval(timerRef.current)
       setAnswerState(state)
+      fireFeedback(state === 'correct' ? 'correct' : 'incorrect')
       const newResults = [...results, state]
+      if (state === 'correct') {
+        setStreak((s) => {
+          const next = s + 1
+          // A streak cue on every 3rd correct in a row — layered on top of the
+          // per-answer 'correct' cue already fired in answer()/the timeout path.
+          if (next > 0 && next % 3 === 0) fireFeedback('combo')
+          return next
+        })
+      } else {
+        setStreak(0)
+      }
       setTimeout(() => {
         if (index + 1 >= questions.length) {
           setResults(newResults)
           setDone(true)
+          fireFeedback('roundComplete')
         } else {
           setResults(newResults)
           setIndex((i) => i + 1)
@@ -51,7 +66,8 @@ export function SpeedRound({ config, topicId }: { config: SpeedRoundConfig; topi
     [index, questions.length, results, timeLimit],
   )
 
-  // Timer
+  // Timer — ticks audibly/haptically for the last 3 seconds so the countdown
+  // is felt, not just read off a shrinking bar.
   useEffect(() => {
     if (answerState !== 'unanswered' || done) return
     timerRef.current = setInterval(() => {
@@ -60,6 +76,7 @@ export function SpeedRound({ config, topicId }: { config: SpeedRoundConfig; topi
           advance('timeout')
           return 0
         }
+        if (t <= 4) fireFeedback('tick')
         return t - 1
       })
     }, 1000)
@@ -74,7 +91,7 @@ export function SpeedRound({ config, topicId }: { config: SpeedRoundConfig; topi
 
   if (done) {
     const correctCount = results.filter((r) => r === 'correct').length
-    const pct = Math.round((correctCount / questions.length) * 100)
+    const ratio = correctCount / questions.length
     return (
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
@@ -82,11 +99,11 @@ export function SpeedRound({ config, topicId }: { config: SpeedRoundConfig; topi
         className="rounded-2xl border border-black/5 bg-surface p-8 text-center shadow-sm"
       >
         <div className="flex justify-center mb-3">
-          {pct >= 80 ? <Zap className="w-12 h-12 text-lightning" aria-hidden /> : pct >= 60 ? <Target className="w-12 h-12 text-maths" aria-hidden /> : <RefreshCw className="w-12 h-12 text-muted" aria-hidden />}
+          {ratio >= 0.8 ? <Zap className="w-12 h-12 text-lightning" aria-hidden /> : ratio >= 0.6 ? <Target className="w-12 h-12 text-maths" aria-hidden /> : <RefreshCw className="w-12 h-12 text-muted" aria-hidden />}
         </div>
-        <h2 className="font-heading text-2xl font-bold text-ink">Speed Round Done!</h2>
+        <h2 className="font-heading text-2xl font-bold text-ink">Speed round done!</h2>
         <p className="mt-1 text-muted">
-          {correctCount} / {questions.length} correct · {pct}%
+          {correctCount} / {questions.length} correct
         </p>
         {/* Result strip — dots are decorative; the count text above is the accessible summary */}
         <div className="my-4 flex justify-center gap-1" aria-hidden="true">
@@ -110,7 +127,7 @@ export function SpeedRound({ config, topicId }: { config: SpeedRoundConfig; topi
           <button
             onClick={() => {
               setIndex(0); setAnswerState('unanswered')
-              setTimeLeft(timeLimit); setResults([]); setDone(false)
+              setTimeLeft(timeLimit); setResults([]); setDone(false); setStreak(0)
             }}
             className="min-h-[48px] w-full rounded-xl border-2 border-maths px-6 py-3 font-heading font-bold text-maths transition-opacity hover:opacity-80"
           >

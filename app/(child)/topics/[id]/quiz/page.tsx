@@ -231,7 +231,7 @@ export default async function QuizPage({ params }: { params: { id: string } }) {
         <div className="flex-1 min-w-0">
           <p className="text-sm font-extrabold text-white font-heading">Finish the round → win a Discovery Card</p>
           <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.82)' }}>
-            {questions.length} questions. Score 70%+ for a shot at the rare ones.
+            {questions.length} questions. A great round can drop a rare card!
           </p>
         </div>
         <span className="flex-none text-xs font-bold px-2 py-1 rounded-full" style={{ background: 'rgba(255,193,7,0.2)', color: '#FFD43B' }}>
@@ -245,6 +245,7 @@ export default async function QuizPage({ params }: { params: { id: string } }) {
         topicTitle={topic.title}
         nextTopic={nextTopic}
         preselected={isFirstAttempt}
+        yearGroupLabel={profile?.year_group_label ?? null}
       />
     </div>
   )

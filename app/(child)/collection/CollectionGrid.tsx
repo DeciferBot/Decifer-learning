@@ -53,9 +53,6 @@ export function CollectionGrid({ cards, ownedSet, subjects, totalCards, collecte
           <p className="text-sm font-bold" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-display)' }}>
             {collectedCount} / {totalCards} cards discovered
           </p>
-          <span className="text-xs font-bold" style={{ color: 'var(--xp)', fontFamily: 'var(--font-display)' }}>
-            {pct}%
-          </span>
         </div>
         <div
           className="h-2.5 overflow-hidden"

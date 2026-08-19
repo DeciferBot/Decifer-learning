@@ -4,6 +4,7 @@ import { useRef, useState } from 'react'
 import { motion, useDragControls } from 'framer-motion'
 import Link from 'next/link'
 import { Sparkles, Check } from '@/components/ui/icons'
+import { fireFeedback } from '@/lib/feedback'
 
 // Number line simulation for Year 3 Maths.
 // config_json shape: { min: number, max: number, step: number, questions: NumberLineQuestion[] }
@@ -82,6 +83,7 @@ function QuestionView({
     const isCorrect = value === question.target
     setSubmitted(true)
     setCorrect(isCorrect)
+    fireFeedback(isCorrect ? 'correct' : 'incorrect')
     if (isCorrect) setTimeout(onCorrect, 900)
   }
 

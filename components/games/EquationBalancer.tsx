@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
+import { fireFeedback } from '@/lib/feedback'
 
 // Equation balancer simulation for Year 7 Maths (algebra).
 // config_json shape: { questions: EquationQuestion[] }
@@ -67,6 +68,7 @@ function QuestionView({
   function submit() {
     if (!selected) return
     setSubmitted(true)
+    fireFeedback(correct ? 'correct' : 'incorrect')
     if (correct) setTimeout(onCorrect, 1000)
   }
 

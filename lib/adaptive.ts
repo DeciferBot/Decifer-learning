@@ -36,6 +36,8 @@ export interface AdaptiveQuestion {
   // Selected in every query above; declared here so AdaptiveQuestion stays
   // structurally compatible with the QuizShell QuizQuestion type it is cast to.
   foundation_images: { url: string; alt?: string }[] | null
+  // KS1 visual-answer mode — { [answerText]: imageUrl }. See schema.prisma.
+  option_images: Record<string, string> | null
   // IRT Rasch difficulty (logits); null until the nightly calibration has enough data.
   difficulty_b: number | null
 }
@@ -313,7 +315,7 @@ export async function selectQuizQuestions(
   // Fetch full published pool — .eq('status','published') is defence-in-depth; RLS enforces too.
   const { data: pool } = await supabase
     .from('quiz_questions')
-    .select('id, tier, question_type, question_text, correct_answer, distractors, hint_1, hint_2, hint_3, explanation, worked_example, technique_type, technique_hint, technique_note, answer_parts, source_text, source_label, source_type, foundation_images, difficulty_b')
+    .select('id, tier, question_type, question_text, correct_answer, distractors, hint_1, hint_2, hint_3, explanation, worked_example, technique_type, technique_hint, technique_note, answer_parts, source_text, source_label, source_type, foundation_images, option_images, difficulty_b')
     .eq('topic_id', topicId)
     .eq('status', 'published')
     .order('created_at', { ascending: true })
@@ -416,7 +418,7 @@ export async function selectInterleavedQuestions(
     topicIds.map(async (topicId) => {
       const { data } = await supabase
         .from('quiz_questions')
-        .select('id, tier, question_type, question_text, correct_answer, distractors, hint_1, hint_2, hint_3, explanation, worked_example, technique_type, technique_hint, technique_note, answer_parts, source_text, source_label, source_type, foundation_images, difficulty_b')
+        .select('id, tier, question_type, question_text, correct_answer, distractors, hint_1, hint_2, hint_3, explanation, worked_example, technique_type, technique_hint, technique_note, answer_parts, source_text, source_label, source_type, foundation_images, option_images, difficulty_b')
         .eq('topic_id', topicId)
         .eq('status', 'published')
         .order('created_at', { ascending: true })
@@ -480,7 +482,7 @@ export async function selectPracticeItems(
 
   const { data: pool } = await supabase
     .from('quiz_questions')
-    .select('id, tier, question_type, question_text, correct_answer, distractors, hint_1, hint_2, hint_3, explanation, worked_example, technique_type, technique_hint, technique_note, answer_parts, source_text, source_label, source_type, foundation_images, difficulty_b')
+    .select('id, tier, question_type, question_text, correct_answer, distractors, hint_1, hint_2, hint_3, explanation, worked_example, technique_type, technique_hint, technique_note, answer_parts, source_text, source_label, source_type, foundation_images, option_images, difficulty_b')
     .eq('topic_id', topicId)
     .eq('status', 'published')
     .order('created_at', { ascending: true })

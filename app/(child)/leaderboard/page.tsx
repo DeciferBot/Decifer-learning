@@ -129,7 +129,7 @@ export default function LeaderboardPage() {
               )}
             </div>
             <p className="flex-none font-heading font-bold text-ink">
-              {e.totalPoints.toLocaleString()} <span className="text-xs text-muted font-normal">pts</span>
+              {e.totalPoints.toLocaleString()} <span className="text-xs text-muted font-normal">points</span>
             </p>
           </div>
         ))}

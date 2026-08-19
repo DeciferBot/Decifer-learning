@@ -1,0 +1,2 @@
+ALTER TABLE quiz_questions ADD COLUMN IF NOT EXISTS option_images JSONB;
+COMMENT ON COLUMN quiz_questions.option_images IS 'KS1 visual-answer mode. Map of { [answerText]: imageUrl }, one entry per choice (matching correct_answer / distractors) that should render as a picture card instead of a text button. Absent or missing keys fall back to text. The verified text answer stays canonical — this only changes presentation. See components/quiz/QuizShell.tsx.';

@@ -26,6 +26,14 @@ import { WinBurst } from './WinBurst'
 import MathText from '@/components/ui/MathText'
 import { GuardianVictoryScreen } from './GuardianVictoryScreen'
 import { HeartCrack, Swords, Sparkles, Trophy, Star, RefreshCw, Gift, Flame, Shield, Lightbulb, Target, Check } from '@/components/ui/icons'
+import { StudyBuddy } from './StudyBuddy'
+import type { BuddyId } from '@/lib/customise-config'
+import {
+  type BuddyMood, pickLine,
+  CORRECT_FIRST_TRY, CORRECT_WITH_HELP, TRY_AGAIN, COMBO, LAST_QUESTION,
+} from '@/lib/buddy-lines'
+import { isYoungBand } from '@/lib/quiz/young-mode'
+import { QuestionListenButton } from './QuestionListenButton'
 
 // Points awarded per attempt number (1-indexed). Exhausting all attempts = 0.
 const POINTS_BY_ATTEMPT = [3, 2, 1] as const
@@ -63,6 +71,8 @@ export type QuizQuestion = {
   source_label: string | null
   source_type: string | null
   foundation_images: { url: string; alt?: string }[] | null
+  // KS1 visual-answer mode — { [answerText]: imageUrl }. See schema.prisma.
+  option_images: Record<string, string> | null
 }
 
 type AnswerLog = {
@@ -124,12 +134,13 @@ export function QuizShell({
   topicTitle = 'this topic',
   submitUrl = '/api/quiz/submit',
   backHref = '/dashboard/child',
-  backLabel = 'Back to Home',
+  backLabel = 'Back',
   winMessage = 'Topic complete!',
   isGuardian = false,
   zoneName = '',
   nextTopic = null,
   preselected = false,
+  yearGroupLabel = null,
 }: {
   questions: QuizQuestion[]
   topicId: string | null
@@ -140,6 +151,13 @@ export function QuizShell({
   winMessage?: string
   isGuardian?: boolean
   zoneName?: string
+  /**
+   * Drives the "young mode" presentation: bigger type and tap targets, a
+   * read-aloud button, picture answer cards where the question has them, and
+   * a guardrail retry. Optional and additive — omit it and every caller gets
+   * today's behaviour unchanged. See lib/quiz/young-mode.ts.
+   */
+  yearGroupLabel?: string | null
   // The next topic in this zone — drives the "Continue" CTA and the unlock
   // celebration on a passing result. newlyUnlocked = the child hasn't completed
   // it yet (i.e. this pass just opened it up).
@@ -157,6 +175,7 @@ export function QuizShell({
 
   // Hearts are a boss-fight mechanic only. See EXHAUSTED_FOR_HEART_LOSS above.
   const heartsEnabled = isGuardian
+  const youngMode = isYoungBand(yearGroupLabel)
 
   // Difficulty selection — shown before quiz starts, unless preselected
   const [difficulty, setDifficulty] = useState<DifficultyChoice | null>(
@@ -179,6 +198,10 @@ export function QuizShell({
   const [answeredCorrectly, setAnsweredCorrectly] = useState(false)
   const [hintsRevealed, setHintsRevealed] = useState(0)
   const [manualHintsRevealed, setManualHintsRevealed] = useState(0)
+  // Guardrail retry (young mode only): a wrong pick is disabled rather than
+  // staying clickable, so a second guess is narrower, never harder. Reset
+  // alongside the other per-question state in next()/startFixUp().
+  const [ruledOut, setRuledOut] = useState<Set<string>>(new Set())
 
   // Running score (points, not questions correct)
   const [totalPoints, setTotalPoints] = useState(0)
@@ -222,6 +245,37 @@ export function QuizShell({
 
   // Review previous question overlay
   const [showingPrevReview, setShowingPrevReview] = useState(false)
+
+  // Study buddy — the character picked in Customise, reacting through the
+  // quiz. buddyId stays null (buddy renders nothing) for a child who hasn't
+  // picked one; this is a companion layered on top, never a requirement.
+  const [buddyId, setBuddyId] = useState<BuddyId | null>(null)
+  const [buddyMood, setBuddyMood] = useState<BuddyMood>('idle')
+  const [buddyLine, setBuddyLine] = useState<string | null>(null)
+  const buddyLineTimeoutRef = useRef<ReturnType<typeof setTimeout>>()
+
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/profile/me')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data: { profile?: { studyBuddy?: string | null } } | null) => {
+        if (cancelled) return
+        const buddy = data?.profile?.studyBuddy
+        if (buddy) setBuddyId(buddy as BuddyId)
+      })
+      .catch(() => {
+        // No buddy today is a silent no-op, never a broken quiz.
+      })
+    return () => { cancelled = true }
+  }, [])
+
+  /** Set the buddy's mood and speech; the line fades on its own after a beat. */
+  function sayBuddy(mood: BuddyMood, pool: readonly string[]) {
+    if (buddyLineTimeoutRef.current) clearTimeout(buddyLineTimeoutRef.current)
+    setBuddyMood(mood)
+    setBuddyLine(pickLine(pool, buddyLine ?? undefined))
+    buddyLineTimeoutRef.current = setTimeout(() => setBuddyLine(null), 3200)
+  }
 
   // Refs
   const answerLogRef = useRef<AnswerLog[]>([])
@@ -378,9 +432,13 @@ export function QuizShell({
           setShowStreakBonus(true)
           setTimeout(() => setShowStreakBonus(false), 2000)
           setHintlessStreak(0)
+          sayBuddy('excited', COMBO)
+        } else {
+          sayBuddy('happy', attempts === 0 ? CORRECT_FIRST_TRY : CORRECT_WITH_HELP)
         }
       } else {
         setHintlessStreak(0)
+        sayBuddy('happy', CORRECT_WITH_HELP)
       }
 
       // Halfway celebration
@@ -392,6 +450,8 @@ export function QuizShell({
     } else {
       fireFeedback('incorrect')
       setAttempts(newAttempts)
+      setRuledOut((prev) => new Set(prev).add(choice))
+      if (newAttempts < MAX_ATTEMPTS) sayBuddy('oops', TRY_AGAIN)
       if (newAttempts >= MAX_ATTEMPTS) {
         // Exhausted all attempts
         setQuestionDone(true)
@@ -476,6 +536,9 @@ export function QuizShell({
       setDone(true)
       return
     }
+    // Anticipation beats the win itself — tell the child before the last
+    // question, not just after it.
+    if (nextIdx === activeQuestions.length - 1) sayBuddy('anticipation', LAST_QUESTION)
     const nextQ = activeQuestions[nextIdx]
     setChoices(buildInitialChoices(nextQ))
     setQIndex(nextIdx)
@@ -485,6 +548,7 @@ export function QuizShell({
     setAnsweredCorrectly(false)
     setHintsRevealed(0)
     setManualHintsRevealed(0)
+    setRuledOut(new Set())
     questionStartRef.current = Date.now()
   }
 
@@ -518,6 +582,7 @@ export function QuizShell({
     setAnsweredCorrectly(false)
     setHintsRevealed(0)
     setManualHintsRevealed(0)
+    setRuledOut(new Set())
     setTotalPoints(0)
     setQuestionsCorrect(0)
     setPointsFlash(null)
@@ -563,6 +628,7 @@ export function QuizShell({
     setAnsweredCorrectly(false)
     setHintsRevealed(0)
     setManualHintsRevealed(0)
+    setRuledOut(new Set())
     setTotalPoints(0)
     setQuestionsCorrect(0)
     setPointsFlash(null)
@@ -844,7 +910,7 @@ export function QuizShell({
                 </p>
               )}
               {typeof serverTotalPoints === 'number' && (
-                <p className="text-sm text-muted">Total: {serverTotalPoints.toLocaleString()} pts</p>
+                <p className="text-sm text-muted">Total: {serverTotalPoints.toLocaleString()} points</p>
               )}
               {typeof streakDays === 'number' && streakDays > 0 && (
                 <p className="text-sm text-muted flex items-center gap-1"><Flame className="w-3.5 h-3.5" aria-hidden /> {streakDays} day streak</p>
@@ -1019,7 +1085,7 @@ export function QuizShell({
             className="rounded-2xl bg-points-gold/20 px-5 py-3 text-center"
           >
             <p className="font-heading text-lg font-bold flex items-center justify-center gap-1.5 text-points-gold-700">
-              <Flame className="w-5 h-5" aria-hidden /> 3-in-a-row! Bonus +5 pts!
+              <Flame className="w-5 h-5" aria-hidden /> 3-in-a-row! Bonus +5 points!
             </p>
           </motion.div>
         )}
@@ -1068,12 +1134,12 @@ export function QuizShell({
                   transition={{ duration: 1.1 }}
                   className="absolute -top-5 right-0 text-sm font-bold text-points-gold-700"
                 >
-                  +{pointsFlash}pts
+                  +{pointsFlash} pts
                 </motion.span>
               )}
             </AnimatePresence>
             <span className="text-xs text-muted">
-              · {totalPoints}pts
+              · {totalPoints} pts
             </span>
           </div>
         </div>
@@ -1116,6 +1182,8 @@ export function QuizShell({
         />
       </div>
 
+      <StudyBuddy buddyId={buddyId} mood={buddyMood} line={buddyLine} />
+
       <AnimatePresence mode="wait">
         <motion.div
           key={qIndex}
@@ -1140,9 +1208,23 @@ export function QuizShell({
             </motion.div>
           )}
 
-          <p className="mb-5 font-heading text-xl font-bold leading-snug text-ink">
-            <MathText text={q.question_text} />
-          </p>
+          <div className="mb-5 flex items-start justify-between gap-3">
+            <p className={`font-heading font-bold leading-snug text-ink ${youngMode ? 'text-2xl' : 'text-xl'}`}>
+              <MathText text={q.question_text} />
+            </p>
+            <QuestionListenButton
+              // distractors is always [] for multipart types (structured_answer,
+              // true_false_grid, ordered_list, source_analysis, explain_example),
+              // which collapses `choices` down to just q.correct_answer — reading
+              // that aloud as a "choice" would speak the answer key itself. Only
+              // read out real MCQ options.
+              text={
+                q.distractors.length > 0
+                  ? `${q.question_text}. Your choices are: ${choices.join(', ')}.`
+                  : q.question_text
+              }
+            />
+          </div>
 
           {/* Foundation images — diagrams, graphs, charts referenced in question */}
           {q.foundation_images && q.foundation_images.length > 0 && (
@@ -1278,12 +1360,23 @@ export function QuizShell({
               {choices.map((choice) => {
                 const isCorrectChoice = choice === q.correct_answer
                 const isWrongPick = choice === lastPicked && !answeredCorrectly
+                // Guardrail retry (young mode): a choice already ruled out this
+                // question stays visible but stops being clickable, so a second
+                // guess is narrower rather than harder.
+                const isRuledOut = youngMode && !questionDone && ruledOut.has(choice)
+                const imageUrl = q.option_images?.[choice]
 
                 let cls =
-                  'min-h-[56px] rounded-xl border-2 px-4 py-3 text-center font-heading font-bold text-ink transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink'
+                  `rounded-xl border-2 text-center font-heading font-bold text-ink transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink ${
+                    imageUrl ? 'flex flex-col items-center gap-2 p-3' : 'px-4 py-3'
+                  } ${
+                    youngMode ? 'min-h-[72px] text-lg' : 'min-h-[56px]'
+                  }`
                 if (!questionDone) {
                   if (choice === lastPicked && attempts > 0) {
                     cls += ' border-incorrect bg-incorrect/20 text-rose-700'
+                  } else if (isRuledOut) {
+                    cls += ' border-black/10 bg-background opacity-40'
                   } else {
                     cls += ' border-black/10 bg-background hover:border-maths hover:bg-maths/10'
                   }
@@ -1300,19 +1393,32 @@ export function QuizShell({
                 if (questionDone) {
                   if (isCorrectChoice) ariaLabel = `${choice}, correct answer`
                   else if (isWrongPick) ariaLabel = `${choice}, your incorrect answer`
+                } else if (isRuledOut) {
+                  ariaLabel = `${choice}, already tried, pick a different answer`
                 }
 
                 return (
                   <motion.button
                     key={choice}
                     onClick={() => pick(choice)}
-                    disabled={questionDone}
-                    whileTap={questionDone ? {} : { scale: 0.97 }}
+                    disabled={questionDone || isRuledOut}
+                    whileTap={questionDone || isRuledOut ? {} : { scale: 0.97 }}
                     className={cls}
                     aria-label={ariaLabel}
                     aria-pressed={choice === lastPicked ? true : undefined}
                   >
-                    <MathText text={choice} />
+                    {imageUrl ? (
+                      <>
+                        <img
+                          src={imageUrl}
+                          alt=""
+                          className="h-20 w-20 rounded-lg object-contain"
+                        />
+                        <span><MathText text={choice} /></span>
+                      </>
+                    ) : (
+                      <MathText text={choice} />
+                    )}
                   </motion.button>
                 )
               })}
@@ -1350,7 +1456,7 @@ export function QuizShell({
                         : <span className="flex items-center gap-1">
                             {/* aria-hidden on the ✗ symbol; the text carries the meaning */}
                             <span aria-hidden>✗</span>
-                            <span>Incorrect. The answer is <strong><MathText text={q.correct_answer} /></strong></span>
+                            <span>Not quite. The answer is <strong><MathText text={q.correct_answer} /></strong></span>
                           </span>}
                     </p>
                   )}

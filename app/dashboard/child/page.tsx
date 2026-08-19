@@ -30,7 +30,7 @@ import { getVaultStatus } from '@/lib/vault/status'
 import { NewParentLinkNotice } from './NewParentLinkNotice'
 import { DailyGoalRing, StreakReminderPrompt } from '@/components/child/DailyGoalRing'
 import { displayedStreak } from '@/lib/streak'
-import { Layers, Star, Target, Trophy, PencilLine, BookOpen, Gift, Flame, MapPin, RefreshCw, Shield } from '@/components/ui/icons'
+import { Layers, Star, Target, Trophy, PencilLine, BookOpen, Gift, Flame, MapPin, RefreshCw, Shield, Gamepad } from '@/components/ui/icons'
 
 export const metadata = { title: 'Home' }
 
@@ -284,7 +284,7 @@ export default async function ChildDashboardPage() {
           {points > 0 && (
             <span className="inline-flex items-center gap-1">
               <Star className="w-3.5 h-3.5 text-points-gold-700" aria-hidden />
-              {points.toLocaleString()} pts
+              {points.toLocaleString()} points
             </span>
           )}
           {collectionCount > 0 && (
@@ -384,11 +384,12 @@ export default async function ChildDashboardPage() {
       </Link>
 
       {/* ── Everything else, in one row ─────────────────────────────────── */}
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-4 gap-2">
         {[
           { href: '/missions',    label: 'Missions',  Icon: Target },
           { href: '/leaderboard', label: 'Family',    Icon: Trophy },
           { href: '/customise',   label: 'Customise', Icon: PencilLine },
+          { href: '/downtime',    label: 'Downtime',  Icon: Gamepad },
         ].map(({ href, label, Icon }) => (
           <Link
             key={href}
@@ -458,8 +459,8 @@ export default async function ChildDashboardPage() {
       ) : topicRows.length === 0 ? (
         <EmptyState
           icon={<BookOpen className="w-10 h-10 text-muted" aria-hidden />}
-          heading="Your first topics are being prepared"
-          body="Topics appear here once they pass all quality checks. New content is added across all five subjects as it clears the pipeline."
+          heading="Your first topics are on their way"
+          body="New topics show up here when they are ready. Check back soon!"
           action={
             <Link
               href="/help/how-decifer-works"

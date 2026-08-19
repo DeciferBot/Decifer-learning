@@ -4,9 +4,13 @@
 
 export type MilestoneBand = 'none' | 'bronze' | 'silver' | 'gold' | 'platinum'
 
-// XP deducted from milestone progress per hint used (across all quizzes).
-// On top of the per-question deduction already applied in lib/points.ts.
-export const MILESTONE_HINT_PENALTY_PER_HINT = 5
+// Hints are already priced at answer time (lib/points.ts deducts per hint).
+// Charging them again here punished the same behaviour twice and put a red
+// "penalty" in front of children for using a feature the quiz encourages.
+// The penalty is retired: rate 0 keeps the API shape while removing the
+// double charge. Raising effective XP can only unlock milestones sooner,
+// never revoke one, so this is safe against already-awarded bands.
+export const MILESTONE_HINT_PENALTY_PER_HINT = 0
 // Maximum fraction of totalPoints that the hint penalty can consume.
 export const MILESTONE_HINT_PENALTY_CAP = 0.3
 
