@@ -1,8 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { DeciferLogo } from '@/components/ui/DeciferLogo'
-import { DarkModeToggle } from '@/components/ui/DarkModeToggle'
 import { MarketingFooter } from '@/components/marketing/MarketingFooter'
+import { MarketingNav } from '@/components/marketing/MarketingNav'
 
 export const metadata: Metadata = {
   // Was "What we cover", which nobody searches. Leads with the curriculum and the
@@ -77,18 +76,7 @@ const SUBJECTS = [
 export default function SubjectsPage() {
   return (
     <div className="min-h-screen bg-background">
-      <nav className="sticky top-0 z-20 border-b border-black/5 bg-background/90 backdrop-blur-sm">
-        <div className="mx-auto flex h-14 max-w-4xl items-center justify-between px-4">
-          <DeciferLogo size="sm" product="Learning" />
-          <div className="flex items-center gap-3">
-            <DarkModeToggle />
-            <Link href="/pricing" className="text-sm font-semibold text-maths hover:underline">Pricing</Link>
-            <Link href="/register" className="h-9 rounded-lg bg-maths px-4 text-sm font-semibold text-white flex items-center">
-              Start free
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <MarketingNav />
 
       <main className="mx-auto max-w-4xl px-4 py-16">
         <div className="text-center">

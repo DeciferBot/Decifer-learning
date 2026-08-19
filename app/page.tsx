@@ -4,12 +4,12 @@ import { redirect } from 'next/navigation'
 import { RecoveryRedirect } from './RecoveryRedirect'
 import { DeciferLogo } from '@/components/ui/DeciferLogo'
 import { DecipherText } from '@/components/ui/DecipherText'
-import { DarkModeToggle } from '@/components/ui/DarkModeToggle'
 import { GuideCard } from '@/components/ui/GuideCard'
 import { LearningJourney } from '@/components/homepage/LearningJourney'
 import { QualityPipeline } from '@/components/homepage/QualityPipeline'
 import { HeroMockup } from '@/components/homepage/HeroMockup'
 import { MarketingFooter } from '@/components/marketing/MarketingFooter'
+import { MarketingNav } from '@/components/marketing/MarketingNav'
 import type { ComponentType, SVGProps } from 'react'
 import {
   MapFold, Check, BarChart, Users,
@@ -17,7 +17,7 @@ import {
   BookOpen, PencilLine, Zap, Star,
   Trophy, Flame, Medal, Gem,
   ClipboardList, Telescope, Target, CircleCheck, Bell,
-  Backpack, GraduationCap, Shield,
+  Backpack, GraduationCap, Shield, Gamepad,
 } from '@/components/ui/icons'
 import { SEO_TITLE } from '@/lib/brand'
 
@@ -48,33 +48,7 @@ export default function Home({
       <div className="min-h-screen bg-background">
 
         {/* ── Nav ─────────────────────────────────────────────────────────── */}
-        <nav className="sticky top-0 z-20 border-b border-black/5 bg-background/90 backdrop-blur-sm">
-          <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
-            <DeciferLogo size="sm" product="Learning" />
-            <div className="flex items-center gap-2">
-              <DarkModeToggle />
-              <Link
-                href="/play"
-                className="flex h-9 items-center gap-1.5 rounded-lg bg-[#7C3AED] px-3 text-sm font-semibold text-white transition-colors hover:bg-[#6D28D9] sm:px-4"
-              >
-                <Zap size={15} aria-hidden />
-                Blitz
-              </Link>
-              <Link
-                href="/login"
-                className="flex h-9 items-center rounded-lg px-3 text-sm font-semibold text-ink transition-colors hover:bg-black/5 sm:px-4"
-              >
-                Sign in
-              </Link>
-              <Link
-                href="/register"
-                className="flex h-9 items-center rounded-lg bg-brand-600 px-3 text-sm font-semibold text-white transition-colors hover:bg-brand-700 sm:px-4"
-              >
-                Get started
-              </Link>
-            </div>
-          </div>
-        </nav>
+        <MarketingNav />
 
         <main>
 
@@ -129,6 +103,18 @@ export default function Home({
                 </Link>
               </div>
               <p className="mt-3 text-xs text-muted">No credit card required. Set up in two minutes.</p>
+
+              {/* No-signup entry point. The free games are the one thing on the
+                  site a child will ask for by name, and until now the homepage
+                  never mentioned them — /games was reachable only from the
+                  footer. */}
+              <Link
+                href="/games"
+                className="mt-4 inline-flex min-h-[44px] items-center gap-2 rounded-xl px-1 text-sm font-semibold text-brand-600 transition-colors hover:text-brand-700"
+              >
+                <Gamepad size={16} aria-hidden />
+                Or play free games &mdash; no sign-up needed
+              </Link>
             </div>
 
             {/* Right: animated parent progress mockup */}

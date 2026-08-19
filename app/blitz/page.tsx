@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { MarketingFooter } from '@/components/marketing/MarketingFooter'
+import { MarketingNav } from '@/components/marketing/MarketingNav'
 
 export const metadata: Metadata = {
   title: 'Decifer Blitz | Live quiz battles',
@@ -47,30 +48,9 @@ const FEATURES = [
 
 export default function BlitzPage() {
   return (
-    <main className="min-h-screen bg-background">
-      {/* Nav */}
-      <nav className="flex items-center justify-between px-5 py-4 md:px-10">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="font-heading text-lg font-extrabold text-ink">Decifer</span>
-          <span className="rounded-full bg-[#6C9EFF] px-2 py-0.5 font-heading text-xs font-extrabold text-white">
-            BLITZ
-          </span>
-        </Link>
-        <div className="flex items-center gap-3">
-          <Link
-            href="/join"
-            className="rounded-xl px-4 py-2 text-sm font-bold text-muted transition hover:text-ink"
-          >
-            Join a game
-          </Link>
-          <Link
-            href="/play"
-            className="rounded-xl bg-[#6C9EFF] px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:opacity-90"
-          >
-            Host a game
-          </Link>
-        </div>
-      </nav>
+    <div className="min-h-screen bg-background">
+      <MarketingNav />
+      <main>
 
       {/* Hero */}
       <section className="mx-auto max-w-3xl px-5 pb-16 pt-14 text-center md:pt-24">
@@ -217,8 +197,10 @@ export default function BlitzPage() {
         </p>
       </section>
 
+      </main>
+
       {/* Footer */}
       <MarketingFooter />
-    </main>
+    </div>
   )
 }

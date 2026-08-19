@@ -56,10 +56,11 @@ export function DecipherText({ text, className, as = 'span', perChar }: Decipher
       }
       host.appendChild(wrap)
       if (wi < words.length - 1) {
-        const space = document.createElement('span')
-        space.style.whiteSpace = 'pre'
-        space.textContent = ' '
-        host.appendChild(space)
+        // A plain text node, not a white-space:pre span. `pre` stopped the
+        // separator collapsing at a line break, so any headline that wrapped
+        // mid-phrase began its next line with a visible leading space — most
+        // obvious on the mobile hero, where "at a time." sat indented.
+        host.appendChild(document.createTextNode(' '))
       }
     })
     // Lock each cell to its resolved width so the layout can never jitter.
