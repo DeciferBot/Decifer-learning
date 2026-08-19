@@ -24,7 +24,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: '*',
-        allow: ['/', '/help/', '/curriculum', '/subjects', '/how-it-works', '/pricing', '/blitz', '/guides'],
+        allow: ['/', '/help/', '/curriculum', '/subjects', '/how-it-works', '/pricing', '/blitz', '/guides', '/games'],
         disallow: [
           '/api/',
           // Parent and admin product

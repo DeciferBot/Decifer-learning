@@ -454,13 +454,17 @@ function ClueColumn({
 }
 
 function BackLink({ href, onClick }: { href: string; onClick?: () => void }) {
+  // The same components render both inside the logged-in Downtime section
+  // and on the public, no-login /games/* pages (see app/games/) — the label
+  // should match whichever one this instance actually links back to.
+  const label = href === '/downtime' ? 'Downtime' : 'Games'
   return (
     <Link
       href={href}
       onClick={onClick}
       className="inline-flex min-h-[44px] items-center gap-1 rounded-xl px-2 text-sm font-semibold text-ink-2 transition-colors hover:bg-black/5"
     >
-      <ChevronLeft className="h-4 w-4" aria-hidden /> Downtime
+      <ChevronLeft className="h-4 w-4" aria-hidden /> {label}
     </Link>
   )
 }

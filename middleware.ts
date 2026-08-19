@@ -37,7 +37,18 @@ const PUBLIC_EXACT = new Set<string>([
 // nickname, so the join page, the public game view, and the Live API must be
 // reachable without a session. Host-only actions (create/start/next) still
 // enforce auth inside their own route handlers.
-const PUBLIC_PREFIX = ['/auth/', '/_next/', '/help', '/curriculum', '/guides', '/sitemap', '/robots', '/legal/', '/api/cron/', '/api/parent-verification/', '/join', '/live/', '/api/live/', '/blitz']
+// /games/* — the public, no-login Downtime catalogue (Chess/Checkers/
+// Connect 4/Crossword/Word Tiles), for SEO discoverability and try-before-
+// signup. The components already support this: computer mode never touches
+// the network, and online multiplayer already works for logged-out guests
+// via a cookie identity (see lib/downtime/server.ts) — the same posture as
+// Decifer Live above, so /api/downtime/ needs the same exemption /api/live/
+// has. Host-only writes are still checked per-route, not by the middleware.
+const PUBLIC_PREFIX = [
+  '/auth/', '/_next/', '/help', '/curriculum', '/guides', '/sitemap', '/robots', '/legal/',
+  '/api/cron/', '/api/parent-verification/', '/join', '/live/', '/api/live/', '/blitz',
+  '/games', '/api/downtime/',
+]
 // Next.js metadata image routes (opengraph-image / twitter-image) live at any
 // depth — e.g. /opengraph-image AND /pricing/opengraph-image. Social crawlers
 // (WhatsApp, Facebook, etc.) fetch these with no session cookie, so every one
