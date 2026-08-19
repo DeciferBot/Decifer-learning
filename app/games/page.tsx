@@ -67,10 +67,6 @@ const schema = gamesIndexSchema(
 export default function PublicGamesIndexPage() {
   return (
     <div className="mx-auto max-w-md space-y-6">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: jsonLd(schema) }}
-      />
       <header className="text-center">
         <h1 className="font-heading text-2xl font-extrabold text-ink sm:text-3xl">
           Free games for kids
@@ -111,6 +107,18 @@ export default function PublicGamesIndexPage() {
           Get started free
         </Link>
       </div>
+
+      {/* Last child on purpose. This wrapper uses Tailwind's `space-y-6`,
+          which sets margin-top on every child after the first via
+          `> :not([hidden]) ~ :not([hidden])`. A <script> is not [hidden], so
+          putting it first pushed <header> into the "not first" slot and gave
+          the page an unintended 24px gap above the heading. Rendered last, it
+          displaces nothing: it is display:none, so the margin it picks up is
+          inert. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLd(schema) }}
+      />
     </div>
   )
 }
