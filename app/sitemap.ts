@@ -5,6 +5,7 @@ import {
   getPublicYearParams,
 } from '@/lib/public-curriculum'
 import { getAllGuides } from '@/lib/guides'
+import { listPublishedChecks } from '@/lib/skills-check/server'
 
 const BASE = 'https://www.deciferlearning.com'
 
@@ -19,6 +20,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/curriculum`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
     { url: `${BASE}/pricing`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${BASE}/guides`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
+    // Free Skills Check — a working tool, so it earns a high priority. Result
+    // pages (/skills-check/r/*) are noindex and deliberately absent.
+    { url: `${BASE}/skills-check`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
     { url: `${BASE}/blitz`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
     // Free games — public, no-login catalogue for SEO discoverability
     { url: `${BASE}/games`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
@@ -89,5 +93,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }))
 
-  return [...staticEntries, ...guideEntries, ...curriculumEntries]
+  // One landing page per published check. ONE query for the whole list, not one
+  // per page — the same rule the curriculum entries above follow.
+  let checkEntries: MetadataRoute.Sitemap = []
+  try {
+    const checks = await listPublishedChecks()
+    checkEntries = checks.map((c) => ({
+      url: `${BASE}/skills-check/${c.subjectSlug}/${c.yearLabel}`,
+      lastModified: now,
+      changeFrequency: 'monthly' as const,
+      priority: 0.8,
+    }))
+  } catch (err) {
+    console.warn('[sitemap] skills-check entries skipped — DB unavailable:', err)
+    checkEntries = []
+  }
+
+  return [...staticEntries, ...guideEntries, ...curriculumEntries, ...checkEntries]
 }
