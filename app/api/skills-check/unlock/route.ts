@@ -41,9 +41,19 @@ export async function POST(req: Request) {
   const view = await unlockReport(token, email, body.source)
   if (!view) return NextResponse.json({ error: 'Unknown check.' }, { status: 404 })
 
-  // Non-blocking: a slow or failing mail provider must not hold up the report
-  // the parent is waiting to read.
-  void sendSkillsCheckReport(view, email)
+  // AWAITED, not fire-and-forget.
+  //
+  // This started life as `void sendSkillsCheckReport(...)`, on the reasoning
+  // that a slow mail provider should not hold up the report. On Vercel that is
+  // simply broken: the function is frozen as soon as the response is returned,
+  // so an un-awaited promise never runs to completion and the email never
+  // leaves. Verified in production — the unlock returned 200 and Resend had no
+  // record of the send.
+  //
+  // Awaiting costs a few hundred milliseconds on a request the parent is already
+  // waiting on. sendSkillsCheckReport swallows its own errors, so this can add
+  // latency but can never turn a working unlock into a failed one.
+  await sendSkillsCheckReport(view, email)
 
   return NextResponse.json({ token: view.token, teaser: view.teaser, report: view.report })
 }
