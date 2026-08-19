@@ -93,13 +93,13 @@ export function TopicCard({
         <div className="mt-4 grid grid-cols-3 gap-2">
           <Link
             href={`/topics/${id}/learn`}
-            className="flex min-h-[48px] items-center justify-center rounded-xl bg-maths/10 px-3 py-2 text-sm font-bold text-maths transition-colors hover:bg-maths/20"
+            className="flex min-h-[48px] items-center justify-center rounded-xl bg-maths/10 px-3 py-2 text-sm font-bold text-on-maths transition-colors hover:bg-maths/20"
           >
             Learn
           </Link>
           <Link
             href={`/topics/${id}/practise`}
-            className="flex min-h-[48px] items-center justify-center rounded-xl bg-science/10 px-3 py-2 text-sm font-bold text-science transition-colors hover:bg-science/20"
+            className="flex min-h-[48px] items-center justify-center rounded-xl bg-science/10 px-3 py-2 text-sm font-bold text-on-science transition-colors hover:bg-science/20"
           >
             Practise
           </Link>
@@ -114,7 +114,7 @@ export function TopicCard({
         {/* Primary CTA */}
         <Link
           href={`/topics/${id}/learn`}
-          className="mt-3 flex min-h-[48px] w-full items-center justify-center rounded-xl bg-brand text-sm font-bold text-white transition-colors hover:bg-brand-600"
+          className="mt-3 flex min-h-[48px] w-full items-center justify-center rounded-xl bg-brand-600 text-sm font-bold text-white transition-colors hover:bg-brand-600"
         >
           {ctaLabel} →
         </Link>

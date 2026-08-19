@@ -14,7 +14,7 @@ export default function GamificationPage() {
     <div className="space-y-8">
       <HelpBreadcrumbSchema title="Gamification explained" path="/help/gamification" />
       <div>
-        <Link href="/help" className="mb-4 inline-block text-sm font-semibold text-brand hover:underline">
+        <Link href="/help" className="mb-4 inline-block text-sm font-semibold text-brand-700 hover:underline">
           ← All guides
         </Link>
         <h1 className="font-heading text-3xl font-bold text-ink">Gamification explained</h1>
@@ -63,7 +63,7 @@ export default function GamificationPage() {
       </section>
 
       <section className="space-y-4">
-        <h2 className="font-heading text-xl font-bold text-ink flex items-center gap-2"><Flame className="w-5 h-5 text-incorrect" aria-hidden /> Streaks</h2>
+        <h2 className="font-heading text-xl font-bold text-ink flex items-center gap-2"><Flame className="w-5 h-5 text-incorrect-700" aria-hidden /> Streaks</h2>
         <div className="text-sm text-muted space-y-2">
           <p>A streak represents the number of consecutive days you have logged in and engaged with Decifer. It is a <strong className="text-ink">consistency signal</strong>, not a pressure mechanism.</p>
           <p>If you miss a day, your streak resets unless you have a Streak Shield. Losing a streak is not a punishment. Starting again is just as valid as continuing one.</p>
@@ -71,7 +71,7 @@ export default function GamificationPage() {
       </section>
 
       <section className="space-y-4">
-        <h2 className="font-heading text-xl font-bold text-ink flex items-center gap-2"><Shield className="w-5 h-5 text-maths" aria-hidden /> Streak Shields</h2>
+        <h2 className="font-heading text-xl font-bold text-ink flex items-center gap-2"><Shield className="w-5 h-5 text-on-maths" aria-hidden /> Streak Shields</h2>
         <div className="text-sm text-muted space-y-2">
           <p>Streak Shields protect your streak from a single missed day. They are earned by completing quizzes and maintaining streaks, not bought or gifted.</p>
           <p>You can hold multiple shields at once. They are used automatically when you miss a day, so your streak survives. Think of them as earned insurance, not a free pass.</p>
@@ -79,7 +79,7 @@ export default function GamificationPage() {
       </section>
 
       <section className="space-y-4">
-        <h2 className="font-heading text-xl font-bold text-ink flex items-center gap-2"><Layers className="w-5 h-5 text-english" aria-hidden /> Discovery Cards</h2>
+        <h2 className="font-heading text-xl font-bold text-ink flex items-center gap-2"><Layers className="w-5 h-5 text-on-english" aria-hidden /> Discovery Cards</h2>
         <p className="text-sm text-muted">A Discovery Card drops after every quiz you pass. Cards come in five rarities:</p>
         <div className="space-y-2">
           {RARITIES.map((r) => (
@@ -100,7 +100,7 @@ export default function GamificationPage() {
         <ul className="space-y-2">
           {MUST_NOT.map((item, i) => (
             <li key={i} className="flex items-start gap-2 text-sm text-muted">
-              <CircleX className="mt-0.5 flex-none w-4 h-4 text-incorrect" aria-hidden />
+              <CircleX className="mt-0.5 flex-none w-4 h-4 text-incorrect-700" aria-hidden />
               <span>{item}</span>
             </li>
           ))}
@@ -111,7 +111,7 @@ export default function GamificationPage() {
       </section>
 
       <div className="flex flex-wrap gap-3 text-sm">
-        <Link href="/help/student-guide" className="font-semibold text-brand hover:underline">
+        <Link href="/help/student-guide" className="font-semibold text-brand-700 hover:underline">
           Student guide →
         </Link>
         <Link href="/help" className="text-muted hover:text-ink hover:underline">
@@ -123,9 +123,9 @@ export default function GamificationPage() {
 }
 
 const XP_EARN = [
-  { icon: <Check className="w-4 h-4 text-correct" aria-hidden />, body: 'Correct answer in a quiz: XP awarded for every right answer.' },
-  { icon: <Target className="w-4 h-4 text-maths" aria-hidden />, body: 'Perfect quiz with no hints: bonus XP for a clean run.' },
-  { icon: <Flame className="w-4 h-4 text-incorrect" aria-hidden />, body: 'Daily login: maintaining a streak earns a small daily bonus.' },
+  { icon: <Check className="w-4 h-4 text-correct-700" aria-hidden />, body: 'Correct answer in a quiz: XP awarded for every right answer.' },
+  { icon: <Target className="w-4 h-4 text-on-maths" aria-hidden />, body: 'Perfect quiz with no hints: bonus XP for a clean run.' },
+  { icon: <Flame className="w-4 h-4 text-incorrect-700" aria-hidden />, body: 'Daily login: maintaining a streak earns a small daily bonus.' },
   { icon: <Shield className="w-4 h-4 text-muted" aria-hidden />, body: 'Using a hint: a small cost is deducted, but XP is still earned for correct answers.' },
 ]
 

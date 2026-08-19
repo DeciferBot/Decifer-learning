@@ -168,7 +168,7 @@ export default function CustomisePage() {
                   config={{ ...avatarCfg, hairStyle: s.id as HairStyle }}
                   size={44}
                 />
-                <span className={`text-[10px] font-semibold leading-tight ${selected ? 'text-brand' : 'text-muted'}`}>
+                <span className={`text-[10px] font-semibold leading-tight ${selected ? 'text-brand-700' : 'text-muted'}`}>
                   {s.name}
                 </span>
                 {!unlocked && (
@@ -233,7 +233,7 @@ export default function CustomisePage() {
                   config={{ ...avatarCfg, eyeStyle: e.id as EyeStyle }}
                   size={44}
                 />
-                <span className={`text-[10px] font-semibold leading-tight ${selected ? 'text-brand' : 'text-muted'}`}>
+                <span className={`text-[10px] font-semibold leading-tight ${selected ? 'text-brand-700' : 'text-muted'}`}>
                   {e.name}
                 </span>
                 {!unlocked && (
@@ -267,7 +267,7 @@ export default function CustomisePage() {
                   config={{ ...avatarCfg, accessory: a.id as Accessory }}
                   size={44}
                 />
-                <span className={`text-[10px] font-semibold leading-tight ${selected ? 'text-brand' : 'text-muted'}`}>
+                <span className={`text-[10px] font-semibold leading-tight ${selected ? 'text-brand-700' : 'text-muted'}`}>
                   {a.name}
                 </span>
                 {!unlocked && a.unlock && (
@@ -312,7 +312,7 @@ export default function CustomisePage() {
                 aria-pressed={selected}
                 className={`flex flex-col items-center gap-1 rounded-2xl border p-3 transition-all ${
                   selected
-                    ? 'border-brand bg-brand/10 shadow-sm scale-105 text-brand'
+                    ? 'border-brand bg-brand/10 shadow-sm scale-105 text-brand-700'
                     : 'border-black/10 bg-black/[0.02] hover:border-brand/40 text-muted'
                 }`}
               >
@@ -417,7 +417,7 @@ export default function CustomisePage() {
       <button
         onClick={save}
         disabled={saving}
-        className="w-full rounded-2xl bg-brand py-4 font-heading font-bold text-white shadow-sm hover:opacity-90 disabled:opacity-60 transition-opacity"
+        className="w-full rounded-2xl bg-brand-600 py-4 font-heading font-bold text-white shadow-sm hover:bg-brand-700 disabled:opacity-60 transition-opacity"
       >
         {saving ? 'Saving…'
           : saved
@@ -453,8 +453,8 @@ function Chip({ iconName, label, active, onClick }: {
           : 'border-black/10 bg-black/[0.02] hover:border-brand/40'
       }`}
     >
-      {(() => { const Icon = CHOICE_ICONS[iconName] ?? Target; return <Icon className={`w-5 h-5 ${active ? 'text-brand' : 'text-muted'}`} aria-hidden /> })()}
-      <span className={`text-[11px] font-semibold leading-tight ${active ? 'text-brand' : 'text-ink'}`}>{label}</span>
+      {(() => { const Icon = CHOICE_ICONS[iconName] ?? Target; return <Icon className={`w-5 h-5 ${active ? 'text-brand-700' : 'text-muted'}`} aria-hidden /> })()}
+      <span className={`text-[11px] font-semibold leading-tight ${active ? 'text-brand-700' : 'text-ink'}`}>{label}</span>
     </button>
   )
 }

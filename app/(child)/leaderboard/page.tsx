@@ -45,7 +45,7 @@ export default function LeaderboardPage() {
     return (
       <div className="flex min-h-[40vh] flex-col items-center justify-center gap-2 text-center px-4">
         <p className="text-sm text-muted">Couldn&apos;t load the leaderboard right now.</p>
-        <button onClick={() => window.location.reload()} className="text-xs text-brand underline">
+        <button onClick={() => window.location.reload()} className="text-xs text-brand-700 underline">
           Try again
         </button>
       </div>
@@ -60,7 +60,7 @@ export default function LeaderboardPage() {
         <p className="text-sm text-muted max-w-xs">
           The leaderboard shows up once there are other family members on the app.
         </p>
-        <Link href="/dashboard/child" className="mt-2 text-sm text-brand underline">
+        <Link href="/dashboard/child" className="mt-2 text-sm text-brand-700 underline">
           Back to home
         </Link>
       </div>
@@ -88,7 +88,7 @@ export default function LeaderboardPage() {
             return (
               <div key={e.id} className="flex flex-col items-center gap-1">
                 <UserCircle size={24} className="text-muted" />
-                <p className={`text-xs font-bold ${e.isMe ? 'text-brand' : 'text-ink'} max-w-[64px] truncate`}>
+                <p className={`text-xs font-bold ${e.isMe ? 'text-brand-700' : 'text-ink'} max-w-[64px] truncate`}>
                   {e.isMe ? 'You' : e.displayName.split(' ')[0]}
                 </p>
                 <div className={`${heights[idx]} w-16 flex items-end justify-center rounded-t-2xl ${RANK_STYLE[rank - 1] ?? 'bg-black/5 text-muted'}`}>
@@ -121,11 +121,11 @@ export default function LeaderboardPage() {
             </span>
             <UserCircle size={20} className="flex-none text-muted" />
             <div className="flex-1 min-w-0">
-              <p className={`font-semibold text-sm ${e.isMe ? 'text-brand' : 'text-ink'}`}>
+              <p className={`font-semibold text-sm ${e.isMe ? 'text-brand-700' : 'text-ink'}`}>
                 {e.isMe ? 'You' : e.displayName}
               </p>
               {e.streakDays > 0 && (
-                <p className="flex items-center gap-1 text-xs text-muted"><Flame size={12} className="text-incorrect" />{e.streakDays} day streak</p>
+                <p className="flex items-center gap-1 text-xs text-muted"><Flame size={12} className="text-incorrect-700" />{e.streakDays} day streak</p>
               )}
             </div>
             <p className="flex-none font-heading font-bold text-ink">

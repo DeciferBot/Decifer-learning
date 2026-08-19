@@ -40,7 +40,7 @@ export function ExamTimer({ timeLimitMinutes, onExpire }: Props) {
       aria-label={`Time remaining: ${minutes} minutes ${seconds} seconds`}
       className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 font-mono text-sm font-bold tabular-nums transition-colors ${
         critical
-          ? 'bg-incorrect/10 text-incorrect'
+          ? 'bg-incorrect/10 text-incorrect-700'
           : 'bg-black/[0.05] text-ink'
       }`}
     >

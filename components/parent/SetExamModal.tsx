@@ -139,7 +139,7 @@ export function SetExamModal({ childProfileId, childName, onClose, onSuccess }: 
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-black/5">
           <div className="flex items-center gap-2">
-            <ClipboardList className="h-5 w-5 text-maths" aria-hidden />
+            <ClipboardList className="h-5 w-5 text-on-maths" aria-hidden />
             <h2 className="font-heading text-base font-bold text-ink">Set exam for {childName}</h2>
           </div>
           <button
@@ -156,7 +156,7 @@ export function SetExamModal({ childProfileId, childName, onClose, onSuccess }: 
           <p className="px-5 py-8 text-center text-sm text-muted">Loading subjects…</p>
         )}
         {loadError && (
-          <p className="mx-5 my-5 rounded-xl bg-incorrect/10 px-3 py-2 text-xs text-incorrect">{loadError}</p>
+          <p className="mx-5 my-5 rounded-xl bg-incorrect/10 px-3 py-2 text-xs text-incorrect-700">{loadError}</p>
         )}
         {options && !options.yearGroupId && (
           <p className="mx-5 my-5 rounded-xl bg-lightning/20 px-3 py-2 text-xs text-ink">
@@ -182,7 +182,7 @@ export function SetExamModal({ childProfileId, childName, onClose, onSuccess }: 
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder={defaultTitle}
-                className="w-full rounded-xl border border-black/10 bg-background px-3 py-2.5 text-sm text-ink placeholder-muted focus:border-maths focus:outline-none"
+                className="w-full rounded-xl border border-black/10 bg-background px-3 py-2.5 text-sm text-ink placeholder-muted focus:border-brand focus:outline-none"
               />
             </div>
 
@@ -234,7 +234,7 @@ export function SetExamModal({ childProfileId, childName, onClose, onSuccess }: 
                         onClick={() => setScope(key)}
                         className={`flex-1 rounded-xl px-2 py-2.5 text-sm font-medium transition-colors min-h-[48px] ${
                           scope === key
-                            ? 'bg-maths/10 text-maths font-semibold'
+                            ? 'bg-brand/10 text-on-maths font-semibold'
                             : 'bg-black/[0.04] text-ink hover:bg-black/[0.07]'
                         }`}
                       >
@@ -294,7 +294,7 @@ export function SetExamModal({ childProfileId, childName, onClose, onSuccess }: 
                         onClick={() => setQuestionCount(n)}
                         className={`flex-1 rounded-xl py-2.5 text-sm font-semibold transition-colors min-h-[48px] ${
                           questionCount === n
-                            ? 'bg-maths/10 text-maths'
+                            ? 'bg-brand/10 text-on-maths'
                             : 'bg-black/[0.04] text-ink hover:bg-black/[0.07]'
                         }`}
                       >
@@ -315,7 +315,7 @@ export function SetExamModal({ childProfileId, childName, onClose, onSuccess }: 
                         onClick={() => setTimeLimitMinutes(t)}
                         className={`flex-1 rounded-xl py-2.5 text-sm font-semibold transition-colors min-h-[48px] ${
                           timeLimitMinutes === t
-                            ? 'bg-maths/10 text-maths'
+                            ? 'bg-brand/10 text-on-maths'
                             : 'bg-black/[0.04] text-ink hover:bg-black/[0.07]'
                         }`}
                       >
@@ -337,7 +337,7 @@ export function SetExamModal({ childProfileId, childName, onClose, onSuccess }: 
                     aria-checked={hintsAllowed}
                     onClick={() => setHintsAllowed(!hintsAllowed)}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
-                      hintsAllowed ? 'bg-maths' : 'bg-black/20'
+                      hintsAllowed ? 'bg-brand' : 'bg-black/20'
                     }`}
                   >
                     <span
@@ -351,13 +351,13 @@ export function SetExamModal({ childProfileId, childName, onClose, onSuccess }: 
             )}
 
             {error && (
-              <p className="rounded-xl bg-incorrect/10 px-3 py-2 text-xs text-incorrect">{error}</p>
+              <p className="rounded-xl bg-incorrect/10 px-3 py-2 text-xs text-incorrect-700">{error}</p>
             )}
 
             <button
               type="submit"
               disabled={saving || !canSubmit}
-              className="w-full rounded-2xl bg-maths py-3.5 font-heading text-sm font-bold text-white disabled:opacity-50 min-h-[52px]"
+              className="w-full rounded-2xl bg-brand-600 transition-colors hover:bg-brand-700 py-3.5 font-heading text-sm font-bold text-white disabled:opacity-50 min-h-[52px]"
             >
               {saving ? 'Assigning…' : 'Assign exam'}
             </button>

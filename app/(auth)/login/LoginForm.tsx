@@ -125,7 +125,7 @@ export function LoginForm() {
   // ── Shared "check your email" confirmation ──────────────────────────────
   if (sent) {
     return (
-      <div className="mt-5 rounded-md bg-correct/10 px-3 py-4 text-sm text-correct text-center">
+      <div className="mt-5 rounded-md bg-correct/10 px-3 py-4 text-sm text-correct-700 text-center">
         <p className="font-semibold">Check your email ✓</p>
         <p className="mt-1">
           {mode === 'forgot' ? (
@@ -138,7 +138,7 @@ export function LoginForm() {
         </p>
         <button
           onClick={() => switchMode('password')}
-          className="mt-3 text-brand underline font-semibold"
+          className="mt-3 text-brand-700 underline font-semibold"
         >
           Back to sign in
         </button>
@@ -208,19 +208,19 @@ export function LoginForm() {
             />
           </label>
           {successMessage ? (
-            <p role="status" className="rounded-md bg-correct/10 px-3 py-2 text-sm text-correct">
+            <p role="status" className="rounded-md bg-correct/10 px-3 py-2 text-sm text-correct-700">
               {successMessage}
             </p>
           ) : null}
           {error ? (
-            <p role="alert" className="rounded-md bg-incorrect/10 px-3 py-2 text-sm text-incorrect">
+            <p role="alert" className="rounded-md bg-incorrect/10 px-3 py-2 text-sm text-incorrect-700">
               {error}
             </p>
           ) : null}
           <button
             type="submit"
             disabled={isPending}
-            className="flex h-12 w-full items-center justify-center rounded-lg bg-brand font-semibold text-white transition active:scale-[0.98] disabled:opacity-60"
+            className="flex h-12 w-full items-center justify-center rounded-lg bg-brand-600 font-semibold text-white transition active:scale-[0.98] disabled:opacity-60"
           >
             {isPending ? 'Signing in…' : 'Sign in'}
           </button>
@@ -229,7 +229,7 @@ export function LoginForm() {
             <button
               type="button"
               onClick={() => switchMode('forgot')}
-              className="font-semibold text-brand underline"
+              className="font-semibold text-brand-700 underline"
             >
               Reset it
             </button>
@@ -252,14 +252,14 @@ export function LoginForm() {
             />
           </label>
           {error ? (
-            <p role="alert" className="rounded-md bg-incorrect/10 px-3 py-2 text-sm text-incorrect">
+            <p role="alert" className="rounded-md bg-incorrect/10 px-3 py-2 text-sm text-incorrect-700">
               {error}
             </p>
           ) : null}
           <button
             type="submit"
             disabled={isPending}
-            className="flex h-12 w-full items-center justify-center rounded-lg bg-brand font-semibold text-white transition active:scale-[0.98] disabled:opacity-60"
+            className="flex h-12 w-full items-center justify-center rounded-lg bg-brand-600 font-semibold text-white transition active:scale-[0.98] disabled:opacity-60"
           >
             {isPending ? 'Sending…' : 'Send magic link'}
           </button>
@@ -287,14 +287,14 @@ export function LoginForm() {
             />
           </label>
           {error ? (
-            <p role="alert" className="rounded-md bg-incorrect/10 px-3 py-2 text-sm text-incorrect">
+            <p role="alert" className="rounded-md bg-incorrect/10 px-3 py-2 text-sm text-incorrect-700">
               {error}
             </p>
           ) : null}
           <button
             type="submit"
             disabled={isPending}
-            className="flex h-12 w-full items-center justify-center rounded-lg bg-brand font-semibold text-white transition active:scale-[0.98] disabled:opacity-60"
+            className="flex h-12 w-full items-center justify-center rounded-lg bg-brand-600 font-semibold text-white transition active:scale-[0.98] disabled:opacity-60"
           >
             {isPending ? 'Sending…' : 'Send reset link'}
           </button>
@@ -302,7 +302,7 @@ export function LoginForm() {
             <button
               type="button"
               onClick={() => switchMode('password')}
-              className="font-semibold text-brand underline"
+              className="font-semibold text-brand-700 underline"
             >
               Back to sign in
             </button>
@@ -389,14 +389,14 @@ function PinLoginForm({ redirectTo }: { redirectTo: string }) {
         />
       </label>
       {error && (
-        <p role="alert" className="rounded-md bg-incorrect/10 px-3 py-2 text-sm text-incorrect">
+        <p role="alert" className="rounded-md bg-incorrect/10 px-3 py-2 text-sm text-incorrect-700">
           {error}
         </p>
       )}
       <button
         type="submit"
         disabled={isPending}
-        className="flex h-12 w-full items-center justify-center rounded-lg bg-brand font-semibold text-white transition active:scale-[0.98] disabled:opacity-60"
+        className="flex h-12 w-full items-center justify-center rounded-lg bg-brand-600 font-semibold text-white transition active:scale-[0.98] disabled:opacity-60"
       >
         {isPending ? 'Signing in…' : 'Sign in with PIN'}
       </button>

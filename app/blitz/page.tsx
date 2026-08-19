@@ -2,6 +2,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { MarketingFooter } from '@/components/marketing/MarketingFooter'
 import { MarketingNav } from '@/components/marketing/MarketingNav'
+import { inkOn } from '@/lib/subject-colour'
 
 export const metadata: Metadata = {
   title: 'Decifer Blitz | Live quiz battles',
@@ -54,12 +55,12 @@ export default function BlitzPage() {
 
       {/* Hero */}
       <section className="mx-auto max-w-3xl px-5 pb-16 pt-14 text-center md:pt-24">
-        <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[#6C9EFF]/10 px-4 py-1.5 text-sm font-bold text-[#6C9EFF]">
+        <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-brand/10 px-4 py-1.5 text-sm font-bold text-brand-700">
           ⚡ Decifer Blitz
         </div>
         <h1 className="font-heading text-4xl font-extrabold leading-tight text-ink md:text-5xl">
           Real-time quiz battles.<br />
-          <span className="text-[#6C9EFF]">Curriculum-aligned.</span>
+          <span className="text-brand-700">Curriculum-aligned.</span>
         </h1>
         <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-muted md:text-lg">
           Run a live quiz battle in 30 seconds. No logins, no IT setup, no random trivia.
@@ -68,7 +69,7 @@ export default function BlitzPage() {
         <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
           <Link
             href="/play"
-            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#6C9EFF] px-8 py-4 font-heading text-base font-extrabold text-white shadow-sm transition hover:opacity-90 sm:w-auto"
+            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-600 px-8 py-4 font-heading text-base font-extrabold text-white shadow-sm transition-colors hover:bg-brand-700 sm:w-auto"
           >
             ⚡ Host a game, it&apos;s free
           </Link>
@@ -86,8 +87,8 @@ export default function BlitzPage() {
 
       {/* Fake screen mockup */}
       <section className="mx-auto mb-16 max-w-sm px-5">
-        <div className="overflow-hidden rounded-3xl bg-surface shadow-md ring-1 ring-black/8">
-          <div className="bg-[#2D3748] px-5 py-3 text-center">
+        <div className="overflow-hidden rounded-3xl bg-surface shadow-md ring-1 ring-black/10">
+          <div className="bg-ink px-5 py-3 text-center">
             <p className="font-mono text-2xl font-extrabold tracking-[0.3em] text-white">4 8 2 9 1 7</p>
             <p className="mt-0.5 text-xs text-white/60">Game code, share to join</p>
           </div>
@@ -95,11 +96,15 @@ export default function BlitzPage() {
             <p className="mb-3 text-center text-xs font-bold uppercase tracking-wide text-muted">Question 3 of 10</p>
             <p className="mb-4 text-center text-sm font-bold text-ink">What is 7 × 8?</p>
             <div className="grid grid-cols-2 gap-2">
-              {[['🔺 56', '#FF6B6B'], ['◆ 54', '#6C9EFF'], ['● 64', '#FFC107'], ['■ 48', '#52D9A0']].map(([label, colour]) => (
+              {/* The four answer tiles a player sees. Each keeps its own hue
+                  for shape-plus-colour recognition, and takes whichever ink
+                  actually reads on it — these are light fills, so white was
+                  1.63:1 on the amber and 1.78:1 on the green. */}
+              {[['🔺 56', '#F05452'], ['◆ 54', '#6C9EFF'], ['● 64', '#F5A524'], ['■ 48', '#52D9A0']].map(([label, colour]) => (
                 <div
                   key={label}
-                  className="flex items-center justify-center rounded-2xl py-4 text-sm font-extrabold text-white"
-                  style={{ backgroundColor: colour }}
+                  className="flex items-center justify-center rounded-2xl py-4 text-sm font-extrabold"
+                  style={{ backgroundColor: colour, color: inkOn(colour) }}
                 >
                   {label}
                 </div>
@@ -122,7 +127,7 @@ export default function BlitzPage() {
           <div className="grid gap-6 md:grid-cols-3">
             {HOW.map(({ step, heading, body }) => (
               <div key={step} className="rounded-2xl bg-background p-6 ring-1 ring-black/5">
-                <div className="mb-3 inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#6C9EFF] font-heading text-sm font-extrabold text-white">
+                <div className="mb-3 inline-flex h-8 w-8 items-center justify-center rounded-full bg-brand-600 font-heading text-sm font-extrabold text-white">
                   {step}
                 </div>
                 <h3 className="mb-1 font-heading text-base font-extrabold text-ink">{heading}</h3>
@@ -136,7 +141,7 @@ export default function BlitzPage() {
       {/* For parents / teachers split */}
       <section className="mx-auto max-w-3xl px-5 py-16">
         <div className="grid gap-5 md:grid-cols-2">
-          <div className="rounded-2xl bg-[#6C9EFF]/8 p-7 ring-1 ring-[#6C9EFF]/20">
+          <div className="rounded-2xl bg-brand/[0.08] p-7 ring-1 ring-brand/20">
             <div className="mb-3 text-2xl">🏠</div>
             <h3 className="mb-2 font-heading text-lg font-extrabold text-ink">For parents</h3>
             <p className="text-sm leading-relaxed text-muted">
@@ -145,7 +150,7 @@ export default function BlitzPage() {
               actually learning at school.
             </p>
           </div>
-          <div className="rounded-2xl bg-[#52D9A0]/8 p-7 ring-1 ring-[#52D9A0]/20">
+          <div className="rounded-2xl bg-science/[0.08] p-7 ring-1 ring-science/20">
             <div className="mb-3 text-2xl">🏫</div>
             <h3 className="mb-2 font-heading text-lg font-extrabold text-ink">For teachers</h3>
             <p className="text-sm leading-relaxed text-muted">
@@ -185,7 +190,7 @@ export default function BlitzPage() {
         </p>
         <Link
           href="/play"
-          className="inline-flex items-center gap-2 rounded-2xl bg-[#6C9EFF] px-10 py-4 font-heading text-base font-extrabold text-white shadow-sm transition hover:opacity-90"
+          className="inline-flex items-center gap-2 rounded-2xl bg-brand-600 px-10 py-4 font-heading text-base font-extrabold text-white shadow-sm transition-colors hover:bg-brand-700"
         >
           ⚡ Host a game now
         </Link>

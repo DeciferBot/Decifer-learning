@@ -196,10 +196,10 @@ export default function ExamSessionPage({
   if (state === 'already_done') {
     return (
       <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4 px-6 text-center">
-        <Check className="h-12 w-12 text-correct" aria-hidden />
+        <Check className="h-12 w-12 text-correct-700" aria-hidden />
         <h1 className="font-heading text-xl font-bold text-ink">Exam already completed</h1>
         <p className="text-sm text-muted">This exam can only be taken once.</p>
-        <a href="/exam" className="rounded-xl bg-maths/10 px-5 py-2.5 text-sm font-bold text-maths">
+        <a href="/exam" className="rounded-xl bg-brand/10 px-5 py-2.5 text-sm font-bold text-on-maths">
           Back to exams
         </a>
       </div>
@@ -209,10 +209,10 @@ export default function ExamSessionPage({
   if (state === 'error') {
     return (
       <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4 px-6 text-center">
-        <AlertTriangle className="h-12 w-12 text-incorrect" aria-hidden />
+        <AlertTriangle className="h-12 w-12 text-incorrect-700" aria-hidden />
         <h1 className="font-heading text-xl font-bold text-ink">Something went wrong</h1>
         <p className="text-sm text-muted">{errorMsg}</p>
-        <a href="/exam" className="rounded-xl bg-maths/10 px-5 py-2.5 text-sm font-bold text-maths">
+        <a href="/exam" className="rounded-xl bg-brand/10 px-5 py-2.5 text-sm font-bold text-on-maths">
           Back to exams
         </a>
       </div>
@@ -222,7 +222,7 @@ export default function ExamSessionPage({
   if (state === 'confirm') {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-5 px-6 text-center">
-        <ClipboardList className="h-12 w-12 text-maths" aria-hidden />
+        <ClipboardList className="h-12 w-12 text-on-maths" aria-hidden />
         <h1 className="font-heading text-2xl font-bold text-ink">Ready to start?</h1>
         <div className="rounded-2xl border border-black/5 bg-surface px-6 py-5 text-left space-y-2 w-full max-w-sm shadow-sm">
           <p className="text-sm text-ink"><span className="font-semibold">This exam is timed.</span></p>
@@ -232,7 +232,7 @@ export default function ExamSessionPage({
         </div>
         <button
           onClick={startExam}
-          className="w-full max-w-sm rounded-2xl bg-maths py-4 font-heading text-base font-bold text-white transition-opacity hover:opacity-90 min-h-[56px]"
+          className="w-full max-w-sm rounded-2xl bg-brand-600 py-4 font-heading text-base font-bold text-white transition-colors hover:bg-brand-700 min-h-[56px]"
         >
           Start exam
         </button>
@@ -278,7 +278,7 @@ export default function ExamSessionPage({
           <div className="flex-1 mx-3">
             <div className="h-1.5 overflow-hidden rounded-full bg-black/[0.06]">
               <div
-                className="h-full rounded-full bg-maths transition-all duration-300"
+                className="h-full rounded-full bg-teal transition-all duration-300"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -360,7 +360,7 @@ export default function ExamSessionPage({
                   {choices.map((choice) => {
                     const isSelected = selectedChoice === choice
                     const isCorrect = choice.trim().toLowerCase() === currentQuestion.correct_answer.trim().toLowerCase()
-                    let bg = 'bg-surface border-black/10 hover:border-maths/40'
+                    let bg = 'bg-surface border-black/10 hover:border-brand/40'
                     if (submitted) {
                       bg = isCorrect
                         ? 'bg-correct/10 border-correct/40'
@@ -368,7 +368,7 @@ export default function ExamSessionPage({
                         ? 'bg-incorrect/10 border-incorrect/40'
                         : 'bg-surface border-black/5 opacity-50'
                     } else if (isSelected) {
-                      bg = 'bg-maths/10 border-maths'
+                      bg = 'bg-brand/10 border-brand'
                     }
                     return (
                       <button
@@ -384,7 +384,7 @@ export default function ExamSessionPage({
                   {!submitted && selectedChoice && (
                     <button
                       onClick={handleMultipleChoiceSubmit}
-                      className="mt-1 w-full rounded-xl bg-maths py-3 text-sm font-bold text-white min-h-[52px]"
+                      className="mt-1 w-full rounded-xl bg-brand-600 transition-colors hover:bg-brand-700 py-3 text-sm font-bold text-white min-h-[52px]"
                     >
                       Confirm
                     </button>
@@ -402,13 +402,13 @@ export default function ExamSessionPage({
                     }}
                     disabled={submitted}
                     placeholder="Your answer…"
-                    className="w-full rounded-xl border border-black/10 bg-surface px-4 py-3 text-sm text-ink placeholder-muted focus:border-maths focus:outline-none min-h-[52px]"
+                    className="w-full rounded-xl border border-black/10 bg-surface px-4 py-3 text-sm text-ink placeholder-muted focus:border-brand focus:outline-none min-h-[52px]"
                   />
                   {!submitted && (
                     <button
                       onClick={handleFillSubmit}
                       disabled={!fillAnswer.trim()}
-                      className="w-full rounded-xl bg-maths py-3 text-sm font-bold text-white disabled:opacity-40 min-h-[52px]"
+                      className="w-full rounded-xl bg-brand-600 transition-colors hover:bg-brand-700 py-3 text-sm font-bold text-white disabled:opacity-40 min-h-[52px]"
                     >
                       Confirm
                     </button>
@@ -428,9 +428,9 @@ export default function ExamSessionPage({
                   }`}
                 >
                   {answers[answers.length - 1]?.wasCorrect ? (
-                    <Check className="mt-0.5 h-4 w-4 flex-none text-correct" aria-hidden />
+                    <Check className="mt-0.5 h-4 w-4 flex-none text-correct-700" aria-hidden />
                   ) : (
-                    <CircleX className="mt-0.5 h-4 w-4 flex-none text-incorrect" aria-hidden />
+                    <CircleX className="mt-0.5 h-4 w-4 flex-none text-incorrect-700" aria-hidden />
                   )}
                   <div>
                     {!answers[answers.length - 1]?.wasCorrect && (

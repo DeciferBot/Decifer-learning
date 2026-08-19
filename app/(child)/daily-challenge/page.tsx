@@ -69,7 +69,7 @@ export default function DailyChallengePageInner() {
         <p className="text-sm text-muted">Something went wrong loading today&apos;s challenge.</p>
         <button
           onClick={() => { setPhase('loading'); window.location.reload() }}
-          className="rounded-xl bg-brand px-5 py-2 text-sm font-bold text-white"
+          className="rounded-xl bg-brand-600 px-5 py-2 text-sm font-bold text-white"
         >
           Try again
         </button>
@@ -95,7 +95,7 @@ export default function DailyChallengePageInner() {
       <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4 text-center px-4 max-w-md mx-auto">
         {pct >= 70
           ? <Star className="w-12 h-12 text-points-gold" aria-hidden />
-          : <Target className="w-12 h-12 text-brand" aria-hidden />
+          : <Target className="w-12 h-12 text-brand-700" aria-hidden />
         }
         <h1 className="font-heading text-2xl font-bold text-ink">
           {pct >= 100 ? 'Perfect!' : pct >= 70 ? 'Great work!' : 'Nice try!'}
@@ -114,7 +114,7 @@ export default function DailyChallengePageInner() {
         </div>
         <a
           href="/dashboard/child"
-          className="mt-2 rounded-xl bg-brand px-6 py-3 font-heading font-bold text-white shadow-sm hover:opacity-90"
+          className="mt-2 rounded-xl bg-brand-600 px-6 py-3 font-heading font-bold text-white shadow-sm hover:bg-brand-700"
         >
           Back to home
         </a>
@@ -220,11 +220,11 @@ export default function DailyChallengePageInner() {
           if (selected === null) {
             cls += ' border-black/10 bg-surface hover:border-brand/40 hover:bg-brand/5 text-ink'
           } else if (isSelected && isCorrect) {
-            cls += ' border-correct bg-correct/10 text-correct'
+            cls += ' border-correct bg-correct/10 text-correct-700'
           } else if (isSelected && !isCorrect) {
-            cls += ' border-incorrect bg-incorrect/10 text-incorrect'
+            cls += ' border-incorrect bg-incorrect/10 text-incorrect-700'
           } else if (!isSelected && isCorrect) {
-            cls += ' border-correct bg-correct/5 text-correct'
+            cls += ' border-correct bg-correct/5 text-correct-700'
           } else {
             cls += ' border-black/5 bg-black/[0.02] text-muted'
           }
@@ -252,7 +252,7 @@ export default function DailyChallengePageInner() {
       {selected !== null && (
         <button
           onClick={next}
-          className="w-full rounded-2xl bg-brand py-4 font-heading font-bold text-white shadow-sm hover:opacity-90"
+          className="w-full rounded-2xl bg-brand-600 py-4 font-heading font-bold text-white shadow-sm hover:bg-brand-700"
         >
           {isLast ? 'Finish & get points' : 'Next question →'}
         </button>

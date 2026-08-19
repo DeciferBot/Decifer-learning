@@ -51,7 +51,7 @@ export function UnlockForm({ redirectTo }: { redirectTo: string }) {
       </div>
 
       {error && (
-        <p role="alert" className="rounded-lg bg-incorrect/10 px-3 py-2 text-sm text-incorrect">
+        <p role="alert" className="rounded-lg bg-incorrect/10 px-3 py-2 text-sm text-incorrect-700">
           {error}
         </p>
       )}
@@ -59,7 +59,7 @@ export function UnlockForm({ redirectTo }: { redirectTo: string }) {
       <button
         type="submit"
         disabled={submitting || !password}
-        className="w-full min-h-[48px] rounded-xl bg-brand px-4 font-heading font-semibold text-white shadow-sm transition-colors hover:bg-brand/90 disabled:cursor-not-allowed disabled:opacity-50"
+        className="w-full min-h-[48px] rounded-xl bg-brand-600 px-4 font-heading font-semibold text-white shadow-sm transition-colors hover:bg-brand/90 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {submitting ? 'Unlocking…' : 'Unlock'}
       </button>

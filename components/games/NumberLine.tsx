@@ -1,10 +1,11 @@
 'use client'
 
-import { useRef, useState } from 'react'
-import { motion, useDragControls } from 'framer-motion'
-import Link from 'next/link'
-import { Sparkles, Check } from '@/components/ui/icons'
+import { useEffect, useRef, useState } from 'react'
 import { fireFeedback } from '@/lib/feedback'
+import {
+  PracticeHeader, PracticeCard, PracticeFeedback, PracticeButton,
+  PracticeSecondaryButton, PracticeDone,
+} from '@/components/games/PracticeShell'
 
 // Number line simulation for Year 3 Maths.
 // config_json shape: { min: number, max: number, step: number, questions: NumberLineQuestion[] }
@@ -28,20 +29,31 @@ type Props = {
   topicId: string
 }
 
-const TRACK_WIDTH = 280
-const THUMB_SIZE = 40
-
 function snapToStep(value: number, min: number, step: number): number {
   return Math.round((value - min) / step) * step + min
 }
 
-function valueToX(value: number, min: number, max: number): number {
-  return ((value - min) / (max - min)) * TRACK_WIDTH
-}
-
-function xToValue(x: number, min: number, max: number, step: number): number {
-  const raw = (x / TRACK_WIDTH) * (max - min) + min
-  return Math.max(min, Math.min(max, snapToStep(raw, min, step)))
+/**
+ * The track measures itself instead of assuming 280px.
+ *
+ * The old version hard-coded TRACK_WIDTH = 280 and positioned the thumb, the
+ * ticks and the fill from that constant. On a 320px phone the line ran past
+ * the card padding, and on a tablet it stayed a stubby 280px in the middle of
+ * a wide screen. Neither the drag maths nor the click maths could ever agree
+ * with the rendered element, because only one of them knew the real width.
+ */
+function useTrackWidth() {
+  const ref = useRef<HTMLDivElement>(null)
+  const [width, setWidth] = useState(0)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const ro = new ResizeObserver(([entry]) => setWidth(entry.contentRect.width))
+    ro.observe(el)
+    setWidth(el.getBoundingClientRect().width)
+    return () => ro.disconnect()
+  }, [])
+  return { ref, width }
 }
 
 function QuestionView({
@@ -57,26 +69,22 @@ function QuestionView({
   const [value, setValue] = useState(min)
   const [submitted, setSubmitted] = useState(false)
   const [correct, setCorrect] = useState(false)
-  const trackRef = useRef<HTMLDivElement>(null)
-  const dragControls = useDragControls()
+  const { ref: trackRef, width } = useTrackWidth()
 
-  const thumbX = valueToX(value, min, max)
-  const targetX = valueToX(question.target, min, max)
-
-  function handleTrackClick(e: React.MouseEvent<HTMLDivElement>) {
-    if (submitted) return
-    const rect = trackRef.current?.getBoundingClientRect()
-    if (!rect) return
-    const x = Math.max(0, Math.min(TRACK_WIDTH, e.clientX - rect.left))
-    setValue(xToValue(x, min, max, step))
+  const toX = (v: number) => (width === 0 ? 0 : ((v - min) / (max - min)) * width)
+  const toValue = (x: number) => {
+    const raw = width === 0 ? min : (x / width) * (max - min) + min
+    return Math.max(min, Math.min(max, snapToStep(raw, min, step)))
   }
 
-  function handleDrag(_: unknown, info: { point: { x: number } }) {
+  const thumbX = toX(value)
+  const targetX = toX(question.target)
+
+  function setFromClientX(clientX: number) {
     if (submitted) return
     const rect = trackRef.current?.getBoundingClientRect()
     if (!rect) return
-    const x = Math.max(0, Math.min(TRACK_WIDTH, info.point.x - rect.left))
-    setValue(xToValue(x, min, max, step))
+    setValue(toValue(Math.max(0, Math.min(rect.width, clientX - rect.left))))
   }
 
   function submit() {
@@ -87,125 +95,103 @@ function QuestionView({
     if (isCorrect) setTimeout(onCorrect, 900)
   }
 
-  const ticks = []
+  const ticks: { v: number; isMajor: boolean }[] = []
   for (let v = min; v <= max; v += step) {
-    const x = valueToX(v, min, max)
-    const isMajor = v % (step * 5) === 0 || v === min || v === max
-    ticks.push({ v, x, isMajor })
+    ticks.push({ v, isMajor: v % (step * 5) === 0 || v === min || v === max })
   }
 
   return (
-    <div className="space-y-4">
-      <p className="font-heading text-lg font-bold text-ink">{question.prompt}</p>
+    <div className="space-y-3">
+      <p className="text-pretty font-heading text-lg font-bold text-ink">{question.prompt}</p>
 
-      <div className="rounded-2xl border border-black/5 bg-surface p-6 shadow-sm">
-        {/* Number line */}
-        <div
-          ref={trackRef}
-          className="relative mx-auto cursor-pointer select-none"
-          style={{ width: TRACK_WIDTH, height: 60 }}
-          onClick={handleTrackClick}
-        >
-          {/* Track */}
+      <PracticeCard>
+        {/*
+          A native range input drives the value. It gives keyboard control,
+          screen-reader announcements and the platform's own drag handling for
+          free — all of which the old bespoke framer-motion thumb had to
+          reimplement, and only partly did (it had no keyboard support at all).
+          The visible track below is painted over it; the input itself stays
+          interactive and transparent on top.
+        */}
+        <div className="relative mx-auto h-16 w-full max-w-[420px]" ref={trackRef}>
+          <div className="pointer-events-none absolute inset-x-0 top-[26px] h-1.5 rounded-full bg-black/10" />
           <div
-            className="absolute rounded-full bg-black/10"
-            style={{ top: 24, left: 0, width: TRACK_WIDTH, height: 4 }}
+            className="pointer-events-none absolute top-[26px] h-1.5 rounded-full bg-brand"
+            style={{ left: 0, width: Math.max(0, thumbX) }}
           />
 
-          {/* Filled portion */}
-          <div
-            className="absolute rounded-full bg-maths"
-            style={{
-              top: 24,
-              left: 0,
-              width: Math.max(0, thumbX),
-              height: 4,
-            }}
-          />
-
-          {/* Ticks */}
-          {ticks.map(({ v, x, isMajor }) => (
-            <div key={v} className="absolute" style={{ left: x, top: isMajor ? 16 : 20 }}>
+          {ticks.map(({ v, isMajor }) => (
+            <div key={v} className="pointer-events-none absolute" style={{ left: toX(v), top: isMajor ? 18 : 22 }}>
               <div
-                className={`w-px ${isMajor ? 'bg-ink' : 'bg-black/30'}`}
+                className={isMajor ? 'w-px bg-ink' : 'w-px bg-black/25'}
                 style={{ height: isMajor ? 16 : 8 }}
               />
               {isMajor && (
-                <p
-                  className="mt-1 text-center text-xs text-muted"
-                  style={{ transform: 'translateX(-50%)' }}
-                >
+                <p className="mt-1 text-center text-[11px] tabular-nums text-ink-2" style={{ transform: 'translateX(-50%)' }}>
                   {v}
                 </p>
               )}
             </div>
           ))}
 
-          {/* Target indicator (shown after submit) */}
+          {/* Where the answer actually was, revealed only after a wrong go. */}
           {submitted && !correct && (
             <div
-              className="absolute bg-correct-700"
-              style={{ left: targetX - 1, top: 10, width: 2, height: 28 }}
+              className="pointer-events-none absolute rounded-full bg-correct-700"
+              style={{ left: targetX - 1.5, top: 14, width: 3, height: 26 }}
+              aria-hidden
             />
           )}
 
-          {/* Draggable thumb */}
-          <motion.div
-            drag="x"
-            dragConstraints={{ left: 0, right: TRACK_WIDTH }}
-            dragElastic={0}
-            dragControls={dragControls}
-            onDrag={handleDrag}
-            className={`absolute flex cursor-grab items-center justify-center rounded-full border-2 border-white font-heading font-bold text-white shadow-md active:cursor-grabbing ${
-              submitted ? (correct ? 'bg-correct-700' : 'bg-rose-700') : 'bg-maths'
+          {/* The handle. Sits under the transparent range input. */}
+          <div
+            className={`pointer-events-none absolute flex items-center justify-center rounded-full font-heading text-sm font-bold text-white shadow-md ring-2 ring-white ${
+              submitted ? (correct ? 'bg-correct-700' : 'bg-incorrect-700') : 'bg-brand-600'
             }`}
-            style={{
-              width: THUMB_SIZE,
-              height: THUMB_SIZE,
-              top: 4,
-              left: thumbX - THUMB_SIZE / 2,
-            }}
+            style={{ width: 44, height: 44, top: 5, left: thumbX - 22 }}
+            aria-hidden
           >
             {value}
-          </motion.div>
+          </div>
+
+          <input
+            type="range"
+            min={min}
+            max={max}
+            step={step}
+            value={value}
+            disabled={submitted}
+            onChange={(e) => setValue(Number(e.target.value))}
+            onPointerDown={(e) => setFromClientX(e.clientX)}
+            aria-label={`${question.label}. Currently ${value}`}
+            className="absolute inset-x-0 top-[14px] h-11 w-full cursor-pointer opacity-0 disabled:cursor-default"
+          />
         </div>
 
-        {/* Current value display */}
-        <p className="mt-2 text-center text-sm text-muted">
-          Selected: <span className="font-bold text-ink">{value}</span>
+        <p className="mt-1 text-center text-sm text-ink-2">
+          Selected: <span className="font-bold tabular-nums text-ink">{value}</span>
         </p>
 
-        {/* Feedback */}
         {submitted && (
-          <motion.div
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            className={`mt-4 rounded-xl p-3 text-center ${correct ? 'bg-correct/10' : 'bg-incorrect/10'}`}
-          >
-            <p className={`font-bold ${correct ? 'text-correct-700' : 'text-rose-700'}`}>
-              {correct ? <span className="flex items-center justify-center gap-1"><Check className="w-4 h-4" aria-hidden /> Correct!</span> : `Not quite. ${question.label} is ${question.target}`}
-            </p>
-          </motion.div>
+          <PracticeFeedback correct={correct}>
+            {correct ? 'Correct!' : `Not quite. ${question.label} is ${question.target}.`}
+          </PracticeFeedback>
         )}
 
         {!submitted && (
-          <button
-            onClick={submit}
-            className="mt-4 min-h-[48px] w-full rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white transition-opacity hover:opacity-90"
-          >
-            Check Answer
-          </button>
+          <div className="mt-4">
+            <PracticeButton onClick={submit}>Check answer</PracticeButton>
+          </div>
         )}
 
         {submitted && !correct && (
-          <button
-            onClick={() => { setValue(min); setSubmitted(false); setCorrect(false) }}
-            className="mt-3 min-h-[48px] w-full rounded-xl border border-black/10 px-6 py-3 font-heading font-bold text-ink transition-colors hover:bg-black/5"
-          >
-            Try Again
-          </button>
+          <div className="mt-3">
+            <PracticeSecondaryButton onClick={() => { setValue(min); setSubmitted(false); setCorrect(false) }}>
+              Try again
+            </PracticeSecondaryButton>
+          </div>
         )}
-      </div>
+      </PracticeCard>
     </div>
   )
 }
@@ -216,41 +202,20 @@ export function NumberLine({ config, topicId }: Props) {
 
   if (done) {
     return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="rounded-2xl border border-black/5 bg-surface p-8 text-center shadow-sm"
-      >
-        <div className="flex justify-center mb-3"><Sparkles className="w-12 h-12 text-maths" aria-hidden /></div>
-        <h2 className="font-heading text-2xl font-bold text-ink">Practice complete!</h2>
-        <p className="mt-2 text-muted">You nailed the number line. Ready for the quiz?</p>
-        <Link
-          href={`/topics/${topicId}/quiz`}
-          className="mt-6 inline-flex min-h-[48px] items-center justify-center rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white transition-opacity hover:opacity-90"
-        >
-          Start Quiz →
-        </Link>
-      </motion.div>
+      <PracticeDone
+        topicId={topicId}
+        title="Practice complete"
+        detail="You found every number on the line."
+      />
     )
   }
 
-  const question = config.questions[qIndex]
-
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between text-sm text-muted">
-        <span>Question {qIndex + 1} of {config.questions.length}</span>
-        <div className="h-2 w-32 overflow-hidden rounded-full bg-black/5">
-          <div
-            className="h-full rounded-full bg-maths transition-all duration-300"
-            style={{ width: `${((qIndex) / config.questions.length) * 100}%` }}
-          />
-        </div>
-      </div>
-
+      <PracticeHeader title="Number line" current={qIndex + 1} total={config.questions.length} />
       <QuestionView
         key={qIndex}
-        question={question}
+        question={config.questions[qIndex]}
         config={config}
         onCorrect={() => {
           if (qIndex + 1 >= config.questions.length) setDone(true)

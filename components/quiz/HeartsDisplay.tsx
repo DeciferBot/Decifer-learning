@@ -19,7 +19,7 @@ export function HeartsDisplay({ hearts, max = 3 }: { hearts: number; max?: numbe
               key="full"
               exit={{ scale: 0.4, opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="select-none text-incorrect"
+              className="select-none text-incorrect-700"
               aria-hidden
             >
               <HeartFull size={20} />

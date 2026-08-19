@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { jsonLd } from '@/lib/json-ld'
+import { GamePageIntro } from '@/components/games/GamePageIntro'
 import { gamePageSchema } from '@/lib/games/schema'
 import { Connect4Game } from '@/components/games/Connect4Game'
 
@@ -29,19 +30,13 @@ const schema = gamePageSchema({
 
 export default function PublicConnect4Page() {
   return (
-    <div className="space-y-4">
-      <div className="mx-auto max-w-sm text-center">
-        <h1 className="font-heading text-xl font-bold text-ink">Play Connect 4 Online Free</h1>
-        <p className="mt-1 text-sm text-muted">
-          Drop your pieces and line up four in a row before your opponent does. Play the
-          computer or share an invite code to play a friend.
-        </p>
-      </div>
+    <div className="space-y-5">
+      <GamePageIntro id="connect-4" title="Play Connect 4 Online Free" />
+      <Connect4Game backHref="/games" />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLd(schema) }}
       />
-      <Connect4Game backHref="/games" />
     </div>
   )
 }

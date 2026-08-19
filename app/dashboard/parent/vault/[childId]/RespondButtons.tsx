@@ -97,15 +97,15 @@ export function RespondButtons({
   if (done) {
     return (
       <div className="rounded-2xl border border-correct/20 bg-correct/5 p-4">
-        <p className="text-sm font-bold text-correct">Done: syncing…</p>
+        <p className="text-sm font-bold text-correct-700">Done: syncing…</p>
       </div>
     )
   }
 
   if (status === 'counter_offered') {
     return (
-      <div className="rounded-2xl border border-maths/20 bg-maths/5 p-4 space-y-1.5">
-        <p className="font-heading text-sm font-bold text-maths">Waiting for child response</p>
+      <div className="rounded-2xl border border-brand/20 bg-brand/5 p-4 space-y-1.5">
+        <p className="font-heading text-sm font-bold text-on-maths">Waiting for child response</p>
         <p className="text-sm text-muted">
           Your child can accept or dismiss this counter-offer.
         </p>
@@ -116,7 +116,7 @@ export function RespondButtons({
   if (action === 'approve') {
     return (
       <div className="space-y-3 rounded-2xl border border-correct/20 bg-correct/5 p-4">
-        <p className="font-heading text-sm font-bold text-correct">Approve {childName}&apos;s request</p>
+        <p className="font-heading text-sm font-bold text-correct-700">Approve {childName}&apos;s request</p>
 
         {/* Tabs — only shown when physical is enabled and there are items */}
         {physicalRewardsEnabled && catalogueItems.length > 0 && (
@@ -195,7 +195,7 @@ export function RespondButtons({
           </div>
         )}
 
-        {error && <p className="text-sm text-incorrect">{error}</p>}
+        {error && <p className="text-sm text-incorrect-700">{error}</p>}
         <div className="flex gap-2">
           <button
             onClick={() => { setAction(null); setApproveTab('family'); setSelectedItemId('') }}
@@ -206,7 +206,7 @@ export function RespondButtons({
           <button
             onClick={() => submit('approve')}
             disabled={submitting || (approveTab === 'physical' && !selectedItemId)}
-            className="flex h-10 flex-1 items-center justify-center rounded-xl bg-correct text-sm font-bold text-white hover:opacity-90 disabled:opacity-60"
+            className="flex h-10 flex-1 items-center justify-center rounded-xl bg-correct-700 text-sm font-bold text-white hover:opacity-90 disabled:opacity-60"
           >
             {submitting ? 'Sending…' : 'Confirm Approve'}
           </button>
@@ -217,8 +217,8 @@ export function RespondButtons({
 
   if (action === 'counter_offer') {
     return (
-      <div className="space-y-3 rounded-2xl border border-maths/20 bg-maths/5 p-4">
-        <p className="font-heading text-sm font-bold text-maths">Suggest an alternative</p>
+      <div className="space-y-3 rounded-2xl border border-brand/20 bg-brand/5 p-4">
+        <p className="font-heading text-sm font-bold text-on-maths">Suggest an alternative</p>
         <input
           type="text"
           maxLength={280}
@@ -227,13 +227,13 @@ export function RespondButtons({
           value={rewardLabel}
           onChange={(e) => setRewardLabel(e.target.value)}
         />
-        {error && <p className="text-sm text-incorrect">{error}</p>}
+        {error && <p className="text-sm text-incorrect-700">{error}</p>}
         <div className="flex gap-2">
           <button onClick={() => setAction(null)} className="flex h-10 flex-1 items-center justify-center rounded-xl bg-black/5 text-sm font-bold text-ink hover:bg-black/10">Cancel</button>
           <button
             onClick={() => submit('counter_offer')}
             disabled={submitting || !rewardLabel.trim()}
-            className="flex h-10 flex-1 items-center justify-center rounded-xl bg-maths text-sm font-bold text-white hover:opacity-90 disabled:opacity-60"
+            className="flex h-10 flex-1 items-center justify-center rounded-xl bg-brand-600 text-sm font-bold text-white hover:bg-brand-700 disabled:opacity-60"
           >
             {submitting ? 'Sending…' : 'Send Suggestion'}
           </button>
@@ -245,7 +245,7 @@ export function RespondButtons({
   if (action === 'reject') {
     return (
       <div className="space-y-3 rounded-2xl border border-incorrect/20 bg-incorrect/5 p-4">
-        <p className="font-heading text-sm font-bold text-incorrect">Decline this request</p>
+        <p className="font-heading text-sm font-bold text-incorrect-700">Decline this request</p>
         <input
           type="text"
           maxLength={280}
@@ -254,10 +254,10 @@ export function RespondButtons({
           value={note}
           onChange={(e) => setNote(e.target.value)}
         />
-        {error && <p className="text-sm text-incorrect">{error}</p>}
+        {error && <p className="text-sm text-incorrect-700">{error}</p>}
         <div className="flex gap-2">
           <button onClick={() => setAction(null)} className="flex h-10 flex-1 items-center justify-center rounded-xl bg-black/5 text-sm font-bold text-ink hover:bg-black/10">Cancel</button>
-          <button onClick={() => submit('reject')} disabled={submitting} className="flex h-10 flex-1 items-center justify-center rounded-xl bg-incorrect text-sm font-bold text-white hover:opacity-90 disabled:opacity-60">
+          <button onClick={() => submit('reject')} disabled={submitting} className="flex h-10 flex-1 items-center justify-center rounded-xl bg-incorrect-700 text-sm font-bold text-white hover:opacity-90 disabled:opacity-60">
             {submitting ? 'Declining…' : 'Confirm Decline'}
           </button>
         </div>
@@ -269,7 +269,7 @@ export function RespondButtons({
     <div className="flex flex-wrap gap-2">
       <button
         onClick={() => setAction('approve')}
-        className="flex h-10 items-center gap-1 rounded-xl bg-correct/10 px-4 text-sm font-bold text-correct transition-colors hover:bg-correct/20"
+        className="flex h-10 items-center gap-1 rounded-xl bg-correct/10 px-4 text-sm font-bold text-correct-700 transition-colors hover:bg-correct/20"
       >
         <Check className="w-4 h-4" aria-hidden /> Approve
       </button>
@@ -282,13 +282,13 @@ export function RespondButtons({
       </button>
       <button
         onClick={() => setAction('counter_offer')}
-        className="flex h-10 items-center gap-1 rounded-xl bg-maths/10 px-4 text-sm font-bold text-maths transition-colors hover:bg-maths/20"
+        className="flex h-10 items-center gap-1 rounded-xl bg-brand/10 px-4 text-sm font-bold text-on-maths transition-colors hover:bg-brand/20"
       >
         Suggest different
       </button>
       <button
         onClick={() => setAction('reject')}
-        className="flex h-10 items-center gap-1 rounded-xl bg-incorrect/10 px-4 text-sm font-bold text-incorrect transition-colors hover:bg-incorrect/20"
+        className="flex h-10 items-center gap-1 rounded-xl bg-incorrect/10 px-4 text-sm font-bold text-incorrect-700 transition-colors hover:bg-incorrect/20"
       >
         <X className="w-4 h-4" aria-hidden /> Decline
       </button>

@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Lock, Check, Star, BookOpen } from '@/components/ui/icons'
+import { inkOn } from '@/lib/subject-colour'
 
 export type NodeState = 'locked' | 'available' | 'completed'
 
@@ -44,9 +45,9 @@ export function TopicNode({ title, state, href, subjectColor, xPct, yPx, quizOpt
       aria-hidden
     >
       {state === 'locked'    ? <Lock size={20} className="text-ink-2" />           :
-       state === 'completed' ? <Check size={20} style={{ color: '#ffffff' }} />    :
-       quizOptional          ? <BookOpen size={20} style={{ color: '#ffffff' }} /> :
-                               <Star size={20} style={{ color: '#ffffff' }} />}
+       state === 'completed' ? <Check size={20} style={{ color: inkOn(subjectColor) }} />    :
+       quizOptional          ? <BookOpen size={20} style={{ color: inkOn(subjectColor) }} /> :
+                               <Star size={20} style={{ color: inkOn(subjectColor) }} />}
     </div>
   )
 

@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ChevronRight } from '@/components/ui/icons'
 import { jsonLd } from '@/lib/json-ld'
 import { gamesIndexSchema } from '@/lib/games/schema'
+import { GAME_CATALOGUE } from '@/lib/games/catalogue'
+import { GameCard, GameTable } from '@/components/games/GameCard'
 
 export const metadata: Metadata = {
   // `absolute` opts out of the root layout's '%s | Decifer Learning'
@@ -10,101 +11,65 @@ export const metadata: Metadata = {
   // already written here.
   title: { absolute: 'Free Online Games for Kids: Chess, Checkers, Crossword & More' },
   description:
-    'Play chess, checkers, Connect 4, crossword puzzles and a word-tile game free in your browser. No sign-up, no download. Works on phone, tablet and computer.',
+    'Chess, checkers, Connect 4, crosswords and word games, free in your browser. No sign-up, no adverts, nothing to buy. Classic games that build planning, spelling and vocabulary, from a UK-curriculum learning app.',
   alternates: { canonical: '/games' },
   openGraph: {
     title: 'Free Online Games for Kids | Decifer Learning',
     description:
-      'Chess, checkers, Connect 4, crossword and word-tile games. Free, no sign-up required.',
+      'Classic games kids actually want to play, and parents are happy to say yes to. Free, no sign-up, no adverts.',
     url: 'https://www.deciferlearning.com/games',
   },
   twitter: {
     title: 'Free Online Games for Kids | Decifer Learning',
     description:
-      'Chess, checkers, Connect 4, crossword and word-tile games. Free, no sign-up required.',
+      'Classic games kids actually want to play, and parents are happy to say yes to. Free, no sign-up, no adverts.',
   },
 }
 
-const GAMES = [
-  {
-    href: '/games/chess',
-    emoji: '♟️',
-    name: 'Chess',
-    blurb: 'The classic strategy game. Play the computer at three difficulty levels, or a friend with an invite code.',
-  },
-  {
-    href: '/games/checkers',
-    emoji: '⚫',
-    name: 'Checkers',
-    blurb: 'Jump your way across the board and crown some kings, against the computer or a friend.',
-  },
-  {
-    href: '/games/connect-4',
-    emoji: '🔴',
-    name: 'Connect 4',
-    blurb: 'Line up four in a row before your opponent does.',
-  },
-  {
-    href: '/games/crossword',
-    emoji: '📝',
-    name: 'Crossword',
-    blurb: 'Pick a theme, Animals, Space, Under the Sea or UK Geography, and fill in a fresh puzzle every time.',
-  },
-  {
-    href: '/games/word-tiles',
-    emoji: '🔤',
-    name: 'Word Tiles',
-    blurb: 'A free word-tile game in the classic style. Build words on a shared board with a friend, most points wins.',
-  },
-]
-
-// Slugs come off the same GAMES array the cards render from, so the ItemList
-// can never list a game the page does not show.
+// The ItemList comes off the same catalogue the cards render from, so it can
+// never list a game the page does not show.
 const schema = gamesIndexSchema(
-  GAMES.map((g) => ({ name: g.name, slug: g.href.replace('/games/', '') })),
+  GAME_CATALOGUE.map((g) => ({ name: g.name, slug: g.publicSlug })),
 )
 
 export default function PublicGamesIndexPage() {
   return (
-    <div className="mx-auto max-w-md space-y-6">
-      <header className="text-center">
-        <h1 className="font-heading text-2xl font-extrabold text-ink sm:text-3xl">
-          Free games for kids
+    <div className="mx-auto max-w-3xl space-y-6">
+      {/* The headline deliberately never counts the games. It used to open
+          "Five games", which meant the sixth game would have shipped with a
+          lie at the top of the page. */}
+      <header className="mx-auto max-w-xl text-center">
+        <h1 className="text-balance font-heading text-[1.75rem] font-extrabold leading-[1.1] tracking-[-0.02em] text-ink sm:text-4xl">
+          Free games for kids that earn their screen time
         </h1>
-        <p className="mt-2 text-sm text-muted sm:text-base">
-          No sign-up, no download. Pick a game and start playing straight away, right here in
-          your browser.
+        <p className="mx-auto mt-3 max-w-[48ch] text-pretty text-[15px] leading-relaxed text-ink-2 sm:text-base">
+          Chess, crosswords and the other classics that have kept children thinking for
+          generations. Your child picks what they want to play. You get to stop negotiating about
+          it. No sign-up, no adverts, nothing to buy.
         </p>
       </header>
 
-      <div className="space-y-3">
-        {GAMES.map((g) => (
-          <Link
-            key={g.href}
-            href={g.href}
-            className="flex items-center gap-4 rounded-2xl border border-black/5 bg-surface p-4 shadow-sm transition-colors hover:bg-black/[0.02]"
-          >
-            <span className="text-4xl" aria-hidden>{g.emoji}</span>
-            <div className="min-w-0 flex-1">
-              <p className="font-heading font-bold text-ink">{g.name}</p>
-              <p className="text-xs text-muted">{g.blurb}</p>
-            </div>
-            <ChevronRight className="h-5 w-5 shrink-0 text-muted" aria-hidden />
-          </Link>
+      <GameTable>
+        {GAME_CATALOGUE.map((g) => (
+          <GameCard key={g.id} game={g} href={`/games/${g.publicSlug}`} />
         ))}
-      </div>
+      </GameTable>
 
-      <div className="rounded-2xl border border-black/5 bg-surface p-5 text-center shadow-sm">
-        <p className="font-heading font-bold text-ink">Part of Decifer Learning</p>
-        <p className="mt-1 text-sm text-muted">
-          These games are the just-for-fun corner of a UK-curriculum learning app for ages 6–16.
-          Sign up free to unlock Maths, English, Science, History and Geography practice too.
+      <div className="rounded-2xl border border-black/[0.07] bg-surface p-6 text-center shadow-sm">
+        <p className="font-heading text-lg font-extrabold tracking-[-0.01em] text-ink">
+          Made by people who build lessons for a living
+        </p>
+        <p className="mx-auto mt-2 max-w-[54ch] text-pretty text-sm leading-relaxed text-ink-2">
+          Decifer Learning teaches the UK curriculum to children aged 6 to 16, and these games are
+          the corner of it where nothing is being marked. The same free account opens Maths,
+          English, Science, History and Geography, written to the same standard: something a child
+          will sit down and finish.
         </p>
         <Link
           href="/register"
-          className="mt-4 inline-flex min-h-[44px] items-center justify-center rounded-xl bg-maths px-6 font-heading font-bold text-white transition-opacity hover:opacity-90"
+          className="mt-5 inline-flex min-h-[48px] items-center justify-center rounded-xl bg-brand-600 px-6 font-heading font-bold text-white transition-colors hover:bg-brand-700"
         >
-          Get started free
+          Start free
         </Link>
       </div>
 

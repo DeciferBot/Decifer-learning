@@ -97,7 +97,7 @@ export default async function PractisePage({ params }: { params: { id: string } 
           <p className="text-sm text-muted">Practice activities for this topic are coming soon.</p>
           <a
             href={`/topics/${params.id}/quiz`}
-            className="inline-flex min-h-[48px] items-center rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white"
+            className="inline-flex min-h-[48px] items-center rounded-xl bg-brand-600 transition-colors hover:bg-brand-700 px-6 py-3 font-heading font-bold text-white"
           >
             Skip to Quiz →
           </a>
@@ -119,7 +119,7 @@ export default async function PractisePage({ params }: { params: { id: string } 
 
       <div className="flex gap-2" aria-label="Topic steps">
         <span className="rounded-full bg-black/10 px-3 py-1 text-xs font-bold text-muted">1 Learn</span>
-        <span className="rounded-full bg-maths px-3 py-1 text-xs font-bold text-white" aria-current="step">2 Practise</span>
+        <span className="rounded-full bg-brand-600 px-3 py-1 text-xs font-bold text-white" aria-current="step">2 Practise</span>
         <span className="rounded-full bg-black/10 px-3 py-1 text-xs font-bold text-muted">3 Quiz</span>
       </div>
 

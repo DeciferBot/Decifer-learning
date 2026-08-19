@@ -52,7 +52,7 @@ export function ReflectionPrompt({ topicId, topicTitle, onDone }: Props) {
         animate={{ opacity: 1, scale: 1 }}
         className="rounded-2xl border border-science/30 bg-science/5 p-6 text-center"
       >
-        <div className="flex justify-center"><Sparkles className="w-8 h-8 text-science" aria-hidden /></div>
+        <div className="flex justify-center"><Sparkles className="w-8 h-8 text-on-science" aria-hidden /></div>
         <p className="mt-1 font-heading font-bold text-ink">Saved!</p>
       </motion.div>
     )
@@ -64,7 +64,7 @@ export function ReflectionPrompt({ topicId, topicTitle, onDone }: Props) {
       animate={{ opacity: 1, y: 0 }}
       className="rounded-2xl border border-science/30 bg-science/5 p-5"
     >
-      <p className="mb-1 text-xs font-bold uppercase tracking-wide text-science flex items-center gap-1">
+      <p className="mb-1 text-xs font-bold uppercase tracking-wide text-on-science flex items-center gap-1">
         <Sparkles className="w-3.5 h-3.5" aria-hidden /> One more thing
       </p>
       <p className="mb-3 font-heading text-base font-bold text-ink">
@@ -82,7 +82,7 @@ export function ReflectionPrompt({ topicId, topicTitle, onDone }: Props) {
         <button
           onClick={save}
           disabled={!text.trim() || saving}
-          className="min-h-[44px] flex-1 rounded-xl bg-science px-4 py-2 font-heading font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-40"
+          className="min-h-[44px] flex-1 rounded-xl bg-brand-600 px-4 py-2 font-heading font-bold text-white transition-colors hover:bg-brand-700 disabled:opacity-40"
         >
           {saving ? 'Saving…' : 'Save my thought'}
         </button>

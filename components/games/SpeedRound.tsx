@@ -2,10 +2,12 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import Link from 'next/link'
 import { Zap, Target, RefreshCw, Clock } from '@/components/ui/icons'
 import MathText from '@/components/ui/MathText'
 import { fireFeedback } from '@/lib/feedback'
+import {
+  PracticeHeader, PracticeDone, PracticeSecondaryButton,
+} from '@/components/games/PracticeShell'
 
 export type SpeedRoundConfig = {
   title: string
@@ -93,48 +95,38 @@ export function SpeedRound({ config, topicId }: { config: SpeedRoundConfig; topi
     const correctCount = results.filter((r) => r === 'correct').length
     const ratio = correctCount / questions.length
     return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="rounded-2xl border border-black/5 bg-surface p-8 text-center shadow-sm"
-      >
-        <div className="flex justify-center mb-3">
-          {ratio >= 0.8 ? <Zap className="w-12 h-12 text-lightning" aria-hidden /> : ratio >= 0.6 ? <Target className="w-12 h-12 text-maths" aria-hidden /> : <RefreshCw className="w-12 h-12 text-muted" aria-hidden />}
-        </div>
-        <h2 className="font-heading text-2xl font-bold text-ink">Speed round done!</h2>
-        <p className="mt-1 text-muted">
-          {correctCount} / {questions.length} correct
-        </p>
-        {/* Result strip — dots are decorative; the count text above is the accessible summary */}
-        <div className="my-4 flex justify-center gap-1" aria-hidden="true">
-          {results.map((r, i) => (
-            <div
-              key={i}
-              className={[
-                'h-3 w-3 rounded-full',
-                r === 'correct' ? 'bg-correct' : r === 'timeout' ? 'bg-black/20' : 'bg-incorrect',
-              ].join(' ')}
-            />
-          ))}
-        </div>
-        <div className="flex flex-col gap-3">
-          <Link
-            href={`/topics/${topicId}/quiz`}
-            className="inline-flex min-h-[48px] w-full items-center justify-center rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white shadow-sm transition-opacity hover:opacity-90"
-          >
-            Start the Quiz →
-          </Link>
-          <button
+      <PracticeDone
+        topicId={topicId}
+        title="Speed round done"
+        detail={`${correctCount} out of ${questions.length} correct.`}
+        icon={
+          ratio >= 0.8 ? <Zap className="h-11 w-11 text-lightning" aria-hidden />
+            : ratio >= 0.6 ? <Target className="h-11 w-11 text-brand-700" aria-hidden />
+              : <RefreshCw className="h-11 w-11 text-ink-2" aria-hidden />
+        }
+        extra={
+          <div className="my-4 flex flex-wrap justify-center gap-1.5" aria-hidden>
+            {results.map((r, i) => (
+              <span
+                key={i}
+                className={`h-2.5 w-2.5 rounded-full ${
+                  r === 'correct' ? 'bg-correct' : r === 'timeout' ? 'bg-black/20' : 'bg-incorrect'
+                }`}
+              />
+            ))}
+          </div>
+        }
+        secondary={
+          <PracticeSecondaryButton
             onClick={() => {
               setIndex(0); setAnswerState('unanswered')
               setTimeLeft(timeLimit); setResults([]); setDone(false); setStreak(0)
             }}
-            className="min-h-[48px] w-full rounded-xl border-2 border-maths px-6 py-3 font-heading font-bold text-maths transition-opacity hover:opacity-80"
           >
-            Play Again
-          </button>
-        </div>
-      </motion.div>
+            Play again
+          </PracticeSecondaryButton>
+        }
+      />
     )
   }
 
@@ -147,15 +139,35 @@ export function SpeedRound({ config, topicId }: { config: SpeedRoundConfig; topi
 
   return (
     <div className="space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between text-sm text-muted">
-        <span>{config.title}</span>
-        <span>{index + 1} / {questions.length}</span>
-      </div>
+      <PracticeHeader
+        title={config.title}
+        current={index + 1}
+        total={questions.length}
+        aside={
+          <span className="flex shrink-0 items-center gap-2">
+            <span className="font-mono text-xs tabular-nums text-ink-2">
+              {index + 1} of {questions.length}
+            </span>
+            <span
+              className={[
+                'rounded-full px-2.5 py-0.5 font-mono text-xs font-bold tabular-nums',
+                timerPct > 50
+                  ? 'bg-correct/20 text-correct-700'
+                  : timerPct > 25
+                    ? 'bg-lightning/20 text-points-gold-700'
+                    : 'bg-incorrect/20 text-incorrect-700',
+              ].join(' ')}
+              aria-hidden="true"
+            >
+              {timeLeft}s
+            </span>
+          </span>
+        }
+      />
 
       {/* Timer bar — role=timer so screen readers can track it */}
       <div
-        className="h-2 overflow-hidden rounded-full bg-black/8"
+        className="h-2 overflow-hidden rounded-full bg-black/[0.08]"
         role="timer"
         aria-label={`${timeLeft} seconds remaining, ${timerLabel}`}
         aria-live="off"
@@ -175,25 +187,9 @@ export function SpeedRound({ config, topicId }: { config: SpeedRoundConfig; topi
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -16 }}
           transition={{ duration: 0.18 }}
-          className="rounded-2xl border border-black/5 bg-surface p-6 shadow-sm"
+          className="rounded-2xl border border-black/[0.07] bg-surface p-5 shadow-sm"
         >
-          {/* Timer badge — decorative (screen reader uses the role=timer above) */}
-          <div className="mb-4 flex items-center justify-between">
-            <p className="text-xs text-muted">{config.instructions}</p>
-            <span
-              className={[
-                'rounded-full px-3 py-1 font-heading text-sm font-bold',
-                timerPct > 50
-                  ? 'bg-correct/20 text-correct'
-                  : timerPct > 25
-                  ? 'bg-lightning/20 text-points-gold-700'
-                  : 'bg-incorrect/20 text-incorrect',
-              ].join(' ')}
-              aria-hidden="true"
-            >
-              {timeLeft}s
-            </span>
-          </div>
+          <p className="mb-4 text-xs text-ink-2">{config.instructions}</p>
 
           <p className="mb-5 text-center font-heading text-xl font-bold text-ink leading-snug">
             <MathText text={q.question} />
@@ -203,9 +199,9 @@ export function SpeedRound({ config, topicId }: { config: SpeedRoundConfig; topi
             {options[index].map((opt) => {
               const isCorrectOpt = opt === q.correct
               const isWrongPick = opt !== q.correct && answerState === 'incorrect'
-              let cls = 'border-black/15 bg-surface text-ink hover:border-maths focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink'
+              let cls = 'border-black/15 bg-surface text-ink hover:border-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink'
               if (answerState !== 'unanswered') {
-                if (isCorrectOpt) cls = 'border-correct bg-correct/10 text-correct font-bold'
+                if (isCorrectOpt) cls = 'border-correct bg-correct/10 text-correct-700 font-bold'
                 else if (isWrongPick) cls = 'border-incorrect/40 bg-incorrect/5 text-muted'
               }
               let ariaLabel = opt
@@ -236,7 +232,7 @@ export function SpeedRound({ config, topicId }: { config: SpeedRoundConfig; topi
                 <motion.p
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="mt-3 text-center text-sm font-bold text-muted"
+                  className="mt-3 text-center text-sm font-bold text-ink-2"
                 >
                   <span className="flex items-center justify-center gap-1"><Clock className="w-4 h-4" aria-hidden /> Time&apos;s up! The answer was: <MathText text={q.correct} /></span>
                 </motion.p>
@@ -255,7 +251,7 @@ export function SpeedRound({ config, topicId }: { config: SpeedRoundConfig; topi
               'h-2 w-2 rounded-full',
               i < results.length
                 ? results[i] === 'correct' ? 'bg-correct' : 'bg-incorrect'
-                : i === index ? 'bg-maths' : 'bg-black/15',
+                : i === index ? 'bg-brand' : 'bg-black/15',
             ].join(' ')}
           />
         ))}

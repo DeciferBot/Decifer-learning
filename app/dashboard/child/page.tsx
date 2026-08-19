@@ -369,7 +369,7 @@ export default async function ChildDashboardPage() {
             : 'border border-brand/20 bg-brand/5 hover:bg-brand/10'
         }`}
       >
-        <Gift className={`w-5 h-5 flex-none ${vaultCredits > 0 ? 'text-correct' : 'text-brand'}`} aria-hidden />
+        <Gift className={`w-5 h-5 flex-none ${vaultCredits > 0 ? 'text-correct-700' : 'text-brand-700'}`} aria-hidden />
         <div className="min-w-0 flex-1">
           <p className="text-sm font-bold text-ink">Reward Vault</p>
           <p className="text-xs text-muted">
@@ -380,7 +380,7 @@ export default async function ChildDashboardPage() {
                 : 'Real rewards for real progress'}
           </p>
         </div>
-        <span className="flex-none text-xs font-bold text-brand">Open →</span>
+        <span className="flex-none text-xs font-bold text-brand-700">Open →</span>
       </Link>
 
       {/* ── Everything else, in one row ─────────────────────────────────── */}
@@ -439,7 +439,7 @@ export default async function ChildDashboardPage() {
                   className="flex items-center justify-between gap-3 rounded-xl bg-surface/60 px-3 py-2 transition-colors hover:bg-surface"
                 >
                   <span className="truncate text-sm font-semibold text-ink">{m.topic.title}</span>
-                  <span className="flex-none text-xs font-bold text-brand">Start →</span>
+                  <span className="flex-none text-xs font-bold text-brand-700">Start →</span>
                 </Link>
               </li>
             ))}
@@ -464,7 +464,7 @@ export default async function ChildDashboardPage() {
           action={
             <Link
               href="/help/how-decifer-works"
-              className="inline-flex h-10 items-center rounded-xl border border-brand/30 px-5 text-sm font-semibold text-brand transition-colors hover:bg-brand/5"
+              className="inline-flex h-10 items-center rounded-xl border border-brand/30 px-5 text-sm font-semibold text-brand-700 transition-colors hover:bg-brand/5"
             >
               How Decifer works →
             </Link>

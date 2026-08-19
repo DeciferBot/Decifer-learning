@@ -20,7 +20,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           <div>
             <h1 className="font-heading text-3xl font-black text-ink leading-tight">
               Learning that<br />
-              <span className="text-brand">talks back.</span>
+              <span className="text-brand-700">talks back.</span>
             </h1>
             <p className="mt-4 text-muted">
               {TAGLINE} Quality-checked British curriculum, Years 1 to 11.
@@ -30,7 +30,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           <ul className="space-y-4">
             {JOURNEY.map((step, i) => (
               <li key={i} className="flex items-center gap-3">
-                <span className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-brand/10 text-sm font-black text-brand font-heading">
+                <span className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-brand/10 text-sm font-black text-brand-700 font-heading">
                   {i + 1}
                 </span>
                 <div>

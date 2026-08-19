@@ -16,8 +16,8 @@ const SUBJECTS = [
   {
     name: 'Maths',
     slug: 'maths',
-    colour: 'text-maths border-maths/30 bg-maths/5',
-    badge: 'bg-maths text-white',
+    colour: 'text-on-maths border-brand/30 bg-brand/5',
+    badge: 'bg-maths text-on-maths',
     years: [
       { label: 'Year 1–2', stage: 'KS1', topics: 'Numbers, shapes, measures, time' },
       { label: 'Year 3–6', stage: 'KS2', topics: 'Multiplication, fractions, decimals, geometry, statistics' },
@@ -28,8 +28,8 @@ const SUBJECTS = [
   {
     name: 'English',
     slug: 'english',
-    colour: 'text-english border-english/30 bg-english/5',
-    badge: 'bg-english text-white',
+    colour: 'text-on-english border-english/30 bg-english/5',
+    badge: 'bg-english text-on-english',
     years: [
       { label: 'Year 1–2', stage: 'KS1', topics: 'Phonics, reading comprehension, simple writing' },
       { label: 'Year 3–6', stage: 'KS2', topics: 'Grammar, punctuation, poetry, narrative writing' },
@@ -40,8 +40,8 @@ const SUBJECTS = [
   {
     name: 'Science',
     slug: 'science',
-    colour: 'text-science border-science/30 bg-science/5',
-    badge: 'bg-science text-white',
+    colour: 'text-on-science border-science/30 bg-science/5',
+    badge: 'bg-science text-on-science',
     years: [
       { label: 'Year 1–2', stage: 'KS1', topics: 'Living things, materials, seasonal change' },
       { label: 'Year 3–6', stage: 'KS2', topics: 'Forces, light, plants, rocks, electricity' },
@@ -86,7 +86,7 @@ export default function SubjectsPage() {
           </p>
           <Link
             href="/curriculum"
-            className="mt-4 inline-block text-sm font-semibold text-maths hover:underline"
+            className="mt-4 inline-block text-sm font-semibold text-on-maths hover:underline"
           >
             Browse every topic, year by year →
           </Link>
@@ -121,14 +121,14 @@ export default function SubjectsPage() {
           ))}
         </div>
 
-        <div className="mt-12 rounded-2xl bg-maths/5 border border-maths/20 p-8 text-center">
+        <div className="mt-12 rounded-2xl bg-brand/5 border border-brand/20 p-8 text-center">
           <h2 className="font-heading text-2xl font-bold text-ink">Ready to start?</h2>
           <p className="mt-2 text-muted">
             Every subject and year group, free while we are in beta. No card required.
           </p>
           <Link
             href="/register"
-            className="mt-6 inline-flex h-12 items-center rounded-xl bg-maths px-8 font-semibold text-white"
+            className="mt-6 inline-flex h-12 items-center rounded-xl bg-brand-600 transition-colors hover:bg-brand-700 px-8 font-semibold text-white"
           >
             Create a free account
           </Link>

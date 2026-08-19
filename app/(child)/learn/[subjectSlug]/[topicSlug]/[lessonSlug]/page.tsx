@@ -39,7 +39,7 @@ function NotReadyPage({
         <p className="mt-2 text-sm text-muted">More lessons are coming soon.</p>
         <Link
           href={`/learn/${subjectSlug}/${topicSlug}`}
-          className="mt-6 inline-flex min-h-[48px] items-center rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white shadow-sm transition-opacity hover:opacity-90"
+          className="mt-6 inline-flex min-h-[48px] items-center rounded-xl bg-brand-600 px-6 py-3 font-heading font-bold text-white shadow-sm transition-colors hover:bg-brand-700"
         >
           ← Back to topic
         </Link>
@@ -138,7 +138,7 @@ export default async function LessonDetailPage({ params }: Props) {
           topicId={lesson.topic_id}
           lessonId={lesson.id}
           subjectId={topicRow?.subject_id ?? null}
-          className="inline-flex min-h-[48px] items-center gap-2 rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white shadow-sm transition-opacity hover:opacity-90"
+          className="inline-flex min-h-[48px] items-center gap-2 rounded-xl bg-brand-600 px-6 py-3 font-heading font-bold text-white shadow-sm transition-colors hover:bg-brand-700"
         >
           Start Practising →
         </LessonCompleteCTA>

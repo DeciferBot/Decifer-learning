@@ -52,7 +52,7 @@ const CONFIDENCE_LABEL: Record<string, string> = {
 const CONFIDENCE_COLOUR: Record<string, string> = {
   early:    'text-muted bg-black/[0.04]',
   moderate: 'text-points-gold-700 bg-points-gold/10',
-  strong:   'text-incorrect bg-incorrect/10',
+  strong:   'text-incorrect-700 bg-incorrect/10',
 }
 
 export default async function ChildDetailPage({
@@ -232,7 +232,7 @@ export default async function ChildDetailPage({
                 {recommended && (
                   <Card title="Recommended next lesson">
                     <div className="space-y-2">
-                      <p className="text-xs font-bold uppercase tracking-wide text-maths">
+                      <p className="text-xs font-bold uppercase tracking-wide text-on-maths">
                         {recommended.isFirstLesson ? 'Start with this lesson' : 'Continue here'}
                       </p>
                       <p className="font-heading text-lg font-bold text-ink">{recommended.lessonTitle}</p>
@@ -244,7 +244,7 @@ export default async function ChildDetailPage({
                       {lessonHref && (
                         <Link
                           href={lessonHref}
-                          className="mt-2 inline-flex min-h-[44px] items-center rounded-xl bg-maths/10 px-4 py-2 text-sm font-bold text-maths transition-colors hover:bg-maths/20"
+                          className="mt-2 inline-flex min-h-[44px] items-center rounded-xl bg-brand/10 px-4 py-2 text-sm font-bold text-on-maths transition-colors hover:bg-brand/20"
                         >
                           View lesson →
                         </Link>
@@ -291,8 +291,8 @@ export default async function ChildDetailPage({
                 </Card>
 
                 {/* Learning map */}
-                <div className="rounded-2xl border border-maths/20 bg-maths/5 px-5 py-4 shadow-sm">
-                  <p className="mb-1 text-xs font-bold uppercase tracking-widest text-maths">
+                <div className="rounded-2xl border border-brand/20 bg-brand/5 px-5 py-4 shadow-sm">
+                  <p className="mb-1 text-xs font-bold uppercase tracking-widest text-on-maths">
                     Learning map
                   </p>
                   <h2 className="mb-4 font-heading text-lg font-bold text-ink">
@@ -353,7 +353,7 @@ export default async function ChildDetailPage({
                   {/* Doing well so far */}
                   {strongTopics.length > 0 && (
                     <div className="mb-5">
-                      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-correct">
+                      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-correct-700">
                         Doing well so far
                       </p>
                       <ul className="space-y-2">
@@ -365,7 +365,7 @@ export default async function ChildDetailPage({
                                 <p className="text-xs text-muted">{t.subjectName}</p>
                               </div>
                               <span className={`flex-none rounded-full px-2 py-0.5 text-xs font-bold ${
-                                t.signal === 'strong' ? 'bg-correct/20 text-correct' : 'bg-black/[0.06] text-muted'
+                                t.signal === 'strong' ? 'bg-correct/20 text-correct-700' : 'bg-black/[0.06] text-muted'
                               }`}>
                                 {t.signal === 'strong' ? 'Strong signal' : 'Early signal'}
                               </span>
@@ -385,7 +385,7 @@ export default async function ChildDetailPage({
                   {/* Needs support */}
                   {weakAreas.length > 0 ? (
                     <div className="mb-5">
-                      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-incorrect">
+                      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-incorrect-700">
                         Needs support
                       </p>
                       <ul className="space-y-2">
@@ -415,7 +415,7 @@ export default async function ChildDetailPage({
                       </ul>
                     </div>
                   ) : progress.quizAttempts > 0 ? (
-                    <p className="mb-4 text-sm text-correct">
+                    <p className="mb-4 text-sm text-correct-700">
                       No topics with lower accuracy detected yet. Keep going.
                     </p>
                   ) : null}
@@ -467,7 +467,7 @@ export default async function ChildDetailPage({
                             <Stat label="Total"           value={curriculumCoverage.totalOutcomes} />
                           </div>
                           {curriculumCoverage.isCurriculumComplete ? (
-                            <p className="rounded-xl bg-science/10 px-4 py-2 text-sm font-semibold text-science">
+                            <p className="rounded-xl bg-science/10 px-4 py-2 text-sm font-semibold text-on-science">
                               All learning content is ready for this topic.
                             </p>
                           ) : (
@@ -544,7 +544,7 @@ export default async function ChildDetailPage({
                               {item.hintsUsed > 0 ? ` · ${item.hintsUsed} hint${item.hintsUsed === 1 ? '' : 's'} used` : ''}
                             </p>
                           </div>
-                          <span className={`font-bold ${item.score >= 0.7 ? 'text-correct' : 'text-incorrect'}`}>
+                          <span className={`font-bold ${item.score >= 0.7 ? 'text-correct-700' : 'text-incorrect-700'}`}>
                             {Math.round(item.score * 100)}%
                           </span>
                         </li>
@@ -690,10 +690,10 @@ function CurriculumTracker({
       <div>
         <div className="mb-1 flex items-center justify-between text-xs">
           <span className="font-semibold text-ink">{completedTopics} of {totalTopics} topics completed</span>
-          <span className="font-bold text-maths">{pct}%</span>
+          <span className="font-bold text-on-maths">{pct}%</span>
         </div>
         <div className="h-2 overflow-hidden rounded-full bg-black/[0.06]">
-          <div className="h-full rounded-full bg-maths transition-all" style={{ width: `${pct}%` }} />
+          <div className="h-full rounded-full bg-teal transition-all" style={{ width: `${pct}%` }} />
         </div>
       </div>
 
@@ -729,9 +729,9 @@ function CurriculumTracker({
                         topic.progressStatus === 'completed'
                           ? 'bg-correct/8 border border-correct/15'
                           : topic.progressStatus === 'in_progress'
-                            ? 'bg-maths/8 border border-maths/20'
+                            ? 'bg-brand/8 border border-brand/20'
                             : isNext
-                              ? 'border border-dashed border-maths/30 bg-maths/5'
+                              ? 'border border-dashed border-brand/30 bg-brand/5'
                               : 'bg-black/[0.02] border border-transparent'
                       }`}
                     >
@@ -752,7 +752,7 @@ function CurriculumTracker({
                         }`}>
                           {topic.title}
                           {isNext && (
-                            <span className="ml-1.5 rounded-full bg-maths px-1.5 py-0.5 text-[10px] font-bold text-white">
+                            <span className="ml-1.5 rounded-full bg-brand-600 px-1.5 py-0.5 text-[10px] font-bold text-white">
                               next
                             </span>
                           )}
@@ -761,16 +761,16 @@ function CurriculumTracker({
                       {topic.progressStatus === 'completed' && topic.lastScore !== null && (
                         <span className={`flex-none rounded-full px-2 py-0.5 text-xs font-bold ${
                           topic.lastScore >= 0.85
-                            ? 'bg-correct/20 text-correct'
+                            ? 'bg-correct/20 text-correct-700'
                             : topic.lastScore >= 0.70
                               ? 'bg-points-gold/20 text-points-gold-700'
-                              : 'bg-incorrect/15 text-incorrect'
+                              : 'bg-incorrect/15 text-incorrect-700'
                         }`}>
                           {Math.round(topic.lastScore * 100)}%
                         </span>
                       )}
                       {topic.progressStatus === 'in_progress' && (
-                        <span className="flex-none rounded-full bg-maths/20 px-2 py-0.5 text-[10px] font-bold text-maths">
+                        <span className="flex-none rounded-full bg-brand/20 px-2 py-0.5 text-[10px] font-bold text-on-maths">
                           in progress
                         </span>
                       )}
@@ -805,7 +805,7 @@ function SignalCard({ signal }: { signal: LearningSignal }) {
         <p className="mt-1.5 text-xs text-ink">{signal.whatThisMayMean}</p>
       )}
       {signal.recommendedAction && (
-        <p className="mt-2 rounded-lg bg-maths/8 px-3 py-2 text-xs font-medium text-maths">
+        <p className="mt-2 rounded-lg bg-brand/8 px-3 py-2 text-xs font-medium text-on-maths">
           Next step: {signal.recommendedAction}
         </p>
       )}

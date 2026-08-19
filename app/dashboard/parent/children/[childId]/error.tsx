@@ -24,7 +24,7 @@ export default function ChildDetailError({
       <div className="flex gap-3">
         <button
           onClick={reset}
-          className="rounded-xl bg-maths px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-maths/90 min-h-[44px]"
+          className="rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-700 min-h-[44px]"
         >
           Try again
         </button>

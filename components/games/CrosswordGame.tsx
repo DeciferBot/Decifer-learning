@@ -1,15 +1,17 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import Link from 'next/link'
+import { AnimatePresence } from 'framer-motion'
 import { fireFeedback } from '@/lib/feedback'
-import { WinBurst } from '@/components/quiz/WinBurst'
 import { generateCrossword, type CrosswordPuzzle, type PlacedWord } from '@/lib/games/crossword-generator'
 import { CROSSWORD_THEMES, type CrosswordTheme } from '@/lib/games/crossword-words'
-import { ChevronLeft, RefreshCw, Trophy, Eye, X as Backspace } from '@/components/ui/icons'
+import { RefreshCw, Eye, Check, X as Backspace } from '@/components/ui/icons'
+import {
+  GameShell, GameBackLink, GameToolbar, GameMenu, GameCrest, GameEndCard,
+  menuHeadingLevel,
+} from '@/components/games/GameChrome'
 
-const KEYBOARD_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
+const KEYBOARD_ROWS = ['QWERTYUIOP', 'ASDFGHJKL', 'ZXCVBNM'] as const
 
 type Coord = { row: number; col: number }
 type Direction = 'across' | 'down'
@@ -50,26 +52,20 @@ export function CrosswordGame({ backHref = '/downtime' }: { backHref?: string })
 
   if (!theme || !puzzle) {
     return (
-      <div className="mx-auto max-w-sm space-y-4">
-        <BackLink href={backHref} />
-        <div className="rounded-2xl border border-black/5 bg-surface p-6 text-center shadow-sm">
-          <p className="mb-4 text-5xl" aria-hidden>📝</p>
-          <h1 className="font-heading text-2xl font-bold text-ink">Crossword</h1>
-          <p className="mt-1 mb-5 text-sm text-muted">Pick a theme</p>
-          <div className="space-y-2">
-            {CROSSWORD_THEMES.map((t) => (
-              <button
-                key={t.id}
-                onClick={() => startPuzzle(t)}
-                className="flex w-full items-center gap-3 rounded-xl border-2 border-black/10 bg-background px-4 py-3 text-left transition-colors hover:border-maths hover:bg-maths/5"
-              >
-                <span className="text-2xl" aria-hidden>{t.emoji}</span>
-                <span className="font-heading font-bold text-ink">{t.label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+      <GameShell>
+        <GameBackLink href={backHref} />
+        <GameMenu
+          headingLevel={menuHeadingLevel(backHref)}
+          crest={<GameCrest tone="paper" glyph="✎" />}
+          title="Crossword"
+          blurb="Pick a theme. Every puzzle is built fresh, so no two are the same."
+          options={CROSSWORD_THEMES.map((t) => ({ id: t.id, label: t.label, glyph: t.emoji }))}
+          onPick={(id) => {
+            const t = CROSSWORD_THEMES.find((x) => x.id === id)
+            if (t) startPuzzle(t)
+          }}
+        />
+      </GameShell>
     )
   }
 
@@ -136,6 +132,19 @@ function PuzzleBoard({
   const activeWord = selected ? findWordAt(puzzle, selected, direction)
     ?? findWordAt(puzzle, selected, direction === 'across' ? 'down' : 'across') : undefined
   const activeCells = useMemo(() => (activeWord ? new Set(cellsOf(activeWord).map((c) => `${c.row},${c.col}`)) : new Set<string>()), [activeWord])
+
+  const filledCount = useMemo(() => {
+    let done = 0
+    let total = 0
+    for (let r = 0; r < puzzle.rows; r++) {
+      for (let c = 0; c < puzzle.cols; c++) {
+        if (puzzle.grid[r][c] === null) continue
+        total++
+        if (entries[r]?.[c]) done++
+      }
+    }
+    return { done, total }
+  }, [entries, puzzle])
 
   function selectCell(row: number, col: number) {
     if (puzzle.grid[row][col] === null) return
@@ -261,71 +270,106 @@ function PuzzleBoard({
     setSolved(true)
   }
 
+  // The grid fills the width it is given rather than sitting at a fixed 32px
+  // per cell, which used to leave a 5-column puzzle marooned in the middle of
+  // the screen and push an 11-column one into a horizontal scroll.
+  const cellSize = `clamp(28px, calc((min(100vw, 28rem) - 3rem) / ${puzzle.cols}), 44px)`
+
   return (
-    <div className="mx-auto max-w-md space-y-3">
-      <div className="flex items-center justify-between">
-        <BackLink href={backHref} onClick={onExit} />
-        <div className="flex items-center gap-2">
-          <button
-            onClick={onNewPuzzle}
-            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl px-3 text-sm font-semibold text-ink-2 transition-colors hover:bg-black/5"
-          >
-            <RefreshCw className="h-4 w-4" aria-hidden /> New puzzle
-          </button>
-        </div>
+    <GameShell width="md">
+      <GameToolbar backHref={backHref} onBack={onExit} onReset={onNewPuzzle} resetLabel="New puzzle" />
+
+      <div className="flex items-baseline justify-between px-1">
+        <p className="font-heading font-bold text-ink">
+          <span aria-hidden>{theme.emoji}</span> {theme.label}
+        </p>
+        <p className="font-mono text-xs tabular-nums text-ink-2">
+          {filledCount.done}/{filledCount.total} letters
+        </p>
       </div>
 
-      <p className="text-center text-sm font-semibold text-muted">{theme.emoji} {theme.label}</p>
-
-      <div className="overflow-x-auto">
-        <div className="mx-auto inline-block rounded-xl border border-black/10 bg-surface p-1.5 shadow-sm">
-          <div
-            className="grid"
-            style={{ gridTemplateColumns: `repeat(${puzzle.cols}, minmax(0, 1fr))` }}
-            role="group"
-            aria-label="Crossword grid"
-          >
-            {Array.from({ length: puzzle.rows }, (_, r) => (
-              Array.from({ length: puzzle.cols }, (_, c) => {
-                const answer = puzzle.grid[r][c]
-                if (answer === null) return <div key={`${r}-${c}`} className="h-8 w-8 sm:h-9 sm:w-9" aria-hidden />
-                const value = entries[r]?.[c] ?? ''
-                const isSelected = selected && selected.row === r && selected.col === c
-                const isActive = activeCells.has(`${r},${c}`)
-                const isWrong = wrongCells.has(`${r},${c}`)
-                const number = [...puzzle.across, ...puzzle.down].find((w) => w.row === r && w.col === c)?.number
-                return (
-                  <button
-                    key={`${r}-${c}`}
-                    onClick={() => selectCell(r, c)}
-                    aria-label={`Row ${r + 1}, column ${c + 1}${value ? `, ${value}` : ''}`}
-                    className="relative flex h-8 w-8 items-center justify-center border border-black/10 text-sm font-bold uppercase transition-colors sm:h-9 sm:w-9"
-                    style={{
-                      backgroundColor: isSelected
-                        ? 'rgba(108,158,255,0.5)'
-                        : isActive
-                          ? 'rgba(108,158,255,0.18)'
-                          : '#FFFFFF',
-                      color: isWrong ? '#FF6B6B' : '#2D3748',
-                    }}
-                  >
-                    {number && <span className="absolute left-0.5 top-0 text-[8px] font-semibold text-muted">{number}</span>}
-                    {value}
-                  </button>
-                )
-              })
-            ))}
-          </div>
+      {/* The puzzle sits on a sheet of paper with a printed border, rather
+          than floating as bare cells on the page background. */}
+      <div
+        className="mx-auto w-fit max-w-full overflow-x-auto rounded-2xl p-3"
+        style={{
+          background: 'var(--game-paper)',
+          boxShadow: 'var(--game-lift), inset 0 0 0 1px rgb(var(--tw-ink) / 0.10)',
+        }}
+      >
+        <div
+          className="grid"
+          style={{ gridTemplateColumns: `repeat(${puzzle.cols}, ${cellSize})` }}
+          role="group"
+          aria-label="Crossword grid"
+        >
+          {Array.from({ length: puzzle.rows }, (_, r) => (
+            Array.from({ length: puzzle.cols }, (_, c) => {
+              const answer = puzzle.grid[r][c]
+              if (answer === null) {
+                return <div key={`${r}-${c}`} style={{ width: cellSize, height: cellSize }} aria-hidden />
+              }
+              const value = entries[r]?.[c] ?? ''
+              const isSelected = !!selected && selected.row === r && selected.col === c
+              const isActive = activeCells.has(`${r},${c}`)
+              const isWrong = wrongCells.has(`${r},${c}`)
+              const number = [...puzzle.across, ...puzzle.down].find((w) => w.row === r && w.col === c)?.number
+              return (
+                <button
+                  key={`${r}-${c}`}
+                  onClick={() => selectCell(r, c)}
+                  aria-label={`Row ${r + 1}, column ${c + 1}${value ? `, ${value}` : ', empty'}${isWrong ? ', wrong letter' : ''}`}
+                  aria-pressed={isSelected}
+                  className="relative flex items-center justify-center text-[0.95rem] font-bold uppercase leading-none transition-[background-color] duration-150"
+                  style={{
+                    width: cellSize,
+                    height: cellSize,
+                    // Active word gets a warm fig wash (15.4:1 with ink);
+                    // the one selected cell gets an ember ring on top of it,
+                    // so "the word I'm in" and "the letter I'm on" are told
+                    // apart by shape, not two shades of the same blue.
+                    background: isActive ? 'var(--game-active-word)' : 'var(--game-paper)',
+                    boxShadow: isSelected
+                      ? 'inset 0 0 0 3px var(--game-sel-ring), inset 0 0 0 100px var(--game-sel)'
+                      : `inset 0 0 0 1px var(--game-paper-rule)`,
+                    color: isWrong ? 'var(--game-danger)' : 'rgb(var(--tw-ink))',
+                  }}
+                >
+                  {number && (
+                    <span className="absolute left-[3px] top-[1px] text-[9px] font-bold leading-none text-ink-2">
+                      {number}
+                    </span>
+                  )}
+                  {value}
+                  {/* A wrong letter is struck through as well as recoloured,
+                      so it still reads as wrong without colour vision. */}
+                  {isWrong && (
+                    <span
+                      aria-hidden
+                      className="pointer-events-none absolute inset-[15%]"
+                      style={{
+                        background:
+                          'linear-gradient(to top left, transparent 46%, var(--game-danger) 46%, var(--game-danger) 54%, transparent 54%)',
+                      }}
+                    />
+                  )}
+                </button>
+              )
+            })
+          ))}
         </div>
       </div>
 
       {activeWord && !solved && (
         <button
           onClick={() => setDirection(direction === 'across' ? 'down' : 'across')}
-          className="w-full rounded-xl bg-maths/10 px-4 py-2 text-left text-sm"
+          className="flex w-full items-start gap-2 rounded-xl border border-brand/20 bg-brand/[0.06] px-3 py-2.5 text-left text-sm transition-colors hover:bg-brand/10"
         >
-          <span className="font-bold text-maths">{activeWord.number} {activeWord.direction === 'across' ? 'Across' : 'Down'}</span>
-          <span className="ml-2 text-ink-2">{activeWord.clue}</span>
+          <span className="shrink-0 rounded-md bg-brand-600 px-1.5 py-0.5 font-mono text-[11px] font-bold text-white">
+            {activeWord.number}
+            {activeWord.direction === 'across' ? 'A' : 'D'}
+          </span>
+          <span className="text-pretty text-ink">{activeWord.clue}</span>
         </button>
       )}
 
@@ -335,13 +379,13 @@ function PuzzleBoard({
           <div className="flex gap-2">
             <button
               onClick={checkAnswers}
-              className="flex-1 rounded-xl border-2 border-black/10 bg-background px-4 py-2.5 text-sm font-heading font-bold text-ink transition-colors hover:border-maths"
+              className="inline-flex min-h-[48px] flex-1 items-center justify-center gap-1.5 rounded-xl border border-black/10 bg-surface font-heading text-sm font-bold text-ink shadow-sm transition-colors hover:border-brand/40 hover:bg-brand/[0.04]"
             >
-              Check
+              <Check className="h-4 w-4" aria-hidden /> Check
             </button>
             <button
               onClick={revealAll}
-              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl border-2 border-black/10 px-4 text-sm font-semibold text-ink-2 transition-colors hover:border-maths"
+              className="inline-flex min-h-[48px] items-center gap-1.5 rounded-xl border border-black/10 bg-surface px-4 text-sm font-semibold text-ink-2 shadow-sm transition-colors hover:border-brand/40 hover:bg-brand/[0.04]"
             >
               <Eye className="h-4 w-4" aria-hidden /> Reveal
             </button>
@@ -353,53 +397,60 @@ function PuzzleBoard({
 
       <AnimatePresence>
         {solved && (
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="relative overflow-hidden rounded-2xl border border-black/5 bg-surface p-6 text-center shadow-sm"
-          >
-            {!revealed && <WinBurst />}
-            <div className="mb-2 flex justify-center">
-              {revealed ? <span className="text-4xl" aria-hidden>👀</span> : <Trophy className="h-10 w-10 text-points-gold" aria-hidden />}
-            </div>
-            <h2 className="font-heading text-xl font-bold text-ink">
-              {revealed ? 'Here it is!' : 'Puzzle solved!'}
-            </h2>
-            <p className="mt-1 text-sm text-muted">
-              {revealed ? 'No worries — have another go with a fresh puzzle.' : 'Nicely done — every word filled in.'}
-            </p>
-            <button
-              onClick={onNewPuzzle}
-              className="mt-4 inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl bg-maths px-6 font-heading font-bold text-white transition-opacity hover:opacity-90"
-            >
-              New puzzle
-            </button>
-          </motion.div>
+          <GameEndCard
+            outcome={revealed ? 'draw' : 'win'}
+            title={revealed ? 'Here it is' : 'Puzzle solved!'}
+            detail={
+              revealed
+                ? 'No worries. Have another go with a fresh puzzle.'
+                : 'Nicely done, every word filled in.'
+            }
+            actionLabel="New puzzle"
+            onAction={onNewPuzzle}
+          />
         )}
       </AnimatePresence>
-    </div>
+    </GameShell>
   )
 }
 
+/**
+ * A QWERTY layout rather than A-to-Z in a 7-wide block. Children who have
+ * used any keyboard already know where the letters live; alphabetical order
+ * makes them hunt.
+ *
+ * Keys are 48px tall, meeting the project's tap-target rule on the axis that
+ * decides thumb accuracy. Width cannot also be 48px and this is arithmetic,
+ * not an oversight: ten keys across a 375px phone leaves ~30px each. Every
+ * system keyboard has the same shape for the same reason. The gaps are as
+ * tight as they can be without keys visually merging.
+ */
 function OnScreenKeyboard({ onLetter, onBackspace }: { onLetter: (l: string) => void; onBackspace: () => void }) {
   return (
-    <div className="grid grid-cols-7 gap-1.5">
-      {KEYBOARD_LETTERS.map((l) => (
-        <button
-          key={l}
-          onClick={() => onLetter(l)}
-          className="flex min-h-[44px] items-center justify-center rounded-lg bg-background text-sm font-bold text-ink transition-colors hover:bg-maths/10 active:bg-maths/20"
-        >
-          {l}
-        </button>
+    <div className="space-y-1.5 rounded-2xl bg-black/[0.04] p-1.5">
+      {KEYBOARD_ROWS.map((row, i) => (
+        <div key={row} className="flex justify-center gap-1">
+          {i === 2 && <span className="w-6 shrink-0" aria-hidden />}
+          {row.split('').map((l) => (
+            <button
+              key={l}
+              onClick={() => onLetter(l)}
+              className="flex min-h-[48px] flex-1 items-center justify-center rounded-lg bg-surface text-base font-bold text-ink shadow-sm transition-[background-color,transform] duration-100 hover:bg-brand/10 active:scale-95 active:bg-brand/20"
+            >
+              {l}
+            </button>
+          ))}
+          {i === 2 && (
+            <button
+              onClick={onBackspace}
+              aria-label="Delete letter"
+              className="flex min-h-[48px] w-[14%] shrink-0 items-center justify-center rounded-lg bg-surface text-ink-2 shadow-sm transition-[background-color,transform] duration-100 hover:bg-brand/10 active:scale-95"
+            >
+              <Backspace className="h-4 w-4" aria-hidden />
+            </button>
+          )}
+        </div>
       ))}
-      <button
-        onClick={onBackspace}
-        aria-label="Backspace"
-        className="flex min-h-[44px] items-center justify-center rounded-lg bg-background text-ink-2 transition-colors hover:bg-maths/10 active:bg-maths/20"
-      >
-        <Backspace className="h-4 w-4" aria-hidden />
-      </button>
     </div>
   )
 }
@@ -434,37 +485,26 @@ function ClueColumn({
 }) {
   return (
     <div>
-      <p className="mb-1 font-heading text-xs font-bold uppercase tracking-wide text-muted">{title}</p>
-      <ul className="space-y-1">
+      <p className="mb-1.5 border-b border-black/10 pb-1 font-heading text-sm font-bold text-ink">{title}</p>
+      <ul className="space-y-0.5">
         {words.map((w) => (
           <li key={`${w.direction}-${w.number}`}>
             <button
               onClick={() => onSelect(w)}
-              className={`w-full rounded-lg px-2 py-1.5 text-left transition-colors ${
-                activeWord === w ? 'bg-maths/15 font-semibold text-ink' : isFilled(w) ? 'text-muted line-through' : 'text-ink-2 hover:bg-black/5'
+              className={`flex w-full items-start gap-1.5 rounded-lg px-2 py-1.5 text-left transition-colors ${
+                activeWord === w
+                  ? 'bg-brand/10 font-semibold text-ink'
+                  : isFilled(w)
+                    ? 'text-muted line-through decoration-1'
+                    : 'text-ink-2 hover:bg-black/5'
               }`}
             >
-              <span className="font-bold">{w.number}.</span> {w.clue}
+              <span className="shrink-0 font-mono text-xs font-bold tabular-nums">{w.number}</span>
+              <span className="text-pretty">{w.clue}</span>
             </button>
           </li>
         ))}
       </ul>
     </div>
-  )
-}
-
-function BackLink({ href, onClick }: { href: string; onClick?: () => void }) {
-  // The same components render both inside the logged-in Downtime section
-  // and on the public, no-login /games/* pages (see app/games/) — the label
-  // should match whichever one this instance actually links back to.
-  const label = href === '/downtime' ? 'Downtime' : 'Games'
-  return (
-    <Link
-      href={href}
-      onClick={onClick}
-      className="inline-flex min-h-[44px] items-center gap-1 rounded-xl px-2 text-sm font-semibold text-ink-2 transition-colors hover:bg-black/5"
-    >
-      <ChevronLeft className="h-4 w-4" aria-hidden /> {label}
-    </Link>
   )
 }

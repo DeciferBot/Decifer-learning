@@ -19,7 +19,7 @@ type Props = {
 type PartState = 'unanswered' | 'correct' | 'wrong'
 
 const STEP_LABELS: Record<'example' | 'explain', { label: string; colour: string; icon: string }> = {
-  example: { label: 'Step 1: Give an example', colour: 'border-maths/40 bg-maths/5', icon: '📌' },
+  example: { label: 'Step 1: Give an example', colour: 'border-brand/40 bg-brand/5', icon: '📌' },
   explain: { label: 'Step 2: Explain why', colour: 'border-science/40 bg-science/5', icon: '💡' },
 }
 
@@ -68,9 +68,9 @@ export default function ExplainExample({ parts, onAnswer, disabled }: Props) {
                 i === current
                   ? m.colour + ' border-opacity-100'
                   : state === 'correct'
-                    ? 'border-correct/40 bg-correct/5 text-correct'
+                    ? 'border-correct/40 bg-correct/5 text-correct-700'
                     : state === 'wrong'
-                      ? 'border-incorrect/40 bg-incorrect/5 text-incorrect'
+                      ? 'border-incorrect/40 bg-incorrect/5 text-incorrect-700'
                       : 'border-ink/10 bg-surface text-muted'
               }`}
             >
@@ -106,11 +106,11 @@ export default function ExplainExample({ parts, onAnswer, disabled }: Props) {
               let cls = 'rounded-xl border-2 px-4 py-3 text-left text-sm font-medium transition-all min-h-[48px] w-full'
 
               if (state === 'unanswered') {
-                cls += ' border-ink/15 bg-surface hover:border-maths/60 hover:bg-maths/5 active:scale-95'
+                cls += ' border-ink/15 bg-surface hover:border-brand/60 hover:bg-brand/5 active:scale-95'
               } else if (isCorrect) {
-                cls += ' border-correct bg-correct/10 text-correct'
+                cls += ' border-correct bg-correct/10 text-correct-700'
               } else if (selected) {
-                cls += ' border-incorrect bg-incorrect/10 text-incorrect'
+                cls += ' border-incorrect bg-incorrect/10 text-incorrect-700'
               } else {
                 cls += ' border-ink/10 bg-surface/50 text-muted'
               }
@@ -129,7 +129,7 @@ export default function ExplainExample({ parts, onAnswer, disabled }: Props) {
               animate={{ opacity: 1, y: 0 }}
               className="space-y-2"
             >
-              <p className={`text-sm font-semibold ${states[current] === 'correct' ? 'text-correct' : 'text-incorrect'}`}>
+              <p className={`text-sm font-semibold ${states[current] === 'correct' ? 'text-correct-700' : 'text-incorrect-700'}`}>
                 {states[current] === 'correct'
                   ? (p.part === 'example' ? 'Good example! Now explain why.' : 'Excellent explanation!')
                   : `The best answer was: ${p.options[p.correct]}`}
@@ -137,7 +137,7 @@ export default function ExplainExample({ parts, onAnswer, disabled }: Props) {
               {current < parts.length - 1 && (
                 <button
                   onClick={nextPart}
-                  className="rounded-xl bg-maths text-white font-bold px-5 py-3 text-sm min-h-[48px] active:scale-95 transition-transform"
+                  className="rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold px-5 py-3 text-sm min-h-[48px] active:scale-95 transition-transform"
                 >
                   {p.part === 'example' ? 'Now explain why →' : 'Next →'}
                 </button>

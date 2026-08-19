@@ -40,7 +40,7 @@ export function FulfillButton({ requestId }: Props) {
             }
           }}
           disabled={submitting}
-          className="rounded-lg bg-correct/15 px-3 py-1 text-xs font-bold text-correct hover:bg-correct/25 disabled:opacity-60"
+          className="rounded-lg bg-correct/15 px-3 py-1 text-xs font-bold text-correct-700 hover:bg-correct/25 disabled:opacity-60"
         >
           {submitting ? '…' : 'Yes, done'}
         </button>
@@ -50,7 +50,7 @@ export function FulfillButton({ requestId }: Props) {
         >
           Not yet
         </button>
-        {error && <span className="text-xs text-incorrect">{error}</span>}
+        {error && <span className="text-xs text-incorrect-700">{error}</span>}
       </div>
     )
   }
@@ -58,7 +58,7 @@ export function FulfillButton({ requestId }: Props) {
   return (
     <button
       onClick={() => setConfirming(true)}
-      className="rounded-lg bg-correct/10 px-3 py-1 text-xs font-bold text-correct hover:bg-correct/20 whitespace-nowrap"
+      className="rounded-lg bg-correct/10 px-3 py-1 text-xs font-bold text-correct-700 hover:bg-correct/20 whitespace-nowrap"
     >
       ✓ Mark as done
     </button>

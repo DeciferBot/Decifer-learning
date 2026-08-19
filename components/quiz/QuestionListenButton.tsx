@@ -62,7 +62,7 @@ export function QuestionListenButton({ text }: { text: string }) {
       className={[
         'inline-flex min-h-[48px] min-w-[48px] items-center justify-center gap-1.5 rounded-full px-4 text-sm font-semibold transition-colors',
         state === 'playing'
-          ? 'bg-maths/15 text-maths'
+          ? 'bg-maths/15 text-on-maths'
           : 'bg-black/5 text-ink-2 hover:bg-black/10',
       ].join(' ')}
     >

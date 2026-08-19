@@ -81,8 +81,8 @@ export function TrueFalseGrid({ statements, onAnswer, disabled }: Props) {
                       ? s.correct
                         ? 'border-correct bg-correct/20 text-correct-700'
                         : 'border-incorrect bg-incorrect/20 text-rose-700'
-                      : 'border-maths bg-maths/20 text-ink'
-                    : 'border-black/10 bg-surface text-muted hover:border-maths hover:text-ink'
+                      : 'border-brand bg-brand/20 text-ink'
+                    : 'border-black/10 bg-surface text-muted hover:border-brand hover:text-ink'
                   }
                   disabled:cursor-default`}
               >
@@ -102,8 +102,8 @@ export function TrueFalseGrid({ statements, onAnswer, disabled }: Props) {
                       ? !s.correct
                         ? 'border-correct bg-correct/20 text-correct-700'
                         : 'border-incorrect bg-incorrect/20 text-rose-700'
-                      : 'border-maths bg-maths/20 text-ink'
-                    : 'border-black/10 bg-surface text-muted hover:border-maths hover:text-ink'
+                      : 'border-brand bg-brand/20 text-ink'
+                    : 'border-black/10 bg-surface text-muted hover:border-brand hover:text-ink'
                   }
                   disabled:cursor-default`}
               >
@@ -117,7 +117,7 @@ export function TrueFalseGrid({ statements, onAnswer, disabled }: Props) {
                 <motion.span
                   initial={{ opacity: 0, scale: 0.5 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className={`shrink-0 text-lg ${isCorrect ? 'text-correct' : 'text-incorrect'}`}
+                  className={`shrink-0 text-lg ${isCorrect ? 'text-correct-700' : 'text-incorrect-700'}`}
                 >
                   <span aria-hidden>{isCorrect ? '✓' : '✗'}</span>
                   <span className="sr-only">{isCorrect ? 'Correct' : 'Incorrect'}</span>
@@ -150,7 +150,7 @@ export function TrueFalseGrid({ statements, onAnswer, disabled }: Props) {
         <button
           onClick={submit}
           disabled={!allAnswered || disabled}
-          className="min-h-[48px] w-full rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="min-h-[48px] w-full rounded-xl bg-brand-600 px-6 py-3 font-heading font-bold text-white transition-colors hover:bg-brand-700 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           <Check className="w-4 h-4" aria-hidden />
           Check Answers

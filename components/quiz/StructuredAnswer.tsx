@@ -82,7 +82,7 @@ export default function StructuredAnswer({ criteria, questionId, onAnswer, disab
           <ul className="space-y-1">
             {criteria.map((c, i) => (
               <li key={i} className="flex items-start gap-2 text-sm text-ink">
-                <span className="mt-0.5 shrink-0 rounded-full bg-maths/15 text-maths text-xs font-bold w-5 h-5 flex items-center justify-center">
+                <span className="mt-0.5 shrink-0 rounded-full bg-brand/15 text-on-maths text-xs font-bold w-5 h-5 flex items-center justify-center">
                   {c.marks}
                 </span>
                 <span>{c.criterion}</span>
@@ -104,7 +104,7 @@ export default function StructuredAnswer({ criteria, questionId, onAnswer, disab
             rows={5}
             maxLength={2000}
             className="w-full rounded-xl border-2 border-ink/15 bg-surface px-4 py-3 text-sm text-ink
-                       placeholder:text-muted resize-none focus:outline-none focus:border-maths/60
+                       placeholder:text-muted resize-none focus:outline-none focus:border-brand/60
                        disabled:opacity-50 disabled:cursor-not-allowed leading-relaxed"
           />
           <div className="flex items-center justify-between">
@@ -123,7 +123,7 @@ export default function StructuredAnswer({ criteria, questionId, onAnswer, disab
             key="submit"
             onClick={handleSubmit}
             disabled={!canSubmit}
-            className="w-full min-h-[48px] rounded-xl bg-maths text-white font-bold text-sm
+            className="w-full min-h-[48px] rounded-xl bg-brand-600 text-white font-bold text-sm
                        px-6 py-3 transition-opacity disabled:opacity-40 active:scale-95"
             whileTap={canSubmit ? { scale: 0.97 } : {}}
           >
@@ -139,7 +139,7 @@ export default function StructuredAnswer({ criteria, questionId, onAnswer, disab
             className="flex items-center justify-center gap-3 py-4"
           >
             <motion.div
-              className="w-5 h-5 rounded-full border-2 border-maths border-t-transparent"
+              className="w-5 h-5 rounded-full border-2 border-brand border-t-transparent"
               animate={{ rotate: 360 }}
               transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
             />
@@ -154,13 +154,13 @@ export default function StructuredAnswer({ criteria, questionId, onAnswer, disab
             animate={{ opacity: 1, y: 0 }}
             className="space-y-3 rounded-xl bg-incorrect/10 border border-incorrect/30 p-4"
           >
-            <p className="text-sm font-semibold text-incorrect">
+            <p className="text-sm font-semibold text-incorrect-700">
               Couldn&apos;t mark this time, please try again.
             </p>
             <button
               onClick={retry}
               className="rounded-xl border-2 border-incorrect/40 px-4 py-2 text-sm font-bold
-                         text-incorrect min-h-[48px] active:scale-95 transition-transform"
+                         text-incorrect-700 min-h-[48px] active:scale-95 transition-transform"
             >
               Try again
             </button>
@@ -182,16 +182,16 @@ export default function StructuredAnswer({ criteria, questionId, onAnswer, disab
             }`}>
               <div className={`text-3xl font-heading font-black tabular-nums ${
                 result.marksAwarded >= Math.ceil(result.marksAvailable / 2)
-                  ? 'text-correct'
-                  : 'text-incorrect'
+                  ? 'text-correct-700'
+                  : 'text-incorrect-700'
               }`}>
                 {result.marksAwarded}/{result.marksAvailable}
               </div>
               <div>
                 <p className={`text-sm font-bold ${
                   result.marksAwarded >= Math.ceil(result.marksAvailable / 2)
-                    ? 'text-correct'
-                    : 'text-incorrect'
+                    ? 'text-correct-700'
+                    : 'text-incorrect-700'
                 }`}>
                   {result.marksAwarded >= Math.ceil(result.marksAvailable / 2)
                     ? 'Good answer!'
@@ -213,13 +213,13 @@ export default function StructuredAnswer({ criteria, questionId, onAnswer, disab
                     }`}
                   >
                     <span className={`mt-0.5 shrink-0 font-bold text-xs ${
-                      met ? 'text-correct' : 'text-incorrect'
+                      met ? 'text-correct-700' : 'text-incorrect-700'
                     }`}>
                       {met ? '✓' : '✗'}
                     </span>
                     <span>{c.criterion}</span>
                     <span className={`ml-auto shrink-0 text-xs font-bold ${
-                      met ? 'text-correct' : 'text-muted'
+                      met ? 'text-correct-700' : 'text-muted'
                     }`}>
                       {met ? `+${c.marks}` : `0/${c.marks}`}
                     </span>

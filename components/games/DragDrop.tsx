@@ -2,9 +2,8 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import Link from 'next/link'
-import { Sparkles } from '@/components/ui/icons'
 import { fireFeedback } from '@/lib/feedback'
+import { PracticeButton, PracticeDone } from '@/components/games/PracticeShell'
 
 export type DragDropConfig = {
   title: string
@@ -94,31 +93,23 @@ export function DragDrop({ config, topicId }: { config: DragDropConfig; topicId:
 
   if (completed) {
     return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="rounded-2xl border border-black/5 bg-surface p-8 text-center shadow-sm"
-      >
-        <div className="flex justify-center mb-3"><Sparkles className="w-12 h-12 text-maths" aria-hidden /></div>
-        <h2 className="font-heading text-2xl font-bold text-ink">Perfect match!</h2>
-        <p className="mt-2 text-muted">You matched all {pairs.length} pairs correctly.</p>
-        <Link
-          href={`/topics/${topicId}/quiz`}
-          className="mt-6 inline-flex min-h-[48px] w-full items-center justify-center rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white shadow-sm transition-opacity hover:opacity-90"
-        >
-          Start the Quiz →
-        </Link>
-      </motion.div>
+      <PracticeDone
+        topicId={topicId}
+        title="Every pair matched"
+        detail={`You matched all ${pairs.length} terms to the right definition.`}
+      />
     )
   }
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between text-sm text-muted">
-        <span>{config.title}</span>
-        <span aria-live="polite" aria-atomic="true">{placed.size} / {pairs.length} placed</span>
+      <div className="flex items-center justify-between gap-3 text-sm">
+        <span className="min-w-0 truncate font-semibold text-ink">{config.title}</span>
+        <span className="shrink-0 font-mono text-xs tabular-nums text-ink-2" aria-live="polite" aria-atomic="true">
+          {placed.size} of {pairs.length} placed
+        </span>
       </div>
-      <p className="text-sm text-muted" id="dragdrop-instructions">
+      <p className="text-sm text-ink-2" id="dragdrop-instructions">
         {config.instructions}
         {/* Keyboard/pointer-alternative hint is always shown — no pointer-required language */}
         {' '}Tap a definition to select it, then tap a slot to place it.
@@ -154,10 +145,10 @@ export function DragDrop({ config, topicId }: { config: DragDropConfig; topicId:
                 'rounded-xl border-2 px-3 py-2 text-sm font-medium select-none transition-colors',
                 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink',
                 selected === def
-                  ? 'border-maths bg-maths/15 text-maths ring-2 ring-maths ring-offset-1'
+                  ? 'border-brand bg-brand/15 text-on-maths ring-2 ring-brand ring-offset-1'
                   : dragging === def
-                  ? 'border-maths bg-maths/10 text-maths opacity-50 cursor-grabbing'
-                  : 'border-black/15 bg-surface text-ink cursor-grab active:cursor-grabbing hover:border-maths',
+                  ? 'border-brand bg-brand/10 text-on-maths opacity-50 cursor-grabbing'
+                  : 'border-black/15 bg-surface text-ink cursor-grab active:cursor-grabbing hover:border-brand',
               ].join(' ')}
               style={{ minHeight: 48 }}
             >
@@ -165,7 +156,7 @@ export function DragDrop({ config, topicId }: { config: DragDropConfig; topicId:
             </motion.button>
           ))}
         </AnimatePresence>
-        {unplaced.length === 0 && <p className="text-xs text-muted">All cards placed</p>}
+        {unplaced.length === 0 && <p className="text-xs text-ink-2">All cards placed</p>}
       </div>
 
       {/* Term → slot grid */}
@@ -186,13 +177,13 @@ export function DragDrop({ config, topicId }: { config: DragDropConfig; topicId:
                 'flex min-h-[48px] flex-1 items-center justify-center rounded-xl border-2 px-3 py-2 text-sm transition-colors',
                 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink',
                 slotState[i] === 'correct'
-                  ? 'border-correct bg-correct/10 text-correct font-bold'
+                  ? 'border-correct bg-correct/10 text-correct-700 font-bold'
                   : slotState[i] === 'incorrect'
-                  ? 'border-incorrect bg-incorrect/10 text-incorrect font-bold'
+                  ? 'border-incorrect bg-incorrect/10 text-incorrect-700 font-bold'
                   : selected
-                  ? 'border-maths bg-maths/5 border-dashed cursor-pointer'
+                  ? 'border-brand bg-brand/5 border-dashed cursor-pointer'
                   : dragging
-                  ? 'border-maths bg-maths/5 border-dashed'
+                  ? 'border-brand bg-brand/5 border-dashed'
                   : 'border-dashed border-black/20 bg-surface/50 text-muted',
               ].join(' ')}
               onDragOver={(e) => e.preventDefault()}
@@ -228,7 +219,7 @@ export function DragDrop({ config, topicId }: { config: DragDropConfig; topicId:
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="text-center text-sm text-muted"
+            className="text-center text-sm text-ink-2"
             aria-live="polite"
           >
             {score} correct. Fix the highlighted ones and try again!
@@ -236,13 +227,7 @@ export function DragDrop({ config, topicId }: { config: DragDropConfig; topicId:
         )}
       </AnimatePresence>
 
-      <button
-        onClick={checkAnswers}
-        disabled={!allFilled}
-        className="min-h-[48px] w-full rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white shadow-sm transition-opacity hover:opacity-90 disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
-      >
-        Check Answers
-      </button>
+      <PracticeButton onClick={checkAnswers} disabled={!allFilled}>Check answers</PracticeButton>
     </div>
   )
 }

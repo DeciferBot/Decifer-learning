@@ -152,7 +152,7 @@ export function OnboardingWizard({
                   aria-label={a.name}
                   className={`flex aspect-square flex-col items-center justify-center gap-1 rounded-2xl border transition-all ${
                     active
-                      ? 'border-brand bg-brand/10 text-brand shadow-sm scale-105'
+                      ? 'border-brand bg-brand/10 text-brand-700 shadow-sm scale-105'
                       : 'border-black/10 bg-black/[0.02] text-muted hover:border-brand/40'
                   }`}
                 >
@@ -194,7 +194,7 @@ export function OnboardingWizard({
                   aria-pressed={active}
                   className={`flex min-h-[64px] items-center gap-3 rounded-2xl border p-4 transition-all ${
                     active
-                      ? 'border-brand bg-brand/10 text-brand shadow-sm'
+                      ? 'border-brand bg-brand/10 text-brand-700 shadow-sm'
                       : 'border-black/10 bg-black/[0.02] text-muted hover:border-brand/40'
                   }`}
                 >
@@ -308,7 +308,7 @@ export function OnboardingWizard({
         <button
           onClick={next}
           disabled={!canContinue || submitting}
-          className="flex h-12 flex-1 items-center justify-center rounded-2xl bg-brand font-heading font-bold text-white shadow-sm transition-opacity hover:opacity-90 disabled:opacity-50"
+          className="flex h-12 flex-1 items-center justify-center rounded-2xl bg-brand-600 font-heading font-bold text-white shadow-sm transition-colors hover:bg-brand-700 disabled:opacity-50"
         >
           {submitting
             ? 'Saving…'
@@ -354,8 +354,8 @@ function ChoiceCard({
           : 'border-black/10 bg-black/[0.02] hover:border-brand/40'
       }`}
     >
-      {(() => { const Icon = ONBOARDING_ICONS[iconName] ?? Target; return <Icon className={`w-6 h-6 ${active ? 'text-brand' : 'text-muted'}`} aria-hidden /> })()}
-      <span className={`text-xs font-semibold ${active ? 'text-brand' : 'text-ink'}`}>{label}</span>
+      {(() => { const Icon = ONBOARDING_ICONS[iconName] ?? Target; return <Icon className={`w-6 h-6 ${active ? 'text-brand-700' : 'text-muted'}`} aria-hidden /> })()}
+      <span className={`text-xs font-semibold ${active ? 'text-brand-700' : 'text-ink'}`}>{label}</span>
     </button>
   )
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { jsonLd } from '@/lib/json-ld'
+import { GamePageIntro } from '@/components/games/GamePageIntro'
 import { gamePageSchema } from '@/lib/games/schema'
 import { ChessGame } from '@/components/games/ChessGame'
 
@@ -29,19 +30,13 @@ const schema = gamePageSchema({
 
 export default function PublicChessPage() {
   return (
-    <div className="space-y-4">
-      <div className="mx-auto max-w-sm text-center">
-        <h1 className="font-heading text-xl font-bold text-ink">Play Chess Online Free</h1>
-        <p className="mt-1 text-sm text-muted">
-          Pick a difficulty and play the computer, or share an invite code to play a friend.
-          Works on phone, tablet or computer, no account needed.
-        </p>
-      </div>
+    <div className="space-y-5">
+      <GamePageIntro id="chess" title="Play Chess Online Free" />
+      <ChessGame backHref="/games" />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLd(schema) }}
       />
-      <ChessGame backHref="/games" />
     </div>
   )
 }

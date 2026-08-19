@@ -14,8 +14,8 @@ export function NewParentLinkNotice({ parentName }: { parentName: string }) {
   }
 
   return (
-    <div className="flex items-start gap-3 rounded-2xl border border-maths/30 bg-maths/10 px-4 py-3">
-      <Link2 className="mt-0.5 w-5 h-5 flex-none text-maths" aria-hidden />
+    <div className="flex items-start gap-3 rounded-2xl border border-brand/30 bg-brand/10 px-4 py-3">
+      <Link2 className="mt-0.5 w-5 h-5 flex-none text-on-maths" aria-hidden />
       <div className="flex-1">
         <p className="text-sm font-semibold text-ink">
           {parentName} can now see your progress

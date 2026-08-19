@@ -65,7 +65,7 @@ export function PhysicalRewardsToggle({ childId, initialEnabled }: Props) {
           <span className="sr-only">{enabled ? 'Disable physical prizes' : 'Enable physical prizes'}</span>
         </button>
       </div>
-      {error && <p className="text-xs text-incorrect">{error}</p>}
+      {error && <p className="text-xs text-incorrect-700">{error}</p>}
     </div>
   )
 }

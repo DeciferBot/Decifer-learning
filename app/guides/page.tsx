@@ -61,7 +61,7 @@ export default function GuidesIndexPage() {
           <p className="mt-3 rounded-xl border border-brand/20 bg-brand-50 px-4 py-3 text-sm text-muted">
             Decifer Learning is a UK curriculum practice app for Years 1 to 11, and it is
             completely free while in beta.{' '}
-            <Link href="/register" className="font-semibold text-brand hover:underline">
+            <Link href="/register" className="font-semibold text-brand-700 hover:underline">
               Create a free account
             </Link>
             .

@@ -44,7 +44,7 @@ export function UpgradeButton({ className, children, plan = 'family' }: Props) {
         disabled={loading}
         className={
           className ??
-          'flex h-12 w-full items-center justify-center rounded-xl bg-maths font-semibold text-white transition active:scale-[0.98] disabled:opacity-60'
+          'flex h-12 w-full items-center justify-center rounded-xl bg-brand-600 hover:bg-brand-700 font-semibold text-white transition active:scale-[0.98] disabled:opacity-60'
         }
       >
         {loading
@@ -54,7 +54,7 @@ export function UpgradeButton({ className, children, plan = 'family' }: Props) {
               ? 'Choose Per Child: AED 350/child/mo'
               : 'Upgrade to Family: AED 500/mo'))}
       </button>
-      {error ? <p className="mt-2 text-center text-sm text-incorrect">{error}</p> : null}
+      {error ? <p className="mt-2 text-center text-sm text-incorrect-700">{error}</p> : null}
     </div>
   )
 }

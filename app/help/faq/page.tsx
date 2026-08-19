@@ -18,7 +18,7 @@ export default function FAQPage() {
     <div className="space-y-8">
       <HelpBreadcrumbSchema title="Frequently asked questions" path="/help/faq" />
       <div>
-        <Link href="/help" className="mb-4 inline-block text-sm font-semibold text-brand hover:underline">
+        <Link href="/help" className="mb-4 inline-block text-sm font-semibold text-brand-700 hover:underline">
           ← All guides
         </Link>
         <h1 className="font-heading text-3xl font-bold text-ink">Frequently asked questions</h1>
@@ -52,7 +52,7 @@ export default function FAQPage() {
         <p className="text-sm font-semibold text-ink">Still have a question?</p>
         <p className="mt-1 text-sm text-muted">
           Browse the rest of the guides in{' '}
-          <Link href="/help" className="font-semibold text-brand hover:underline">Help</Link>.
+          <Link href="/help" className="font-semibold text-brand-700 hover:underline">Help</Link>.
         </p>
       </div>
     </div>

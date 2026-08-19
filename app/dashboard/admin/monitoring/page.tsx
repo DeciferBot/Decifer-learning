@@ -101,10 +101,10 @@ export default async function MonitoringPage() {
       {/* Stats */}
       <div className="grid grid-cols-4 gap-3">
         {[
-          { label: 'Published',  value: questionStats.published,  colour: 'text-correct'   },
+          { label: 'Published',  value: questionStats.published,  colour: 'text-correct-700'   },
           { label: 'Staged',     value: questionStats.staged,     colour: 'text-muted'     },
-          { label: 'Flagged',    value: questionStats.flagged,    colour: questionStats.flagged > 0 ? 'text-incorrect' : 'text-muted' },
-          { label: 'Quizzes 7d', value: recentActivity,          colour: 'text-brand'     },
+          { label: 'Flagged',    value: questionStats.flagged,    colour: questionStats.flagged > 0 ? 'text-incorrect-700' : 'text-muted' },
+          { label: 'Quizzes 7d', value: recentActivity,          colour: 'text-brand-700'     },
         ].map((s) => (
           <div key={s.label} className="rounded-2xl border border-black/5 bg-surface p-4 text-center shadow-sm">
             <p className={`font-heading text-2xl font-bold ${s.colour}`}>{s.value.toLocaleString()}</p>
@@ -139,9 +139,9 @@ export default async function MonitoringPage() {
                     {new Date(row.ran_at).toLocaleString('en-GB', { dateStyle: 'short', timeStyle: 'short' })}
                   </span>
                   {total === 0 ? (
-                    <span className="text-correct font-medium">No issues found ✓</span>
+                    <span className="text-correct-700 font-medium">No issues found ✓</span>
                   ) : (
-                    <span className="text-incorrect font-medium">
+                    <span className="text-incorrect-700 font-medium">
                       Flagged {total}: {r.flagged_high_error ?? 0} error rate · {r.flagged_high_hint ?? 0} hint rate · {r.flagged_missing_visual ?? 0} missing visual
                     </span>
                   )}
@@ -200,12 +200,12 @@ export default async function MonitoringPage() {
               return (
                 <details key={q.id} className="rounded-2xl border border-incorrect/20 bg-incorrect/5 shadow-sm group">
                   <summary className="flex items-start gap-3 p-4 cursor-pointer list-none select-none">
-                    <Flag className="flex-none w-4 h-4 text-incorrect mt-0.5" aria-hidden />
+                    <Flag className="flex-none w-4 h-4 text-incorrect-700 mt-0.5" aria-hidden />
                     <div className="min-w-0 flex-1">
                       <p className="text-xs text-muted mb-0.5">{q.topic.subject.name} · {q.topic.title} · <span className="capitalize">{tier}</span></p>
                       <p className="text-sm text-ink leading-snug"><MathText text={q.question_text} /></p>
                       {flagReasons.map((r, i) => (
-                        <p key={i} className="text-xs text-incorrect mt-1">⚑ {r}</p>
+                        <p key={i} className="text-xs text-incorrect-700 mt-1">⚑ {r}</p>
                       ))}
                     </div>
                     <span className="flex-none text-xs text-muted mt-0.5 group-open:hidden">▶ expand</span>
@@ -234,7 +234,7 @@ export default async function MonitoringPage() {
                       )}
                       {/* Correct answer */}
                       <div className="rounded-xl bg-correct/10 border border-correct/20 px-3 py-2">
-                        <span className="text-xs font-medium text-correct uppercase tracking-wide">Correct answer</span>
+                        <span className="text-xs font-medium text-correct-700 uppercase tracking-wide">Correct answer</span>
                         <p className="text-ink mt-0.5 font-medium"><MathText text={q.correct_answer} /></p>
                       </div>
                       {/* Distractors */}

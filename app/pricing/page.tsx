@@ -30,7 +30,7 @@ export default function PricingPage() {
 
       <main className="mx-auto max-w-4xl px-4 py-16">
         <div className="text-center">
-          <span className="inline-flex items-center rounded-full border border-brand/30 bg-brand-50 px-3 py-1 text-xs font-bold uppercase tracking-wide text-brand">
+          <span className="inline-flex items-center rounded-full border border-brand/30 bg-brand-50 px-3 py-1 text-xs font-bold uppercase tracking-wide text-brand-700">
             Beta
           </span>
           <h1 className="mt-4 font-heading text-4xl font-bold text-ink">
@@ -43,7 +43,7 @@ export default function PricingPage() {
         </div>
 
         <div className="mx-auto mt-12 max-w-lg rounded-2xl border-2 border-brand bg-surface p-8">
-          <p className="text-sm font-semibold uppercase tracking-wide text-brand">
+          <p className="text-sm font-semibold uppercase tracking-wide text-brand-700">
             Everything included
           </p>
           <div className="mt-2 flex items-baseline gap-2">
@@ -53,7 +53,7 @@ export default function PricingPage() {
           <ul className="mt-6 space-y-3">
             {INCLUDED.map((f) => (
               <li key={f} className="flex items-start gap-2 text-sm text-ink">
-                <span className="mt-0.5 text-correct">✓</span>
+                <span className="mt-0.5 text-correct-700">✓</span>
                 {f}
               </li>
             ))}

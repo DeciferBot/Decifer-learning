@@ -31,16 +31,16 @@ const BAND_CONFIG: Record<string, { label: string; Icon: IconComponent }> = {
 const ACTIVE_STATUS_LABELS: Record<string, { label: string; colour: string; bg: string }> = {
   pending:         { label: 'Waiting for parent', colour: 'text-points-gold-700', bg: 'bg-points-gold/20' },
   deferred:        { label: 'Deferred',           colour: 'text-muted',       bg: 'bg-black/5'        },
-  counter_offered: { label: 'Waiting for child',  colour: 'text-maths',       bg: 'bg-maths/15'       },
+  counter_offered: { label: 'Waiting for child',  colour: 'text-on-maths',       bg: 'bg-maths/15'       },
 }
 
 const HISTORY_STATUS: Record<string, { label: string; colour: string }> = {
-  approved:   { label: 'Approved, ready to give', colour: 'text-correct font-semibold' },
+  approved:   { label: 'Approved, ready to give', colour: 'text-correct-700 font-semibold' },
   rejected:   { label: 'Declined',                colour: 'text-muted' },
   cancelled:  { label: 'Closed',                  colour: 'text-muted' },
   withdrawn:  { label: 'Closed',                  colour: 'text-muted' },
   dismissed:  { label: 'Closed',                  colour: 'text-muted' },
-  completed:  { label: 'Done',                    colour: 'text-science font-semibold' },
+  completed:  { label: 'Done',                    colour: 'text-on-science font-semibold' },
 }
 
 const FULFILMENT_ICON: Record<string, IconComponent> = {
@@ -169,7 +169,7 @@ export default async function ParentVaultPage({ params }: Params) {
               <span className="font-heading text-sm font-semibold text-ink">{bandCfg.label}</span>
             </div>
             {vaultStatus.creditBalance > 0 ? (
-              <span className="rounded-full bg-correct/15 px-3 py-1 text-xs font-bold text-correct">
+              <span className="rounded-full bg-correct/15 px-3 py-1 text-xs font-bold text-correct-700">
                 <span className="inline-flex items-center gap-1"><Gift className="w-3.5 h-3.5" aria-hidden /> {vaultStatus.creditBalance === 1 ? 'Reward available' : `${vaultStatus.creditBalance} rewards available`}</span>
               </span>
             ) : (
@@ -331,7 +331,7 @@ export default async function ParentVaultPage({ params }: Params) {
                   {r.status === 'approved' && r.reward_type === 'physical' && (
                     <div className="space-y-1.5">
                       {r.fulfilment?.status ? (
-                        <p className="inline-flex items-center gap-1 text-xs font-semibold text-brand">
+                        <p className="inline-flex items-center gap-1 text-xs font-semibold text-brand-700">
                           {(() => { const FIcon = FULFILMENT_ICON[r.fulfilment.status]; return FIcon ? <FIcon className="w-3.5 h-3.5" aria-hidden /> : null })()}
                           {FULFILMENT_TEXT[r.fulfilment.status] ?? r.fulfilment.status}
                         </p>

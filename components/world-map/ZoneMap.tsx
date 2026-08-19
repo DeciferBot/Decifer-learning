@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { TopicNode, NODE_CIRCLE, type NodeState } from './TopicNode'
 import { Leaf, TreePine, Mountain, Hexagon, ScrollText, Flame, MapFold, FlagCheckered, Swords } from '@/components/ui/icons'
 import type { ComponentType, SVGProps } from 'react'
+import { onPaper } from '@/lib/subject-colour'
 
 type IconType = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
 
@@ -82,7 +83,7 @@ export function ZoneMap({ zoneId, zoneName, subjectName, theme, subjectColor, no
           style={{ backgroundColor: `${subjectColor}24` }}
           aria-hidden
         >
-          <ThemeIcon size={20} style={{ color: subjectColor }} />
+          <ThemeIcon size={20} style={{ color: onPaper(subjectColor) }} />
         </span>
         <div>
           <h3 className="font-heading text-base font-bold leading-tight text-ink">{zoneName}</h3>
@@ -142,12 +143,12 @@ export function ZoneMap({ zoneId, zoneName, subjectName, theme, subjectColor, no
           style={{ backgroundColor: `${subjectColor}14`, border: `2px solid ${subjectColor}` }}
         >
           <p className="flex items-center gap-2 font-heading font-bold text-ink">
-            <FlagCheckered size={18} style={{ color: subjectColor }} /> Zone Checkpoint!
+            <FlagCheckered size={18} style={{ color: onPaper(subjectColor) }} /> Zone Checkpoint!
           </p>
           <p className="mt-1 text-sm text-muted">Great progress! 3 quick questions to check you&apos;re on track.</p>
           <Link
             href={`/topics/${checkpointTopicId}/checkpoint`}
-            className="mt-3 inline-flex min-h-[48px] items-center justify-center rounded-xl bg-brand-600 px-6 py-2 font-heading font-bold text-white transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+            className="mt-3 inline-flex min-h-[48px] items-center justify-center rounded-xl bg-brand-600 px-6 py-2 font-heading font-bold text-white transition-colors hover:bg-brand-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
           >
             Take Checkpoint →
           </Link>
@@ -163,7 +164,7 @@ export function ZoneMap({ zoneId, zoneName, subjectName, theme, subjectColor, no
           <p className="mt-1 text-sm text-muted">All topics complete. Face the guardian!</p>
           <Link
             href={`/guardian/${zoneId}`}
-            className="mt-3 inline-flex min-h-[48px] items-center justify-center rounded-xl bg-brand-600 px-6 py-2 font-heading font-bold text-white transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+            className="mt-3 inline-flex min-h-[48px] items-center justify-center rounded-xl bg-brand-600 px-6 py-2 font-heading font-bold text-white transition-colors hover:bg-brand-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
           >
             Battle Guardian →
           </Link>
@@ -176,7 +177,7 @@ export function ZoneMap({ zoneId, zoneName, subjectName, theme, subjectColor, no
           <p className="text-xs text-muted">{completedCount} / {nodes.length} topic{nodes.length !== 1 ? 's' : ''} complete</p>
         </div>
         <div
-          className="h-2 overflow-hidden rounded-full bg-black/8"
+          className="h-2 overflow-hidden rounded-full bg-black/[0.08]"
           role="progressbar"
           aria-valuenow={completedCount}
           aria-valuemin={0}

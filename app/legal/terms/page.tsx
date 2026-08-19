@@ -16,7 +16,7 @@ export default function TermsOfServicePage() {
       <div>
         <Link
           href="/"
-          className="mb-4 inline-block text-sm font-semibold text-brand hover:underline"
+          className="mb-4 inline-block text-sm font-semibold text-brand-700 hover:underline"
         >
           ← Back to home
         </Link>
@@ -36,7 +36,7 @@ export default function TermsOfServicePage() {
           Questions? Contact us at{' '}
           <a
             href="mailto:legal@deciferlearning.com"
-            className="font-semibold text-brand hover:underline"
+            className="font-semibold text-brand-700 hover:underline"
           >
             legal@deciferlearning.com
           </a>
@@ -74,7 +74,7 @@ export default function TermsOfServicePage() {
             You are responsible for keeping your account credentials confidential. You
             must not share your password with anyone outside your immediate family
             household. Notify us immediately at{' '}
-            <a href="mailto:legal@deciferlearning.com" className="text-brand hover:underline">
+            <a href="mailto:legal@deciferlearning.com" className="text-brand-700 hover:underline">
               legal@deciferlearning.com
             </a>{' '}
             if you suspect any unauthorised access to your account.
@@ -207,7 +207,7 @@ export default function TermsOfServicePage() {
             customisation choices). By using the service, you grant DECIFER a limited,
             non-exclusive, royalty-free licence to use that data solely to provide,
             operate, and improve the service, consistent with our{' '}
-            <Link href="/legal/privacy" className="text-brand hover:underline">
+            <Link href="/legal/privacy" className="text-brand-700 hover:underline">
               Privacy Policy
             </Link>.
           </p>
@@ -230,7 +230,7 @@ export default function TermsOfServicePage() {
             of content seriously and actively monitor for problems. If you or your
             child identifies an error, please use the &quot;Report a problem&quot; feature or
             contact us at{' '}
-            <a href="mailto:legal@deciferlearning.com" className="text-brand hover:underline">
+            <a href="mailto:legal@deciferlearning.com" className="text-brand-700 hover:underline">
               legal@deciferlearning.com
             </a>.
           </p>
@@ -280,7 +280,7 @@ export default function TermsOfServicePage() {
           <p>
             You may delete your account at any time. Upon deletion, we will remove your
             personal data in accordance with our{' '}
-            <Link href="/legal/privacy" className="text-brand hover:underline">
+            <Link href="/legal/privacy" className="text-brand-700 hover:underline">
               Privacy Policy
             </Link>.
           </p>
@@ -359,7 +359,7 @@ export default function TermsOfServicePage() {
           <p>
             Before initiating any formal legal proceeding, we encourage you to contact
             us at{' '}
-            <a href="mailto:legal@deciferlearning.com" className="text-brand hover:underline">
+            <a href="mailto:legal@deciferlearning.com" className="text-brand-700 hover:underline">
               legal@deciferlearning.com
             </a>{' '}
             so we can attempt to resolve the matter informally. Most concerns can be
@@ -407,7 +407,7 @@ export default function TermsOfServicePage() {
           <ul className="mt-2 space-y-1 pl-1">
             <li>
               <span className="font-medium text-ink">Email:</span>{' '}
-              <a href="mailto:legal@deciferlearning.com" className="text-brand hover:underline">
+              <a href="mailto:legal@deciferlearning.com" className="text-brand-700 hover:underline">
                 legal@deciferlearning.com
               </a>
             </li>
@@ -428,19 +428,19 @@ export default function TermsOfServicePage() {
         <p className="font-heading font-semibold text-ink">Related documents</p>
         <ul className="mt-2 space-y-1 text-sm text-muted">
           <li>
-            <Link href="/legal/privacy" className="text-brand hover:underline">
+            <Link href="/legal/privacy" className="text-brand-700 hover:underline">
               Privacy Policy
             </Link>
             {': '}how we collect and protect your personal data under UAE PDPL
           </li>
           <li>
-            <Link href="/help/content-quality" className="text-brand hover:underline">
+            <Link href="/help/content-quality" className="text-brand-700 hover:underline">
               Content Quality
             </Link>
             {': '}how every question is verified before your child sees it
           </li>
           <li>
-            <Link href="/help/parent-guide" className="text-brand hover:underline">
+            <Link href="/help/parent-guide" className="text-brand-700 hover:underline">
               Parent Guide
             </Link>
             {': '}how to set up and use the platform for your family

@@ -126,7 +126,7 @@ export function PreTestShell({ question, nextHref, nextLabel }: Props) {
               </p>
               <a
                 href={nextHref}
-                className="mt-3 inline-flex min-h-[48px] items-center gap-2 rounded-xl bg-explorer px-6 py-3 font-heading font-bold text-white shadow-sm transition-opacity hover:opacity-90"
+                className="mt-3 inline-flex min-h-[48px] items-center gap-2 rounded-xl bg-explorer px-6 py-3 font-heading font-bold text-on-maths shadow-sm transition-opacity hover:opacity-90"
               >
                 {nextLabel} →
               </a>

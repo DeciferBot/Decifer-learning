@@ -103,7 +103,7 @@ export default function GuidePage({ params }: { params: { slug: string } }) {
         <div>
           <Link
             href="/guides"
-            className="mb-4 inline-block text-sm font-semibold text-brand hover:underline"
+            className="mb-4 inline-block text-sm font-semibold text-brand-700 hover:underline"
           >
             ← All UAE parent guides
           </Link>

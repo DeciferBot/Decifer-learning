@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { jsonLd } from '@/lib/json-ld'
+import { GamePageIntro } from '@/components/games/GamePageIntro'
 import { gamePageSchema } from '@/lib/games/schema'
 import { CheckersGame } from '@/components/games/CheckersGame'
 
@@ -29,19 +30,13 @@ const schema = gamePageSchema({
 
 export default function PublicCheckersPage() {
   return (
-    <div className="space-y-4">
-      <div className="mx-auto max-w-sm text-center">
-        <h1 className="font-heading text-xl font-bold text-ink">Play Checkers Online Free</h1>
-        <p className="mt-1 text-sm text-muted">
-          Standard rules, mandatory captures. Play the computer or share an invite code to play
-          a friend. No account needed.
-        </p>
-      </div>
+    <div className="space-y-5">
+      <GamePageIntro id="checkers" title="Play Checkers Online Free" />
+      <CheckersGame backHref="/games" />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLd(schema) }}
       />
-      <CheckersGame backHref="/games" />
     </div>
   )
 }

@@ -125,13 +125,13 @@ export default async function CalibrationPage() {
           <p className="text-xs text-muted mt-0.5">With data</p>
         </div>
         <div className="rounded-2xl border border-black/5 bg-surface p-4 shadow-sm">
-          <p className={`font-heading text-2xl font-bold ${tooHardCount > 0 ? 'text-incorrect' : 'text-correct'}`}>
+          <p className={`font-heading text-2xl font-bold ${tooHardCount > 0 ? 'text-incorrect-700' : 'text-correct-700'}`}>
             {tooHardCount.toLocaleString()}
           </p>
           <p className="text-xs text-muted mt-0.5">Too hard</p>
         </div>
         <div className="rounded-2xl border border-black/5 bg-surface p-4 shadow-sm">
-          <p className={`font-heading text-2xl font-bold ${tooEasyCount > 0 ? 'text-lightning' : 'text-correct'}`}>
+          <p className={`font-heading text-2xl font-bold ${tooEasyCount > 0 ? 'text-lightning' : 'text-correct-700'}`}>
             {tooEasyCount.toLocaleString()}
           </p>
           <p className="text-xs text-muted mt-0.5">Too easy</p>
@@ -149,7 +149,7 @@ export default async function CalibrationPage() {
         </div>
       ) : flaggedQuestions.length === 0 ? (
         <div className="rounded-2xl border border-correct/20 bg-correct/5 px-6 py-8 text-center shadow-sm">
-          <p className="font-heading text-base font-semibold text-correct flex items-center justify-center gap-1"><Check className="w-4 h-4" aria-hidden /> All calibrated</p>
+          <p className="font-heading text-base font-semibold text-correct-700 flex items-center justify-center gap-1"><Check className="w-4 h-4" aria-hidden /> All calibrated</p>
           <p className="mt-1 text-sm text-muted">
             {totalWithData} question{totalWithData === 1 ? '' : 's'} analysed, none outside the difficulty thresholds.
           </p>
@@ -202,7 +202,7 @@ function FlagBadge({ flag, wrongRate }: { flag: 'too_hard' | 'too_easy'; wrongRa
   return (
     <span
       className={`inline-flex items-center rounded-full px-2 py-0.5 font-medium ${
-        isTooHard ? 'bg-incorrect/20 text-incorrect' : 'bg-lightning/30 text-ink'
+        isTooHard ? 'bg-incorrect/20 text-incorrect-700' : 'bg-lightning/30 text-ink'
       }`}
     >
       {isTooHard ? 'Too hard' : 'Too easy'}: {Math.round(wrongRate * 100)}% wrong

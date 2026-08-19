@@ -82,7 +82,7 @@ export default function ExamResultPage({
     return (
       <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4 text-center px-6">
         <p className="text-sm text-muted">Results not found.</p>
-        <a href="/exam" className="text-sm font-bold text-maths underline">Back to exams</a>
+        <a href="/exam" className="text-sm font-bold text-on-maths underline">Back to exams</a>
       </div>
     )
   }
@@ -93,7 +93,7 @@ export default function ExamResultPage({
   const timedOut = data.attempt.status === 'timed_out'
 
   const scoreColour =
-    pct >= 80 ? 'text-correct' : pct >= 60 ? 'text-points-gold-700' : 'text-incorrect'
+    pct >= 80 ? 'text-correct-700' : pct >= 60 ? 'text-points-gold-700' : 'text-incorrect-700'
   const scoreBg =
     pct >= 80 ? 'bg-correct/10' : pct >= 60 ? 'bg-lightning/20' : 'bg-incorrect/10'
 
@@ -120,7 +120,7 @@ export default function ExamResultPage({
           {correct} / {total} correct
         </p>
         {timedOut && (
-          <p className="mt-2 rounded-full bg-incorrect/20 px-4 py-1 text-xs font-bold text-incorrect inline-block">
+          <p className="mt-2 rounded-full bg-incorrect/20 px-4 py-1 text-xs font-bold text-incorrect-700 inline-block">
             Time ran out. Some questions marked unanswered
           </p>
         )}
@@ -154,7 +154,7 @@ export default function ExamResultPage({
                 <li key={b.topicId} className="space-y-1">
                   <div className="flex items-center justify-between text-sm">
                     <span className="font-medium text-ink truncate">{b.topicTitle}</span>
-                    <span className={`flex-none font-bold ${bPct >= 70 ? 'text-correct' : 'text-incorrect'}`}>
+                    <span className={`flex-none font-bold ${bPct >= 70 ? 'text-correct-700' : 'text-incorrect-700'}`}>
                       {b.correct}/{b.total}
                     </span>
                   </div>
@@ -185,9 +185,9 @@ export default function ExamResultPage({
           >
             <div className="flex items-start gap-3">
               {item.wasCorrect ? (
-                <Check className="mt-0.5 h-5 w-5 flex-none text-correct" aria-hidden />
+                <Check className="mt-0.5 h-5 w-5 flex-none text-correct-700" aria-hidden />
               ) : (
-                <CircleX className="mt-0.5 h-5 w-5 flex-none text-incorrect" aria-hidden />
+                <CircleX className="mt-0.5 h-5 w-5 flex-none text-incorrect-700" aria-hidden />
               )}
               <div className="min-w-0 flex-1 space-y-1.5">
                 <p className="text-xs font-semibold text-muted">{i + 1}. {item.topicTitle}</p>
@@ -197,14 +197,14 @@ export default function ExamResultPage({
                 {!item.wasCorrect && (
                   <div className="rounded-lg bg-black/[0.04] px-3 py-2 space-y-1">
                     {item.childAnswer ? (
-                      <p className="text-xs text-incorrect">
+                      <p className="text-xs text-incorrect-700">
                         <span className="font-semibold">Your answer: </span>
                         <MathText text={item.childAnswer} />
                       </p>
                     ) : (
                       <p className="text-xs text-muted italic">Not answered</p>
                     )}
-                    <p className="text-xs text-correct">
+                    <p className="text-xs text-correct-700">
                       <span className="font-semibold">Correct: </span>
                       <MathText text={item.correctAnswer} />
                     </p>
@@ -221,7 +221,7 @@ export default function ExamResultPage({
 
       <a
         href="/exam"
-        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-maths/10 py-4 font-heading text-sm font-bold text-maths min-h-[56px]"
+        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-maths/10 py-4 font-heading text-sm font-bold text-on-maths min-h-[56px]"
       >
         <ClipboardList className="h-4 w-4" aria-hidden />
         Back to exams

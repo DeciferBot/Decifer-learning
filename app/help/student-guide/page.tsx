@@ -16,7 +16,7 @@ export default function StudentGuidePage() {
     <div className="space-y-8">
       <HelpBreadcrumbSchema title="Student guide" path="/help/student-guide" />
       <div>
-        <Link href="/help" className="mb-4 inline-block text-sm font-semibold text-brand hover:underline">
+        <Link href="/help" className="mb-4 inline-block text-sm font-semibold text-brand-700 hover:underline">
           ← All guides
         </Link>
         <h1 className="font-heading text-3xl font-bold text-ink">Student guide</h1>
@@ -90,7 +90,7 @@ export default function StudentGuidePage() {
         <ul className="space-y-2">
           {TIPS.map((tip, i) => (
             <li key={i} className="flex items-start gap-2 text-sm text-muted">
-              <span className="mt-0.5 flex-none font-bold text-brand">·</span>
+              <span className="mt-0.5 flex-none font-bold text-brand-700">·</span>
               <span>{tip}</span>
             </li>
           ))}
@@ -100,7 +100,7 @@ export default function StudentGuidePage() {
       <div className="rounded-2xl bg-brand-50 px-5 py-4">
         <p className="text-sm font-semibold text-ink">Want to know more about XP and badges?</p>
         <p className="mt-1 text-sm text-muted">
-          <Link href="/help/gamification" className="font-semibold text-brand hover:underline">
+          <Link href="/help/gamification" className="font-semibold text-brand-700 hover:underline">
             Read the gamification guide →
           </Link>
         </p>
@@ -116,10 +116,10 @@ const THREE_STEPS: { icon: IconComp; label: string; body: string }[] = [
 ]
 
 const XP_RULES = [
-  { icon: <CircleCheck className="w-4 h-4 text-correct" aria-hidden />, body: 'Correct answer in a quiz: earn XP for every question you get right.' },
-  { icon: <Target className="w-4 h-4 text-maths" aria-hidden />,        body: 'Perfect quiz: bonus XP for completing a quiz without any wrong answers.' },
+  { icon: <CircleCheck className="w-4 h-4 text-correct-700" aria-hidden />, body: 'Correct answer in a quiz: earn XP for every question you get right.' },
+  { icon: <Target className="w-4 h-4 text-on-maths" aria-hidden />,        body: 'Perfect quiz: bonus XP for completing a quiz without any wrong answers.' },
   { icon: <Lightbulb className="w-4 h-4 text-points-gold" aria-hidden />, body: 'Using hints: hints cost a small amount of XP each, but that\'s okay.' },
-  { icon: <Flame className="w-4 h-4 text-incorrect" aria-hidden />,     body: 'Daily login: keeping your streak going earns bonus XP every day.' },
+  { icon: <Flame className="w-4 h-4 text-incorrect-700" aria-hidden />,     body: 'Daily login: keeping your streak going earns bonus XP every day.' },
 ]
 
 const TIPS = [

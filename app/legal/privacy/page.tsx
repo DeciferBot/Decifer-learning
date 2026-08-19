@@ -16,7 +16,7 @@ export default function PrivacyPolicyPage() {
       <div>
         <Link
           href="/"
-          className="mb-4 inline-block text-sm font-semibold text-brand hover:underline"
+          className="mb-4 inline-block text-sm font-semibold text-brand-700 hover:underline"
         >
           ← Back to home
         </Link>
@@ -36,7 +36,7 @@ export default function PrivacyPolicyPage() {
           Questions? Contact us at{' '}
           <a
             href="mailto:legal@deciferlearning.com"
-            className="font-semibold text-brand hover:underline"
+            className="font-semibold text-brand-700 hover:underline"
           >
             legal@deciferlearning.com
           </a>
@@ -64,7 +64,7 @@ export default function PrivacyPolicyPage() {
             <span className="font-semibold text-ink">Contact for privacy matters:</span>{' '}
             <a
               href="mailto:legal@deciferlearning.com"
-              className="text-brand hover:underline"
+              className="text-brand-700 hover:underline"
             >
               legal@deciferlearning.com
             </a>
@@ -382,7 +382,7 @@ export default function PrivacyPolicyPage() {
           </div>
           <p>
             To exercise any of these rights, email us at{' '}
-            <a href="mailto:legal@deciferlearning.com" className="text-brand hover:underline">
+            <a href="mailto:legal@deciferlearning.com" className="text-brand-700 hover:underline">
               legal@deciferlearning.com
             </a>{' '}
             with the subject line &quot;Data rights request&quot;. We will respond within
@@ -437,7 +437,7 @@ export default function PrivacyPolicyPage() {
             No internet-based service can guarantee absolute security. If you believe
             your account has been compromised or you suspect a security incident, contact
             us immediately at{' '}
-            <a href="mailto:legal@deciferlearning.com" className="text-brand hover:underline">
+            <a href="mailto:legal@deciferlearning.com" className="text-brand-700 hover:underline">
               legal@deciferlearning.com
             </a>.
           </p>
@@ -477,7 +477,7 @@ export default function PrivacyPolicyPage() {
             If you believe we have handled your personal data in a way that is
             inconsistent with this policy or with applicable law, please contact us
             first at{' '}
-            <a href="mailto:legal@deciferlearning.com" className="text-brand hover:underline">
+            <a href="mailto:legal@deciferlearning.com" className="text-brand-700 hover:underline">
               legal@deciferlearning.com
             </a>.
             We will do our best to resolve the matter promptly.
@@ -497,7 +497,7 @@ export default function PrivacyPolicyPage() {
           Email:{' '}
           <a
             href="mailto:legal@deciferlearning.com"
-            className="font-semibold text-brand hover:underline"
+            className="font-semibold text-brand-700 hover:underline"
           >
             legal@deciferlearning.com
           </a>
@@ -507,9 +507,9 @@ export default function PrivacyPolicyPage() {
         </p>
         <p className="mt-3 text-xs text-muted">
           Also see our{' '}
-          <Link href="/legal/terms" className="text-brand hover:underline">Terms of Service</Link>
+          <Link href="/legal/terms" className="text-brand-700 hover:underline">Terms of Service</Link>
           {' '}and our{' '}
-          <Link href="/help" className="text-brand hover:underline">Help guides</Link>.
+          <Link href="/help" className="text-brand-700 hover:underline">Help guides</Link>.
         </p>
       </div>
 

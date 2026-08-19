@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef } from 'react'
 import type { CurriculumSubject, CurriculumTopic, CurriculumOutcomeItem } from '@/lib/parent-dashboard'
 import { MapPin, Check, ChevronRight } from '@/components/ui/icons'
+import { onPaper } from '@/lib/subject-colour'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -255,7 +256,7 @@ export function SyllabusHeatmap({ subjects, childName, childProfileId, yearGroup
                       <button
                         key={topic.topicId}
                         onClick={() => openTopic(topic, subj)}
-                        className="relative rounded-xl text-left transition-all duration-150 hover:scale-105 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-maths"
+                        className="relative rounded-xl text-left transition-all duration-150 hover:scale-105 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
                         style={{
                           width:       tileW,
                           height:      tileH,
@@ -402,7 +403,7 @@ function TopicModal({
       : 'Not started yet'
 
   const statusColor = topic.progressStatus === 'completed'
-    ? 'bg-correct/15 text-correct'
+    ? 'bg-correct/15 text-correct-700'
     : topic.progressStatus === 'in_progress'
       ? 'bg-lightning/30 text-amber-700'
       : 'bg-black/5 text-muted'
@@ -463,10 +464,10 @@ function TopicModal({
             {topic.progressStatus === 'completed' && topic.lastScore !== null && (
               <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${
                 topic.lastScore >= 0.85
-                  ? 'bg-correct/15 text-correct'
+                  ? 'bg-correct/15 text-correct-700'
                   : topic.lastScore >= 0.70
-                    ? 'bg-maths/15 text-maths'
-                    : 'bg-incorrect/10 text-incorrect'
+                    ? 'bg-brand/15 text-on-maths'
+                    : 'bg-incorrect/10 text-incorrect-700'
               }`}>
                 {Math.round(topic.lastScore * 100)}% last score
               </span>
@@ -490,7 +491,7 @@ function TopicModal({
                 <div key={domain}>
                   <p
                     className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide"
-                    style={{ color: subject.colourToken }}
+                    style={{ color: onPaper(subject.colourToken) }}
                   >
                     {domain}
                   </p>
@@ -521,7 +522,7 @@ function TopicModal({
         <div className="sticky bottom-0 bg-surface border-t border-black/5 px-5 py-4">
           {topic.progressStatus === 'completed' ? (
             <div className="rounded-xl bg-correct/8 border border-correct/15 px-4 py-3 text-center">
-              <p className="text-sm font-semibold text-correct flex items-center justify-center gap-1">
+              <p className="text-sm font-semibold text-correct-700 flex items-center justify-center gap-1">
                 <Check className="w-4 h-4" aria-hidden /> {childName} has completed this topic
               </p>
               {topic.lastScore !== null && (

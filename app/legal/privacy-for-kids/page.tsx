@@ -71,7 +71,7 @@ export default function PrivacyForKidsPage() {
         <Section title="Can you delete your information?">
           <p>
             Yes! Ask a parent or carer to contact us at{' '}
-            <a href="mailto:hello@deciferlearning.com" className="text-maths underline">
+            <a href="mailto:hello@deciferlearning.com" className="text-on-maths underline">
               hello@deciferlearning.com
             </a>{' '}
             and we&apos;ll delete everything about you.
@@ -85,7 +85,7 @@ export default function PrivacyForKidsPage() {
               href="https://www.childline.org.uk"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-maths underline"
+              className="text-on-maths underline"
             >
               Childline
             </a>{' '}
@@ -121,7 +121,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function Item({ children }: { children: React.ReactNode }) {
   return (
     <li className="flex items-start gap-2">
-      <Check className="mt-0.5 w-4 h-4 flex-none text-correct" aria-hidden />
+      <Check className="mt-0.5 w-4 h-4 flex-none text-correct-700" aria-hidden />
       <span>{children}</span>
     </li>
   )

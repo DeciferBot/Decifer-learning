@@ -55,10 +55,10 @@ export function ExamResultCard({
             <span
               className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold ${
                 pct >= 80
-                  ? 'bg-correct/10 text-correct'
+                  ? 'bg-correct/10 text-correct-700'
                   : pct >= 60
                   ? 'bg-lightning/20 text-ink'
-                  : 'bg-incorrect/10 text-incorrect'
+                  : 'bg-incorrect/10 text-incorrect-700'
               }`}
             >
               {pct >= 60 ? (
@@ -71,7 +71,7 @@ export function ExamResultCard({
             {attempt?.id && (
               <Link
                 href={`/api/exam/result/${attempt.id}`}
-                className="text-xs font-semibold text-maths underline underline-offset-2"
+                className="text-xs font-semibold text-on-maths underline underline-offset-2"
               >
                 See breakdown →
               </Link>

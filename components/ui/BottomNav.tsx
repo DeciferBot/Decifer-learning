@@ -42,11 +42,11 @@ export function BottomNav() {
               aria-label={tab.label}
               aria-current={active ? 'page' : undefined}
               className={`flex min-h-[56px] min-w-[48px] flex-1 flex-col items-center justify-center gap-0.5 py-2 text-center transition-colors ${
-                active ? 'text-brand' : 'text-muted hover:text-ink'
+                active ? 'text-brand-700' : 'text-muted hover:text-ink'
               }`}
             >
               <tab.Icon size={22} aria-hidden />
-              <span className={`text-[10px] font-semibold leading-tight ${active ? 'text-brand' : ''}`}>
+              <span className={`text-[10px] font-semibold leading-tight ${active ? 'text-brand-700' : ''}`}>
                 {tab.label}
               </span>
             </Link>

@@ -2,7 +2,7 @@
  * Decifer Learning — Professional SVG line icon library
  *
  * Style: 24×24 viewBox · 1.5px stroke · round caps/joins · no fill
- * Usage: <BookOpen className="w-5 h-5 text-brand" />
+ * Usage: <BookOpen className="w-5 h-5 text-brand-700" />
  */
 
 import { SVGProps } from 'react'
@@ -629,6 +629,14 @@ export function ChevronLeft(p: IconProps) {
   return (
     <Icon {...p}>
       <path d="m15 18-6-6 6-6" />
+    </Icon>
+  )
+}
+
+export function ChevronDown(p: IconProps) {
+  return (
+    <Icon {...p}>
+      <path d="m6 9 6 6 6-6" />
     </Icon>
   )
 }

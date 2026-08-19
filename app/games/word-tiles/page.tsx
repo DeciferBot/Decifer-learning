@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { jsonLd } from '@/lib/json-ld'
+import { GamePageIntro } from '@/components/games/GamePageIntro'
 import { gamePageSchema } from '@/lib/games/schema'
 import { WordTilesGame } from '@/components/games/WordTilesGame'
 
@@ -29,19 +30,13 @@ const schema = gamePageSchema({
 
 export default function PublicWordTilesPage() {
   return (
-    <div className="space-y-4">
-      <div className="mx-auto max-w-sm text-center">
-        <h1 className="font-heading text-xl font-bold text-ink">Free Word Tile Game, Play With a Friend</h1>
-        <p className="mt-1 text-sm text-muted">
-          A word-building tile game in the classic style, like Scrabble, but free with no
-          sign-up. Share an invite code and build words together, most points wins.
-        </p>
-      </div>
+    <div className="space-y-5">
+      <GamePageIntro id="word-tiles" title="Free Word Tile Game, Play With a Friend" />
+      <WordTilesGame backHref="/games" />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLd(schema) }}
       />
-      <WordTilesGame backHref="/games" />
     </div>
   )
 }

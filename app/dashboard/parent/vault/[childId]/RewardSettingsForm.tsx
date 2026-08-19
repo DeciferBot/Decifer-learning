@@ -46,7 +46,7 @@ export function RewardSettingsForm({ childId, initialOptions }: Props) {
               <span className="flex-1 text-ink">{label}</span>
               <button
                 onClick={() => setOptions(options.filter((_, idx) => idx !== i))}
-                className="text-xs text-muted hover:text-incorrect"
+                className="text-xs text-muted hover:text-incorrect-700"
                 aria-label={`Remove ${label}`}
               >
                 Remove
@@ -74,13 +74,13 @@ export function RewardSettingsForm({ childId, initialOptions }: Props) {
         <button
           onClick={addOption}
           disabled={!newOption.trim()}
-          className="rounded-xl bg-brand/10 px-3 text-sm font-bold text-brand hover:bg-brand/20 disabled:opacity-40"
+          className="rounded-xl bg-brand/10 px-3 text-sm font-bold text-brand-700 hover:bg-brand/20 disabled:opacity-40"
         >
           Add
         </button>
       </div>
 
-      {error && <p className="text-sm text-incorrect">{error}</p>}
+      {error && <p className="text-sm text-incorrect-700">{error}</p>}
 
       <div className="flex gap-2">
         <button
@@ -117,7 +117,7 @@ export function RewardSettingsForm({ childId, initialOptions }: Props) {
             }
           }}
           disabled={saving}
-          className="flex h-9 flex-1 items-center justify-center rounded-xl bg-brand text-sm font-bold text-white hover:opacity-90 disabled:opacity-60"
+          className="flex h-9 flex-1 items-center justify-center rounded-xl bg-brand-600 text-sm font-bold text-white hover:bg-brand-700 disabled:opacity-60"
         >
           {saving ? 'Saving…' : 'Save'}
         </button>

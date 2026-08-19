@@ -709,12 +709,12 @@ export function QuizShell({
         animate={{ opacity: 1, scale: 1 }}
         className="rounded-2xl border border-black/5 bg-surface p-8 text-center shadow-sm"
       >
-        <div className="flex justify-center mb-3"><HeartCrack className="w-12 h-12 text-incorrect" aria-hidden /></div>
+        <div className="flex justify-center mb-3"><HeartCrack className="w-12 h-12 text-incorrect-700" aria-hidden /></div>
         <h2 className="font-heading text-2xl font-bold text-ink">Out of hearts!</h2>
         <p className="mt-2 text-muted">Don&apos;t worry, no score saved. Give it another go!</p>
         <button
           onClick={restart}
-          className="mt-6 min-h-[48px] w-full rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white transition-opacity hover:opacity-90"
+          className="mt-6 min-h-[48px] w-full rounded-xl bg-brand-600 px-6 py-3 font-heading font-bold text-white transition-colors hover:bg-brand-700"
         >
           Try Again
         </button>
@@ -750,7 +750,7 @@ export function QuizShell({
     if (passed && submitting) {
       return (
         <div className="rounded-2xl border border-black/5 bg-surface p-8 text-center shadow-sm">
-          <div className="flex justify-center mb-3"><Swords className="w-12 h-12 text-maths" aria-hidden /></div>
+          <div className="flex justify-center mb-3"><Swords className="w-12 h-12 text-on-maths" aria-hidden /></div>
           <h2 className="font-heading text-2xl font-bold text-ink">Guardian Defeated!</h2>
           <p className="mt-4 text-sm text-muted">Saving results…</p>
         </div>
@@ -818,9 +818,9 @@ export function QuizShell({
           <motion.div
             initial={{ opacity: 0, y: -16 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-4 overflow-hidden rounded-2xl border-2 border-maths bg-gradient-to-br from-maths/10 to-science/10 p-5 text-center"
+            className="mb-4 overflow-hidden rounded-2xl border-2 border-brand bg-gradient-to-br from-maths/10 to-science/10 p-5 text-center"
           >
-            <div className="flex justify-center mb-1"><Sparkles className="w-8 h-8 text-maths" aria-hidden /></div>
+            <div className="flex justify-center mb-1"><Sparkles className="w-8 h-8 text-on-maths" aria-hidden /></div>
             <p className="mt-1 font-heading text-lg font-bold text-ink">You completed your first topic!</p>
             <p className="mt-1 text-sm text-muted">
               You&apos;ve earned your first Discovery Card. Keep going, the world map is waiting!
@@ -881,7 +881,7 @@ export function QuizShell({
 
           {/* Technique score — only shown when quiz had non-recall questions */}
           {techniqueTotal > 0 && (
-            <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-maths/10 px-4 py-1.5 text-sm font-semibold text-maths">
+            <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-brand/10 px-4 py-1.5 text-sm font-semibold text-on-maths">
               <Target className="w-3.5 h-3.5 flex-none" aria-hidden />
               Exam technique: {techniqueCorrect}/{techniqueTotal} question{techniqueTotal !== 1 ? 's' : ''} answered in the right format
             </div>
@@ -934,7 +934,7 @@ export function QuizShell({
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15 }}
-              className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-science/15 px-4 py-1.5 text-sm font-bold text-science"
+              className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-science/15 px-4 py-1.5 text-sm font-bold text-on-science"
             >
               <Sparkles className="w-4 h-4 flex-none" aria-hidden /> New topic unlocked!
             </motion.div>
@@ -945,7 +945,7 @@ export function QuizShell({
             {passed && nextTopic && (
               <Link
                 href={`/topics/${nextTopic.id}/learn`}
-                className="inline-flex min-h-[48px] items-center justify-center rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white transition-opacity hover:opacity-90"
+                className="inline-flex min-h-[48px] items-center justify-center rounded-xl bg-brand-600 px-6 py-3 font-heading font-bold text-white transition-colors hover:bg-brand-700"
               >
                 {nextTopic.newlyUnlocked ? 'Start' : 'Next'}: {nextTopic.title} →
               </Link>
@@ -953,7 +953,7 @@ export function QuizShell({
             {passed && !nextTopic && (
               <Link
                 href="/world-map"
-                className="inline-flex min-h-[48px] items-center justify-center rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white transition-opacity hover:opacity-90"
+                className="inline-flex min-h-[48px] items-center justify-center rounded-xl bg-brand-600 px-6 py-3 font-heading font-bold text-white transition-colors hover:bg-brand-700"
               >
                 See your World Map →
               </Link>
@@ -961,7 +961,7 @@ export function QuizShell({
             {passed && (
               <Link
                 href="/collection"
-                className="inline-flex min-h-[48px] items-center justify-center rounded-xl border border-black/10 px-6 py-3 font-heading font-bold text-maths transition-colors hover:bg-maths/10"
+                className="inline-flex min-h-[48px] items-center justify-center rounded-xl border border-black/10 px-6 py-3 font-heading font-bold text-on-maths transition-colors hover:bg-brand/10"
               >
                 View Collection
               </Link>
@@ -969,7 +969,7 @@ export function QuizShell({
             {canFixUp && (
               <button
                 onClick={startFixUp}
-                className="min-h-[48px] rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white transition-opacity hover:opacity-90"
+                className="min-h-[48px] rounded-xl bg-brand-600 px-6 py-3 font-heading font-bold text-white transition-colors hover:bg-brand-700"
               >
                 Fix {missedCount === 1 ? 'that one' : `those ${missedCount}`} →
               </button>
@@ -977,7 +977,7 @@ export function QuizShell({
             {!passed && !canFixUp && (
               <button
                 onClick={restart}
-                className="min-h-[48px] rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white transition-opacity hover:opacity-90"
+                className="min-h-[48px] rounded-xl bg-brand-600 px-6 py-3 font-heading font-bold text-white transition-colors hover:bg-brand-700"
               >
                 {allEventuallyCorrect ? 'Go again for a clean run →' : 'Try Again'}
               </button>
@@ -1044,7 +1044,7 @@ export function QuizShell({
             <MathText text={prevQ.question_text} />
           </p>
           {prevAnswer && (
-            <div className={`rounded-xl px-4 py-3 text-sm font-semibold ${prevCorrect ? 'bg-correct/10 text-correct' : 'bg-incorrect/10 text-incorrect'}`}>
+            <div className={`rounded-xl px-4 py-3 text-sm font-semibold ${prevCorrect ? 'bg-correct/10 text-correct-700' : 'bg-incorrect/10 text-incorrect-700'}`}>
               {/* aria-hidden the symbol; the surrounding text is sufficient */}
               <span aria-hidden>{prevCorrect ? '✓' : '✗'}</span>
               {prevCorrect ? ' You answered: ' : ' Your answer: '}
@@ -1052,12 +1052,12 @@ export function QuizShell({
             </div>
           )}
           {!prevCorrect && (
-            <div className="rounded-xl bg-correct/10 px-4 py-3 text-sm text-correct font-semibold">
+            <div className="rounded-xl bg-correct/10 px-4 py-3 text-sm text-correct-700 font-semibold">
               Correct answer: <MathText text={prevQ.correct_answer} />
             </div>
           )}
           {prevQ.explanation && (
-            <div className="rounded-xl bg-black/3 px-4 py-3 text-sm text-muted">
+            <div className="rounded-xl bg-black/[0.03] px-4 py-3 text-sm text-muted">
               <span className="font-bold text-ink">Explanation: </span>
               <MathText text={prevQ.explanation} />
             </div>
@@ -1065,7 +1065,7 @@ export function QuizShell({
         </div>
         <button
           onClick={() => setShowingPrevReview(false)}
-          className="min-h-[48px] w-full rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+          className="min-h-[48px] w-full rounded-xl bg-brand-600 px-6 py-3 font-heading font-bold text-white transition-colors hover:bg-brand-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
         >
           Continue quiz →
         </button>
@@ -1098,9 +1098,9 @@ export function QuizShell({
             initial={{ opacity: 0, scale: 0.85 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.85 }}
-            className="rounded-2xl bg-maths/15 px-5 py-3 text-center"
+            className="rounded-2xl bg-brand/15 px-5 py-3 text-center"
           >
-            <p className="font-heading text-lg font-bold text-maths flex items-center justify-center gap-1.5">
+            <p className="font-heading text-lg font-bold text-on-maths flex items-center justify-center gap-1.5">
               <Target className="w-5 h-5" aria-hidden /> Halfway there, keep going!
             </p>
           </motion.div>
@@ -1175,7 +1175,7 @@ export function QuizShell({
         aria-label={`Question ${qIndex + 1} of ${activeQuestions.length}`}
       >
         <motion.div
-          className="h-full rounded-full bg-maths"
+          className="h-full rounded-full bg-teal"
           animate={{ width: `${(qIndex / activeQuestions.length) * 100}%` }}
           transition={{ duration: 0.4 }}
           aria-hidden
@@ -1279,9 +1279,9 @@ export function QuizShell({
                 initial={{ opacity: 0, y: -6 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
-                className="mb-3 rounded-xl border border-maths/30 bg-maths/10 px-4 py-3 text-sm text-ink"
+                className="mb-3 rounded-xl border border-brand/30 bg-brand/10 px-4 py-3 text-sm text-ink"
               >
-                <span className="mr-1.5 font-bold text-maths inline-flex items-center gap-1">
+                <span className="mr-1.5 font-bold text-on-maths inline-flex items-center gap-1">
                   <Target className="w-3.5 h-3.5" aria-hidden /> How to answer:
                 </span>
                 {q.technique_hint}
@@ -1378,10 +1378,10 @@ export function QuizShell({
                   } else if (isRuledOut) {
                     cls += ' border-black/10 bg-background opacity-40'
                   } else {
-                    cls += ' border-black/10 bg-background hover:border-maths hover:bg-maths/10'
+                    cls += ' border-black/10 bg-background hover:border-brand hover:bg-brand/10'
                   }
                 } else if (isCorrectChoice) {
-                  cls += ' border-correct bg-correct/20 text-correct'
+                  cls += ' border-correct bg-correct/20 text-correct-700'
                 } else if (isWrongPick) {
                   cls += ' border-incorrect bg-incorrect/20 text-rose-700'
                 } else {
@@ -1446,7 +1446,7 @@ export function QuizShell({
                 >
                   {/* Multipart types render their own feedback — only show explanation/technique here */}
                   {!MULTIPART_QTYPES.has(q.question_type) && (
-                    <p className={`font-bold ${answeredCorrectly ? 'text-correct' : 'text-incorrect'}`}>
+                    <p className={`font-bold ${answeredCorrectly ? 'text-correct-700' : 'text-incorrect-700'}`}>
                       {answeredCorrectly
                         ? attempts === 0
                           ? isBonusQuestion
@@ -1467,7 +1467,7 @@ export function QuizShell({
                     <p className="mt-1 text-sm text-muted"><MathText text={q.explanation} /></p>
                   )}
                   {q.technique_note && (
-                    <p className="mt-2 text-xs font-semibold text-maths border-t border-maths/20 pt-2">
+                    <p className="mt-2 text-xs font-semibold text-on-maths border-t border-brand/20 pt-2">
                       {q.technique_note}
                     </p>
                   )}
@@ -1480,7 +1480,7 @@ export function QuizShell({
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-4 space-y-1">
               <button
                 onClick={next}
-                className="min-h-[48px] w-full rounded-xl bg-maths px-6 py-3 font-heading font-bold text-white transition-opacity hover:opacity-90"
+                className="min-h-[48px] w-full rounded-xl bg-brand-600 px-6 py-3 font-heading font-bold text-white transition-colors hover:bg-brand-700"
               >
                 {qIndex + 1 < activeQuestions.length ? 'Next Question →' : 'See Results'}
               </button>

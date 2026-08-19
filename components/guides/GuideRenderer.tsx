@@ -40,7 +40,7 @@ function Block({ block }: { block: GuideBlock }) {
     case 'p':
       return (
         <p
-          className="leading-relaxed text-ink/90 [&_a]:font-semibold [&_a]:text-brand [&_a:hover]:underline"
+          className="leading-relaxed text-ink/90 [&_a]:font-semibold [&_a]:text-brand-700 [&_a:hover]:underline"
           dangerouslySetInnerHTML={{ __html: block.html }}
         />
       )
@@ -54,7 +54,7 @@ function Block({ block }: { block: GuideBlock }) {
       return <h3 className="pt-2 font-heading text-lg font-bold text-ink">{block.text}</h3>
     case 'list': {
       const cls =
-        'space-y-2 pl-5 leading-relaxed text-ink/90 [&_a]:font-semibold [&_a]:text-brand [&_a:hover]:underline'
+        'space-y-2 pl-5 leading-relaxed text-ink/90 [&_a]:font-semibold [&_a]:text-brand-700 [&_a:hover]:underline'
       const items = block.items.map((item, i) => (
         <li key={i} dangerouslySetInnerHTML={{ __html: item }} />
       ))
@@ -101,7 +101,7 @@ function Block({ block }: { block: GuideBlock }) {
         <aside className="rounded-xl border border-brand/20 bg-brand-50 px-4 py-3">
           <p className="text-sm font-semibold text-ink">{block.title}</p>
           <p
-            className="mt-1 text-sm leading-relaxed text-muted [&_a]:font-semibold [&_a]:text-brand [&_a:hover]:underline"
+            className="mt-1 text-sm leading-relaxed text-muted [&_a]:font-semibold [&_a]:text-brand-700 [&_a:hover]:underline"
             dangerouslySetInnerHTML={{ __html: block.html }}
           />
         </aside>
@@ -115,7 +115,7 @@ function Block({ block }: { block: GuideBlock }) {
             <div key={q} className="px-4 py-4">
               <p className="font-semibold text-ink">{q}</p>
               <p
-                className="mt-1 text-sm leading-relaxed text-muted [&_a]:font-semibold [&_a]:text-brand [&_a:hover]:underline"
+                className="mt-1 text-sm leading-relaxed text-muted [&_a]:font-semibold [&_a]:text-brand-700 [&_a:hover]:underline"
                 dangerouslySetInnerHTML={{ __html: a }}
               />
             </div>
@@ -146,7 +146,7 @@ export function GuideRenderer({ guide }: { guide: Guide }) {
           <ul className="mt-2 space-y-1.5 text-sm">
             {toc.map((h) => (
               <li key={h.id}>
-                <a href={`#${h.id}`} className="font-semibold text-brand hover:underline">
+                <a href={`#${h.id}`} className="font-semibold text-brand-700 hover:underline">
                   {h.text}
                 </a>
               </li>
@@ -173,7 +173,7 @@ export function GuideRenderer({ guide }: { guide: Guide }) {
                   href={s.url}
                   rel="nofollow noopener"
                   target="_blank"
-                  className="break-all font-semibold text-brand hover:underline"
+                  className="break-all font-semibold text-brand-700 hover:underline"
                 >
                   {s.label}
                 </a>

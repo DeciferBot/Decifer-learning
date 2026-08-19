@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { jsonLd } from '@/lib/json-ld'
+import { GamePageIntro } from '@/components/games/GamePageIntro'
 import { gamePageSchema } from '@/lib/games/schema'
 import { CrosswordGame } from '@/components/games/CrosswordGame'
 
@@ -29,19 +30,13 @@ const schema = gamePageSchema({
 
 export default function PublicCrosswordPage() {
   return (
-    <div className="space-y-4">
-      <div className="mx-auto max-w-sm text-center">
-        <h1 className="font-heading text-xl font-bold text-ink">Free Crossword Puzzles for Kids</h1>
-        <p className="mt-1 text-sm text-muted">
-          Pick a theme and get a freshly built puzzle every time, never the same grid twice.
-          No printing, no account needed.
-        </p>
-      </div>
+    <div className="space-y-5">
+      <GamePageIntro id="crossword" title="Free Crossword Puzzles for Kids" />
+      <CrosswordGame backHref="/games" />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLd(schema) }}
       />
-      <CrosswordGame backHref="/games" />
     </div>
   )
 }

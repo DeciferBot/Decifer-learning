@@ -53,7 +53,7 @@ export function JoinPanel({ isLoggedIn, initialPin }: { isLoggedIn: boolean; ini
   return (
     <div className="w-full max-w-sm">
       <header className="mb-6 text-center">
-        <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-brand-50 px-3 py-1 text-sm font-semibold text-brand-600">
+        <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-brand-50 px-3 py-1 text-sm font-semibold text-brand-700">
           <Swords className="h-4 w-4" /> Decifer Blitz
         </div>
         <h1 className="font-heading text-2xl font-extrabold text-ink">Join the battle</h1>
@@ -93,7 +93,7 @@ export function JoinPanel({ isLoggedIn, initialPin }: { isLoggedIn: boolean; ini
           whileTap={{ scale: 0.97 }}
           disabled={busy || !ready}
           onClick={join}
-          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brand py-4 font-heading text-base font-extrabold text-white shadow-sm transition hover:opacity-90 disabled:opacity-50"
+          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-600 py-4 font-heading text-base font-extrabold text-white shadow-sm transition-colors hover:bg-brand-700 disabled:opacity-50"
         >
           {busy ? 'Joining…' : 'Enter'} <ArrowRight className="h-5 w-5" />
         </motion.button>

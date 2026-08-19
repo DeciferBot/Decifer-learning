@@ -113,7 +113,7 @@ export default async function AdminEngagementPage() {
     <section className="space-y-6 pb-10">
       <div>
         <h1 className="font-heading text-2xl font-bold text-ink flex items-center gap-2">
-          <TrendingUp className="w-6 h-6 text-brand" aria-hidden /> Engagement
+          <TrendingUp className="w-6 h-6 text-brand-700" aria-hidden /> Engagement
         </h1>
         <p className="text-sm text-muted mt-0.5">Who&apos;s active, who&apos;s slipping, and what the nudges are doing.</p>
       </div>
@@ -127,7 +127,7 @@ export default async function AdminEngagementPage() {
       </div>
 
       {/* Funnel */}
-      <Panel title="Activation funnel" icon={<Users className="w-4 h-4 text-brand" aria-hidden />}>
+      <Panel title="Activation funnel" icon={<Users className="w-4 h-4 text-brand-700" aria-hidden />}>
         <div className="space-y-2">
           {funnel.map((f) => {
             const pct = total > 0 ? Math.round((f.value / total) * 100) : 0
@@ -147,7 +147,7 @@ export default async function AdminEngagementPage() {
       </Panel>
 
       {/* Per-child table */}
-      <Panel title="Per child" icon={<Users className="w-4 h-4 text-brand" aria-hidden />}>
+      <Panel title="Per child" icon={<Users className="w-4 h-4 text-brand-700" aria-hidden />}>
         <div className="overflow-x-auto -mx-1">
           <table className="w-full text-sm">
             <thead>
@@ -173,7 +173,7 @@ export default async function AdminEngagementPage() {
                   <td className="py-2 px-1 text-ink">{r.streak > 0 ? r.streak : '–'}</td>
                   <td className="py-2 px-1">
                     {r.hasParent
-                      ? <span className="text-correct text-xs">Linked</span>
+                      ? <span className="text-correct-700 text-xs">Linked</span>
                       : <span className="text-lightning text-xs">None</span>}
                   </td>
                   <td className="py-2 px-1"><StatusBadge status={r.status} /></td>
@@ -187,7 +187,7 @@ export default async function AdminEngagementPage() {
       {/* Duplicates */}
       <Panel
         title={`Duplicate accounts${duplicates.length ? ` (${duplicates.length})` : ''}`}
-        icon={<AlertTriangle className={`w-4 h-4 ${duplicates.length ? 'text-incorrect' : 'text-muted'}`} aria-hidden />}
+        icon={<AlertTriangle className={`w-4 h-4 ${duplicates.length ? 'text-incorrect-700' : 'text-muted'}`} aria-hidden />}
       >
         {duplicates.length === 0 ? (
           <p className="text-sm text-muted">No children share a name, so there is nothing to merge.</p>
@@ -196,7 +196,7 @@ export default async function AdminEngagementPage() {
             {duplicates.map((g, i) => (
               <li key={i} className="flex items-center gap-2">
                 <span className="font-medium">{g[0]}</span>
-                <span className="text-xs text-incorrect">×{g.length} accounts: review &amp; merge</span>
+                <span className="text-xs text-incorrect-700">×{g.length} accounts: review &amp; merge</span>
               </li>
             ))}
           </ul>
@@ -204,7 +204,7 @@ export default async function AdminEngagementPage() {
       </Panel>
 
       {/* Automated emails */}
-      <Panel title="Automated emails" icon={<Bell className="w-4 h-4 text-brand" aria-hidden />}>
+      <Panel title="Automated emails" icon={<Bell className="w-4 h-4 text-brand-700" aria-hidden />}>
         <div className="space-y-2">
           <EmailRow
             icon={<Sparkles className="w-4 h-4 text-explorer" aria-hidden />}
@@ -219,7 +219,7 @@ export default async function AdminEngagementPage() {
             stat={`${dormant} eligible · ${comebackSent} sent`}
           />
           <EmailRow
-            icon={<ScrollText className="w-4 h-4 text-correct" aria-hidden />}
+            icon={<ScrollText className="w-4 h-4 text-correct-700" aria-hidden />}
             title="Parent report card: weekly progress"
             desc="Every Monday · per-child stats, weak areas, next steps"
             stat={`${uniqueParents} parents`}
@@ -249,8 +249,8 @@ function Kpi({
   icon?: React.ReactNode
 }) {
   const colour =
-    accent === 'correct' ? 'text-correct' :
-    accent === 'red' ? 'text-incorrect' :
+    accent === 'correct' ? 'text-correct-700' :
+    accent === 'red' ? 'text-incorrect-700' :
     accent === 'yellow' ? 'text-lightning' :
     'text-ink'
   return (
@@ -277,8 +277,8 @@ function Panel({ title, icon, children }: { title: string; icon: React.ReactNode
 
 function StatusBadge({ status }: { status: Status }) {
   const map: Record<Status, { label: string; cls: string }> = {
-    active:     { label: 'Active',     cls: 'bg-correct/10 text-correct' },
-    dormant:    { label: 'Dormant',    cls: 'bg-incorrect/10 text-incorrect' },
+    active:     { label: 'Active',     cls: 'bg-correct/10 text-correct-700' },
+    dormant:    { label: 'Dormant',    cls: 'bg-incorrect/10 text-incorrect-700' },
     struggling: { label: 'Struggling', cls: 'bg-lightning/15 text-lightning' },
     never:      { label: 'Never played', cls: 'bg-black/[0.05] text-muted' },
   }

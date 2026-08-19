@@ -25,8 +25,8 @@ type RoleFilter = 'all' | 'child' | 'parent' | 'admin'
 type SortKey = 'joined' | 'active' | 'points'
 
 const ROLE_STYLES: Record<UserRow['role'], string> = {
-  child:  'bg-brand/10 text-brand',
-  parent: 'bg-correct/15 text-correct',
+  child:  'bg-brand/10 text-brand-700',
+  parent: 'bg-correct/15 text-correct-700',
   admin:  'bg-lightning/20 text-ink',
 }
 
@@ -159,7 +159,7 @@ export function UsersTable({ rows }: { rows: UserRow[] }) {
               <button
                 type="button"
                 onClick={() => executeDelete(deletingId)}
-                className="flex-1 min-h-[44px] rounded-xl bg-incorrect text-sm font-semibold text-white hover:bg-incorrect/90"
+                className="flex-1 min-h-[44px] rounded-xl bg-incorrect-700 text-sm font-semibold text-white hover:bg-incorrect/90"
               >
                 Delete permanently
               </button>
@@ -212,7 +212,7 @@ export function UsersTable({ rows }: { rows: UserRow[] }) {
               type="button"
               onClick={() => setRole(f.key)}
               className={`min-h-[40px] rounded-full px-4 text-sm font-medium transition-colors ${
-                active ? 'bg-brand text-white' : 'bg-black/[0.04] text-muted hover:bg-black/[0.07]'
+                active ? 'bg-brand-600 text-white' : 'bg-black/[0.04] text-muted hover:bg-black/[0.07]'
               }`}
             >
               {f.label} <span className={active ? 'opacity-80' : 'opacity-60'}>{count}</span>
@@ -280,7 +280,7 @@ export function UsersTable({ rows }: { rows: UserRow[] }) {
                       onClick={() => confirmDelete(r.userId)}
                       disabled={busyId === r.userId || r.role === 'admin'}
                       title={r.role === 'admin' ? 'Cannot delete admin' : `Delete ${r.name}`}
-                      className="flex items-center justify-center w-8 h-8 rounded-lg text-muted hover:bg-incorrect/10 hover:text-incorrect disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                      className="flex items-center justify-center w-8 h-8 rounded-lg text-muted hover:bg-incorrect/10 hover:text-incorrect-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                     >
                       <X className="w-4 h-4" aria-hidden />
                     </button>

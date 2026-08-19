@@ -61,12 +61,12 @@ export function ExamSection({
       <div className="rounded-2xl border border-black/5 bg-surface px-5 py-4 shadow-sm space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <ClipboardList className="h-5 w-5 text-maths" aria-hidden />
+            <ClipboardList className="h-5 w-5 text-on-maths" aria-hidden />
             <h2 className="font-heading text-base font-bold text-ink">Exam Revision</h2>
           </div>
           <button
             onClick={() => setShowModal(true)}
-            className="rounded-xl bg-maths/10 px-4 py-2 text-sm font-bold text-maths transition-colors hover:bg-maths/20 min-h-[44px]"
+            className="rounded-xl bg-maths/10 px-4 py-2 text-sm font-bold text-on-maths transition-colors hover:bg-maths/20 min-h-[44px]"
           >
             Set exam
           </button>
