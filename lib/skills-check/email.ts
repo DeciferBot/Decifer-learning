@@ -38,6 +38,11 @@ const VERDICT_LABEL: Record<string, string> = {
   needs_work: 'Needs work',
 }
 
+/** Lowercases the first letter only, for a phrase used mid-sentence. */
+function lowerFirst(s: string): string {
+  return s.length === 0 ? s : s[0].toLowerCase() + s.slice(1)
+}
+
 const VERDICT_COLOUR: Record<string, string> = {
   secure: '#40C057',
   developing: '#FFC107',
@@ -144,7 +149,11 @@ export async function sendSkillsCheckReport(view: AttemptView, to: string): Prom
     await resend.emails.send({
       from: FROM,
       to,
-      subject: `${view.teaser.headline} Your child's ${year} ${subject} check`,
+      // The headline already ends in a full stop, so putting it in front of a
+      // second phrase produced "Working below Year 4 maths. Your child's Year 4
+      // maths check" in a real inbox — two sentences jammed together, saying
+      // "Year 4 maths" twice. Lead with what the email is, then the finding.
+      subject: `Your child's ${year} ${subject} check: ${lowerFirst(view.teaser.headline.replace(/\.$/, ''))}`,
       html,
       text,
     })

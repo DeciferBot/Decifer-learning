@@ -38,8 +38,19 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Please enter a valid email address.' }, { status: 400 })
   }
 
-  const view = await unlockReport(token, email, body.source)
-  if (!view) return NextResponse.json({ error: 'Unknown check.' }, { status: 404 })
+  // Per-token cap on top of the per-IP one. The IP limit alone does not stop a
+  // distributed replay of one finished token against many addresses, and this
+  // is the endpoint that makes us send mail.
+  if (!rateLimit(`skills-check-unlock-token:${token}`, 3, 3_600_000)) {
+    return NextResponse.json(
+      { error: 'This result has already been sent a few times. Please use the link in your email.' },
+      { status: 429 },
+    )
+  }
+
+  const unlocked = await unlockReport(token, email, body.source)
+  if (!unlocked) return NextResponse.json({ error: 'Unknown check.' }, { status: 404 })
+  const { view, shouldSend } = unlocked
 
   // AWAITED, not fire-and-forget.
   //
@@ -53,7 +64,9 @@ export async function POST(req: Request) {
   // Awaiting costs a few hundred milliseconds on a request the parent is already
   // waiting on. sendSkillsCheckReport swallows its own errors, so this can add
   // latency but can never turn a working unlock into a failed one.
-  await sendSkillsCheckReport(view, email)
+  // Skipped when this address already has this report, so a reload or a
+  // double-tap does not send a second copy.
+  if (shouldSend) await sendSkillsCheckReport(view, email)
 
   return NextResponse.json({ token: view.token, teaser: view.teaser, report: view.report })
 }
