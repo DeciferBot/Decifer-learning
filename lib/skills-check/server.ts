@@ -402,10 +402,9 @@ async function buildNextSteps(
   })
 }
 
-/** Deliberately permissive: reject the obviously-not-an-address, nothing more. */
-export function isValidEmail(email: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim()) && email.trim().length <= 254
-}
+// Shared with the Reasoning Check, which has the same gate. Re-exported here so
+// the routes that already import it from this module keep working.
+export { isValidEmail } from '@/lib/valid-email'
 
 /**
  * Record the parent's email and unlock the report.

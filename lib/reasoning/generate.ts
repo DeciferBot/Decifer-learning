@@ -27,6 +27,7 @@ import {
   ROTATIONS,
   COUNTS,
   figuresEqual,
+  visuallyEqual,
   visualKey,
   effectiveRotation,
   type Figure,
@@ -227,6 +228,40 @@ function fitBaseToRun(base: Figure, rule: Rule, steps: number, level: Level): Fi
     if (Math.abs(span) > domain.length - 1) continue // cannot fit; leave as is
     const startIndex = span >= 0 ? 0 : domain.length - 1
     out = { ...out, [step.attribute]: domain[startIndex] } as Figure
+  }
+  return out
+}
+
+/**
+ * Move a figure into the window where ONE application of `rule` cannot wrap a
+ * bounded attribute, keeping as much variety as the window allows.
+ *
+ * This is the analogy's version of fitBaseToRun. It cannot use that function,
+ * because pinning to the end of the range would give the analogy's two starting
+ * figures the same count and the same size, and "A and C start identical" turns
+ * the puzzle into spot-the-difference. Picking anywhere inside the safe window
+ * keeps them different while still ruling out the wrap.
+ *
+ * Found by looking at a real generated item rather than by a test: at level 3 an
+ * analogy read "one circle becomes four hexagons, so four circles become
+ * three hexagons". The rule (one fewer, wrapping) is consistent and the item was
+ * not ambiguous, so validateItem passed it. It just reads like a bug, which is
+ * exactly why WRAP_FROM_LEVEL exists — and the analogy generator was the one
+ * place that never consulted it.
+ */
+function fitBaseForOneStep(base: Figure, rule: Rule, level: Level, rng: Rng): Figure {
+  const bounded = boundedAt(level)
+  let out = base
+  for (const step of rule) {
+    if (!bounded.includes(step.attribute)) continue
+    const domain = DOMAINS[step.attribute] as readonly unknown[]
+    // Indexes from which index + delta still lands inside the domain.
+    const lowest = Math.max(0, -step.delta)
+    const highest = Math.min(domain.length - 1, domain.length - 1 - step.delta)
+    if (lowest > highest) continue // a step this big cannot fit; leave it alone
+    const index = domainIndex(out, step.attribute)
+    if (index >= lowest && index <= highest) continue
+    out = { ...out, [step.attribute]: domain[rng.int(lowest, highest)] } as Figure
   }
   return out
 }
@@ -519,13 +554,18 @@ function generateMatrix(level: Level, seed: string, rng: Rng): ReasoningItem {
 
 function generateAnalogy(level: Level, seed: string, rng: Rng): ReasoningItem {
   const rule = buildRule(level, rng)
-  const a = randomFigure(rng)
+  // Both starting figures are pulled into the no-wrap window, so the same rule
+  // reads the same way on each pair. Without this, "one fewer" could show as
+  // 1 -> 4 on the first pair and 4 -> 3 on the second (see fitBaseForOneStep).
+  const a = fitBaseForOneStep(randomFigure(rng), rule, level, rng)
   const b = applyRule(a, rule, 1)
   // C should be visibly a different starting point, or the analogy collapses
   // into "spot the same picture".
-  let c = randomFigure(rng)
+  let c = fitBaseForOneStep(randomFigure(rng), rule, level, rng)
   let guard = 0
-  while (figuresEqual(c, a) && guard++ < 20) c = randomFigure(rng)
+  while (visuallyEqual(c, a) && guard++ < 20) {
+    c = fitBaseForOneStep(randomFigure(rng), rule, level, rng)
+  }
 
   const correct = applyRule(c, rule, 1)
   const candidates = [
