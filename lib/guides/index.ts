@@ -9,6 +9,10 @@ import { schoolYearGroupsAgesUae } from './content/school-year-groups-ages-uae'
 import { uaeTermDates202627 } from './content/uae-term-dates-2026-27'
 import { movingToUaeSchoolAdmissions } from './content/moving-to-uae-school-admissions'
 import { satsAndPrimaryAssessments } from './content/sats-and-primary-assessments'
+import { cat4ExplainedUae } from './content/cat4-explained-uae'
+import { cat4ScoresExplained } from './content/cat4-scores-explained'
+import { iqTestsForChildren } from './content/iq-tests-for-children'
+import { elevenPlusNonVerbalReasoning } from './content/11-plus-non-verbal-reasoning'
 
 // Ordered registry of published guides. Add new guides here after authoring
 // the content file under lib/guides/content/. Order controls the hub page
@@ -19,6 +23,10 @@ const GUIDES: Guide[] = [
   choosingBritishSchoolDubai,
   abuDhabiSchoolFeesRatings,
   britishCurriculumExplained,
+  cat4ExplainedUae,
+  cat4ScoresExplained,
+  elevenPlusNonVerbalReasoning,
+  iqTestsForChildren,
   satsAndPrimaryAssessments,
   schoolYearGroupsAgesUae,
   gcseInUae,
