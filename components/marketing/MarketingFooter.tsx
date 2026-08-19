@@ -22,6 +22,7 @@ const NAV_LINKS: { href: string; label: string }[] = [
   { href: '/how-it-works', label: 'How it works' },
   { href: '/guides', label: 'UAE guides' },
   { href: '/blitz', label: 'Blitz' },
+  { href: '/games', label: 'Free games' },
   { href: '/pricing', label: 'Pricing' },
   { href: '/help', label: 'Help' },
   { href: '/help/faq', label: 'FAQ' },

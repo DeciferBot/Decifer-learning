@@ -20,6 +20,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/pricing`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${BASE}/guides`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
     { url: `${BASE}/blitz`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
+    // Free games — public, no-login catalogue for SEO discoverability
+    { url: `${BASE}/games`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${BASE}/games/chess`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${BASE}/games/checkers`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${BASE}/games/connect-4`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${BASE}/games/crossword`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${BASE}/games/word-tiles`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
     // Help centre
     { url: `${BASE}/help`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${BASE}/help/faq`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
