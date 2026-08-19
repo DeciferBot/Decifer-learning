@@ -136,6 +136,8 @@ model Profile {
   hosted_board_games BoardGame[] @relation("HostedBoardGames")
   guest_board_games  BoardGame[] @relation("GuestBoardGames")
 
+  skill_check_attempts SkillCheckAttempt[]
+
   @@map("profiles")
 }
 
@@ -180,6 +182,7 @@ model YearGroup {
   daily_challenges DailyChallenge[]
   curriculum_units CurriculumUnit[]
   exam_assignments ExamAssignment[]
+  skill_checks     SkillCheck[]
 
   @@map("year_groups")
 }
@@ -197,6 +200,7 @@ model Subject {
   lessons             Lesson[]
   curriculum_units    CurriculumUnit[]
   exam_assignments    ExamAssignment[]
+  skill_checks        SkillCheck[]
 
   @@map("subjects")
 }
@@ -230,6 +234,7 @@ model Topic {
   curriculum_outcomes CurriculumOutcome[]
   lessons             Lesson[]
   quiz_reflections    QuizReflection[]
+  skill_check_items   SkillCheckItem[]    @relation("SkillCheckStrand")
 
   @@unique([subject_id, slug])
   @@map("topics")
@@ -378,10 +383,11 @@ model QuizQuestion {
   calibration_n     Int           @default(0)
   calibrated_at     DateTime?
 
-  topic           Topic            @relation(fields: [topic_id], references: [id])
-  quiz_answers    QuizAnswer[]
-  session_answers SessionAnswer[]
-  reports         QuestionReport[]
+  topic             Topic            @relation(fields: [topic_id], references: [id])
+  quiz_answers      QuizAnswer[]
+  session_answers   SessionAnswer[]
+  reports           QuestionReport[]
+  skill_check_items SkillCheckItem[]
 
   @@index([topic_id, status, tier])
   @@map("quiz_questions")
@@ -1191,4 +1197,154 @@ model BoardGame {
   @@index([host_guest_token])
   @@index([guest_guest_token])
   @@map("board_games")
+}
+
+// ---------- Decifer Skills Check ----------
+// Free, no-login curriculum diagnostic. Scope: docs/SKILLS_CHECK_SCOPE.md
+//
+// Criterion-referenced, never norm-referenced: the check reports whether a child
+// is secure on what the National Curriculum expects for their year. It never
+// produces a standardised score, a percentile, or a comparison with another
+// child. Scoring lives in lib/skills-check/score.ts (pure, unit-tested).
+//
+// Every table here is server-only: RLS on with no policies plus REVOKE ALL, same
+// posture as board_games. The browser never reads them, which is what keeps
+// skill_check_items (correct answers) and skill_check_leads (parent emails) shut.
+
+enum SkillCheckFormat {
+  // 20 items, 4 strands x 5, untimed.
+  strand_sample
+  // DfE Multiplication Tables Check shape: 25 items, 6 seconds each.
+  timed_tables
+}
+
+/// Which year group an item was drawn from, RELATIVE to the check's own year.
+enum SkillCheckBand {
+  below
+  at
+  above
+}
+
+enum SkillCheckWorkingLevel {
+  below_year
+  towards_year
+  within_year
+  secure_year
+  secure_ready_to_stretch
+}
+
+model SkillCheck {
+  id               String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  /// URL segment, e.g. 'maths-year-4'.
+  slug             String           @unique
+  subject_id       String           @db.Uuid
+  year_group_id    String           @db.Uuid
+  format           SkillCheckFormat @default(strand_sample)
+  item_count       Int              @default(20)
+  /// timed_tables only. The DfE check allows 6 seconds per question.
+  seconds_per_item Int?
+  /// Goes true only after every item has been hand-checked once (scope §11).
+  is_published     Boolean          @default(false)
+  created_at       DateTime         @default(now())
+  updated_at       DateTime         @default(now()) @updatedAt
+
+  subject    Subject             @relation(fields: [subject_id], references: [id])
+  year_group YearGroup           @relation(fields: [year_group_id], references: [id])
+  items      SkillCheckItem[]
+  attempts   SkillCheckAttempt[]
+
+  @@unique([subject_id, year_group_id, format])
+  @@index([is_published])
+  @@map("skill_checks")
+}
+
+model SkillCheckItem {
+  id              String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  check_id        String         @db.Uuid
+  /// Points at a published quiz_questions row. Items carry no content of their own.
+  question_id     String         @db.Uuid
+  position        Int
+  band            SkillCheckBand
+  /// The AT-YEAR topic this item reports under. A 'below' item comes from last
+  /// year's topic but reports under this year's strand, so the parent's report
+  /// only ever names the year they asked about.
+  strand_topic_id String         @db.Uuid
+  created_at      DateTime       @default(now())
+
+  check    SkillCheck         @relation(fields: [check_id], references: [id], onDelete: Cascade)
+  question QuizQuestion       @relation(fields: [question_id], references: [id])
+  strand   Topic              @relation("SkillCheckStrand", fields: [strand_topic_id], references: [id])
+  answers  SkillCheckAnswer[]
+
+  @@unique([check_id, position])
+  @@unique([check_id, question_id])
+  @@index([strand_topic_id])
+  @@map("skill_check_items")
+}
+
+/// Anonymous by design. Holds NO personal data: no name, no date of birth, no
+/// school. The token is the only handle, and it lives in a first-party cookie.
+model SkillCheckAttempt {
+  id             String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  token          String                  @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  check_id       String                  @db.Uuid
+  started_at     DateTime                @default(now())
+  finished_at    DateTime?
+  raw_score      Int?
+  total_items    Int?
+  working_level  SkillCheckWorkingLevel?
+  /// Per-strand results as lib/skills-check/score.ts returns them. Denormalised
+  /// so an old report still renders after a topic is renamed or an item retired.
+  strand_results Json?
+  /// Set only when a logged-in profile took it. Null for the public funnel.
+  profile_id     String?                 @db.Uuid
+  created_at     DateTime                @default(now())
+
+  check   SkillCheck         @relation(fields: [check_id], references: [id])
+  profile Profile?           @relation(fields: [profile_id], references: [id], onDelete: Cascade)
+  answers SkillCheckAnswer[]
+  lead    SkillCheckLead?
+
+  @@index([check_id, created_at])
+  @@index([created_at])
+  @@map("skill_check_attempts")
+}
+
+/// Kept to calibrate lib/irt.ts, which has never had data. Deliberately separate
+/// from quiz_answers / session_answers: an anonymous check must never write into
+/// a child's learning record.
+model SkillCheckAnswer {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  attempt_id   String   @db.Uuid
+  item_id      String   @db.Uuid
+  child_answer String?
+  was_correct  Boolean
+  time_seconds Int?
+  created_at   DateTime @default(now())
+
+  attempt SkillCheckAttempt @relation(fields: [attempt_id], references: [id], onDelete: Cascade)
+  item    SkillCheckItem    @relation(fields: [item_id], references: [id], onDelete: Cascade)
+
+  @@unique([attempt_id, item_id])
+  @@map("skill_check_answers")
+}
+
+/// The parent's email, and nothing else.
+model SkillCheckLead {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  attempt_id   String    @unique @db.Uuid
+  parent_email String
+  consented_at DateTime  @default(now())
+  verified_at  DateTime?
+  /// Set by the one-click delete link in the report email. A tombstone, not a
+  /// hard delete, so a deleted address is never re-emailed by a later cron.
+  deleted_at   DateTime?
+  source       String?
+  utm          Json?
+  created_at   DateTime  @default(now())
+
+  attempt SkillCheckAttempt @relation(fields: [attempt_id], references: [id], onDelete: Cascade)
+
+  @@index([parent_email])
+  @@map("skill_check_leads")
 }
