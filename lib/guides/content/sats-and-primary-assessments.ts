@@ -2,10 +2,12 @@ import type { Guide } from '../types'
 
 export const satsAndPrimaryAssessments: Guide = {
   slug: 'sats-and-primary-assessments',
-  title: 'SATs and UK Primary Assessments Explained: 2026 Dates and What the Scores Mean',
+  title: 'SATs Explained: 2027 Dates and What the Scores Mean',
   h1: 'SATs and the other UK primary assessments, explained',
   description:
-    'What the Year 6 SATs, the Year 4 times tables check and the Year 1 phonics check actually test, the 2026 dates, how scaled scores work, and what all of it means for a child at a British school in the UAE.',
+    'What the Year 6 SATs, the Year 4 times tables check and the Year 1 phonics check actually test, the 2027 dates, how scaled scores work, and what all of it means for a child at a British school in the UAE.',
+  metaDescription:
+    'What the Year 6 SATs, the Year 4 times tables check and the Year 1 phonics check test, the 2027 dates, and how scaled scores work.',
   keyAnswer:
     'In England, three primary assessments are statutory: the Year 1 phonics screening check, the Year 4 multiplication tables check, and the Year 6 key stage 2 tests, known as SATs. Key stage 1 SATs became optional from the 2023 to 2024 academic year. British schools in the UAE are private schools overseas, so none of these are compulsory for them, and practice varies school by school.',
   category: 'curriculum-explained',
@@ -37,20 +39,20 @@ export const satsAndPrimaryAssessments: Guide = {
       kind: 'p',
       html: 'The change at key stage 1 is the one that catches people out. The Department for Education announced in July 2022 that end of key stage 1 assessment would become non-statutory from the 2023 to 2024 academic year. The Year 2 reading, maths and grammar tests still exist, and schools can still use them, but they are now optional and so is the teacher assessment that went with them. The Year 1 phonics screening check was not part of that change and remains statutory.',
     },
-    { kind: 'h2', id: 'dates-2026', text: 'The 2026 dates' },
+    { kind: 'h2', id: 'dates-2027', text: 'The 2027 dates' },
     {
       kind: 'p',
-      html: 'These are the windows published by the Department for Education for the 2025 to 2026 academic year. Assessment arrangements for this year are unchanged while the wider Curriculum and Assessment Review is considered.',
+      html: 'These are the windows published by the Department for Education for the 2026 to 2027 academic year. The 2026 assessments ran in May and June 2026, so the dates below are the next ones a parent can plan around. Arrangements are unchanged while the wider Curriculum and Assessment Review is considered.',
     },
     {
       kind: 'table',
-      caption: '2026 assessment windows in England (source: gov.uk)',
-      headers: ['Assessment', 'When in 2026'],
+      caption: '2027 assessment windows in England (source: gov.uk)',
+      headers: ['Assessment', 'When in 2027'],
       rows: [
-        ['Key stage 2 tests (SATs)', 'Monday 11 May to Thursday 14 May'],
+        ['Key stage 2 tests (SATs)', 'Monday 10 May to Thursday 13 May'],
         ['Optional key stage 1 tests', 'Recommended during May'],
-        ['Multiplication tables check', 'Two-week window from Monday 1 June'],
-        ['Phonics screening check', 'One-week window from Monday 8 June'],
+        ['Multiplication tables check', 'Two-week window from Monday 7 June'],
+        ['Phonics screening check', 'One-week window from Monday 14 June'],
       ],
     },
     { kind: 'h2', id: 'what-each-tests', text: 'What each one actually tests' },
@@ -118,8 +120,8 @@ export const satsAndPrimaryAssessments: Guide = {
           a: 'No. The Department for Education publishes no expected standard for the multiplication tables check, so the score describes how fluent a child is with tables up to 12 x 12 and nothing more.',
         },
         {
-          q: 'When are the 2026 SATs?',
-          a: 'The key stage 2 tests in England are timetabled for Monday 11 May to Thursday 14 May 2026. A UAE school that chooses to run them would normally follow the same national week, but confirm the dates with your school.',
+          q: 'When are the 2027 SATs?',
+          a: 'The key stage 2 tests in England are timetabled for Monday 10 May to Thursday 13 May 2027. The 2026 tests ran from 11 to 14 May 2026. A UAE school that chooses to run them would normally follow the same national week, but confirm the dates with your school.',
         },
       ],
     },
