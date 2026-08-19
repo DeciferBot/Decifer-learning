@@ -206,7 +206,8 @@ export async function POST(req: Request, { params }: { params: { zoneId: string 
   // Non-blocking parent email on the first-ever Guardian win (the Guardian
   // Slayer badge is awarded once, so this fires at most once). Never throws.
   // waitUntil, not `void` — see the note in app/api/quiz/submit/route.ts: on
-  // Vercel an un-awaited promise is frozen with the response and never sends.
+  // Vercel an un-awaited promise races the response freeze and is dropped some
+  // of the time. A guardian win happens once, so one loss is the whole email.
   if (result.earnedBadge) {
     waitUntil(notifyParentBigMoment(profile.id, profile.display_name, { kind: 'guardian_win', zoneName: zone.name }))
   }
