@@ -5,7 +5,7 @@ import { getCurrentProfile } from '@/lib/profile'
 import { prisma } from '@/lib/prisma'
 import { ZoneMap, type ZoneNode } from '@/components/world-map/ZoneMap'
 import type { NodeState } from '@/components/world-map/TopicNode'
-import { MapFold, Swords, ArrowRight } from '@/components/ui/icons'
+import { MapFold, Swords, ArrowRight, Gamepad } from '@/components/ui/icons'
 import Link from 'next/link'
 
 export const metadata = { title: 'World Map' }
@@ -93,6 +93,20 @@ export default async function WorldMapPage() {
           <p className="text-sm text-white/85">Race your friends in a live quiz!</p>
         </div>
         <ArrowRight className="h-5 w-5 shrink-0" aria-hidden />
+      </Link>
+
+      {/* Games picker — the quiet counterpart to Quiz Battle above, and the
+          shortcut for a child who opened the app not wanting to study. */}
+      <Link
+        href="/downtime"
+        className="flex min-h-[56px] items-center gap-3 rounded-2xl border border-black/5 bg-surface px-5 py-3 shadow-sm transition-colors hover:bg-black/[0.02]"
+      >
+        <Gamepad className="h-5 w-5 shrink-0 text-brand" aria-hidden />
+        <div className="min-w-0 flex-1">
+          <p className="font-heading text-sm font-bold text-ink">Games</p>
+          <p className="text-xs text-muted">Chess, Connect 4, crosswords and more</p>
+        </div>
+        <span className="shrink-0 text-xs font-bold text-brand">Play &rarr;</span>
       </Link>
 
       {zonesWithContent.length === 0 && (

@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, MapFold, LayoutGrid, UserCircle, Telescope, ClipboardList } from '@/components/ui/icons'
+import { Home, MapFold, LayoutGrid, UserCircle, Telescope, ClipboardList, Gamepad } from '@/components/ui/icons'
 import type { SVGProps } from 'react'
 
 type TabIcon = (props: SVGProps<SVGSVGElement> & { size?: number }) => JSX.Element
@@ -11,6 +11,10 @@ const TABS: { href: string; label: string; Icon: TabIcon }[] = [
   { href: '/world-map',       label: 'Home',       Icon: Home },
   { href: '/dashboard/child', label: 'Progress',   Icon: MapFold },
   { href: '/explore',         label: 'Explore',    Icon: Telescope },
+  // /downtime is the games picker (Quiz Battle, Daily Challenge, Decifer
+  // Downtime board games). It sits in the tab bar because it was previously
+  // only reachable from one small tile near the bottom of /dashboard/child.
+  { href: '/downtime',        label: 'Games',      Icon: Gamepad },
   { href: '/exam',            label: 'Exams',      Icon: ClipboardList },
   { href: '/collection',      label: 'Cards',      Icon: LayoutGrid },
   { href: '/profile',         label: 'Profile',    Icon: UserCircle },

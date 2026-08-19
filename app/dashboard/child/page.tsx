@@ -389,7 +389,7 @@ export default async function ChildDashboardPage() {
           { href: '/missions',    label: 'Missions',  Icon: Target },
           { href: '/leaderboard', label: 'Family',    Icon: Trophy },
           { href: '/customise',   label: 'Customise', Icon: PencilLine },
-          { href: '/downtime',    label: 'Downtime',  Icon: Gamepad },
+          { href: '/downtime',    label: 'Games',     Icon: Gamepad },
         ].map(({ href, label, Icon }) => (
           <Link
             key={href}
