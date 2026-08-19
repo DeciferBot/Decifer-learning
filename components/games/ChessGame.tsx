@@ -5,6 +5,7 @@ import { Chess, type Square } from 'chess.js'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { fireFeedback } from '@/lib/feedback'
 import { pickComputerMove, type ChessDifficulty } from '@/lib/games/chess-ai'
+import { capturedMaterial } from '@/lib/games/chess-material'
 import { useBoardGame } from '@/lib/downtime/useBoardGame'
 import { OnlineLobby } from '@/components/games/OnlineLobby'
 import { WaitingRoom, TurnBanner, PlayAFriendDivider } from '@/components/games/OnlineBoardStatus'
@@ -29,9 +30,6 @@ const PIECE_GLYPH: Record<string, string> = {
 const PIECE_NAME: Record<string, string> = {
   p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king',
 }
-
-/** Material each side starts with, for the captured-pieces strip. */
-const FULL_SET: Record<string, number> = { p: 8, n: 2, b: 2, r: 2, q: 1 }
 
 const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'] as const
 const RANKS = [8, 7, 6, 5, 4, 3, 2, 1] as const
@@ -417,24 +415,16 @@ function ChessBoardGrid({
  * Captured material, read straight off the FEN rather than tracked in state
  * — anything missing from a full set has been taken. It answers the question
  * a child actually asks mid-game ("am I ahead?") without a points system.
+ *
+ * The count is clamped at zero because promotion can put MORE of a piece on
+ * the board than the set started with, and this game always promotes to a
+ * queen. Without the clamp a promoted pawn gave 1 - 2 = -1 queens captured,
+ * and `Array(-1)` throws RangeError, taking the whole board down with it.
  */
 function CapturedStrip({ fen }: { fen: string }) {
-  const board = new Chess(fen)
-  const remaining: Record<'w' | 'b', Record<string, number>> = { w: {}, b: {} }
-  for (const rank of RANKS) {
-    for (const file of FILES) {
-      const p = board.get(`${file}${rank}` as Square)
-      if (!p || p.type === 'k') continue
-      remaining[p.color][p.type] = (remaining[p.color][p.type] ?? 0) + 1
-    }
-  }
-  const taken = (colour: 'w' | 'b') =>
-    Object.entries(FULL_SET).flatMap(([type, n]) =>
-      Array((n - (remaining[colour][type] ?? 0)) || 0).fill(type) as string[],
-    )
-
-  const byYou = taken('b')   // black pieces you have captured
-  const byThem = taken('w')
+  const { white, black } = capturedMaterial(fen)
+  const byYou = black   // black pieces you have captured
+  const byThem = white
   if (byYou.length === 0 && byThem.length === 0) return null
 
   const count = (n: number) => `${n} ${n === 1 ? 'piece' : 'pieces'}`

@@ -653,8 +653,12 @@
   /* ── Chess + checkers board ───────────────────────────────── */
   --game-sq-light:     #EDDCC0;   /* maple                                */
   --game-sq-dark:      #B08356;   /* walnut — 2.5:1 against maple         */
-  --game-coord-light:  #8A6A44;   /* rank/file label sitting on maple     */
-  --game-coord-dark:   #F0E2C9;   /* …and on walnut                       */
+  /* Rank and file labels. Both are dark, including the one on walnut: no
+     light tone clears 4.5:1 there (even pure white is only 3.37:1), and these
+     are 9px bold, which is not "large text". Measured 5.36:1 on maple and
+     4.75:1 on walnut. They were 3.69:1 and 2.64:1 before. */
+  --game-coord-light:  #6E5230;   /* rank/file label sitting on maple     */
+  --game-coord-dark:   #2E1E12;   /* …and on walnut                       */
 
   /* ── Pieces. Rim carries the contrast, fill carries identity ─ */
   --game-piece-light:      #FFFDF8;
