@@ -12,7 +12,7 @@ export const britishCurriculumExplained: Guide = {
     'The English National Curriculum runs from the early years through four key stages: KS1 covers Years 1 to 2, KS2 Years 3 to 6, KS3 Years 7 to 9, and KS4 Years 10 to 11 ending in GCSEs. UAE British schools follow the same structure and add Arabic and Islamic education.',
   category: 'curriculum-explained',
   datePublished: '2026-07-30',
-  dateModified: '2026-07-30',
+  dateModified: '2026-08-18',
   blocks: [
     {
       kind: 'p',
@@ -38,7 +38,7 @@ export const britishCurriculumExplained: Guide = {
     },
     {
       kind: 'p',
-      html: 'Two details worth knowing. First, UAE British schools usually call the two early-years groups FS1 and FS2 rather than Nursery and Reception. Second, “Key Stage 5” for the sixth form is everyday school language rather than an official National Curriculum stage; the statutory curriculum runs to age 16.',
+      html: 'Two details worth knowing. First, UAE British schools usually call the two early-years groups FS1 and FS2 rather than Nursery and Reception. Second, “Key Stage 5” for the sixth form is everyday school language rather than an official National Curriculum stage; the statutory curriculum runs to age 16. If you want the detail on the assessments in that last column, our guide to <a href="/guides/sats-and-primary-assessments">SATs and the UK primary assessments</a> covers what each one tests, the 2026 dates and how the scores are reported.',
     },
     { kind: 'h2', id: 'what-is-taught', text: 'What children study' },
     {
@@ -110,5 +110,5 @@ export const britishCurriculumExplained: Guide = {
       url: 'https://gulfnews.com/uae/education/10-new-private-schools-open-in-dubai-enrolments-up-by-6-1.500013123',
     },
   ],
-  related: ['school-year-groups-ages-uae', 'gcse-in-uae', 'khda-ratings-explained'],
+  related: ['sats-and-primary-assessments', 'school-year-groups-ages-uae', 'gcse-in-uae', 'khda-ratings-explained'],
 }
