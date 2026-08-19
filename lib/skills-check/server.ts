@@ -23,6 +23,7 @@
 import 'server-only'
 import { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
+import { withDbRetry } from '@/lib/db-retry'
 import { scoreCheck, buildTeaser, type CheckAnswer, type CheckResult, type CheckTeaser } from './score'
 import { buildOptions, isCorrectAnswer } from './shuffle'
 
@@ -62,44 +63,24 @@ export function prettySubject(name: string): string {
   return name.toLowerCase()
 }
 
-/**
- * Find a published check by its public URL parts, e.g. ('maths', 'year-4').
- *
- * Returns null when the check does not exist or has not been published, so a
- * page can render a clean 404 rather than an empty check.
- */
-export async function getPublishedCheck(
-  subjectSlug: string,
-  yearLabel: string,
-): Promise<CheckSummary | null> {
-  const check = await prisma.skillCheck.findFirst({
-    where: {
-      is_published: true,
-      year_group: { label: yearLabel },
-      subject: { OR: [{ slug: subjectSlug }, { name: { equals: subjectSlug, mode: 'insensitive' } }] },
-    },
-    select: {
-      id: true,
-      slug: true,
-      item_count: true,
-      subject: { select: { name: true, slug: true } },
-      year_group: { select: { label: true } },
-    },
-  })
-  if (!check) return null
-  return {
-    id: check.id,
-    slug: check.slug,
-    subjectName: check.subject.name,
-    subjectSlug: check.subject.slug ?? check.subject.name.toLowerCase(),
-    yearLabel: check.year_group.label,
-    itemCount: check.item_count,
-  }
-}
+// ── The published-check snapshot ─────────────────────────────────────────────
+// Every public read of "which checks exist" is served from ONE memoised list
+// rather than a query per page. This is the trap recorded in scope §8 and in
+// lib/public-curriculum.ts, and the Skills Check pages walked into it: a build
+// ran generateStaticParams (1 query) and then getPublishedCheck twice per page,
+// once in generateMetadata and once in the component. Across build workers,
+// each with its own Prisma client, that raced the curriculum snapshot for a
+// pooler capped at pool_size 15 and the export died with
+// "(EMAXCONNSESSION) max clients reached in session mode".
+//
+// There are at most a few dozen checks and the whole row set is tiny, so
+// holding it in memory costs nothing and turns the whole build into one query.
 
-/** Every published check, for the hub page and the sitemap. */
-export async function listPublishedChecks(): Promise<CheckSummary[]> {
-  const checks = await prisma.skillCheck.findMany({
+const CHECKS_TTL_MS = 60_000
+let checksCache: { at: number; data: Promise<CheckSummary[]> } | null = null
+
+async function loadPublishedChecks(): Promise<CheckSummary[]> {
+  const checks = await withDbRetry(() => prisma.skillCheck.findMany({
     where: { is_published: true },
     select: {
       id: true,
@@ -109,7 +90,7 @@ export async function listPublishedChecks(): Promise<CheckSummary[]> {
       year_group: { select: { label: true } },
     },
     orderBy: [{ subject: { name: 'asc' } }, { year_group: { label: 'asc' } }],
-  })
+  }))
   return checks.map((c) => ({
     id: c.id,
     slug: c.slug,
@@ -118,6 +99,54 @@ export async function listPublishedChecks(): Promise<CheckSummary[]> {
     yearLabel: c.year_group.label,
     itemCount: c.item_count,
   }))
+}
+
+/**
+ * Every published check, for the hub page, the landing pages and the sitemap.
+ *
+ * Memoised for a minute. Publishing a check is a rare, deliberate act, so a
+ * short stale window is harmless, and nothing here can leak an unpublished
+ * check: startAttempt re-checks `is_published` against the database before it
+ * will serve a single question.
+ */
+export async function listPublishedChecks(): Promise<CheckSummary[]> {
+  const now = Date.now()
+  if (!checksCache || now - checksCache.at > CHECKS_TTL_MS) {
+    const pending = loadPublishedChecks()
+    // Evict a rejected snapshot immediately. We cache the promise, not the
+    // value, so without this one transient connection failure would be handed
+    // to every caller for the rest of the TTL and a single blip would fail a
+    // whole batch of pages.
+    pending.catch(() => {
+      if (checksCache?.data === pending) checksCache = null
+    })
+    checksCache = { at: now, data: pending }
+  }
+  return checksCache.data
+}
+
+/**
+ * Find a published check by its public URL parts, e.g. ('maths', 'year-4').
+ *
+ * Served from the snapshot above, so a page costs no query of its own. Returns
+ * null when the check does not exist or has not been published, so a page can
+ * render a clean 404 rather than an empty check.
+ */
+export async function getPublishedCheck(
+  subjectSlug: string,
+  yearLabel: string,
+): Promise<CheckSummary | null> {
+  const wanted = subjectSlug.toLowerCase()
+  const checks = await listPublishedChecks()
+  return (
+    checks.find(
+      (c) =>
+        c.yearLabel === yearLabel &&
+        // Match on slug or on the subject name, the same two ways the old query
+        // did, so a subject with a null slug still resolves by name.
+        (c.subjectSlug.toLowerCase() === wanted || c.subjectName.toLowerCase() === wanted),
+    ) ?? null
+  )
 }
 
 /**

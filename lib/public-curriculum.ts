@@ -19,6 +19,7 @@
 // for an empty subject is harmless — getPublicCurriculumSummary filters it out.
 
 import { prisma } from '@/lib/prisma'
+import { withDbRetry } from '@/lib/db-retry'
 
 export const PUBLIC_SUBJECT_SLUGS = ['maths', 'english', 'science', 'history', 'geography'] as const
 export type PublicSubjectSlug = (typeof PUBLIC_SUBJECT_SLUGS)[number]
@@ -223,39 +224,8 @@ type Snapshot = {
 const SNAPSHOT_TTL_MS = 60_000
 let snapshotCache: { at: number; data: Promise<Snapshot> } | null = null
 
-/**
- * Retry the snapshot on connection failures.
- *
- * A production build prerenders 465 pages across several worker processes, each
- * with its own module scope and so its own snapshot, all racing for a pooler
- * capped at connection_limit=10. Without this a handful of workers lose that
- * race and the whole build fails on four pages out of 465. Short backoff is
- * enough; this is contention, not an outage.
- */
-async function withRetry<T>(fn: () => Promise<T>, attempts = 8): Promise<T> {
-  let lastError: unknown
-  for (let i = 0; i < attempts; i++) {
-    try {
-      return await fn()
-    } catch (err) {
-      lastError = err
-      if (i < attempts - 1) {
-        // Exponential backoff with jitter, roughly a minute in total. The failure
-        // is "max clients reached in session mode, pool_size: 15": every build
-        // worker runs its own Prisma client, and connection_limit=10 per client
-        // means two workers already exceed the pool. It clears as workers finish,
-        // so the wait has to outlast the contention rather than a brief blip. The
-        // jitter stops every worker retrying on the same beat.
-        const backoff = 500 * 2 ** i
-        await new Promise((r) => setTimeout(r, backoff + Math.floor(Math.random() * 250)))
-      }
-    }
-  }
-  throw lastError
-}
-
 async function loadSnapshot(): Promise<Snapshot> {
-  const [topics, units] = await withRetry(() => Promise.all([
+  const [topics, units] = await withDbRetry(() => Promise.all([
     prisma.topic.findMany({
       where: { is_published: true, subject: { slug: { in: [...PUBLIC_SUBJECT_SLUGS] } } },
       orderBy: { order_index: 'asc' },
