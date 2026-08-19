@@ -22,6 +22,7 @@ import {
   strandFamily,
   isSelfContained,
   hasSingleAnswerPhrasing,
+  hasUsableAnswer,
   STRAND_BAND_PLAN,
   STRANDS_PER_CHECK,
   ITEMS_PER_STRAND,
@@ -614,5 +615,131 @@ describe('isSuitableForPublicCheck — all three gates together', () => {
 describe('poolSize', () => {
   it('counts every tier', () => {
     expect(poolSize(pool('t', 'x', [2, 3, 4]))).toBe(9)
+  })
+})
+
+describe('isSelfContained — lesson-bound and missing-passage questions', () => {
+  // All from built English checks. Each is fine inside the lesson that taught it
+  // and unanswerable in a public check taken by a child who has never used Decifer.
+  it('rejects a question that points at a lesson', () => {
+    expect(isSelfContained('According to the lesson, what can reading non-fiction help you develop?')).toBe(false)
+    expect(isSelfContained('What is the name of the text about the rescue of elephants in Myanmar?')).toBe(false)
+  })
+
+  it('rejects a question that points at a text it does not include', () => {
+    expect(isSelfContained('What does the text say about different forms of reading?')).toBe(false)
+    expect(
+      isSelfContained('Based on the sources, which statement best explains why someone might read this?'),
+    ).toBe(false)
+  })
+
+  it('keeps a comprehension question that quotes the text it asks about', () => {
+    expect(
+      isSelfContained(
+        "Read this sentence: 'The old man walked slowly, with a limp, and leaned heavily on his stick.' What does 'leaned' mean here?",
+      ),
+    ).toBe(true)
+  })
+
+  it('keeps a comprehension question long enough to carry its own passage', () => {
+    expect(
+      isSelfContained(
+        'Read the passage below carefully, then answer the question. Maya trudged through the snow, her boots soaking wet and her fingers numb inside her gloves. She looked back at the house one last time before turning towards the road. How does Maya feel about leaving?',
+      ),
+    ).toBe(true)
+  })
+})
+
+describe('hasUsableAnswer', () => {
+  it('rejects an orphaned multiple choice, where every option is a bare label', () => {
+    expect(hasUsableAnswer('C', ['A', 'B', 'D'])).toBe(false)
+    expect(hasUsableAnswer(' c ', ['a', 'b', 'd'])).toBe(false)
+  })
+
+  it('keeps a letter question, where the options are real letters', () => {
+    // "Which letter is silent in the word 'thumb'?"
+    expect(hasUsableAnswer('b', ['m', 'u', 'h'])).toBe(true)
+  })
+
+  it('rejects an empty answer', () => {
+    expect(hasUsableAnswer('')).toBe(false)
+    expect(hasUsableAnswer('   ')).toBe(false)
+  })
+
+  it('keeps real answers, including single characters that mean something', () => {
+    expect(hasUsableAnswer('full stop')).toBe(true)
+    expect(hasUsableAnswer('.')).toBe(true)
+    expect(hasUsableAnswer('375')).toBe(true)
+  })
+})
+
+describe('isSelfContained — set texts and lesson references, second pass', () => {
+  // A second read of the built English checks found these getting through the
+  // first set of rules.
+  it('rejects a question about a specific set text', () => {
+    for (const q of [
+      "In 'A Midsummer Night's Dream', why is Oberon angry with Puck?",
+      "In Mary Shelley's 'Frankenstein', which best describes his attitude to the creature?",
+      "In 'When the Sky Falls', why does the author withhold what happened to Joseph's father?",
+    ]) {
+      expect(isSelfContained(q)).toBe(false)
+    }
+  })
+
+  it('rejects "according to one lesson", not just "the lesson"', () => {
+    expect(isSelfContained('According to one lesson, what should you include at the end of a speech?')).toBe(false)
+  })
+
+  it('rejects a reference to an example that is not shown', () => {
+    expect(
+      isSelfContained("In the fiction writing example, the narrator describes Lily's hands trembling."),
+    ).toBe(false)
+  })
+
+  it('keeps a question that quotes a sentence to analyse', () => {
+    expect(
+      isSelfContained("Read this sentence: 'The old man walked slowly.' What does 'leaned' mean here?"),
+    ).toBe(true)
+    expect(
+      isSelfContained("Which word in this sentence is a subordinating conjunction? 'We stayed indoors because it rained.'"),
+    ).toBe(true)
+  })
+})
+
+describe('hasSingleAnswerPhrasing — second pass', () => {
+  it('rejects "which of the following are", which asks for several', () => {
+    expect(hasSingleAnswerPhrasing('Which of the following are analytical verbs?')).toBe(false)
+    expect(hasSingleAnswerPhrasing('Which of these shapes are quadrilaterals?')).toBe(false)
+  })
+
+  it('keeps the singular form', () => {
+    expect(hasSingleAnswerPhrasing('Which of the following is an example of personification?')).toBe(true)
+  })
+})
+
+describe('isSelfContained — a quoted title is not a passage', () => {
+  it('rejects a question that names a book but shows none of the sources', () => {
+    expect(
+      isSelfContained(
+        "Based on the sources, which statement best explains why someone might choose to read a text like 'Bandoola: The Great Elephant Rescue'?",
+      ),
+    ).toBe(false)
+  })
+
+  it('keeps a question that quotes enough text to be a passage', () => {
+    expect(
+      isSelfContained(
+        "Read this sentence from the text: 'The bristling branches, which clawed at the sky, were shackles.' What does this suggest?",
+      ),
+    ).toBe(true)
+  })
+
+  it('rejects a stem that opens mid-sentence, its blank lost', () => {
+    expect(isSelfContained('is a type of story that is made up or imagined.')).toBe(false)
+  })
+
+  it('keeps stems that legitimately open with a quote or a number', () => {
+    expect(isSelfContained("'The cat sat on the mat.' Which word is the noun in this sentence?")).toBe(true)
+    expect(isSelfContained('25% of a number is 20. What is the number?')).toBe(true)
   })
 })

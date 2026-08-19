@@ -19,7 +19,13 @@
 
 import { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
-import { planCheck, isSuitableForPublicCheck, type TopicPool, type CheckPlan } from './plan'
+import {
+  planCheck,
+  isSuitableForPublicCheck,
+  hasUsableAnswer,
+  type TopicPool,
+  type CheckPlan,
+} from './plan'
 import { buildOptions, MIN_OPTIONS } from './shuffle'
 
 /** True when a question can render as a fair multiple choice. */
@@ -94,6 +100,9 @@ export async function loadTopicPools(
       (q) =>
         // Screen heavy themes out of a public check. See isSuitableForPublicCheck.
         isSuitableForPublicCheck(q.question_text) &&
+        // And drop rows whose stored answer is a bare option label like "C",
+        // which would render as four meaningless letters.
+        hasUsableAnswer(q.correct_answer, q.distractors) &&
         // And drop anything that cannot render as a fair multiple choice. A row
         // whose `distractors` JSON is empty, malformed, or duplicates the
         // correct answer would show a child a single button to press. Checking
