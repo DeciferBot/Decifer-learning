@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { fireFeedback } from '@/lib/feedback'
+import { THUMB_RADIUS, safeStep, ticksFor, valueToX } from '@/lib/games/number-line'
 import {
   PracticeHeader, PracticeCard, PracticeFeedback, PracticeButton,
   PracticeSecondaryButton, PracticeDone,
@@ -27,10 +28,6 @@ export type NumberLineConfig = {
 type Props = {
   config: NumberLineConfig
   topicId: string
-}
-
-function snapToStep(value: number, min: number, step: number): number {
-  return Math.round((value - min) / step) * step + min
 }
 
 /**
@@ -65,27 +62,26 @@ function QuestionView({
   config: NumberLineConfig
   onCorrect: () => void
 }) {
-  const { min, max, step } = config
+  const { min, max } = config
+  const step = safeStep(config.step, min, max)
   const [value, setValue] = useState(min)
   const [submitted, setSubmitted] = useState(false)
   const [correct, setCorrect] = useState(false)
   const { ref: trackRef, width } = useTrackWidth()
 
-  const toX = (v: number) => (width === 0 ? 0 : ((v - min) / (max - min)) * width)
-  const toValue = (x: number) => {
-    const raw = width === 0 ? min : (x / width) * (max - min) + min
-    return Math.max(min, Math.min(max, snapToStep(raw, min, step)))
-  }
+  /**
+   * Where a value sits along the track, in pixels.
+   *
+   * Inset by half the handle at each end, because that is how a native range
+   * input maps its value: the thumb centre travels from `thumbRadius` to
+   * `width - thumbRadius`, never to the bare edges. Painting across the full
+   * width instead put the handle up to 22px away from the finger dragging it,
+   * and let it hang off the end of the track at max.
+   */
+  const toX = (v: number) => valueToX(v, min, max, width)
 
   const thumbX = toX(value)
   const targetX = toX(question.target)
-
-  function setFromClientX(clientX: number) {
-    if (submitted) return
-    const rect = trackRef.current?.getBoundingClientRect()
-    if (!rect) return
-    setValue(toValue(Math.max(0, Math.min(rect.width, clientX - rect.left))))
-  }
 
   function submit() {
     const isCorrect = value === question.target
@@ -95,10 +91,7 @@ function QuestionView({
     if (isCorrect) setTimeout(onCorrect, 900)
   }
 
-  const ticks: { v: number; isMajor: boolean }[] = []
-  for (let v = min; v <= max; v += step) {
-    ticks.push({ v, isMajor: v % (step * 5) === 0 || v === min || v === max })
-  }
+  const ticks = ticksFor(min, max, config.step)
 
   return (
     <div className="space-y-3">
@@ -113,11 +106,20 @@ function QuestionView({
           The visible track below is painted over it; the input itself stays
           interactive and transparent on top.
         */}
-        <div className="relative mx-auto h-16 w-full max-w-[420px]" ref={trackRef}>
-          <div className="pointer-events-none absolute inset-x-0 top-[26px] h-1.5 rounded-full bg-black/10" />
+        {/* Everything inside is positioned from the measured width, so it is
+            held back until the first measurement lands. Painting at width 0
+            first stacked every tick and the handle at x=0 for a frame. */}
+        <div
+          className={`relative mx-auto h-16 w-full max-w-[420px] transition-opacity ${width ? 'opacity-100' : 'opacity-0'}`}
+          ref={trackRef}
+        >
+          <div
+            className="pointer-events-none absolute top-[26px] h-1.5 rounded-full bg-black/10"
+            style={{ left: THUMB_RADIUS, right: THUMB_RADIUS }}
+          />
           <div
             className="pointer-events-none absolute top-[26px] h-1.5 rounded-full bg-brand"
-            style={{ left: 0, width: Math.max(0, thumbX) }}
+            style={{ left: THUMB_RADIUS, width: Math.max(0, thumbX - THUMB_RADIUS) }}
           />
 
           {ticks.map(({ v, isMajor }) => (
@@ -148,12 +150,15 @@ function QuestionView({
             className={`pointer-events-none absolute flex items-center justify-center rounded-full font-heading text-sm font-bold text-white shadow-md ring-2 ring-white ${
               submitted ? (correct ? 'bg-correct-700' : 'bg-incorrect-700') : 'bg-brand-600'
             }`}
-            style={{ width: 44, height: 44, top: 5, left: thumbX - 22 }}
+            style={{ width: THUMB_RADIUS * 2, height: THUMB_RADIUS * 2, top: 5, left: thumbX - THUMB_RADIUS }}
             aria-hidden
           >
             {value}
           </div>
 
+          {/* The input alone owns the value. It used to also carry an
+              onPointerDown that recomputed the value from clientX, which
+              raced the browser's own mapping and made the handle jump. */}
           <input
             type="range"
             min={min}
@@ -162,8 +167,7 @@ function QuestionView({
             value={value}
             disabled={submitted}
             onChange={(e) => setValue(Number(e.target.value))}
-            onPointerDown={(e) => setFromClientX(e.clientX)}
-            aria-label={`${question.label}. Currently ${value}`}
+            aria-label={question.label}
             className="absolute inset-x-0 top-[14px] h-11 w-full cursor-pointer opacity-0 disabled:cursor-default"
           />
         </div>

@@ -1,5 +1,3 @@
-import type { GameId } from '@/components/games/GamePreview'
-
 /**
  * The one description of each Downtime game.
  *
@@ -13,6 +11,9 @@ import type { GameId } from '@/components/games/GamePreview'
  * in-app one is /downtime/connect4. Both are kept rather than redirected so
  * no existing link breaks.
  */
+/** The games this product ships. Drives both the pickers and the board art. */
+export type GameId = 'chess' | 'checkers' | 'connect-4' | 'crossword' | 'word-tiles'
+
 export type GameEntry = {
   id: GameId
   name: string

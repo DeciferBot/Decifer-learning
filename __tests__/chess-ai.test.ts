@@ -45,6 +45,8 @@ describe('pickComputerMove', () => {
     expect(move).toBe('Nxh5')
   })
 
+  // Full search self-play: slow by nature, and it was tripping vitest's 5s
+  // default whenever the machine was under load.
   it('plays a full game against itself at hard difficulty without ever producing an illegal move', () => {
     const game = new Chess()
     let plies = 0
@@ -58,7 +60,7 @@ describe('pickComputerMove', () => {
       plies++
     }
     expect(plies).toBeGreaterThan(0)
-  })
+  }, 30_000)
 
   it('easy difficulty sometimes deviates from the best move over many draws (blunder chance is live)', () => {
     // Same free-queen position as above. Hard always takes it; Easy should

@@ -205,6 +205,8 @@ describe('pickComputerColumn', () => {
     expect(col).toBe(3)
   })
 
+  // Full minimax self-play: ~5s on an idle machine, more on a busy one, so
+  // it needs a real budget rather than vitest's 5s default.
   it('plays a full game against itself at hard difficulty without ever landing in a full column', () => {
     let board = createEmptyBoard()
     let turn: 'red' | 'yellow' = 'red'
@@ -219,5 +221,5 @@ describe('pickComputerColumn', () => {
       moves++
     }
     expect(moves).toBeGreaterThan(0)
-  })
+  }, 30_000)
 })

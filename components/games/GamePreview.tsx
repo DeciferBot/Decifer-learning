@@ -10,7 +10,9 @@
  * network. They cost nothing on a page the search engines also read.
  */
 
-export type GameId = 'chess' | 'checkers' | 'connect-4' | 'crossword' | 'word-tiles'
+import type { GameId } from '@/lib/games/catalogue'
+
+export type { GameId }
 
 export function GamePreview({ game, className = '' }: { game: GameId; className?: string }) {
   return (

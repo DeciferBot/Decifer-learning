@@ -277,13 +277,32 @@ describe('cleanNickname — cost', () => {
     '1l'.repeat(30),
   ]
 
+  // Measured against a benign nickname rather than a fixed millisecond budget.
+  // The old 150ms-per-50-calls budget was measuring machine load, not the
+  // matcher: it failed the suite at 152ms, 1.3% over.
+  //
+  // Be clear about what this test is and is not. Every input below sits under
+  // MAX_INPUT_LENGTH, and at that length the matcher does not blow up even
+  // with the run-collapse in looseForm disabled (checked directly). So this is
+  // a smoke check on the shape of the cost curve, not the ReDoS guard.
+  //
+  // The actual guard is the length cap, and the two tests below it are the
+  // ones with teeth: remove `raw.length > MAX_INPUT_LENGTH` and both fail,
+  // because they feed 50,000 characters and allow 50ms. That is a margin of
+  // roughly a thousand times, so they do not flake.
+  const time = (input: string) => {
+    const started = performance.now()
+    for (let i = 0; i < 50; i++) cleanNickname(input)
+    return performance.now() - started
+  }
+
   it('stays fast on input built to make the matcher backtrack', () => {
+    // A benign nickname of the same length is the control.
+    const baseline = Math.max(time('Annalise' + 'a'.repeat(51)), 1)
     const slow: string[] = []
     for (const evil of PATHOLOGICAL) {
-      const started = Date.now()
-      for (let i = 0; i < 50; i++) cleanNickname(evil)
-      const ms = Date.now() - started
-      if (ms > 150) slow.push(`${evil.slice(0, 12)}… ${ms}ms per 50 calls`)
+      const ratio = time(evil) / baseline
+      if (ratio > 50) slow.push(`${evil.slice(0, 12)}… ${ratio.toFixed(0)}x a normal nickname`)
     }
     expect(slow).toEqual([])
   })
