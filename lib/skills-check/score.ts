@@ -227,12 +227,22 @@ export function buildTeaser(
 
   const notSecure = result.strands.filter((s) => s.verdict !== 'secure').length
   const total = result.strands.length
-  const gapLine =
-    notSecure === 0
-      ? `All ${countWord(total).toLowerCase()} areas we checked came out secure.`
-      : `${countWord(notSecure)} of the ${countWord(total).toLowerCase()} areas we checked ${
-          notSecure === 1 ? 'is' : 'are'
-        } not secure yet.`
+  const totalWord = countWord(total).toLowerCase()
+
+  // Three shapes, because "Four of the four areas are not secure yet" is what
+  // the general form produces when nothing is secure, and it reads badly.
+  let gapLine: string
+  if (total === 0) {
+    gapLine = 'Not enough answers to say more.'
+  } else if (notSecure === 0) {
+    gapLine = `All ${totalWord} areas we checked came out secure.`
+  } else if (notSecure === total) {
+    gapLine = `All ${totalWord} areas we checked need work.`
+  } else {
+    gapLine = `${countWord(notSecure)} of the ${totalWord} areas we checked ${
+      notSecure === 1 ? 'is' : 'are'
+    } not secure yet.`
+  }
 
   return { headline, strongestLine, gapLine }
 }

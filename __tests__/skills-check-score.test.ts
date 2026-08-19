@@ -220,6 +220,22 @@ describe('buildTeaser — the free part', () => {
     )
   })
 
+  it('avoids "four of the four" when nothing is secure', () => {
+    // The general form produced "Four of the four areas we checked are not
+    // secure yet", which a real result page showed up as clumsy.
+    const r = scoreCheck(
+      standardCheck({ belowCorrect: 0, atCorrectPerStrand: [0, 0, 0, 0], aboveCorrect: 0 }),
+    )
+    const line = buildTeaser(r, 'Year 4', 'maths').gapLine
+    expect(line).toBe('All four areas we checked need work.')
+    expect(line).not.toContain('of the four')
+  })
+
+  it('says nothing misleading when there were no strands at all', () => {
+    const empty = scoreCheck([])
+    expect(buildTeaser(empty, 'Year 4', 'maths').gapLine).toBe('Not enough answers to say more.')
+  })
+
   it('says so plainly when everything came out secure', () => {
     const r = scoreCheck(
       standardCheck({ belowCorrect: 4, atCorrectPerStrand: [3, 3, 3, 3], aboveCorrect: 4 }),

@@ -32,6 +32,7 @@ const ALLOW = [
   /lib\/avatar-catalogue\.ts$/,
   /lib\/og\.tsx$/,
   /lib\/(engagement-emails|parent-notify|parent-verification|pipeline-alert)\.ts$/,
+  /lib\/[a-z-]+\/email\.ts$/,   // per-feature transactional email HTML, same reason as above
   /app\/api\//,                 // transactional email HTML (email clients can't read CSS vars)
   /app\/layout\.tsx$/,          // themeColor meta must be a literal hex
   /app\/\(child\)\/customise\/page\.tsx$/, // theme-picker swatch data
