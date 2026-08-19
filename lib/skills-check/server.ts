@@ -148,15 +148,21 @@ export async function startAttempt(checkId: string): Promise<StartedAttempt | nu
   })
   if (!check || check.items.length === 0) return null
 
+  // Belt and braces on top of the build-time gate: if an item's question was
+  // retired after the check was built, drop it rather than serve it.
+  const servable = check.items.filter((i) => i.question.status === 'published')
+  // Filter BEFORE the attempt row is created. Creating it first left a started
+  // attempt behind every time a check had nothing servable, and those rows count
+  // as started-but-never-finished in the admin funnel while describing a check
+  // no child was ever shown.
+  if (servable.length === 0) return null
+
   const attempt = await prisma.skillCheckAttempt.create({
     data: { check_id: check.id },
     select: { token: true },
   })
 
-  const questions: CheckQuestionView[] = check.items
-    // Belt and braces on top of the build-time gate: if an item's question was
-    // retired after the check was built, drop it rather than serve it.
-    .filter((i) => i.question.status === 'published')
+  const questions: CheckQuestionView[] = servable
     .map((i) => ({
       itemId: i.id,
       position: i.position,
@@ -309,6 +315,17 @@ export interface AttemptView {
   yearLabel: string
   subjectSlug: string
   teaser: CheckTeaser
+  /**
+   * How many items were actually asked, and how many areas they covered.
+   *
+   * Above the gate on purpose. Both pages have to say how big the sample was,
+   * and neither number gives away anything the teaser does not already say (its
+   * gap line already counts the areas). Gating them only got us a page that
+   * claimed a fixed twenty questions across four areas whatever the child was
+   * really shown.
+   */
+  totalItems: number
+  strandCount: number
   /** Null until a parent has given their email. This is the gate. */
   report: {
     strands: CheckResult['strands']
@@ -370,6 +387,8 @@ export async function getAttemptView(token: string): Promise<AttemptView | null>
     subjectSlug,
     yearLabel,
     teaser,
+    totalItems: result.totalItems,
+    strandCount: strands.length,
     report: unlocked
       ? {
           strands,

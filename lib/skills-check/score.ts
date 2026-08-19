@@ -199,7 +199,16 @@ export function describeWorkingLevel(
 
 const COUNT_WORDS = ['None', 'One', 'Two', 'Three', 'Four', 'Five', 'Six']
 
-function countWord(n: number): string {
+/**
+ * Small counts as words, larger ones as digits.
+ *
+ * Exported because the report page and the report email both have to name how
+ * many areas a child was actually checked on, and both used to say "four"
+ * regardless. A check serves fewer items when one of its questions has been
+ * retired since the check was built, and a report that overstates its own
+ * sample size is exactly the thing §6 of the scope says not to do.
+ */
+export function countWord(n: number): string {
   return COUNT_WORDS[n] ?? String(n)
 }
 

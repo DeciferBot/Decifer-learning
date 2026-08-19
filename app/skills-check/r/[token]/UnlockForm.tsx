@@ -17,9 +17,11 @@ type Props = {
   token: string
   year: string
   subject: string
+  /** How many areas this child was actually checked on, as a word. */
+  areas: string
 }
 
-export function UnlockForm({ token, year, subject }: Props) {
+export function UnlockForm({ token, year, subject, areas }: Props) {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [busy, setBusy] = useState(false)
@@ -53,7 +55,7 @@ export function UnlockForm({ token, year, subject }: Props) {
       </p>
       <ul className="mt-3 space-y-1.5 text-[15px] leading-relaxed text-ink-2">
         <li>
-          Which four areas of {year} {subject} we checked, and whether each one is secure,
+          Which {areas} areas of {year} {subject} we checked, and whether each one is secure,
           developing or needs work.
         </li>
         <li>Up to three specific things to work on next, each linked to a free lesson.</li>

@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getAttemptView, prettyYear, prettySubject } from '@/lib/skills-check/server'
+import { countWord } from '@/lib/skills-check/score'
 import { UnlockForm } from './UnlockForm'
 
 // The result page.
@@ -35,6 +36,12 @@ export default async function SkillsCheckResultPage({ params }: { params: { toke
 
   const year = prettyYear(view.yearLabel)
   const subject = prettySubject(view.subjectName)
+  // Say what this child was actually asked. A check serves fewer items when one
+  // of its questions has been retired since the check was built, and claiming a
+  // flat "twenty questions across four areas" would then be untrue on the one
+  // page a parent is asked to trust.
+  const areas = countWord(view.strandCount).toLowerCase()
+  const items = view.totalItems
 
   return (
     <div className="space-y-8">
@@ -53,7 +60,7 @@ export default async function SkillsCheckResultPage({ params }: { params: { toke
       {view.report ? (
         <>
           <section className="space-y-3">
-            <h2 className="text-lg font-semibold text-ink">The four areas we checked</h2>
+            <h2 className="text-lg font-semibold text-ink">The {areas} areas we checked</h2>
             <ul className="divide-y divide-black/5 overflow-hidden rounded-2xl border border-black/5 bg-surface">
               {view.report.strands.map((s) => {
                 const style = VERDICT_STYLE[s.verdict] ?? {
@@ -127,7 +134,7 @@ export default async function SkillsCheckResultPage({ params }: { params: { toke
           </section>
         </>
       ) : (
-        <UnlockForm token={view.token} year={year} subject={subject} />
+        <UnlockForm token={view.token} year={year} subject={subject} areas={areas} />
       )}
 
       <section className="space-y-3 rounded-2xl border border-black/5 bg-surface p-5">
@@ -135,8 +142,8 @@ export default async function SkillsCheckResultPage({ params }: { params: { toke
           What this does and does not tell you
         </h2>
         <p className="text-sm leading-relaxed text-ink-2">
-          This is twenty questions on one day, covering four areas of the {year} curriculum. It
-          says whether your child is secure on those four areas, and nothing about the rest.
+          This is {items} questions on one day, covering {areas} areas of the {year} curriculum. It
+          says whether your child is secure on those {areas} areas, and nothing about the rest.
         </p>
         <p className="text-sm leading-relaxed text-ink-2">
           It is not an IQ test and not a standardised score. There is no percentile here and no
