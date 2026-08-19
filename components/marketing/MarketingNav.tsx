@@ -16,6 +16,9 @@ import { Zap, Gamepad } from '@/components/ui/icons'
 // tap target, so below sm the secondary actions move into a menu and only the
 // two a visitor actually reaches for stay on the bar: Games and Get started.
 //
+// Every control here is a 48px tap target (CLAUDE.md section 4), which is why
+// the bar is 64px rather than the 56px it used to be.
+//
 // It also gave the marketing site no section navigation at all — Pricing,
 // Subjects and How it works existed only in the footer. They are here now.
 
@@ -57,8 +60,8 @@ export function MarketingNav() {
 
   return (
     <nav className="sticky top-0 z-30 border-b border-black/5 bg-background/90 backdrop-blur-sm">
-      <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-1 px-2 sm:gap-2 sm:px-4">
-        <Link href="/" aria-label="Decifer Learning home" className="flex min-h-[44px] shrink-0 items-center">
+      <div className="mx-auto flex h-16 max-w-5xl items-center justify-between gap-1 px-1.5 sm:gap-2 sm:px-4">
+        <Link href="/" aria-label="Decifer Learning home" className="flex min-h-[48px] shrink-0 items-center">
           <DeciferLogo size="sm" product="Learning" />
         </Link>
 
@@ -68,7 +71,7 @@ export function MarketingNav() {
             <Link
               key={l.href}
               href={l.href}
-              className="flex h-9 items-center whitespace-nowrap rounded-lg px-3 text-sm font-medium text-muted transition-colors hover:bg-black/5 hover:text-ink"
+              className="flex h-12 items-center whitespace-nowrap rounded-lg px-3 text-sm font-medium text-muted transition-colors hover:bg-black/5 hover:text-ink"
             >
               {l.label}
             </Link>
@@ -76,13 +79,13 @@ export function MarketingNav() {
         </div>
 
         <div className="flex shrink-0 items-center gap-1 sm:gap-2">
-          <DarkModeToggle className="hidden h-10 w-10 sm:flex" />
+          <DarkModeToggle size="lg" className="hidden sm:flex" />
 
           {/* Games — the surface a child asks for by name, so it keeps its
               label at every width rather than collapsing to a bare icon. */}
           <Link
             href="/games"
-            className="flex h-10 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg border border-black/10 bg-surface px-2 text-[13px] font-semibold text-ink transition-colors hover:bg-black/5 sm:px-3 sm:text-sm"
+            className="flex h-12 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg border border-black/10 bg-surface px-2 text-[13px] font-semibold text-ink transition-colors hover:bg-black/5 sm:px-3 sm:text-sm"
           >
             <Gamepad size={16} aria-hidden />
             Games
@@ -91,7 +94,7 @@ export function MarketingNav() {
           <Link
             href="/play"
             aria-label="Decifer Blitz live quiz"
-            className="hidden h-10 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg bg-[#7C3AED] px-3 text-sm font-semibold text-white transition-colors hover:bg-[#6D28D9] sm:flex"
+            className="hidden h-12 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg bg-[#7C3AED] px-3 text-sm font-semibold text-white transition-colors hover:bg-[#6D28D9] sm:flex"
           >
             <Zap size={15} aria-hidden />
             Blitz
@@ -99,14 +102,14 @@ export function MarketingNav() {
 
           <Link
             href="/login"
-            className="hidden h-10 shrink-0 items-center whitespace-nowrap rounded-lg px-3 text-sm font-semibold text-ink transition-colors hover:bg-black/5 sm:flex"
+            className="hidden h-12 shrink-0 items-center whitespace-nowrap rounded-lg px-3 text-sm font-semibold text-ink transition-colors hover:bg-black/5 sm:flex"
           >
             Sign in
           </Link>
 
           <Link
             href="/register"
-            className="flex h-10 shrink-0 items-center whitespace-nowrap rounded-lg bg-brand-600 px-2 text-[13px] font-semibold text-white transition-colors hover:bg-brand-700 sm:px-4 sm:text-sm"
+            className="flex h-12 shrink-0 items-center whitespace-nowrap rounded-lg bg-brand-600 px-2 text-[13px] font-semibold text-white transition-colors hover:bg-brand-700 sm:px-4 sm:text-sm"
           >
             Get started
           </Link>
@@ -118,7 +121,7 @@ export function MarketingNav() {
             aria-expanded={open}
             aria-controls="marketing-menu"
             aria-label={open ? 'Close menu' : 'Open menu'}
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-ink transition-colors hover:bg-black/5 lg:hidden"
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg text-ink transition-colors hover:bg-black/5 lg:hidden"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
               {open ? <path d="M18 6 6 18M6 6l12 12" /> : <path d="M3 6h18M3 12h18M3 18h18" />}
@@ -151,7 +154,7 @@ export function MarketingNav() {
               >
                 Sign in
               </Link>
-              <DarkModeToggle className="h-12 w-12 sm:hidden" />
+              <DarkModeToggle size="lg" className="sm:hidden" />
             </div>
           </div>
         </div>

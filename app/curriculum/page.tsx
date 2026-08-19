@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { DeciferLogo } from '@/components/ui/DeciferLogo'
 import { getPublicCurriculumSummary } from '@/lib/public-curriculum'
 import { jsonLd } from '@/lib/json-ld'
+import { MarketingNav } from '@/components/marketing/MarketingNav'
 
 export const revalidate = 86400 // rebuild at most once a day — content changes slowly
 
@@ -44,22 +44,7 @@ export default async function CurriculumIndexPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <nav className="sticky top-0 z-20 border-b border-black/5 bg-background/90 backdrop-blur-sm">
-        <div className="mx-auto flex h-14 max-w-4xl items-center justify-between px-4">
-          <DeciferLogo size="sm" product="Learning" />
-          <div className="flex items-center gap-3">
-            <Link href="/pricing" className="text-sm font-semibold text-maths hover:underline">
-              Pricing
-            </Link>
-            <Link
-              href="/register"
-              className="flex h-9 items-center rounded-lg bg-maths px-4 text-sm font-semibold text-white"
-            >
-              Start free
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <MarketingNav />
 
       <main className="mx-auto max-w-4xl px-4 py-16">
         <nav className="mb-6 flex items-center gap-2 text-sm text-muted" aria-label="Breadcrumb">

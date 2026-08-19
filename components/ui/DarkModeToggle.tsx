@@ -4,7 +4,14 @@ import { useEffect, useState } from 'react'
 
 // Flips the global `dark` class on <html>. The initial class is set before
 // paint by the inline script in app/layout.tsx (no flash of the wrong theme).
-export function DarkModeToggle({ className = '' }: { className?: string }) {
+export function DarkModeToggle({
+  className = '',
+  size = 'sm',
+}: {
+  className?: string
+  /** 'lg' is the 48px tap target used by the marketing nav. */
+  size?: 'sm' | 'lg'
+}) {
   const [dark, setDark] = useState(false)
 
   useEffect(() => {
@@ -28,7 +35,7 @@ export function DarkModeToggle({ className = '' }: { className?: string }) {
       onClick={toggle}
       aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
       aria-pressed={dark}
-      className={`flex h-9 w-9 items-center justify-center rounded-lg text-ink transition-colors hover:bg-black/5 ${className}`}
+      className={`flex ${size === 'lg' ? 'h-12 w-12' : 'h-9 w-9'} items-center justify-center rounded-lg text-ink transition-colors hover:bg-black/5 ${className}`}
     >
       {dark ? (
         // sun

@@ -1,8 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { DeciferLogo } from '@/components/ui/DeciferLogo'
-import { DarkModeToggle } from '@/components/ui/DarkModeToggle'
 import { MarketingFooter } from '@/components/marketing/MarketingFooter'
+import { MarketingNav } from '@/components/marketing/MarketingNav'
 
 export const metadata: Metadata = {
   // Bare "Pricing" ranks for nothing. Name the product, the offer and the market.
@@ -27,22 +26,7 @@ const INCLUDED = [
 export default function PricingPage() {
   return (
     <div className="min-h-screen bg-background">
-      <nav className="sticky top-0 z-20 border-b border-black/5 bg-background/90 backdrop-blur-sm">
-        <div className="mx-auto flex h-14 max-w-4xl items-center justify-between px-4">
-          <Link href="/">
-            <DeciferLogo size="sm" product="Learning" />
-          </Link>
-          <div className="flex items-center gap-2">
-            <DarkModeToggle />
-            <Link
-              href="/login"
-              className="flex h-9 items-center rounded-lg px-3 text-sm font-semibold text-ink hover:bg-black/5"
-            >
-              Sign in
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <MarketingNav />
 
       <main className="mx-auto max-w-4xl px-4 py-16">
         <div className="text-center">
