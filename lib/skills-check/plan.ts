@@ -248,7 +248,64 @@ const EXCLUDED_THEME_RE = new RegExp(`\\b(${EXCLUDED_THEME_WORDS.join('|')})\\b`
  * first impression of the product.
  */
 export function isSuitableForPublicCheck(questionText: string): boolean {
-  return !EXCLUDED_THEME_RE.test(questionText)
+  return (
+    !EXCLUDED_THEME_RE.test(questionText) &&
+    isSelfContained(questionText) &&
+    hasSingleAnswerPhrasing(questionText)
+  )
+}
+
+/**
+ * True when a question can be answered from its own text.
+ *
+ * WHY: the bank contains questions lifted out of a lesson that still lean on
+ * something the lesson showed. A Skills Check renders text only, so those arrive
+ * unanswerable. Reading the built Year 1 Maths check found six of twenty like
+ * this: "Which equation matches the number line." with no number line, "Which
+ * toy is at the front of the line?" with no line, "How many cars are there
+ * altogether?" with no cars, and three questions about which way a character is
+ * facing with no map.
+ *
+ * Two signals, both narrow:
+ *
+ * 1. A definite reference to a visual thing the stem never describes. "the
+ *    number line", "the diagram", "the picture". Indefinite ones are fine, so
+ *    "A shape has 4 equal sides" and "How many corners does a triangle have?"
+ *    both pass.
+ * 2. A very short stem with no digits in it. "Identify the verbs." is nineteen
+ *    characters and names no sentence to look at, so there is nothing to answer.
+ *    The digit test keeps real short questions: "Expand 7(y+8)." and "What is
+ *    10 × 4?" are self-contained precisely because the numbers are right there.
+ *
+ * This costs some good short questions. That is the right trade: a lost question
+ * is one of thousands, and an unanswerable one is a parent's first impression.
+ */
+const UNSHOWN_VISUAL_RE =
+  /\bthe (number line|line|diagram|picture|image|map|grid|chart|graph|array|model|table)\b/i
+
+/** Below this, a stem with no numbers in it cannot be carrying its own context. */
+export const MIN_SELF_CONTAINED_LENGTH = 25
+
+export function isSelfContained(questionText: string): boolean {
+  const text = questionText.trim()
+  if (UNSHOWN_VISUAL_RE.test(text)) return false
+  if (text.length < MIN_SELF_CONTAINED_LENGTH && !/\d/.test(text)) return false
+  return true
+}
+
+/**
+ * True when the phrasing asks for exactly one answer.
+ *
+ * The 31 July audit found this class the hard way: "Tick the verbs" is only
+ * broken when a distractor is also correct, and 23 of 48 candidates were real.
+ * A Skills Check has one right option by construction, so plural phrasing is
+ * always wrong here regardless of the distractors, and cheap to exclude.
+ */
+const PLURAL_ANSWER_RE =
+  /\b(tick (all|both|the \w+s)|select all|choose all|which (two|three)|identify the \w+s|which of these \w+s are)\b/i
+
+export function hasSingleAnswerPhrasing(questionText: string): boolean {
+  return !PLURAL_ANSWER_RE.test(questionText)
 }
 
 /** Total published questions in a pool. */
@@ -280,7 +337,48 @@ export function findCounterpart(
       bestScore = score
     }
   }
-  return best
+  if (best) return best
+
+  // Fall back to the strand family, the part before the colon.
+  //
+  // Maths topics recur by name: "Multiplication and Division" is called that in
+  // Year 3, 4 and 5, so the title match above finds them. English topics do not.
+  // Year 4 has "Reading: Comparisons Within and Across Texts", Year 5 has
+  // "Reading: Figurative Language and Authorial Choices", Year 6 has "Reading:
+  // Inference and Authorial Intent". Those are the same strand at three
+  // difficulties, and matching on the full title scores them near zero.
+  //
+  // Without this, every English check came out with all four strands incomplete,
+  // which means no year-below and no year-above items, which means the whole
+  // working-level ladder collapses and the check can never say a child is
+  // working below their year. That is most of what the check is for.
+  //
+  // Deepest pool wins within a family, ties keep input order.
+  const family = strandFamily(strandTitle)
+  if (!family) return null
+
+  let bestInFamily: TopicPool | null = null
+  for (const c of candidates) {
+    if (strandFamily(c.title) !== family) continue
+    if (!bestInFamily || poolSize(c) > poolSize(bestInFamily)) bestInFamily = c
+  }
+  return bestInFamily
+}
+
+/**
+ * The strand family of a topic title: the part before the first colon,
+ * normalised. "Reading: Inference and Authorial Intent" gives "reading".
+ * Returns null for a title with no colon, which is most maths topics.
+ */
+export function strandFamily(title: string): string | null {
+  const idx = title.indexOf(':')
+  if (idx <= 0) return null
+  const family = title.slice(0, idx).trim().toLowerCase()
+  // "Number" prefixes half the maths topics ("Number: Fractions", "Number:
+  // Place Value"), so it is far too coarse to pair strands with. Reading,
+  // Grammar, Spelling, Writing, Punctuation and Vocabulary are real strands.
+  if (family.length < 3 || family === 'number') return null
+  return family
 }
 
 /**

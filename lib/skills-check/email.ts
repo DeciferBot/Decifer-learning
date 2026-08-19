@@ -161,3 +161,81 @@ export async function sendSkillsCheckReport(view: AttemptView, to: string): Prom
     // Best-effort only. The report is already on the page at the same link.
   }
 }
+
+/**
+ * The six-week retest reminder.
+ *
+ * The result page and the report email both promise this. Until now nothing sent
+ * it, which made the promise empty. Six weeks is long enough for teaching to
+ * have moved on and short enough that a parent still remembers taking the check.
+ *
+ * Points at the check itself rather than the old result: the useful action is
+ * another go, not re-reading a stale report.
+ */
+export async function sendSkillsCheckReminder(params: {
+  to: string
+  token: string
+  subjectName: string
+  subjectSlug: string
+  yearLabel: string
+  previousHeadline: string
+}): Promise<boolean> {
+  try {
+    if (!process.env.RESEND_API_KEY) return false
+
+    const year = prettyYear(params.yearLabel)
+    const subject = prettySubject(params.subjectName)
+    const checkUrl = `${appUrl()}/skills-check/${params.subjectSlug}/${params.yearLabel}`
+    const deleteUrl = `${appUrl()}/skills-check/forget/${params.token}`
+
+    const html = `<!DOCTYPE html><html><body style="margin:0;padding:0;font-family:system-ui,sans-serif;background:#FAFBFF">
+<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:32px 16px">
+<table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%">
+  <tr><td style="padding-bottom:24px">
+    <span style="font-size:22px;font-weight:700;color:#FB5A24">Decifer</span><span style="font-size:22px;font-weight:700;color:#2D3748"> Learning</span>
+  </td></tr>
+  <tr><td>
+    <h1 style="margin:0 0 8px;font-size:20px;color:#2D3748">Time for another ${escapeHtml(year)} ${escapeHtml(subject)} check?</h1>
+    <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#2D3748">
+      Six weeks ago your child's check came out as "${escapeHtml(params.previousHeadline.replace(/\.$/, ''))}".
+      Enough teaching has happened since then for a fresh check to tell you something new.
+    </p>
+    <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#718096">
+      The questions are drawn fresh each time, so this is not a memory test. It takes about ten minutes.
+    </p>
+  </td></tr>
+  <tr><td style="padding:8px 0 24px">
+    <a href="${checkUrl}" style="display:inline-block;background:#FB5A24;color:#fff;padding:14px 28px;border-radius:10px;font-weight:600;text-decoration:none;font-size:15px">Take the check again</a>
+  </td></tr>
+  <tr><td style="padding:24px 0 0;font-size:11px;color:#a0aec0;border-top:1px solid #eee">
+    This is the one reminder we promised when you asked for the report. We will not email you about it again.
+    <a href="${deleteUrl}" style="color:#a0aec0">Delete my email address</a>
+  </td></tr>
+</table>
+</td></tr></table></body></html>`
+
+    const text = [
+      `Time for another ${year} ${subject} check?`,
+      '',
+      `Six weeks ago your child's check came out as "${params.previousHeadline.replace(/\.$/, '')}".`,
+      'The questions are drawn fresh each time, so this is not a memory test. It takes about ten minutes.',
+      '',
+      `Take it again: ${checkUrl}`,
+      '',
+      'This is the one reminder we promised. We will not email you about it again.',
+      `Delete your email address: ${deleteUrl}`,
+    ].join('\n')
+
+    const resend = new Resend(process.env.RESEND_API_KEY)
+    await resend.emails.send({
+      from: FROM,
+      to: params.to,
+      subject: `Time for another ${year} ${subject} check?`,
+      html,
+      text,
+    })
+    return true
+  } catch {
+    return false
+  }
+}
