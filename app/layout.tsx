@@ -84,8 +84,19 @@ export const metadata: Metadata = {
   applicationName: 'Decifer Learning',
   manifest: '/manifest.json',
   icons: {
-    icon: [{ url: '/brand/decifer-favicon.svg', type: 'image/svg+xml' }],
-    apple: '/brand/decifer-app-icon.svg',
+    // SVG first for browsers that take it, then real PNG rasters. Until now
+    // the only raster icons in the repo (icon-192/512.png) were 1x1
+    // placeholder pixels, so installed PWAs and any client that ignored the
+    // SVG had no icon at all. /favicon.ico covers clients that request it by
+    // convention without reading this metadata.
+    icon: [
+      { url: '/brand/decifer-favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon-32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon-16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+    ],
+    shortcut: '/favicon.ico',
+    apple: [{ url: '/apple-icon-180.png', sizes: '180x180', type: 'image/png' }],
   },
   appleWebApp: {
     capable: true,
@@ -140,11 +151,13 @@ export default function RootLayout({
   return (
     <html lang="en-GB" suppressHydrationWarning className={`${GeistSans.variable} ${GeistMono.variable} ${instrumentSerif.variable}`}>
       <body className="font-body bg-background text-ink min-h-screen">
-        {/* Set the colour mode before paint, so there is no flash of the wrong theme. */}
+        {/* Set the colour mode before paint, so there is no flash of the wrong theme.
+            Light is the default: dark applies only when the visitor has picked it
+            via DarkModeToggle, not from the OS setting. */}
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "try{var m=localStorage.getItem('decifer-mode');if(m==='dark'||(!m&&window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')}catch(e){}",
+              "try{if(localStorage.getItem('decifer-mode')==='dark')document.documentElement.classList.add('dark')}catch(e){}",
           }}
         />
         <OfflineBanner />
