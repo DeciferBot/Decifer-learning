@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { waitUntil } from '@vercel/functions'
 import type { Badge } from '@prisma/client'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
@@ -308,14 +309,18 @@ export async function POST(req: Request) {
 
   // Non-blocking milestone check — fires after response is returned.
   // Vault writes are isolated; any failure here must not affect the quiz result.
+  // waitUntil, not `void`: without it Vercel freezes the function on response
+  // and this write never lands.
   if (passed) {
-    void checkAndUpdateMilestone(profile.id).catch((err) => {
-      console.error('[quiz/submit] milestone check failed:', err)
-    })
+    waitUntil(
+      checkAndUpdateMilestone(profile.id).catch((err) => {
+        console.error('[quiz/submit] milestone check failed:', err)
+      }),
+    )
   }
 
   // PLI v1: record quiz_completed event (non-blocking, never fails the quiz response)
-  void (async () => {
+  waitUntil((async () => {
     try {
       const topicSubject = await prisma.topic.findUnique({
         where: { id: topicId },
@@ -337,15 +342,21 @@ export async function POST(req: Request) {
     } catch {
       // event tracking must never break quiz submission
     }
-  })()
+  })())
 
   // Non-blocking "big moment" email to the linked parent (an adult). One email
   // per submit at most: first-win takes precedence, else the first new badge.
   // notifyParentBigMoment swallows all errors and adds no latency here.
+  //
+  // waitUntil, not `void`. On Vercel the function is frozen the moment the
+  // response is returned, so an un-awaited promise never runs to completion and
+  // the mail never leaves. That was proven on the equivalent Skills Check call
+  // (see app/api/skills-check/unlock/route.ts). waitUntil keeps the work alive
+  // after the response instead, so the child still waits for nothing.
   if (result.isFirstWin) {
-    void notifyParentBigMoment(profile.id, profile.display_name, { kind: 'first_win' })
+    waitUntil(notifyParentBigMoment(profile.id, profile.display_name, { kind: 'first_win' }))
   } else if (result.newBadges.length > 0) {
-    void notifyParentBigMoment(profile.id, profile.display_name, { kind: 'badge', badgeName: result.newBadges[0].name })
+    waitUntil(notifyParentBigMoment(profile.id, profile.display_name, { kind: 'badge', badgeName: result.newBadges[0].name }))
   }
 
   return NextResponse.json({

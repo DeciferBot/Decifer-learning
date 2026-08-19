@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { waitUntil } from '@vercel/functions'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import { calcQuizPoints, scoreAnswers, scoreQuizAttempt } from '@/lib/points'
@@ -204,8 +205,10 @@ export async function POST(req: Request, { params }: { params: { zoneId: string 
 
   // Non-blocking parent email on the first-ever Guardian win (the Guardian
   // Slayer badge is awarded once, so this fires at most once). Never throws.
+  // waitUntil, not `void` — see the note in app/api/quiz/submit/route.ts: on
+  // Vercel an un-awaited promise is frozen with the response and never sends.
   if (result.earnedBadge) {
-    void notifyParentBigMoment(profile.id, profile.display_name, { kind: 'guardian_win', zoneName: zone.name })
+    waitUntil(notifyParentBigMoment(profile.id, profile.display_name, { kind: 'guardian_win', zoneName: zone.name }))
   }
 
   return NextResponse.json({

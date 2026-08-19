@@ -3,6 +3,11 @@
 // the quiz/guardian submit hot paths, so this must NEVER throw and must add no
 // latency to the child's response. Each moment is naturally rate-limited:
 // first-win fires once ever; each badge / the guardian-win badge is awarded once.
+//
+// "Non-blocking" here means waitUntil(), NOT a bare `void`. On Vercel the
+// function is frozen as soon as the response is returned, so an un-awaited
+// promise never runs to completion and the mail silently never leaves. Call
+// sites must wrap this in waitUntil() from @vercel/functions.
 
 import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
