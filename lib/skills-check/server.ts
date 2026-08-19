@@ -210,7 +210,7 @@ export async function submitAttempt(
               band: true,
               strand_topic_id: true,
               strand: { select: { title: true } },
-              question: { select: { correct_answer: true } },
+              question: { select: { status: true, correct_answer: true } },
             },
           },
         },
@@ -231,10 +231,20 @@ export async function submitAttempt(
 
   const given = new Map(answers.map((a) => [a.itemId, a]))
 
+  // Score only the items the child was actually shown.
+  //
+  // startAttempt drops any item whose question has since been retired, so
+  // scoring every item in the check would mark a retired question wrong against
+  // a child who was never shown it. The filter has to match startAttempt's
+  // exactly. If a question is retired BETWEEN start and submit, this drops it
+  // too, which is the safe direction: a missing question is better than a
+  // phantom wrong answer.
+  const servedItems = attempt.check.items.filter((i) => i.question.status === 'published')
+
   const scored: CheckAnswer[] = []
   const answerRows: { attempt_id: string; item_id: string; child_answer: string | null; was_correct: boolean; time_seconds: number | null }[] = []
 
-  for (const item of attempt.check.items) {
+  for (const item of servedItems) {
     const submitted = given.get(item.id)
     // An unanswered item counts as wrong, not as absent. Skipping the hard ones
     // would otherwise read as "secure".
@@ -408,21 +418,34 @@ export async function unlockReport(
   token: string,
   email: string,
   source?: string,
-): Promise<AttemptView | null> {
+): Promise<{ view: AttemptView; shouldSend: boolean } | null> {
   const attempt = await prisma.skillCheckAttempt.findUnique({
     where: { token },
-    select: { id: true, finished_at: true },
+    select: { id: true, finished_at: true, lead: { select: { parent_email: true, deleted_at: true } } },
   })
   if (!attempt || !attempt.finished_at) return null
 
   const clean = email.trim().toLowerCase()
+
+  // Send only when this address is new to this attempt.
+  //
+  // Two reasons. The dull one: a parent who reloads or double-taps should not
+  // get the same report twice. The important one: without this, one finished
+  // token could be replayed with a thousand different addresses and we would
+  // send a thousand emails from our own domain. The report is harmless content,
+  // so this is not a phishing vector, but it is a fast way to wreck a sending
+  // reputation. The route also caps unlocks per token.
+  const shouldSend = attempt.lead?.parent_email !== clean || !!attempt.lead?.deleted_at
+
   await prisma.skillCheckLead.upsert({
     where: { attempt_id: attempt.id },
     create: { attempt_id: attempt.id, parent_email: clean, source: source ?? null },
     update: { parent_email: clean, consented_at: new Date(), deleted_at: null },
   })
 
-  return getAttemptView(token)
+  const view = await getAttemptView(token)
+  if (!view) return null
+  return { view, shouldSend }
 }
 
 /**
