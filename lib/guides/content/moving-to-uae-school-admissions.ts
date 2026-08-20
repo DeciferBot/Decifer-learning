@@ -94,5 +94,5 @@ export const movingToUaeSchoolAdmissions: Guide = {
       url: 'https://www.moe.gov.ae/En/MediaCenter/News/Pages/UAE-announces-updated-age-cut-off-date-for-KG-Grade-1-admissions-starting-AY-2026-2027.aspx',
     },
   ],
-  related: ['choosing-british-school-dubai', 'school-year-groups-ages-uae', 'uae-term-dates-2026-27'],
+  related: ['true-cost-uae-school-year', 'choosing-british-school-dubai', 'school-year-groups-ages-uae', 'uae-term-dates-2026-27'],
 }

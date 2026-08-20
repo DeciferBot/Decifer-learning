@@ -115,5 +115,5 @@ export const dubaiSchoolFees: Guide = {
       url: 'https://www.gemsfoundersschool-mizhar.com/en/Admissions/Fees-and-Payments',
     },
   ],
-  related: ['khda-ratings-explained', 'choosing-british-school-dubai', 'abu-dhabi-school-fees-ratings'],
+  related: ['true-cost-uae-school-year', 'khda-ratings-explained', 'choosing-british-school-dubai', 'abu-dhabi-school-fees-ratings'],
 }

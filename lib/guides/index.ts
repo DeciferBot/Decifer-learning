@@ -1,5 +1,6 @@
 import type { Guide } from './types'
 import { dubaiSchoolFees } from './content/dubai-school-fees'
+import { trueCostUaeSchoolYear } from './content/true-cost-uae-school-year'
 import { khdaRatingsExplained } from './content/khda-ratings-explained'
 import { adekRatingsExplained } from './content/adek-ratings-explained'
 import { choosingBritishSchoolDubai } from './content/choosing-british-school-dubai'
@@ -20,6 +21,7 @@ import { elevenPlusNonVerbalReasoning } from './content/11-plus-non-verbal-reaso
 // listing within each category.
 const GUIDES: Guide[] = [
   dubaiSchoolFees,
+  trueCostUaeSchoolYear,
   khdaRatingsExplained,
   choosingBritishSchoolDubai,
   abuDhabiSchoolFeesRatings,
