@@ -12,7 +12,7 @@ export const trueCostUaeSchoolYear: Guide = {
     'Tuition is only part of it. Registration and re-enrolment deposits, transport, uniform, devices, books, trips, exam entry and after-school clubs are charged separately. In Dubai you do not have to estimate any of this: since June 2022 every KHDA-registered school must publish a School Fees Fact Sheet listing every mandatory and optional charge for the year, downloadable free from the KHDA Education Directory.',
   category: 'schools-and-fees',
   datePublished: '2026-08-20',
-  dateModified: '2026-08-20',
+  dateModified: '2026-08-21',
   blocks: [
     {
       kind: 'p',
@@ -99,7 +99,7 @@ export const trueCostUaeSchoolYear: Guide = {
     },
     {
       kind: 'p',
-      html: 'The refund and mid-year exit question matters more than families expect. Relocation is common in the UAE and the terms differ sharply between schools.',
+      html: 'The refund and mid-year exit question matters more than families expect. Relocation is common in the UAE, and in Dubai the answers are not actually left to each school: KHDA caps the deposits, sets a 60-day deadline that decides whether they come back, and fixes how a mid-year refund is calculated. Those rules, and the separate limits on what a school may do if fees go unpaid, are in the <a href="/guides/dubai-school-fee-rules">guide to Dubai school fee rules</a>.',
     },
     { kind: 'cta' },
     {
@@ -115,7 +115,7 @@ export const trueCostUaeSchoolYear: Guide = {
         },
         {
           q: 'Is the registration fee refundable?',
-          a: 'It depends on the school and the timing, and it is usually set against the first term’s tuition rather than refunded as cash. Get the specific conditions in writing before paying, including what happens if you leave the UAE.',
+          a: 'In Dubai, yes, if you formally notify the school at least 60 calendar days before the start date. Inside 60 days it is non-refundable. KHDA also caps it at 10% of annual tuition and it is deducted from tuition rather than refunded as cash once your child starts. The Dubai school fee rules guide sets out the full position.',
         },
         {
           q: 'Are school fees in the UAE payable in one instalment?',
@@ -142,5 +142,5 @@ export const trueCostUaeSchoolYear: Guide = {
       url: 'https://gulfnews.com/living-in-uae/education/khda-school-fees-fact-sheet-find-out-about-all-the-fees-you-will-need-to-pay-1.1654231826655',
     },
   ],
-  related: ['dubai-school-fees', 'abu-dhabi-school-fees-ratings', 'moving-to-uae-school-admissions'],
+  related: ['dubai-school-fee-rules', 'dubai-school-fees', 'abu-dhabi-school-fees-ratings', 'moving-to-uae-school-admissions'],
 }
