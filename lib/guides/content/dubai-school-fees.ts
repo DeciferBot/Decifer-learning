@@ -12,7 +12,7 @@ export const dubaiSchoolFees: Guide = {
     'British curriculum school fees in Dubai run from about AED 25,000 a year at value-tier schools to over AED 110,000 for sixth form at the most selective. Most Outstanding-rated schools charge between AED 45,000 and AED 105,000 depending on year group. Tuition is frozen for the 2026-27 academic year.',
   category: 'schools-and-fees',
   datePublished: '2026-07-30',
-  dateModified: '2026-07-30',
+  dateModified: '2026-08-21',
   blocks: [
     {
       kind: 'p',
@@ -59,7 +59,7 @@ export const dubaiSchoolFees: Guide = {
     {
       kind: 'callout',
       title: 'Budget beyond tuition',
-      html: 'Typical extras add 10 to 20% on top: registration and enrolment deposits, transport, uniforms, device schemes, trips, and external exam fees in Years 10 to 13. Ask every school for its full fee schedule, which KHDA requires them to publish.',
+      html: 'Typical extras add 10 to 20% on top: registration and enrolment deposits, transport, uniforms, device schemes, trips, and external exam fees in Years 10 to 13. Ask every school for its full fee schedule, which KHDA requires them to publish. KHDA also caps the deposits and sets the deadlines that decide whether they are refundable: see the <a href="/guides/dubai-school-fee-rules">Dubai school fee rules</a>.',
     },
     { kind: 'h2', id: 'value', text: 'Paying more does not guarantee more learning' },
     {
@@ -115,5 +115,5 @@ export const dubaiSchoolFees: Guide = {
       url: 'https://www.gemsfoundersschool-mizhar.com/en/Admissions/Fees-and-Payments',
     },
   ],
-  related: ['true-cost-uae-school-year', 'khda-ratings-explained', 'choosing-british-school-dubai', 'abu-dhabi-school-fees-ratings'],
+  related: ['dubai-school-fee-rules', 'true-cost-uae-school-year', 'khda-ratings-explained', 'choosing-british-school-dubai', 'abu-dhabi-school-fees-ratings'],
 }
