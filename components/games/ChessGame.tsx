@@ -2,10 +2,12 @@
 
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { Chess, type Square } from 'chess.js'
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
+import { motion, AnimatePresence, useReducedMotion, type Variants } from 'framer-motion'
 import { fireFeedback } from '@/lib/feedback'
 import { pickComputerMove, type ChessDifficulty } from '@/lib/games/chess-ai'
 import { capturedMaterial } from '@/lib/games/chess-material'
+import { diffChessPositions } from '@/lib/games/chess-move-diff'
+import { ChessPieceArt, type PieceType } from '@/components/games/ChessPieceArt'
 import { useBoardGame } from '@/lib/downtime/useBoardGame'
 import type { GameResultInput } from '@/lib/games/results'
 import { useGameResult, GameResultNote } from '@/components/games/GameResultNote'
@@ -16,18 +18,6 @@ import {
   BoardFrame, PlayerStrip, GameEndCard,
   menuHeadingLevel,
 } from '@/components/games/GameChrome'
-
-/**
- * Solid glyphs for BOTH sides, not the hollow set for White.
- *
- * The hollow glyphs (♙♘♗) are mostly whitespace, so a white piece rendered
- * with them was a thin outline of #FFFFFF on a #F3F6FB square: 1.08:1, and
- * effectively invisible. Solid glyphs give every piece the same mass, and
- * the fill plus rim in ChessPiece below does the separating.
- */
-const PIECE_GLYPH: Record<string, string> = {
-  p: '♟', n: '♞', b: '♝', r: '♜', q: '♛', k: '♚',
-}
 
 const PIECE_NAME: Record<string, string> = {
   p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king',
@@ -61,6 +51,13 @@ export function ChessGame({ backHref = '/downtime' }: { backHref?: string }) {
   const [onlineGameId, setOnlineGameId] = useState<string | null>(null)
 
   const gameRef = useRef(new Chess())
+  // Bumped on every restart. A computer move is scheduled on a timer, and a
+  // "New game" tapped during that think used to leave the timer alive: it
+  // then fired against the FRESH board — where it is White's turn — and
+  // pickComputerMove plays whichever side is to move, so the computer made a
+  // move with the child's own White pieces and the game soft-locked on
+  // Black's turn. The epoch check discards any move scheduled before a reset.
+  const epochRef = useRef(0)
   const [fen, setFen] = useState(() => gameRef.current.fen())
   const [selected, setSelected] = useState<Square | null>(null)
   const [thinking, setThinking] = useState(false)
@@ -93,14 +90,21 @@ export function ChessGame({ backHref = '/downtime' }: { backHref?: string }) {
 
   const playComputerMove = useCallback(() => {
     setThinking(true)
+    const epoch = epochRef.current
     setTimeout(() => {
+      if (epoch !== epochRef.current) return // reset while thinking — stale move
       const g = gameRef.current
-      const move = pickComputerMove(g.fen(), difficulty ?? 'medium')
-      if (move) {
-        const applied = g.move(move)
-        if (applied) setLastMove({ from: applied.from, to: applied.to })
+      // The computer plays Black, only ever Black. pickComputerMove itself
+      // moves whichever side the FEN says is up, so this guard is what keeps
+      // it off the child's pieces if a code path ever gets the turn wrong.
+      if (g.turn() === 'b') {
+        const move = pickComputerMove(g.fen(), difficulty ?? 'medium')
+        if (move) {
+          const applied = g.move(move)
+          if (applied) setLastMove({ from: applied.from, to: applied.to })
+        }
+        setFen(g.fen())
       }
-      setFen(g.fen())
       setThinking(false)
       checkEnd(g)
     }, 350)
@@ -147,6 +151,7 @@ export function ChessGame({ backHref = '/downtime' }: { backHref?: string }) {
   }
 
   function restart() {
+    epochRef.current += 1 // invalidate any computer move still on a timer
     gameRef.current = new Chess()
     setFen(gameRef.current.fen())
     setSelected(null)
@@ -181,7 +186,7 @@ export function ChessGame({ backHref = '/downtime' }: { backHref?: string }) {
         <GameBackLink href={backHref} />
         <GameMenu
           headingLevel={menuHeadingLevel(backHref)}
-          crest={<GameCrest glyph="♞" />}
+          crest={<GameCrest glyph={<ChessPieceArt colour="b" type="n" className="h-12 w-12" />} />}
           title="Chess"
           blurb="Play the computer at three levels, or share a code and play a friend."
           options={DIFFICULTIES}
@@ -257,34 +262,38 @@ function findKing(game: Chess, colour: 'w' | 'b'): Square | null {
 }
 
 /**
- * One piece: a solid glyph in its side's fill, ringed in the opposite tone.
- *
- * The ring is not decoration — it is what makes the piece legible. No single
- * fill clears 3:1 against both a maple and a walnut square (white on maple
- * is 1.3:1), so the outline carries the contrast: 10.8:1 for a light piece
- * on maple, 13.6:1 for a dark piece on walnut. See tokens.css §14.
+ * One piece: the Staunton artwork from ChessPieceArt.tsx, which keeps the
+ * rule the old glyph rendering established — each side's shape filled in its
+ * own tone and ringed in the opposite one, because no single fill clears 3:1
+ * against both a maple and a walnut square. See tokens.css §14.
  */
 function ChessPiece({ colour, type }: { colour: 'w' | 'b'; type: string }) {
-  const light = colour === 'w'
-  const fill = light ? 'var(--game-piece-light)' : 'var(--game-piece-dark)'
-  const rim = light ? 'var(--game-piece-light-rim)' : 'var(--game-piece-dark-rim)'
   return (
-    <span
-      className="pointer-events-none select-none"
-      style={{
-        color: fill,
-        // 8-way 1px ring, then a soft cast shadow so the piece sits ON the
-        // board rather than being painted into it.
-        textShadow: `
-          1px 0 0 ${rim}, -1px 0 0 ${rim}, 0 1px 0 ${rim}, 0 -1px 0 ${rim},
-          1px 1px 0 ${rim}, -1px 1px 0 ${rim}, 1px -1px 0 ${rim}, -1px -1px 0 ${rim},
-          0 3px 4px rgba(20,12,6,.42)`,
-      }}
-    >
-      {PIECE_GLYPH[type]}
-    </span>
+    <ChessPieceArt
+      colour={colour}
+      type={type as PieceType}
+      className="pointer-events-none h-full w-full select-none"
+      // A soft cast shadow so the piece sits ON the board rather than being
+      // painted into it — drop-shadow hugs the artwork's outline, where a
+      // box-shadow would draw a floating rectangle.
+      style={{ filter: 'drop-shadow(0 2px 2px rgba(20,12,6,.38))' }}
+    />
   )
 }
+
+/** How a piece leaves its square. A piece that MOVED vanishes instantly —
+ *  its slide to the new square is the animation. A piece that was CAPTURED
+ *  shrinks away underneath the piece taking its place. AnimatePresence's
+ *  `custom` prop picks between them at the moment of exit, because the
+ *  choice isn't known until the position that removes the piece arrives. */
+const PIECE_EXIT: Variants = {
+  exit: (instant: boolean) =>
+    instant
+      ? { opacity: 0, transition: { duration: 0 } }
+      : { opacity: 0, scale: 0.55, transition: { duration: 0.16, ease: 'easeIn' } },
+}
+
+const fileIndex = (square: string) => square.charCodeAt(0) - 97 // 'a' -> 0
 
 /** The 8x8 board, shared between computer and online modes — takes a FEN
  *  rather than a Chess instance so callers never need to share a ref. */
@@ -301,6 +310,13 @@ function ChessBoardGrid({
 }) {
   const board = new Chess(fen)
   const reduceMotion = useReducedMotion()
+
+  // Which pieces just moved, and from where — re-derived once per position
+  // and cached on the ref so selection/hover re-renders don't re-diff.
+  const prevFenRef = useRef<{ fen: string; prev: string | null }>({ fen, prev: null })
+  if (prevFenRef.current.fen !== fen) prevFenRef.current = { fen, prev: prevFenRef.current.fen }
+  const diff = useMemo(() => diffChessPositions(prevFenRef.current.prev, fen), [fen])
+
   return (
     <BoardFrame>
       <div className="grid aspect-square w-full grid-cols-8" role="group" aria-label="Chess board">
@@ -313,6 +329,13 @@ function ChessBoardGrid({
             const isTarget = legalTargets.includes(square)
             const isLastMove = !!lastMove && (lastMove.from === square || lastMove.to === square)
             const isCheck = checkedKing === square
+
+            // Where this square's piece slid in from, in square-widths (the
+            // wrapper spans the whole square, so 100% = one square).
+            const origin = diff.origins.get(square)
+            const dx = origin ? (fileIndex(origin) - fileIndex(square)) * 100 : 0
+            const dy = origin ? (rank - Number(origin[1])) * 100 : 0
+            const instantExit = reduceMotion || diff.reset || diff.moved.has(square)
             return (
               <button
                 key={square}
@@ -324,7 +347,7 @@ function ChessBoardGrid({
                     : `${square}${isTarget ? ', can move here' : ''}`
                 }
                 aria-pressed={isSelected}
-                className="relative flex aspect-square items-center justify-center text-[min(8.2vw,34px)] leading-none transition-[background-color] duration-150"
+                className="relative flex aspect-square items-center justify-center transition-[background-color] duration-150"
                 style={{
                   backgroundColor: isDark ? 'var(--game-sq-dark)' : 'var(--game-sq-light)',
                 }}
@@ -395,7 +418,36 @@ function ChessBoardGrid({
                   </span>
                 )}
 
-                {piece && <ChessPiece colour={piece.color} type={piece.type} />}
+                {/* The piece slides in from its previous square, lifts a
+                    little while selected, and — when captured — fades away
+                    underneath the piece taking its place. */}
+                <AnimatePresence initial={false} custom={instantExit}>
+                  {piece && (
+                    <motion.span
+                      key={`${piece.color}${piece.type}`}
+                      // Positioned (absolute) for two reasons: an exiting
+                      // captured piece and its taker overlap on one square,
+                      // and positioned elements paint above the in-flow tint
+                      // overlays regardless of DOM order — which is what
+                      // stops the last-move wash discolouring the piece.
+                      className="pointer-events-none absolute inset-0"
+                      // While a piece is mid-slide (or lifted) it crosses
+                      // other squares; the bump keeps it above their pieces.
+                      style={{ zIndex: origin || isSelected ? 2 : undefined }}
+                      initial={origin && !reduceMotion ? { x: `${dx}%`, y: `${dy}%` } : false}
+                      animate={{ x: '0%', y: '0%', scale: isSelected ? 1.12 : 1 }}
+                      transition={
+                        reduceMotion
+                          ? { duration: 0 }
+                          : { type: 'spring', stiffness: 520, damping: 34, mass: 0.8 }
+                      }
+                      variants={PIECE_EXIT}
+                      exit="exit"
+                    >
+                      <ChessPiece colour={piece.color} type={piece.type} />
+                    </motion.span>
+                  )}
+                </AnimatePresence>
 
                 {/* Legal move: a dot on an empty square, a ring around a
                     capture. Both are shapes; neither relies on hue. */}
@@ -441,10 +493,10 @@ function CapturedStrip({ fen }: { fen: string }) {
   const count = (n: number) => `${n} ${n === 1 ? 'piece' : 'pieces'}`
 
   return (
-    <div className="flex items-center justify-between gap-3 px-1 text-[18px] leading-none">
+    <div className="flex items-center justify-between gap-3 px-1">
       <p className="flex min-h-[22px] flex-1 flex-wrap gap-0.5" aria-label={`You have captured ${count(byYou.length)}`}>
         {byYou.map((t, i) => (
-          <span key={i} style={{ color: 'var(--game-piece-dark)' }} aria-hidden>{PIECE_GLYPH[t]}</span>
+          <ChessPieceArt key={i} colour="b" type={t as PieceType} className="h-[22px] w-[22px]" />
         ))}
       </p>
       <p
@@ -452,13 +504,7 @@ function CapturedStrip({ fen }: { fen: string }) {
         aria-label={`Your opponent has captured ${count(byThem.length)}`}
       >
         {byThem.map((t, i) => (
-          <span
-            key={i}
-            style={{ color: 'var(--game-piece-light)', textShadow: '0 0 1px var(--game-piece-light-rim), 0 1px 0 var(--game-piece-light-rim)' }}
-            aria-hidden
-          >
-            {PIECE_GLYPH[t]}
-          </span>
+          <ChessPieceArt key={i} colour="w" type={t as PieceType} className="h-[22px] w-[22px]" />
         ))}
       </p>
     </div>

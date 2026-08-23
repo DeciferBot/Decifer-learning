@@ -154,6 +154,42 @@ describe('winnerAt / findWinner', () => {
     ])
     expect(winnerAt(board, 0, 5)).toBeNull() // empty square, no piece there
   })
+
+  // The 2026-08-23 "five in a row" report: a finished game showed five
+  // glowing yellow discs, which looked like the win check had slept through
+  // four. It hadn't — the only way to reach five is a single drop bridging a
+  // pair each side of a gap (two-pairs-then-fill), and the game ends on that
+  // exact move. These pin both halves of that: no win before the bridge, a
+  // win the moment it lands.
+  it('two separated pairs are not a win until the gap is filled', () => {
+    const board = boardFromRows([
+      '.......',
+      '.......',
+      '.......',
+      '.......',
+      '.......',
+      '.yy.yy.',
+    ])
+    expect(findWinner(board)).toBeNull()
+
+    const result = dropPiece(board, 3, 'yellow')!
+    expect(result.row).toBe(0)
+    expect(winnerAt(result.board, result.row, 3)).toBe('yellow') // five at once
+  })
+
+  it('a run longer than four is a win through every square of the run', () => {
+    const board = boardFromRows([
+      '.......',
+      '.......',
+      '.......',
+      '.......',
+      '.......',
+      'yyyyy..',
+    ])
+    for (let col = 0; col < 5; col++) {
+      expect(winnerAt(board, 0, col)).toBe('yellow')
+    }
+  })
 })
 
 describe('pickComputerColumn', () => {

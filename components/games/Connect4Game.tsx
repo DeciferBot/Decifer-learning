@@ -40,6 +40,11 @@ export function Connect4Game({ backHref = '/downtime' }: { backHref?: string }) 
   const [onlineGameId, setOnlineGameId] = useState<string | null>(null)
 
   const boardRef = useRef<Board>(createEmptyBoard())
+  // Bumped on every restart, so a computer move still sitting on its think
+  // timer when "Play again" is tapped gets discarded instead of dropping a
+  // stray yellow disc onto the fresh board (the child is always Red and
+  // always drops first — see the component doc above).
+  const epochRef = useRef(0)
   const [, forceRender] = useState(0)
   const [thinking, setThinking] = useState(false)
   const [end, setEnd] = useState<EndState>(null)
@@ -74,7 +79,9 @@ export function Connect4Game({ backHref = '/downtime' }: { backHref?: string }) 
 
   const playComputerMove = useCallback(() => {
     setThinking(true)
+    const epoch = epochRef.current
     setTimeout(() => {
+      if (epoch !== epochRef.current) return // reset while thinking — stale move
       const col = pickComputerColumn(boardRef.current, 'yellow', difficulty ?? 'medium')
       if (col !== null) {
         const result = dropPiece(boardRef.current, col, 'yellow')
@@ -105,6 +112,7 @@ export function Connect4Game({ backHref = '/downtime' }: { backHref?: string }) 
   }
 
   function restart() {
+    epochRef.current += 1 // invalidate any computer move still on a timer
     boardRef.current = createEmptyBoard()
     forceRender((n) => n + 1)
     setThinking(false)
