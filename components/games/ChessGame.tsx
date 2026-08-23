@@ -1,11 +1,12 @@
 'use client'
 
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { Chess, type Square } from 'chess.js'
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
+import { motion, AnimatePresence, useReducedMotion, type Variants } from 'framer-motion'
 import { fireFeedback } from '@/lib/feedback'
 import { pickComputerMove, type ChessDifficulty } from '@/lib/games/chess-ai'
 import { capturedMaterial } from '@/lib/games/chess-material'
+import { diffChessPositions } from '@/lib/games/chess-move-diff'
 import { ChessPieceArt, type PieceType } from '@/components/games/ChessPieceArt'
 import { useBoardGame } from '@/lib/downtime/useBoardGame'
 import { OnlineLobby } from '@/components/games/OnlineLobby'
@@ -260,14 +261,7 @@ function ChessPiece({ colour, type }: { colour: 'w' | 'b'; type: string }) {
     <ChessPieceArt
       colour={colour}
       type={type as PieceType}
-      // `relative` is load-bearing: the tint overlays on this square
-      // (last-move, selection) are absolutely positioned, and CSS paints
-      // positioned elements above in-flow content regardless of DOM order —
-      // so a static piece got washed gold on the last-move square, muddying
-      // exactly the light/dark distinction the fill exists to carry. Making
-      // the piece positioned too restores DOM order: overlays first, piece
-      // on top. (CheckerDisc in CheckersGame.tsx already does the same.)
-      className="pointer-events-none relative h-full w-full select-none"
+      className="pointer-events-none h-full w-full select-none"
       // A soft cast shadow so the piece sits ON the board rather than being
       // painted into it — drop-shadow hugs the artwork's outline, where a
       // box-shadow would draw a floating rectangle.
@@ -275,6 +269,20 @@ function ChessPiece({ colour, type }: { colour: 'w' | 'b'; type: string }) {
     />
   )
 }
+
+/** How a piece leaves its square. A piece that MOVED vanishes instantly —
+ *  its slide to the new square is the animation. A piece that was CAPTURED
+ *  shrinks away underneath the piece taking its place. AnimatePresence's
+ *  `custom` prop picks between them at the moment of exit, because the
+ *  choice isn't known until the position that removes the piece arrives. */
+const PIECE_EXIT: Variants = {
+  exit: (instant: boolean) =>
+    instant
+      ? { opacity: 0, transition: { duration: 0 } }
+      : { opacity: 0, scale: 0.55, transition: { duration: 0.16, ease: 'easeIn' } },
+}
+
+const fileIndex = (square: string) => square.charCodeAt(0) - 97 // 'a' -> 0
 
 /** The 8x8 board, shared between computer and online modes — takes a FEN
  *  rather than a Chess instance so callers never need to share a ref. */
@@ -291,6 +299,13 @@ function ChessBoardGrid({
 }) {
   const board = new Chess(fen)
   const reduceMotion = useReducedMotion()
+
+  // Which pieces just moved, and from where — re-derived once per position
+  // and cached on the ref so selection/hover re-renders don't re-diff.
+  const prevFenRef = useRef<{ fen: string; prev: string | null }>({ fen, prev: null })
+  if (prevFenRef.current.fen !== fen) prevFenRef.current = { fen, prev: prevFenRef.current.fen }
+  const diff = useMemo(() => diffChessPositions(prevFenRef.current.prev, fen), [fen])
+
   return (
     <BoardFrame>
       <div className="grid aspect-square w-full grid-cols-8" role="group" aria-label="Chess board">
@@ -303,6 +318,13 @@ function ChessBoardGrid({
             const isTarget = legalTargets.includes(square)
             const isLastMove = !!lastMove && (lastMove.from === square || lastMove.to === square)
             const isCheck = checkedKing === square
+
+            // Where this square's piece slid in from, in square-widths (the
+            // wrapper spans the whole square, so 100% = one square).
+            const origin = diff.origins.get(square)
+            const dx = origin ? (fileIndex(origin) - fileIndex(square)) * 100 : 0
+            const dy = origin ? (rank - Number(origin[1])) * 100 : 0
+            const instantExit = reduceMotion || diff.reset || diff.moved.has(square)
             return (
               <button
                 key={square}
@@ -385,7 +407,36 @@ function ChessBoardGrid({
                   </span>
                 )}
 
-                {piece && <ChessPiece colour={piece.color} type={piece.type} />}
+                {/* The piece slides in from its previous square, lifts a
+                    little while selected, and — when captured — fades away
+                    underneath the piece taking its place. */}
+                <AnimatePresence initial={false} custom={instantExit}>
+                  {piece && (
+                    <motion.span
+                      key={`${piece.color}${piece.type}`}
+                      // Positioned (absolute) for two reasons: an exiting
+                      // captured piece and its taker overlap on one square,
+                      // and positioned elements paint above the in-flow tint
+                      // overlays regardless of DOM order — which is what
+                      // stops the last-move wash discolouring the piece.
+                      className="pointer-events-none absolute inset-0"
+                      // While a piece is mid-slide (or lifted) it crosses
+                      // other squares; the bump keeps it above their pieces.
+                      style={{ zIndex: origin || isSelected ? 2 : undefined }}
+                      initial={origin && !reduceMotion ? { x: `${dx}%`, y: `${dy}%` } : false}
+                      animate={{ x: '0%', y: '0%', scale: isSelected ? 1.12 : 1 }}
+                      transition={
+                        reduceMotion
+                          ? { duration: 0 }
+                          : { type: 'spring', stiffness: 520, damping: 34, mass: 0.8 }
+                      }
+                      variants={PIECE_EXIT}
+                      exit="exit"
+                    >
+                      <ChessPiece colour={piece.color} type={piece.type} />
+                    </motion.span>
+                  )}
+                </AnimatePresence>
 
                 {/* Legal move: a dot on an empty square, a ring around a
                     capture. Both are shapes; neither relies on hue. */}
