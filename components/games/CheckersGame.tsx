@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { fireFeedback } from '@/lib/feedback'
 import {
@@ -38,6 +38,11 @@ export function CheckersGame({ backHref = '/downtime' }: { backHref?: string }) 
   const [onlineGameId, setOnlineGameId] = useState<string | null>(null)
 
   const [board, setBoard] = useState<Board>(() => createInitialBoard())
+  // Bumped on every restart. The computer's move timer closes over the board
+  // it was asked to move on, so a "Play again" tapped mid-think used to get
+  // the whole PRE-reset position pasted back over the fresh board when the
+  // timer fired. The epoch check discards any move scheduled before a reset.
+  const epochRef = useRef(0)
   const [selected, setSelected] = useState<Coord | null>(null)
   const [thinking, setThinking] = useState(false)
   const [end, setEnd] = useState<EndState>(null)
@@ -62,7 +67,9 @@ export function CheckersGame({ backHref = '/downtime' }: { backHref?: string }) 
 
   const playComputerMove = useCallback((currentBoard: Board) => {
     setThinking(true)
+    const epoch = epochRef.current
     setTimeout(() => {
+      if (epoch !== epochRef.current) return // reset while thinking — stale move
       const move = pickComputerMove(currentBoard, 'black', difficulty ?? 'medium')
       if (move) {
         const next = applyMove(currentBoard, move, 'black')
@@ -101,6 +108,7 @@ export function CheckersGame({ backHref = '/downtime' }: { backHref?: string }) 
   }
 
   function restart() {
+    epochRef.current += 1 // invalidate any computer move still on a timer
     setBoard(createInitialBoard())
     setSelected(null)
     setThinking(false)

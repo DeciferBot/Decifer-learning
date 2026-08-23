@@ -33,15 +33,18 @@ export function GamePreview({ game, className = '' }: { game: GameId; className?
 const PIECE_RIM_LIGHT = '1px 0 0 var(--game-piece-light-rim), -1px 0 0 var(--game-piece-light-rim), 0 1px 0 var(--game-piece-light-rim), 0 -1px 0 var(--game-piece-light-rim)'
 const PIECE_RIM_DARK = '1px 0 0 var(--game-piece-dark-rim), -1px 0 0 var(--game-piece-dark-rim), 0 1px 0 var(--game-piece-dark-rim), 0 -1px 0 var(--game-piece-dark-rim)'
 
-/** A 4x4 corner of the real board, with the pieces that open a game. */
+/** A 4x4 corner of the real board, with the pieces that open a game.
+ *  Glyphs carry U+FE0E like ChessGame's PIECE_GLYPH: without it iOS renders
+ *  ♟ (U+265F) as an emoji that ignores CSS color, so the light pawn here
+ *  showed up black on iPads. */
 function ChessPreview() {
   const pieces: Record<string, { glyph: string; light: boolean }> = {
-    '0-1': { glyph: '♜', light: false },
-    '0-4': { glyph: '♛', light: false },
-    '1-6': { glyph: '♝', light: false },
-    '2-0': { glyph: '♟', light: true },
-    '2-3': { glyph: '♞', light: true },
-    '2-7': { glyph: '♚', light: true },
+    '0-1': { glyph: '♜︎', light: false },
+    '0-4': { glyph: '♛︎', light: false },
+    '1-6': { glyph: '♝︎', light: false },
+    '2-0': { glyph: '♟︎', light: true },
+    '2-3': { glyph: '♞︎', light: true },
+    '2-7': { glyph: '♚︎', light: true },
   }
   return (
     <div className="grid aspect-[8/3] grid-cols-8 grid-rows-3">

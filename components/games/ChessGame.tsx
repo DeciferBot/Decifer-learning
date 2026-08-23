@@ -22,9 +22,14 @@ import {
  * with them was a thin outline of #FFFFFF on a #F3F6FB square: 1.08:1, and
  * effectively invisible. Solid glyphs give every piece the same mass, and
  * the fill plus rim in ChessPiece below does the separating.
+ *
+ * Every glyph carries U+FE0E (text variation selector). U+265F ♟ is the one
+ * chess piece Unicode also defines as an emoji, and iOS renders it in emoji
+ * presentation by default: an opaque black picture that ignores CSS color,
+ * so every pawn on an iPad — White's included — showed up black.
  */
 const PIECE_GLYPH: Record<string, string> = {
-  p: '♟', n: '♞', b: '♝', r: '♜', q: '♛', k: '♚',
+  p: '♟︎', n: '♞︎', b: '♝︎', r: '♜︎', q: '♛︎', k: '♚︎',
 }
 
 const PIECE_NAME: Record<string, string> = {
@@ -59,6 +64,13 @@ export function ChessGame({ backHref = '/downtime' }: { backHref?: string }) {
   const [onlineGameId, setOnlineGameId] = useState<string | null>(null)
 
   const gameRef = useRef(new Chess())
+  // Bumped on every restart. A computer move is scheduled on a timer, and a
+  // "New game" tapped during that think used to leave the timer alive: it
+  // then fired against the FRESH board — where it is White's turn — and
+  // pickComputerMove plays whichever side is to move, so the computer made a
+  // move with the child's own White pieces and the game soft-locked on
+  // Black's turn. The epoch check discards any move scheduled before a reset.
+  const epochRef = useRef(0)
   const [fen, setFen] = useState(() => gameRef.current.fen())
   const [selected, setSelected] = useState<Square | null>(null)
   const [thinking, setThinking] = useState(false)
@@ -83,14 +95,21 @@ export function ChessGame({ backHref = '/downtime' }: { backHref?: string }) {
 
   const playComputerMove = useCallback(() => {
     setThinking(true)
+    const epoch = epochRef.current
     setTimeout(() => {
+      if (epoch !== epochRef.current) return // reset while thinking — stale move
       const g = gameRef.current
-      const move = pickComputerMove(g.fen(), difficulty ?? 'medium')
-      if (move) {
-        const applied = g.move(move)
-        if (applied) setLastMove({ from: applied.from, to: applied.to })
+      // The computer plays Black, only ever Black. pickComputerMove itself
+      // moves whichever side the FEN says is up, so this guard is what keeps
+      // it off the child's pieces if a code path ever gets the turn wrong.
+      if (g.turn() === 'b') {
+        const move = pickComputerMove(g.fen(), difficulty ?? 'medium')
+        if (move) {
+          const applied = g.move(move)
+          if (applied) setLastMove({ from: applied.from, to: applied.to })
+        }
+        setFen(g.fen())
       }
-      setFen(g.fen())
       setThinking(false)
       checkEnd(g)
     }, 350)
@@ -137,6 +156,7 @@ export function ChessGame({ backHref = '/downtime' }: { backHref?: string }) {
   }
 
   function restart() {
+    epochRef.current += 1 // invalidate any computer move still on a timer
     gameRef.current = new Chess()
     setFen(gameRef.current.fen())
     setSelected(null)
@@ -259,7 +279,14 @@ function ChessPiece({ colour, type }: { colour: 'w' | 'b'; type: string }) {
   const rim = light ? 'var(--game-piece-light-rim)' : 'var(--game-piece-dark-rim)'
   return (
     <span
-      className="pointer-events-none select-none"
+      // `relative` is load-bearing: the tint overlays on this square
+      // (last-move, selection) are absolutely positioned, and CSS paints
+      // positioned elements above in-flow content regardless of DOM order —
+      // so a static glyph got washed gold on the last-move square, muddying
+      // exactly the light/dark distinction the fill exists to carry. Making
+      // the glyph positioned too restores DOM order: overlays first, piece
+      // on top. (CheckerDisc in CheckersGame.tsx already does the same.)
+      className="pointer-events-none relative select-none"
       style={{
         color: fill,
         // 8-way 1px ring, then a soft cast shadow so the piece sits ON the
