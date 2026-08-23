@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { fireFeedback } from '@/lib/feedback'
 import {
@@ -8,6 +8,8 @@ import {
   pickComputerColumn, type Board, type Connect4Difficulty,
 } from '@/lib/games/connect4-ai'
 import { useBoardGame } from '@/lib/downtime/useBoardGame'
+import type { GameResultInput } from '@/lib/games/results'
+import { useGameResult, GameResultNote } from '@/components/games/GameResultNote'
 import { OnlineLobby } from '@/components/games/OnlineLobby'
 import { WaitingRoom, TurnBanner, PlayAFriendDivider } from '@/components/games/OnlineBoardStatus'
 import { ChevronDown } from '@/components/ui/icons'
@@ -45,6 +47,15 @@ export function Connect4Game({ backHref = '/downtime' }: { backHref?: string }) 
   const [winLine, setWinLine] = useState<Set<string>>(new Set())
 
   const board = boardRef.current
+
+  // Report the finished game to the player's history (guests get the
+  // register invitation instead — see GameResultNote). The catalogue id is
+  // 'connect-4' (hyphenated), matching the public route, not the appSlug.
+  const result = useMemo<GameResultInput | null>(
+    () => (end ? { gameType: 'connect-4', mode: 'computer', outcome: end, difficulty: difficulty ?? 'medium' } : null),
+    [end, difficulty],
+  )
+  const saveStatus = useGameResult(result)
 
   const finishIfOver = useCallback((b: Board, row: number, col: number) => {
     const winner = winnerAt(b, row, col)
@@ -174,6 +185,7 @@ export function Connect4Game({ backHref = '/downtime' }: { backHref?: string }) 
             }
             actionLabel="Play again"
             onAction={restart}
+            secondary={<GameResultNote status={saveStatus} />}
           />
         )}
       </AnimatePresence>
@@ -383,6 +395,15 @@ function Connect4OnlineGame({
 }) {
   const { game, side, inviteCode, ready, notFound, sendMove } = useBoardGame(gameId)
 
+  // Hooks must run before the early returns below, so the finished-game
+  // report reads the winner straight off the (possibly absent) game.
+  const winner = game?.winner ?? null
+  const result = useMemo<GameResultInput | null>(() => {
+    if (!winner || !side) return null
+    return { gameType: 'connect-4', mode: 'friend', outcome: winner === side ? 'win' : winner === 'draw' ? 'draw' : 'loss' }
+  }, [winner, side])
+  const saveStatus = useGameResult(result)
+
   if (!ready) return <GameMessage backHref={backHref} text="Loading…" />
   if (notFound) return <GameMessage backHref={backHref} text="That game couldn't be found." />
   if (!side || !game) return <GameMessage backHref={backHref} text="This game isn't yours." />
@@ -452,6 +473,7 @@ function Connect4OnlineGame({
             title={iWon ? 'Four in a row. You won!' : isDraw ? "It's a draw" : 'Good game!'}
             actionLabel={backHref === '/downtime' ? 'Back to Downtime' : 'Back to Games'}
             onAction={onExit}
+            secondary={<GameResultNote status={saveStatus} />}
           />
         )}
       </AnimatePresence>

@@ -1,12 +1,14 @@
 'use client'
 
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { Chess, type Square } from 'chess.js'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { fireFeedback } from '@/lib/feedback'
 import { pickComputerMove, type ChessDifficulty } from '@/lib/games/chess-ai'
 import { capturedMaterial } from '@/lib/games/chess-material'
 import { useBoardGame } from '@/lib/downtime/useBoardGame'
+import type { GameResultInput } from '@/lib/games/results'
+import { useGameResult, GameResultNote } from '@/components/games/GameResultNote'
 import { OnlineLobby } from '@/components/games/OnlineLobby'
 import { WaitingRoom, TurnBanner, PlayAFriendDivider } from '@/components/games/OnlineBoardStatus'
 import {
@@ -66,6 +68,14 @@ export function ChessGame({ backHref = '/downtime' }: { backHref?: string }) {
   const [lastMove, setLastMove] = useState<{ from: Square; to: Square } | null>(null)
 
   const game = gameRef.current
+
+  // Report the finished game to the player's history (guests get the
+  // register invitation instead — see GameResultNote).
+  const result = useMemo<GameResultInput | null>(
+    () => (end ? { gameType: 'chess', mode: 'computer', outcome: end, difficulty: difficulty ?? 'medium' } : null),
+    [end, difficulty],
+  )
+  const saveStatus = useGameResult(result)
 
   const legalTargets = selected
     ? game.moves({ square: selected, verbose: true }).map((m) => m.to)
@@ -227,6 +237,7 @@ export function ChessGame({ backHref = '/downtime' }: { backHref?: string }) {
             }
             actionLabel="Play again"
             onAction={restart}
+            secondary={<GameResultNote status={saveStatus} />}
           />
         )}
       </AnimatePresence>
@@ -465,6 +476,15 @@ function ChessOnlineGame({
   const { game, side, inviteCode, ready, notFound, sendMove } = useBoardGame(gameId)
   const [selected, setSelected] = useState<Square | null>(null)
 
+  // Hooks must run before the early returns below, so the finished-game
+  // report reads the winner straight off the (possibly absent) game.
+  const winner = game?.winner ?? null
+  const result = useMemo<GameResultInput | null>(() => {
+    if (!winner || !side) return null
+    return { gameType: 'chess', mode: 'friend', outcome: winner === side ? 'win' : winner === 'draw' ? 'draw' : 'loss' }
+  }, [winner, side])
+  const saveStatus = useGameResult(result)
+
   if (!ready) return <GameMessage backHref={backHref} text="Loading…" />
   if (notFound) return <GameMessage backHref={backHref} text="That game couldn't be found." />
   if (!side || !game) return <GameMessage backHref={backHref} text="This game isn't yours." />
@@ -550,6 +570,7 @@ function ChessOnlineGame({
             title={iWon ? 'Checkmate. You won!' : isDraw ? "It's a draw" : 'Good game!'}
             actionLabel={backHref === '/downtime' ? 'Back to Downtime' : 'Back to Games'}
             onAction={onExit}
+            secondary={<GameResultNote status={saveStatus} />}
           />
         )}
       </AnimatePresence>

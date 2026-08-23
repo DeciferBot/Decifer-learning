@@ -9,7 +9,10 @@
  */
 
 import { describe, it, expect } from 'vitest'
-import { generateCrossword, type CrosswordPuzzle } from '../lib/games/crossword-generator'
+import {
+  generateCrossword, CROSSWORD_DIFFICULTY,
+  type CrosswordPuzzle, type CrosswordDifficulty,
+} from '../lib/games/crossword-generator'
 import { CROSSWORD_THEMES, type CrosswordEntry } from '../lib/games/crossword-words'
 
 function entriesEachWordReadsCorrectly(puzzle: CrosswordPuzzle) {
@@ -149,6 +152,23 @@ describe('generateCrossword — structural correctness', () => {
     expect(answers).not.toContain('GO')
     expect(answers).not.toContain('SUPERCALIFRAGILISTIC')
   })
+
+  it('respects the minLength/maxLength word-length band', () => {
+    const bank: CrosswordEntry[] = [
+      { word: 'CAT', clue: 'three letters' },
+      { word: 'STAR', clue: 'four letters' },
+      { word: 'TREES', clue: 'five letters' },
+      { word: 'STREAM', clue: 'six letters' },
+      { word: 'STATION', clue: 'seven letters' },
+    ]
+    for (let i = 0; i < 10; i++) {
+      const puzzle = generateCrossword(bank, { maxWords: 5, maxSpan: 6, minLength: 4, maxLength: 6 })
+      for (const entry of [...puzzle.across, ...puzzle.down]) {
+        expect(entry.length).toBeGreaterThanOrEqual(4)
+        expect(entry.length).toBeLessThanOrEqual(6)
+      }
+    }
+  })
 })
 
 describe('generateCrossword — real Downtime word banks', () => {
@@ -162,5 +182,27 @@ describe('generateCrossword — real Downtime word banks', () => {
         expect(puzzle.across.length + puzzle.down.length).toBeGreaterThanOrEqual(4)
       }
     })
+  }
+})
+
+// Every theme bank must be able to fill every difficulty level — a level
+// that only works for some themes would be a dead button on the picker.
+describe('generateCrossword — difficulty levels on real banks', () => {
+  const levels = Object.keys(CROSSWORD_DIFFICULTY) as CrosswordDifficulty[]
+  for (const theme of CROSSWORD_THEMES) {
+    for (const level of levels) {
+      const config = CROSSWORD_DIFFICULTY[level]
+      it(`"${theme.label}" at ${level} builds a real puzzle within its bounds`, () => {
+        for (let i = 0; i < 10; i++) {
+          const puzzle = generateCrossword(theme.entries, config)
+          assertWellFormed(puzzle, config.maxSpan)
+          expect(puzzle.across.length + puzzle.down.length).toBeGreaterThanOrEqual(4)
+          for (const entry of [...puzzle.across, ...puzzle.down]) {
+            expect(entry.length).toBeGreaterThanOrEqual(config.minLength)
+            expect(entry.length).toBeLessThanOrEqual(config.maxLength)
+          }
+        }
+      })
+    }
   }
 })

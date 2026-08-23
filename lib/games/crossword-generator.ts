@@ -158,23 +158,62 @@ function shuffled<T>(arr: T[]): T[] {
   return copy
 }
 
+/** The difficulty dial for a generated puzzle: how many words, how big the
+ *  grid may grow, and which word lengths are drawn from the bank. Shared by
+ *  the game component (to build the puzzle) and the tests (to prove every
+ *  theme bank can actually fill every level). */
+export type CrosswordDifficulty = 'easy' | 'medium' | 'hard'
+
+export const CROSSWORD_DIFFICULTY: Record<
+  CrosswordDifficulty,
+  { maxWords: number; maxSpan: number; minLength: number; maxLength: number }
+> = {
+  // Short words on a small grid — a puzzle a Year 2 reader can finish.
+  easy: { maxWords: 6, maxSpan: 4, minLength: 3, maxLength: 6 },
+  // The original tuning, unchanged, so "Medium" plays exactly like the
+  // crossword did before levels existed.
+  medium: { maxWords: 9, maxSpan: 5, minLength: 3, maxLength: 11 },
+  // More words, a bigger grid, and the three-letter gimmes withheld.
+  hard: { maxWords: 12, maxSpan: 6, minLength: 4, maxLength: 13 },
+}
+
 /** Places as many entries as it can (up to `maxWords`) into a grid, largest
  *  words first. Always succeeds with at least the first word placed — an
  *  empty or too-small bank is a caller error, not something this recovers
- *  from gracefully, since Downtime's word banks are fixed and known good. */
+ *  from gracefully, since Downtime's word banks are fixed and known good.
+ *
+ *  Placement is randomised, and on a tight span (Easy mode's 9x9 box) a
+ *  single unlucky run can strand the grid at 2-3 words. So generation runs
+ *  up to a handful of attempts and keeps the densest result — each attempt
+ *  is a few hundred map operations, far too cheap to notice, and the child
+ *  always gets a puzzle worth the name. */
+const GENERATION_ATTEMPTS = 8
+
 export function generateCrossword(
   bank: CrosswordEntry[],
-  opts: { maxWords?: number; maxSpan?: number } = {},
+  opts: { maxWords?: number; maxSpan?: number; minLength?: number; maxLength?: number } = {},
 ): CrosswordPuzzle {
   const maxWords = opts.maxWords ?? 9
   const maxSpan = opts.maxSpan ?? 6 // keeps the grid to at most 13x13
+  const minLength = Math.max(3, opts.minLength ?? 3)
+  const maxLength = Math.min(opts.maxLength ?? Infinity, maxSpan * 2 + 1)
 
   const candidates: Candidate[] = bank
     .map((e) => ({ word: normaliseWord(e.word), clue: e.clue }))
-    .filter((e) => e.word.length >= 3 && e.word.length <= maxSpan * 2 + 1)
+    .filter((e) => e.word.length >= minLength && e.word.length <= maxLength)
+  if (candidates.length === 0) throw new Error('generateCrossword: no usable words in bank')
 
+  let best: PlacedInternal[] = []
+  for (let attempt = 0; attempt < GENERATION_ATTEMPTS; attempt++) {
+    const placed = attemptLayout(candidates, maxWords, maxSpan)
+    if (placed.length > best.length) best = placed
+    if (best.length >= maxWords) break
+  }
+  return buildPuzzle(best)
+}
+
+function attemptLayout(candidates: Candidate[], maxWords: number, maxSpan: number): PlacedInternal[] {
   const byLength = shuffled(candidates).sort((a, b) => b.word.length - a.word.length)
-  if (byLength.length === 0) throw new Error('generateCrossword: no usable words in bank')
 
   const cells = new Map<string, Cell>()
   const placed: PlacedInternal[] = []
@@ -194,7 +233,7 @@ export function generateCrossword(
     placed.push({ word: candidate.word, clue: candidate.clue, row: choice.row, col: choice.col, direction: choice.direction })
   }
 
-  return buildPuzzle(placed)
+  return placed
 }
 
 function buildPuzzle(placed: PlacedInternal[]): CrosswordPuzzle {

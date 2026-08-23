@@ -3,8 +3,13 @@
 import { useMemo, useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { fireFeedback } from '@/lib/feedback'
-import { generateCrossword, type CrosswordPuzzle, type PlacedWord } from '@/lib/games/crossword-generator'
+import {
+  generateCrossword, CROSSWORD_DIFFICULTY,
+  type CrosswordPuzzle, type PlacedWord, type CrosswordDifficulty,
+} from '@/lib/games/crossword-generator'
 import { CROSSWORD_THEMES, type CrosswordTheme } from '@/lib/games/crossword-words'
+import type { GameResultInput } from '@/lib/games/results'
+import { useGameResult, GameResultNote } from '@/components/games/GameResultNote'
 import { RefreshCw, Eye, Check, X as Backspace } from '@/components/ui/icons'
 import {
   GameShell, GameBackLink, GameToolbar, GameMenu, GameCrest, GameEndCard,
@@ -13,14 +18,29 @@ import {
 
 const KEYBOARD_ROWS = ['QWERTYUIOP', 'ASDFGHJKL', 'ZXCVBNM'] as const
 
+// Same three levels, same labels, as Chess, Checkers and Connect 4 — a child
+// moving between games meets the same choice each time. What each level means
+// here lives in CROSSWORD_DIFFICULTY (lib/games/crossword-generator.ts).
+const DIFFICULTIES: { id: CrosswordDifficulty; label: string; blurb: string }[] = [
+  { id: 'easy', label: 'Easy', blurb: 'A small grid with short words' },
+  { id: 'medium', label: 'Medium', blurb: 'The classic puzzle' },
+  { id: 'hard', label: 'Hard', blurb: 'A bigger grid, longer words' },
+]
+
+const DIFFICULTY_LABEL: Record<CrosswordDifficulty, string> = {
+  easy: 'Easy', medium: 'Medium', hard: 'Hard',
+}
+
 type Coord = { row: number; col: number }
 type Direction = 'across' | 'down'
 
-/** Crossword — pick a theme, a fresh puzzle is generated on the spot (see
- *  lib/games/crossword-generator.ts). Solo, no timer, no points — reveal
- *  is always one tap away since Downtime is meant to be pressure-free. */
+/** Crossword — pick a theme and a difficulty, and a fresh puzzle is generated
+ *  on the spot (see lib/games/crossword-generator.ts). Solo, no timer, no
+ *  points — reveal is always one tap away since Downtime is meant to be
+ *  pressure-free. */
 export function CrosswordGame({ backHref = '/downtime' }: { backHref?: string }) {
   const [theme, setTheme] = useState<CrosswordTheme | null>(null)
+  const [difficulty, setDifficulty] = useState<CrosswordDifficulty | null>(null)
   const [puzzle, setPuzzle] = useState<CrosswordPuzzle | null>(null)
   const [entries, setEntries] = useState<string[][]>([])
   const [selected, setSelected] = useState<Coord | null>(null)
@@ -29,9 +49,10 @@ export function CrosswordGame({ backHref = '/downtime' }: { backHref?: string })
   const [solved, setSolved] = useState(false)
   const [revealed, setRevealed] = useState(false)
 
-  function startPuzzle(t: CrosswordTheme) {
-    const p = generateCrossword(t.entries, { maxWords: 9, maxSpan: 5 })
+  function startPuzzle(t: CrosswordTheme, d: CrosswordDifficulty) {
+    const p = generateCrossword(t.entries, CROSSWORD_DIFFICULTY[d])
     setTheme(t)
+    setDifficulty(d)
     setPuzzle(p)
     setEntries(Array.from({ length: p.rows }, () => Array(p.cols).fill('')))
     setDirection('across')
@@ -42,15 +63,16 @@ export function CrosswordGame({ backHref = '/downtime' }: { backHref?: string })
   }
 
   function newPuzzle() {
-    if (theme) startPuzzle(theme)
+    if (theme && difficulty) startPuzzle(theme, difficulty)
   }
 
   function exitToThemes() {
     setTheme(null)
+    setDifficulty(null)
     setPuzzle(null)
   }
 
-  if (!theme || !puzzle) {
+  if (!theme) {
     return (
       <GameShell>
         <GameBackLink href={backHref} />
@@ -62,8 +84,32 @@ export function CrosswordGame({ backHref = '/downtime' }: { backHref?: string })
           options={CROSSWORD_THEMES.map((t) => ({ id: t.id, label: t.label, glyph: t.emoji }))}
           onPick={(id) => {
             const t = CROSSWORD_THEMES.find((x) => x.id === id)
-            if (t) startPuzzle(t)
+            if (t) setTheme(t)
           }}
+        />
+      </GameShell>
+    )
+  }
+
+  if (!difficulty || !puzzle) {
+    return (
+      <GameShell>
+        <GameBackLink href={backHref} />
+        <GameMenu
+          headingLevel={menuHeadingLevel(backHref)}
+          crest={<GameCrest tone="paper" glyph={theme.emoji} />}
+          title={theme.label}
+          blurb="How tricky should this one be?"
+          options={DIFFICULTIES}
+          onPick={(id) => startPuzzle(theme, id as CrosswordDifficulty)}
+          footer={
+            <button
+              onClick={exitToThemes}
+              className="mx-auto flex min-h-[48px] items-center justify-center px-4 text-sm font-semibold text-ink-2 transition-colors hover:text-ink"
+            >
+              Pick a different theme
+            </button>
+          }
         />
       </GameShell>
     )
@@ -73,6 +119,7 @@ export function CrosswordGame({ backHref = '/downtime' }: { backHref?: string })
     <PuzzleBoard
       backHref={backHref}
       theme={theme}
+      difficulty={difficulty}
       puzzle={puzzle}
       entries={entries}
       setEntries={setEntries}
@@ -108,11 +155,12 @@ function cellsOf(word: PlacedWord): Coord[] {
 }
 
 function PuzzleBoard({
-  backHref, theme, puzzle, entries, setEntries, selected, setSelected, direction, setDirection,
+  backHref, theme, difficulty, puzzle, entries, setEntries, selected, setSelected, direction, setDirection,
   wrongCells, setWrongCells, solved, setSolved, revealed, setRevealed, onNewPuzzle, onExit,
 }: {
   backHref: string
   theme: CrosswordTheme
+  difficulty: CrosswordDifficulty
   puzzle: CrosswordPuzzle
   entries: string[][]
   setEntries: (fn: (prev: string[][]) => string[][]) => void
@@ -129,6 +177,17 @@ function PuzzleBoard({
   onNewPuzzle: () => void
   onExit: () => void
 }) {
+  // A genuinely solved puzzle goes into the player's game history; tapping
+  // Reveal doesn't count as a solve, so it records nothing. Score is the
+  // number of words filled in. Guests get the register invitation instead
+  // (see GameResultNote).
+  const result = useMemo<GameResultInput | null>(() => (
+    solved && !revealed
+      ? { gameType: 'crossword', mode: 'solo', outcome: 'win', difficulty, score: puzzle.across.length + puzzle.down.length }
+      : null
+  ), [solved, revealed, difficulty, puzzle])
+  const saveStatus = useGameResult(result)
+
   const activeWord = selected ? findWordAt(puzzle, selected, direction)
     ?? findWordAt(puzzle, selected, direction === 'across' ? 'down' : 'across') : undefined
   const activeCells = useMemo(() => (activeWord ? new Set(cellsOf(activeWord).map((c) => `${c.row},${c.col}`)) : new Set<string>()), [activeWord])
@@ -282,6 +341,9 @@ function PuzzleBoard({
       <div className="flex items-baseline justify-between px-1">
         <p className="font-heading font-bold text-ink">
           <span aria-hidden>{theme.emoji}</span> {theme.label}
+          <span className="ml-1.5 align-middle rounded-full bg-black/[0.05] px-2 py-0.5 text-[11px] font-semibold text-ink-2">
+            {DIFFICULTY_LABEL[difficulty]}
+          </span>
         </p>
         <p className="font-mono text-xs tabular-nums text-ink-2">
           {filledCount.done}/{filledCount.total} letters
@@ -407,6 +469,7 @@ function PuzzleBoard({
             }
             actionLabel="New puzzle"
             onAction={onNewPuzzle}
+            secondary={<GameResultNote status={saveStatus} />}
           />
         )}
       </AnimatePresence>
