@@ -9,6 +9,8 @@ import {
 } from '@/lib/games/checkers-ai'
 import { diffCheckersPositions } from '@/lib/games/checkers-move-diff'
 import { useBoardGame } from '@/lib/downtime/useBoardGame'
+import type { GameResultInput } from '@/lib/games/results'
+import { useGameResult, GameResultNote } from '@/components/games/GameResultNote'
 import { OnlineLobby } from '@/components/games/OnlineLobby'
 import { WaitingRoom, TurnBanner, PlayAFriendDivider } from '@/components/games/OnlineBoardStatus'
 import { Crown } from '@/components/ui/icons'
@@ -48,6 +50,14 @@ export function CheckersGame({ backHref = '/downtime' }: { backHref?: string }) 
   const [thinking, setThinking] = useState(false)
   const [end, setEnd] = useState<EndState>(null)
   const [lastMove, setLastMove] = useState<{ from: Coord; to: Coord } | null>(null)
+
+  // Report the finished game to the player's history (guests get the
+  // register invitation instead — see GameResultNote).
+  const result = useMemo<GameResultInput | null>(
+    () => (end ? { gameType: 'checkers', mode: 'computer', outcome: end, difficulty: difficulty ?? 'medium' } : null),
+    [end, difficulty],
+  )
+  const saveStatus = useGameResult(result)
 
   const redMoves = legalMoves(board, 'red')
   const movableFrom = new Set(redMoves.map((m) => m.from.join(',')))
@@ -192,6 +202,7 @@ export function CheckersGame({ backHref = '/downtime' }: { backHref?: string }) 
             }
             actionLabel="Play again"
             onAction={restart}
+            secondary={saveStatus ? <GameResultNote status={saveStatus} /> : undefined}
           />
         )}
       </AnimatePresence>
@@ -401,6 +412,15 @@ function CheckersOnlineGame({
   const { game, side, inviteCode, ready, notFound, sendMove } = useBoardGame(gameId)
   const [selected, setSelected] = useState<Coord | null>(null)
 
+  // Hooks must run before the early returns below, so the finished-game
+  // report reads the winner straight off the (possibly absent) game.
+  const winner = game?.winner ?? null
+  const result = useMemo<GameResultInput | null>(() => {
+    if (!winner || !side) return null
+    return { gameType: 'checkers', mode: 'friend', outcome: winner === side ? 'win' : winner === 'draw' ? 'draw' : 'loss' }
+  }, [winner, side])
+  const saveStatus = useGameResult(result)
+
   if (!ready) return <GameMessage backHref={backHref} text="Loading…" />
   if (notFound) return <GameMessage backHref={backHref} text="That game couldn't be found." />
   if (!side || !game) return <GameMessage backHref={backHref} text="This game isn't yours." />
@@ -482,6 +502,7 @@ function CheckersOnlineGame({
             title={iWon ? 'You won!' : 'Good game!'}
             actionLabel={backHref === '/downtime' ? 'Back to Downtime' : 'Back to Games'}
             onAction={onExit}
+            secondary={saveStatus ? <GameResultNote status={saveStatus} /> : undefined}
           />
         )}
       </AnimatePresence>

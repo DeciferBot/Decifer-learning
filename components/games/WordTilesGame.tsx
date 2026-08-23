@@ -1,12 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import { fireFeedback } from '@/lib/feedback'
 import { BOARD_SIZE, PREMIUM_LAYOUT, type Premium } from '@/lib/games/scrabble-board'
 import type { ScrabbleBoard } from '@/lib/games/scrabble-engine'
 import { useBoardGame } from '@/lib/downtime/useBoardGame'
+import type { GameResultInput } from '@/lib/games/results'
+import { useGameResult, GameResultNote } from '@/components/games/GameResultNote'
 import { OnlineLobby } from '@/components/games/OnlineLobby'
 import { WaitingRoom } from '@/components/games/OnlineBoardStatus'
 import { RefreshCw, Star, X as ClearIcon } from '@/components/ui/icons'
@@ -122,6 +124,27 @@ function WordTilesOnlineGame({ gameId, backHref, onExit }: { gameId: string; bac
   // requests — the server independently rejects a losing race as a
   // 'conflict' (see the move route), this just makes it rare in practice.
   const [submitting, setSubmitting] = useState(false)
+
+  // Hooks must run before the early returns below. A finished game goes into
+  // the player's history with their final score; guests get the register
+  // invitation instead (see GameResultNote).
+  const winner = game?.winner ?? null
+  const finalScore = useMemo(() => {
+    if (!game || !side) return null
+    const s = game.state as ScrabblePublicState | null
+    if (!s) return null
+    return side === 'host' ? s.hostScore : s.guestScore
+  }, [game, side])
+  const result = useMemo<GameResultInput | null>(() => {
+    if (!winner || !side) return null
+    return {
+      gameType: 'word-tiles',
+      mode: 'friend',
+      outcome: winner === side ? 'win' : winner === 'draw' ? 'draw' : 'loss',
+      score: finalScore ?? undefined,
+    }
+  }, [winner, side, finalScore])
+  const saveStatus = useGameResult(result)
 
   if (!ready) return <GameMessage backHref={backHref} text="Loading…" />
   if (notFound) return <GameMessage backHref={backHref} text="That game couldn't be found." />
@@ -448,6 +471,7 @@ function WordTilesOnlineGame({ gameId, backHref, onExit }: { gameId: string; bac
             detail={`Final score. You: ${myScore}, ${opponentName}: ${opponentScore}`}
             actionLabel={backHref === '/downtime' ? 'Back to Downtime' : 'Back to Games'}
             onAction={onExit}
+            secondary={saveStatus ? <GameResultNote status={saveStatus} /> : undefined}
           />
         )}
       </AnimatePresence>

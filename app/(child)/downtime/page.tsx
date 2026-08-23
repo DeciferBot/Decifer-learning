@@ -1,9 +1,12 @@
 import Link from 'next/link'
-import { Gamepad, Swords, Star, ArrowRight } from '@/components/ui/icons'
-import { GAME_CATALOGUE } from '@/lib/games/catalogue'
+import { Gamepad, Swords, Star, ArrowRight, Trophy } from '@/components/ui/icons'
+import { GAME_CATALOGUE, MODE_LABEL } from '@/lib/games/catalogue'
 import { GameCard, GameTable } from '@/components/games/GameCard'
+import { getAuthedProfile } from '@/lib/downtime/server'
+import { prisma } from '@/lib/prisma'
 
 export const metadata = { title: 'Games' }
+export const dynamic = 'force-dynamic'
 
 // The one place a child goes to pick something to play. Before this existed as
 // a surface, the only way in was a small tile buried near the bottom of
@@ -37,7 +40,51 @@ const FEATURED = [
   },
 ] as const
 
-export default function GamesPage() {
+const OUTCOME_LABEL: Record<string, { text: string; colour: string }> = {
+  win: { text: 'Won', colour: 'var(--correct)' },
+  loss: { text: 'Lost', colour: 'var(--incorrect)' },
+  draw: { text: 'Draw', colour: 'rgb(var(--tw-ink) / 0.6)' },
+}
+
+const DIFFICULTY_LABEL: Record<string, string> = { easy: 'Easy', medium: 'Medium', hard: 'Hard' }
+
+function whenLabel(d: Date): string {
+  const days = Math.floor((Date.now() - d.getTime()) / 86_400_000)
+  if (days <= 0) return 'Today'
+  if (days === 1) return 'Yesterday'
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+}
+
+export default async function GamesPage() {
+  // Every finished game a logged-in child plays lands in downtime_results
+  // (see /api/downtime/results) — this is where that history surfaces.
+  // fail-open: a DB hiccup hides the list rather than breaking the picker.
+  let recent: {
+    id: string
+    game_type: string
+    mode: string
+    difficulty: string | null
+    outcome: string
+    score: number | null
+    created_at: Date
+  }[] = []
+  try {
+    const profile = await getAuthedProfile()
+    if (profile) {
+      recent = await prisma.downtimeResult.findMany({
+        where: { profile_id: profile.id },
+        orderBy: { created_at: 'desc' },
+        take: 6,
+        select: {
+          id: true, game_type: true, mode: true, difficulty: true,
+          outcome: true, score: true, created_at: true,
+        },
+      })
+    }
+  } catch {
+    recent = []
+  }
+
   return (
     <section className="mx-auto max-w-2xl space-y-6 pb-4">
       <header className="pt-1">
@@ -89,6 +136,46 @@ export default function GamesPage() {
           ))}
         </GameTable>
       </div>
+
+      {/* ── Recent game history ────────────────────────────────────────── */}
+      {recent.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Trophy className="h-5 w-5 text-points-gold" aria-hidden />
+            <h2 className="font-heading text-lg font-extrabold text-ink">Your recent games</h2>
+          </div>
+          <ul className="divide-y divide-black/[0.06] rounded-2xl border border-black/[0.07] bg-surface shadow-sm">
+            {recent.map((r) => {
+              const game = GAME_CATALOGUE.find((g) => g.id === r.game_type)
+              const outcome = OUTCOME_LABEL[r.outcome] ?? OUTCOME_LABEL.draw
+              const context = [
+                r.difficulty ? DIFFICULTY_LABEL[r.difficulty] : null,
+                MODE_LABEL[r.mode as keyof typeof MODE_LABEL] ?? null,
+                r.score != null ? `${r.score} points` : null,
+              ].filter(Boolean).join(' · ')
+              return (
+                <li key={r.id} className="flex items-center gap-3 px-4 py-3">
+                  <span
+                    className="w-12 shrink-0 text-xs font-bold"
+                    style={{ color: outcome.colour }}
+                  >
+                    {outcome.text}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-semibold text-ink">
+                      {game?.name ?? r.game_type}
+                    </span>
+                    {context && <span className="block truncate text-xs text-muted">{context}</span>}
+                  </span>
+                  <span className="shrink-0 text-xs tabular-nums text-muted">
+                    {whenLabel(r.created_at)}
+                  </span>
+                </li>
+              )
+            })}
+          </ul>
+        </div>
+      )}
     </section>
   )
 }

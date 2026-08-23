@@ -135,6 +135,7 @@ model Profile {
   // Decifer Downtime (2-player board games via invite code)
   hosted_board_games BoardGame[] @relation("HostedBoardGames")
   guest_board_games  BoardGame[] @relation("GuestBoardGames")
+  downtime_results   DowntimeResult[]
 
   skill_check_attempts SkillCheckAttempt[]
   reasoning_attempts   ReasoningAttempt[]
@@ -1200,6 +1201,27 @@ model BoardGame {
   @@index([host_guest_token])
   @@index([guest_guest_token])
   @@map("board_games")
+}
+
+// A finished Downtime game, one row per logged-in player — the game history
+// behind "Your recent games" on /downtime. Guests have no rows here (nothing
+// to attach them to); the game-over card instead invites them to register so
+// future results are kept. Same server-only access posture as board_games:
+// all reads and writes go through app code, never a client-side table query.
+model DowntimeResult {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  profile_id String   @db.Uuid
+  game_type  String // catalogue id: chess | checkers | connect-4 | crossword | word-tiles
+  mode       String // computer | friend | solo
+  difficulty String? // easy | medium | hard — computer/solo games only
+  outcome    String // win | loss | draw
+  score      Int? // Word Tiles points; games without a score leave it null
+  created_at DateTime @default(now())
+
+  profile Profile @relation(fields: [profile_id], references: [id], onDelete: Cascade)
+
+  @@index([profile_id, created_at])
+  @@map("downtime_results")
 }
 
 // ---------- Decifer Skills Check ----------

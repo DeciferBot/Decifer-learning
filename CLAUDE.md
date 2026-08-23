@@ -301,6 +301,15 @@ board_games (id, game_type ENUM('chess','checkers','connect4','scrabble'),
              host_profile_id, host_guest_token, host_display_name,
              guest_profile_id, guest_guest_token, guest_display_name,
              created_at, updated_at, finished_at)
+
+-- Downtime game history — one row per LOGGED-IN player per finished game
+-- (guests are never recorded; the game-over card invites them to register
+-- instead). Same lockdown as board_games: RLS with no grants, all writes
+-- via POST /api/downtime/results, reads server-side on /downtime.
+-- game_type uses lib/games/catalogue.ts ids ('connect-4', 'word-tiles' —
+-- NOT the BoardGameType enum spelling).
+downtime_results (id, profile_id, game_type, mode, difficulty, outcome,
+                  score, created_at)
 ```
 
 **RLS baseline (Phase 2 of the build, not Phase 2 of the product):**
