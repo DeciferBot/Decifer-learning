@@ -185,7 +185,7 @@ export function Connect4Game({ backHref = '/downtime' }: { backHref?: string }) 
             }
             actionLabel="Play again"
             onAction={restart}
-            secondary={<GameResultNote status={saveStatus} />}
+            secondary={saveStatus ? <GameResultNote status={saveStatus} /> : undefined}
           />
         )}
       </AnimatePresence>
@@ -473,7 +473,7 @@ function Connect4OnlineGame({
             title={iWon ? 'Four in a row. You won!' : isDraw ? "It's a draw" : 'Good game!'}
             actionLabel={backHref === '/downtime' ? 'Back to Downtime' : 'Back to Games'}
             onAction={onExit}
-            secondary={<GameResultNote status={saveStatus} />}
+            secondary={saveStatus ? <GameResultNote status={saveStatus} /> : undefined}
           />
         )}
       </AnimatePresence>

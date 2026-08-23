@@ -469,7 +469,7 @@ function PuzzleBoard({
             }
             actionLabel="New puzzle"
             onAction={onNewPuzzle}
-            secondary={<GameResultNote status={saveStatus} />}
+            secondary={saveStatus ? <GameResultNote status={saveStatus} /> : undefined}
           />
         )}
       </AnimatePresence>

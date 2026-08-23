@@ -50,8 +50,11 @@ export function useGameResult(result: GameResultInput | null): SaveStatus | null
  */
 export function GameResultNote({ status }: { status: SaveStatus | null }) {
   if (status === 'saved') {
+    // No role="status" of its own: this renders inside GameEndCard, which is
+    // already a status live region, and nesting a second one can announce
+    // the same change twice.
     return (
-      <p className="text-xs font-semibold text-ink-2" role="status">
+      <p className="text-xs font-semibold text-ink-2">
         Saved to your game history.
       </p>
     )

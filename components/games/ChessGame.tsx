@@ -237,7 +237,7 @@ export function ChessGame({ backHref = '/downtime' }: { backHref?: string }) {
             }
             actionLabel="Play again"
             onAction={restart}
-            secondary={<GameResultNote status={saveStatus} />}
+            secondary={saveStatus ? <GameResultNote status={saveStatus} /> : undefined}
           />
         )}
       </AnimatePresence>
@@ -570,7 +570,7 @@ function ChessOnlineGame({
             title={iWon ? 'Checkmate. You won!' : isDraw ? "It's a draw" : 'Good game!'}
             actionLabel={backHref === '/downtime' ? 'Back to Downtime' : 'Back to Games'}
             onAction={onExit}
-            secondary={<GameResultNote status={saveStatus} />}
+            secondary={saveStatus ? <GameResultNote status={saveStatus} /> : undefined}
           />
         )}
       </AnimatePresence>

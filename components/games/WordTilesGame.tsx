@@ -471,7 +471,7 @@ function WordTilesOnlineGame({ gameId, backHref, onExit }: { gameId: string; bac
             detail={`Final score. You: ${myScore}, ${opponentName}: ${opponentScore}`}
             actionLabel={backHref === '/downtime' ? 'Back to Downtime' : 'Back to Games'}
             onAction={onExit}
-            secondary={<GameResultNote status={saveStatus} />}
+            secondary={saveStatus ? <GameResultNote status={saveStatus} /> : undefined}
           />
         )}
       </AnimatePresence>

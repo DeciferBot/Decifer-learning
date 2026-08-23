@@ -193,7 +193,7 @@ export function CheckersGame({ backHref = '/downtime' }: { backHref?: string }) 
             }
             actionLabel="Play again"
             onAction={restart}
-            secondary={<GameResultNote status={saveStatus} />}
+            secondary={saveStatus ? <GameResultNote status={saveStatus} /> : undefined}
           />
         )}
       </AnimatePresence>
@@ -434,7 +434,7 @@ function CheckersOnlineGame({
             title={iWon ? 'You won!' : 'Good game!'}
             actionLabel={backHref === '/downtime' ? 'Back to Downtime' : 'Back to Games'}
             onAction={onExit}
-            secondary={<GameResultNote status={saveStatus} />}
+            secondary={saveStatus ? <GameResultNote status={saveStatus} /> : undefined}
           />
         )}
       </AnimatePresence>
