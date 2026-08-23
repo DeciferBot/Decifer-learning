@@ -1,12 +1,13 @@
 'use client'
 
-import { useCallback, useRef, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useCallback, useMemo, useRef, useState } from 'react'
+import { motion, AnimatePresence, useReducedMotion, type Variants } from 'framer-motion'
 import { fireFeedback } from '@/lib/feedback'
 import {
   createInitialBoard, legalMoves, applyMove, determineOutcome, pickComputerMove,
   type Board, type CheckersColor, type CheckersDifficulty, type Move,
 } from '@/lib/games/checkers-ai'
+import { diffCheckersPositions } from '@/lib/games/checkers-move-diff'
 import { useBoardGame } from '@/lib/downtime/useBoardGame'
 import { OnlineLobby } from '@/components/games/OnlineLobby'
 import { WaitingRoom, TurnBanner, PlayAFriendDivider } from '@/components/games/OnlineBoardStatus'
@@ -238,6 +239,18 @@ function CheckerDisc({
   )
 }
 
+/** How a disc leaves its square — same scheme as the chess board
+ *  (ChessGame.tsx): a disc that MOVED vanishes instantly, because its slide
+ *  to the new square is the animation; a disc that was JUMPED shrinks away
+ *  where it stood. AnimatePresence's `custom` prop picks between them at
+ *  the moment of exit. */
+const DISC_EXIT: Variants = {
+  exit: (instant: boolean) =>
+    instant
+      ? { opacity: 0, transition: { duration: 0 } }
+      : { opacity: 0, scale: 0.55, transition: { duration: 0.16, ease: 'easeIn' } },
+}
+
 /** The 8x8 board, shared between computer and online modes — only the data
  *  source and tap handler differ. */
 function CheckersGrid({
@@ -251,6 +264,15 @@ function CheckersGrid({
   onTap: (r: number, c: number) => void
   disabled: boolean
 }) {
+  const reduceMotion = useReducedMotion()
+
+  // Which discs just moved, and from where — re-derived once per board
+  // (boards are immutable, so identity is the change signal) and cached on
+  // the ref so selection re-renders don't re-diff.
+  const prevBoardRef = useRef<{ board: Board; prev: Board | null }>({ board, prev: null })
+  if (prevBoardRef.current.board !== board) prevBoardRef.current = { board, prev: prevBoardRef.current.board }
+  const diff = useMemo(() => diffCheckersPositions(prevBoardRef.current.prev, board), [board])
+
   return (
     <BoardFrame>
       <div className="grid aspect-square w-full grid-cols-8" role="group" aria-label="Checkers board">
@@ -260,6 +282,16 @@ function CheckersGrid({
             const piece = board[row][col]
             const dark = (row + col) % 2 === 1
             const isSelected = !!selected && selected[0] === row && selected[1] === col
+
+            // Where this square's disc slid in from, in square-widths (the
+            // wrapper spans the whole square, so 100% = one square). Rows
+            // count from the bottom while the screen's y grows downward,
+            // hence row minus origin-row, not the other way around.
+            const origin = diff.origins.get(`${row},${col}`)
+            const [originRow, originCol] = origin ? origin.split(',').map(Number) : [row, col]
+            const dx = (originCol - col) * 100
+            const dy = (row - originRow) * 100
+            const instantExit = reduceMotion || diff.reset || diff.moved.has(`${row},${col}`)
             const isTarget = targets.some((m) => m.to[0] === row && m.to[1] === col)
             const isLastMove = !!lastMove
               && ((lastMove.from[0] === row && lastMove.from[1] === col)
@@ -309,7 +341,35 @@ function CheckersGrid({
                   />
                 )}
 
-                {piece && <CheckerDisc colour={piece.color} king={piece.king} />}
+                {/* The disc slides in from its previous square — one motion
+                    across the whole diagonal of a multi-jump — lifts a
+                    little while selected, and fades where it stood when
+                    jumped. */}
+                <AnimatePresence initial={false} custom={instantExit}>
+                  {piece && (
+                    <motion.span
+                      key={`${piece.color}${piece.king ? 'K' : ''}`}
+                      // Positioned (absolute) so an exiting disc and its
+                      // square's overlays layer correctly, and so a disc
+                      // mid-slide paints above the in-flow square content.
+                      className="pointer-events-none absolute inset-0 flex items-center justify-center"
+                      // A sliding (or lifted) disc crosses other squares;
+                      // the bump keeps it above their discs.
+                      style={{ zIndex: origin || isSelected ? 2 : undefined }}
+                      initial={origin && !reduceMotion ? { x: `${dx}%`, y: `${dy}%` } : false}
+                      animate={{ x: '0%', y: '0%', scale: isSelected ? 1.1 : 1 }}
+                      transition={
+                        reduceMotion
+                          ? { duration: 0 }
+                          : { type: 'spring', stiffness: 520, damping: 34, mass: 0.8 }
+                      }
+                      variants={DISC_EXIT}
+                      exit="exit"
+                    >
+                      <CheckerDisc colour={piece.color} king={piece.king} />
+                    </motion.span>
+                  )}
+                </AnimatePresence>
 
                 {isTarget && !piece && (
                   <span
