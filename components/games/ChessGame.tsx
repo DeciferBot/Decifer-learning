@@ -6,6 +6,7 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { fireFeedback } from '@/lib/feedback'
 import { pickComputerMove, type ChessDifficulty } from '@/lib/games/chess-ai'
 import { capturedMaterial } from '@/lib/games/chess-material'
+import { ChessPieceArt, type PieceType } from '@/components/games/ChessPieceArt'
 import { useBoardGame } from '@/lib/downtime/useBoardGame'
 import { OnlineLobby } from '@/components/games/OnlineLobby'
 import { WaitingRoom, TurnBanner, PlayAFriendDivider } from '@/components/games/OnlineBoardStatus'
@@ -14,23 +15,6 @@ import {
   BoardFrame, PlayerStrip, GameEndCard,
   menuHeadingLevel,
 } from '@/components/games/GameChrome'
-
-/**
- * Solid glyphs for BOTH sides, not the hollow set for White.
- *
- * The hollow glyphs (♙♘♗) are mostly whitespace, so a white piece rendered
- * with them was a thin outline of #FFFFFF on a #F3F6FB square: 1.08:1, and
- * effectively invisible. Solid glyphs give every piece the same mass, and
- * the fill plus rim in ChessPiece below does the separating.
- *
- * Every glyph carries U+FE0E (text variation selector). U+265F ♟ is the one
- * chess piece Unicode also defines as an emoji, and iOS renders it in emoji
- * presentation by default: an opaque black picture that ignores CSS color,
- * so every pawn on an iPad — White's included — showed up black.
- */
-const PIECE_GLYPH: Record<string, string> = {
-  p: '♟︎', n: '♞︎', b: '♝︎', r: '♜︎', q: '♛︎', k: '♚︎',
-}
 
 const PIECE_NAME: Record<string, string> = {
   p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king',
@@ -191,7 +175,7 @@ export function ChessGame({ backHref = '/downtime' }: { backHref?: string }) {
         <GameBackLink href={backHref} />
         <GameMenu
           headingLevel={menuHeadingLevel(backHref)}
-          crest={<GameCrest glyph="♞" />}
+          crest={<GameCrest glyph={<ChessPieceArt colour="b" type="n" className="h-12 w-12" />} />}
           title="Chess"
           blurb="Play the computer at three levels, or share a code and play a friend."
           options={DIFFICULTIES}
@@ -266,39 +250,29 @@ function findKing(game: Chess, colour: 'w' | 'b'): Square | null {
 }
 
 /**
- * One piece: a solid glyph in its side's fill, ringed in the opposite tone.
- *
- * The ring is not decoration — it is what makes the piece legible. No single
- * fill clears 3:1 against both a maple and a walnut square (white on maple
- * is 1.3:1), so the outline carries the contrast: 10.8:1 for a light piece
- * on maple, 13.6:1 for a dark piece on walnut. See tokens.css §14.
+ * One piece: the Staunton artwork from ChessPieceArt.tsx, which keeps the
+ * rule the old glyph rendering established — each side's shape filled in its
+ * own tone and ringed in the opposite one, because no single fill clears 3:1
+ * against both a maple and a walnut square. See tokens.css §14.
  */
 function ChessPiece({ colour, type }: { colour: 'w' | 'b'; type: string }) {
-  const light = colour === 'w'
-  const fill = light ? 'var(--game-piece-light)' : 'var(--game-piece-dark)'
-  const rim = light ? 'var(--game-piece-light-rim)' : 'var(--game-piece-dark-rim)'
   return (
-    <span
+    <ChessPieceArt
+      colour={colour}
+      type={type as PieceType}
       // `relative` is load-bearing: the tint overlays on this square
       // (last-move, selection) are absolutely positioned, and CSS paints
       // positioned elements above in-flow content regardless of DOM order —
-      // so a static glyph got washed gold on the last-move square, muddying
+      // so a static piece got washed gold on the last-move square, muddying
       // exactly the light/dark distinction the fill exists to carry. Making
-      // the glyph positioned too restores DOM order: overlays first, piece
+      // the piece positioned too restores DOM order: overlays first, piece
       // on top. (CheckerDisc in CheckersGame.tsx already does the same.)
-      className="pointer-events-none relative select-none"
-      style={{
-        color: fill,
-        // 8-way 1px ring, then a soft cast shadow so the piece sits ON the
-        // board rather than being painted into it.
-        textShadow: `
-          1px 0 0 ${rim}, -1px 0 0 ${rim}, 0 1px 0 ${rim}, 0 -1px 0 ${rim},
-          1px 1px 0 ${rim}, -1px 1px 0 ${rim}, 1px -1px 0 ${rim}, -1px -1px 0 ${rim},
-          0 3px 4px rgba(20,12,6,.42)`,
-      }}
-    >
-      {PIECE_GLYPH[type]}
-    </span>
+      className="pointer-events-none relative h-full w-full select-none"
+      // A soft cast shadow so the piece sits ON the board rather than being
+      // painted into it — drop-shadow hugs the artwork's outline, where a
+      // box-shadow would draw a floating rectangle.
+      style={{ filter: 'drop-shadow(0 2px 2px rgba(20,12,6,.38))' }}
+    />
   )
 }
 
@@ -340,7 +314,7 @@ function ChessBoardGrid({
                     : `${square}${isTarget ? ', can move here' : ''}`
                 }
                 aria-pressed={isSelected}
-                className="relative flex aspect-square items-center justify-center text-[min(8.2vw,34px)] leading-none transition-[background-color] duration-150"
+                className="relative flex aspect-square items-center justify-center transition-[background-color] duration-150"
                 style={{
                   backgroundColor: isDark ? 'var(--game-sq-dark)' : 'var(--game-sq-light)',
                 }}
@@ -457,10 +431,10 @@ function CapturedStrip({ fen }: { fen: string }) {
   const count = (n: number) => `${n} ${n === 1 ? 'piece' : 'pieces'}`
 
   return (
-    <div className="flex items-center justify-between gap-3 px-1 text-[18px] leading-none">
+    <div className="flex items-center justify-between gap-3 px-1">
       <p className="flex min-h-[22px] flex-1 flex-wrap gap-0.5" aria-label={`You have captured ${count(byYou.length)}`}>
         {byYou.map((t, i) => (
-          <span key={i} style={{ color: 'var(--game-piece-dark)' }} aria-hidden>{PIECE_GLYPH[t]}</span>
+          <ChessPieceArt key={i} colour="b" type={t as PieceType} className="h-[22px] w-[22px]" />
         ))}
       </p>
       <p
@@ -468,13 +442,7 @@ function CapturedStrip({ fen }: { fen: string }) {
         aria-label={`Your opponent has captured ${count(byThem.length)}`}
       >
         {byThem.map((t, i) => (
-          <span
-            key={i}
-            style={{ color: 'var(--game-piece-light)', textShadow: '0 0 1px var(--game-piece-light-rim), 0 1px 0 var(--game-piece-light-rim)' }}
-            aria-hidden
-          >
-            {PIECE_GLYPH[t]}
-          </span>
+          <ChessPieceArt key={i} colour="w" type={t as PieceType} className="h-[22px] w-[22px]" />
         ))}
       </p>
     </div>
