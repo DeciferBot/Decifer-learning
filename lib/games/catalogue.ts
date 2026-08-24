@@ -91,7 +91,7 @@ export const GAME_CATALOGUE: GameEntry[] = [
     blurb: 'Build words from lettered tiles on a shared board. Most points wins.',
     howToPlay: 'Place tiles to make a word that touches one already there. Land on a coloured square for more points.',
     builds: 'Spelling, word-building, and a bit of arithmetic on every turn.',
-    modes: ['friend'],
+    modes: ['computer', 'friend'],
     minutes: '15 to 25 min',
   },
 ]

@@ -91,7 +91,10 @@ function scoreWord(merged: ScrabbleBoard, run: WordRun, newTileKeys: Set<string>
   return wordScore * wordMultiplier
 }
 
-function validateAndScorePlacement(
+/** Exported for the computer opponent (lib/games/scrabble-ai.ts), which
+ *  scores every candidate placement through the exact same rules a human
+ *  move is held to. */
+export function validateAndScorePlacement(
   board: ScrabbleBoard,
   placements: PlacementTile[],
 ): { ok: true; words: WordRun[]; score: number } | { ok: false; error: string } {

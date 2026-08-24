@@ -36,6 +36,7 @@ const EXCLUDED_WORDS = new Set([
 ])
 
 let cache: Set<string> | null = null
+let wordsCache: string[] | null = null
 
 function dictionary(): Set<string> {
   if (!cache) {
@@ -51,4 +52,13 @@ function dictionary(): Set<string> {
 
 export function isValidWord(word: string): boolean {
   return dictionary().has(word.toUpperCase())
+}
+
+/** Every playable word, for the computer opponent's move generator
+ *  (lib/games/scrabble-ai.ts). Same filtered set as isValidWord — the
+ *  computer can never play a word a child's own placement would be
+ *  rejected for, and vice versa. */
+export function dictionaryWords(): readonly string[] {
+  if (!wordsCache) wordsCache = [...dictionary()]
+  return wordsCache
 }

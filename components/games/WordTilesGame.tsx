@@ -1,24 +1,33 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useRouter } from 'next/navigation'
 import { fireFeedback } from '@/lib/feedback'
-import { BOARD_SIZE, PREMIUM_LAYOUT, type Premium } from '@/lib/games/scrabble-board'
+import {
+  BOARD_SIZE, PREMIUM_LAYOUT, createTileBag, drawTiles, type Premium,
+} from '@/lib/games/scrabble-board'
 import type { ScrabbleBoard } from '@/lib/games/scrabble-engine'
 import { useBoardGame } from '@/lib/downtime/useBoardGame'
 import type { GameResultInput } from '@/lib/games/results'
 import { useGameResult, GameResultNote } from '@/components/games/GameResultNote'
 import { OnlineLobby } from '@/components/games/OnlineLobby'
-import { WaitingRoom } from '@/components/games/OnlineBoardStatus'
+import { WaitingRoom, PlayAFriendDivider } from '@/components/games/OnlineBoardStatus'
 import { RefreshCw, Star, X as ClearIcon } from '@/components/ui/icons'
 import {
-  GameShell, GameBackLink, GameMessage, GameCrest, GameEndCard,
+  GameShell, GameBackLink, GameToolbar, GameMessage, GameMenu, GameCrest, GameEndCard,
   menuHeadingLevel,
 } from '@/components/games/GameChrome'
 
 type Coord = { row: number; col: number }
 type Pending = { row: number; col: number; rackIndex: number; letter: string; isBlank: boolean }
+
+type WordTilesDifficulty = 'easy' | 'medium' | 'hard'
+
+const DIFFICULTIES = [
+  { id: 'easy', label: 'Easy', blurb: 'Short, simple words' },
+  { id: 'medium', label: 'Medium', blurb: 'Solid words, still beatable' },
+  { id: 'hard', label: 'Hard', blurb: 'Hunts down the big-point words' },
+]
 
 const PREMIUM_LABEL: Record<Exclude<Premium, null>, string> = { TW: 'TW', DW: 'DW', TL: 'TL', DL: 'DL' }
 // Tints drawn from the brand families (ember, rose, indigo, azure) rather
@@ -33,47 +42,71 @@ const PREMIUM_COLOR: Record<Exclude<Premium, null>, string> = {
 
 const KEYBOARD_ROWS = ['QWERTYUIOP', 'ASDFGHJKL', 'ZXCVBNM'] as const
 
+type MoveSummary = { by: 'host' | 'guest'; type: 'place' | 'pass' | 'exchange'; words: string[]; points: number } | null
+
 type ScrabblePublicState = {
   board: ScrabbleBoard
   bagCount: number
   hostScore: number
   guestScore: number
   consecutivePasses: number
-  lastMove: { by: 'host' | 'guest'; type: 'place' | 'pass' | 'exchange'; words: string[]; points: number } | null
+  lastMove: MoveSummary
 }
 
-/** Word Tiles — the classic tile-and-board word game, played with a friend
- *  via invite code (no single-player mode: a strong AI opponent for this
- *  game is a much bigger undertaking than Chess/Checkers/Connect 4's, so
- *  this first pass is multiplayer-only). */
+/** The move shapes both modes send: to /api/downtime/games/[id]/move online,
+ *  to /api/downtime/word-tiles/computer against the computer. Both routes
+ *  re-validate everything server-side with the same engine + dictionary. */
+type OutgoingMove =
+  | { type: 'place'; tiles: { row: number; col: number; letter: string; isBlank: boolean }[] }
+  | { type: 'pass' }
+  | { type: 'exchange'; tiles: string[] }
+
+type Screen = 'menu' | 'online-lobby'
+
+/** Word Tiles — the classic tile-and-board word game. Play the computer on
+ *  three difficulty levels (the opponent's moves come from the server, where
+ *  the dictionary lives — see lib/games/scrabble-ai.ts), or a friend via
+ *  invite code. */
 export function WordTilesGame({ backHref = '/downtime' }: { backHref?: string }) {
-  const router = useRouter()
+  const [screen, setScreen] = useState<Screen>('menu')
+  const [difficulty, setDifficulty] = useState<WordTilesDifficulty | null>(null)
   const [gameId, setGameId] = useState<string | null>(null)
 
-  if (gameId) {
-    return <WordTilesOnlineGame gameId={gameId} backHref={backHref} onExit={() => setGameId(null)} />
+  function exitToMenu() {
+    setScreen('menu')
+    setDifficulty(null)
+    setGameId(null)
   }
 
-  // The header only appears inside the child app, where this component is the
-  // whole page. On /games/word-tiles the route already renders the title, the
-  // rules line and the mode chips. See menuHeadingLevel in GameChrome.
-  const ownsHeading = menuHeadingLevel(backHref) === 1
+  if (gameId) {
+    return <WordTilesOnlineGame gameId={gameId} backHref={backHref} onExit={exitToMenu} />
+  }
+
+  if (difficulty) {
+    return <WordTilesComputerGame difficulty={difficulty} backHref={backHref} onExit={exitToMenu} />
+  }
+
+  if (screen === 'online-lobby') {
+    return (
+      <GameShell>
+        <GameBackLink href={backHref} />
+        <OnlineLobby gameType="scrabble" onReady={setGameId} onBack={() => setScreen('menu')} />
+      </GameShell>
+    )
+  }
 
   return (
     <GameShell>
       <GameBackLink href={backHref} />
-      {ownsHeading && (
-        <header className="flex flex-col items-center text-center">
-          <div className="mb-3">
-            <GameCrest tone="paper" glyph={<LetterTile letter="W" size={44} />} />
-          </div>
-          <h1 className="font-heading text-2xl font-extrabold tracking-[-0.02em] text-ink">Word Tiles</h1>
-          <p className="mt-1 max-w-[36ch] text-pretty text-sm text-ink-2">
-            Build words on a shared board. Most points wins. Share a code to play a friend.
-          </p>
-        </header>
-      )}
-      <OnlineLobby gameType="scrabble" onReady={setGameId} onBack={() => router.push(backHref)} />
+      <GameMenu
+        headingLevel={menuHeadingLevel(backHref)}
+        crest={<GameCrest tone="paper" glyph={<LetterTile letter="W" size={44} />} />}
+        title="Word Tiles"
+        blurb="Build words on a shared board. Most points wins. Play the computer, or a friend."
+        options={DIFFICULTIES}
+        onPick={(id) => setDifficulty(id as WordTilesDifficulty)}
+        footer={<PlayAFriendDivider onClick={() => setScreen('online-lobby')} />}
+      />
     </GameShell>
   )
 }
@@ -113,8 +146,23 @@ function LetterTile({
   )
 }
 
-function WordTilesOnlineGame({ gameId, backHref, onExit }: { gameId: string; backHref: string; onExit: () => void }) {
-  const { game, side, inviteCode, rack, ready, notFound, moveError, sendMove } = useBoardGame(gameId)
+/* ── The table both modes play on ──────────────────────────────────── */
+
+/**
+ * The board, the rack, and the move controls — everything between the score
+ * strip and the end card. Both modes render this; only where a submitted
+ * move goes differs (the online game record, or the vs-computer referee
+ * route). It owns the tentative-placement state, so a "Play again" just
+ * remounts it with a fresh key.
+ */
+function PlaySurface({
+  board, rack, myTurn, onMove,
+}: {
+  board: ScrabbleBoard
+  rack: string[] | null
+  myTurn: boolean
+  onMove: (move: OutgoingMove) => Promise<boolean>
+}) {
   const [pending, setPending] = useState<Pending[]>([])
   const [selectedRackIndex, setSelectedRackIndex] = useState<number | null>(null)
   const [blankPromptFor, setBlankPromptFor] = useState<Coord | null>(null)
@@ -124,48 +172,6 @@ function WordTilesOnlineGame({ gameId, backHref, onExit }: { gameId: string; bac
   // requests — the server independently rejects a losing race as a
   // 'conflict' (see the move route), this just makes it rare in practice.
   const [submitting, setSubmitting] = useState(false)
-
-  // Hooks must run before the early returns below. A finished game goes into
-  // the player's history with their final score; guests get the register
-  // invitation instead (see GameResultNote).
-  const winner = game?.winner ?? null
-  const finalScore = useMemo(() => {
-    if (!game || !side) return null
-    const s = game.state as ScrabblePublicState | null
-    if (!s) return null
-    return side === 'host' ? s.hostScore : s.guestScore
-  }, [game, side])
-  const result = useMemo<GameResultInput | null>(() => {
-    if (!winner || !side) return null
-    return {
-      gameType: 'word-tiles',
-      mode: 'friend',
-      outcome: winner === side ? 'win' : winner === 'draw' ? 'draw' : 'loss',
-      score: finalScore ?? undefined,
-    }
-  }, [winner, side, finalScore])
-  const saveStatus = useGameResult(result)
-
-  if (!ready) return <GameMessage backHref={backHref} text="Loading…" />
-  if (notFound) return <GameMessage backHref={backHref} text="That game couldn't be found." />
-  if (!side || !game) return <GameMessage backHref={backHref} text="This game isn't yours." />
-
-  if (game.status === 'waiting') {
-    return (
-      <GameShell>
-        <GameBackLink href={backHref} onClick={onExit} />
-        <WaitingRoom inviteCode={inviteCode} onCancel={onExit} />
-      </GameShell>
-    )
-  }
-
-  const state = game.state as ScrabblePublicState
-  const board = state.board
-  const myTurn = game.status === 'active' && game.turn === side
-  const won = game.winner
-  const myScore = side === 'host' ? state.hostScore : state.guestScore
-  const opponentScore = side === 'host' ? state.guestScore : state.hostScore
-  const opponentName = side === 'host' ? (game.guest_display_name ?? 'Friend') : game.host_display_name
 
   const pendingByCell = new Map(pending.map((p) => [`${p.row},${p.col}`, p]))
   const hiddenRackIndices = new Set(pending.map((p) => p.rackIndex))
@@ -213,7 +219,7 @@ function WordTilesOnlineGame({ gameId, backHref, onExit }: { gameId: string; bac
   async function submitPlacement() {
     if (pending.length === 0 || submitting) return
     setSubmitting(true)
-    const ok = await sendMove({
+    const ok = await onMove({
       type: 'place',
       tiles: pending.map((p) => ({ row: p.row, col: p.col, letter: p.letter, isBlank: p.isBlank })),
     })
@@ -229,7 +235,7 @@ function WordTilesOnlineGame({ gameId, backHref, onExit }: { gameId: string; bac
   async function submitPass() {
     if (submitting) return
     setSubmitting(true)
-    const ok = await sendMove({ type: 'pass' })
+    const ok = await onMove({ type: 'pass' })
     setSubmitting(false)
     if (ok) setPending([])
   }
@@ -238,7 +244,7 @@ function WordTilesOnlineGame({ gameId, backHref, onExit }: { gameId: string; bac
     if (!rack || exchangeSelection.size === 0 || submitting) return
     setSubmitting(true)
     const tiles = [...exchangeSelection].map((i) => rack[i])
-    const ok = await sendMove({ type: 'exchange', tiles })
+    const ok = await onMove({ type: 'exchange', tiles })
     setSubmitting(false)
     if (ok) {
       setExchangeMode(false)
@@ -253,30 +259,7 @@ function WordTilesOnlineGame({ gameId, backHref, onExit }: { gameId: string; bac
   const centre = Math.floor(BOARD_SIZE / 2)
 
   return (
-    <GameShell width="lg">
-      <GameBackLink href={backHref} onClick={onExit} />
-
-      <ScoreBar
-        myScore={myScore}
-        opponentName={opponentName}
-        opponentScore={opponentScore}
-        bagCount={state.bagCount}
-        myTurn={myTurn}
-        finished={!!won}
-      />
-
-      {state.lastMove?.type === 'place' && (
-        <p className="text-center text-xs text-ink-2">
-          {state.lastMove.by === side ? 'You' : opponentName} played{' '}
-          <span className="font-semibold text-ink">{state.lastMove.words.join(', ')}</span> for {state.lastMove.points} points
-        </p>
-      )}
-      {moveError && (
-        <p role="alert" className="text-center text-xs font-semibold text-[color:var(--game-danger)]">
-          That move isn&apos;t allowed. Try again.
-        </p>
-      )}
-
+    <>
       <div
         className="mx-auto w-fit max-w-full overflow-auto rounded-2xl p-2"
         style={{
@@ -372,7 +355,7 @@ function WordTilesOnlineGame({ gameId, backHref, onExit }: { gameId: string; bac
         </div>
       )}
 
-      {myTurn && !won && !exchangeMode && (
+      {myTurn && !exchangeMode && (
         <div className="flex flex-wrap gap-2">
           <button
             onClick={submitPlacement}
@@ -462,6 +445,252 @@ function WordTilesOnlineGame({ gameId, backHref, onExit }: { gameId: string; bac
           </motion.div>
         )}
       </AnimatePresence>
+    </>
+  )
+}
+
+/* ── Vs the computer ───────────────────────────────────────────────── */
+
+type SoloState = {
+  board: ScrabbleBoard
+  playerRack: string[]
+  aiRack: string[]
+  bag: string[]
+  playerScore: number
+  aiScore: number
+  consecutivePasses: number
+}
+
+function newSoloState(): SoloState {
+  const bag = createTileBag()
+  const playerRack = drawTiles(bag, 7)
+  const aiRack = drawTiles(bag, 7)
+  const board: ScrabbleBoard = Array.from({ length: BOARD_SIZE }, () => Array(BOARD_SIZE).fill(null))
+  return { board, playerRack, aiRack, bag, playerScore: 0, aiScore: 0, consecutivePasses: 0 }
+}
+
+/** One line of "who just played what" — the vs-computer game shows the
+ *  child's confirmed move and the computer's reply together, since both
+ *  arrive in the same response. */
+function moveLine(summary: MoveSummary, who: string): string | null {
+  if (!summary) return null
+  if (summary.type === 'pass') return `${who} passed`
+  if (summary.type === 'exchange') return `${who} swapped tiles`
+  return `${who} played ${summary.words.join(', ')} for ${summary.points} points`
+}
+
+/**
+ * Local game against the computer. The client holds the whole game
+ * (board, both racks, bag) and every "Play word" round-trips it to
+ * /api/downtime/word-tiles/computer, which validates the child's move
+ * against the real dictionary and answers with the computer's reply —
+ * the word list never ships to the browser.
+ */
+function WordTilesComputerGame({
+  difficulty, backHref, onExit,
+}: {
+  difficulty: WordTilesDifficulty
+  backHref: string
+  onExit: () => void
+}) {
+  const [state, setState] = useState<SoloState>(newSoloState)
+  const [thinking, setThinking] = useState(false)
+  const [playerMove, setPlayerMove] = useState<MoveSummary>(null)
+  const [aiMove, setAiMove] = useState<MoveSummary>(null)
+  const [errorKind, setErrorKind] = useState<'rejected' | 'network' | null>(null)
+  const [end, setEnd] = useState<'win' | 'loss' | 'draw' | null>(null)
+  // Bumped on every restart, so a response still in flight when "Play
+  // again" is tapped gets discarded instead of landing on the fresh board.
+  const epochRef = useRef(0)
+  const [round, setRound] = useState(0)
+
+  const result = useMemo<GameResultInput | null>(() => {
+    if (!end) return null
+    // The end-of-game rack adjustment can push a score below zero;
+    // downtime_results only stores 0+.
+    return { gameType: 'word-tiles', mode: 'computer', outcome: end, difficulty, score: Math.max(0, state.playerScore) }
+  }, [end, difficulty, state.playerScore])
+  const saveStatus = useGameResult(result)
+
+  async function submitMove(move: OutgoingMove): Promise<boolean> {
+    if (thinking || end) return false
+    setThinking(true)
+    setErrorKind(null)
+    const epoch = epochRef.current
+    try {
+      const res = await fetch('/api/downtime/word-tiles/computer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...state, move, difficulty }),
+      })
+      if (epoch !== epochRef.current) return false
+      if (!res.ok) {
+        setErrorKind(res.status === 422 ? 'rejected' : 'network')
+        return false
+      }
+      const data = await res.json() as SoloState & {
+        playerMove: MoveSummary
+        aiMove: MoveSummary
+        winner: 'you' | 'computer' | 'draw' | null
+      }
+      if (epoch !== epochRef.current) return false
+      setState({
+        board: data.board,
+        playerRack: data.playerRack,
+        aiRack: data.aiRack,
+        bag: data.bag,
+        playerScore: data.playerScore,
+        aiScore: data.aiScore,
+        consecutivePasses: data.consecutivePasses,
+      })
+      setPlayerMove(data.playerMove)
+      setAiMove(data.aiMove)
+      if (data.winner) setEnd(data.winner === 'you' ? 'win' : data.winner === 'draw' ? 'draw' : 'loss')
+      return true
+    } catch {
+      if (epoch === epochRef.current) setErrorKind('network')
+      return false
+    } finally {
+      if (epoch === epochRef.current) setThinking(false)
+    }
+  }
+
+  function restart() {
+    epochRef.current += 1
+    setState(newSoloState())
+    setThinking(false)
+    setPlayerMove(null)
+    setAiMove(null)
+    setErrorKind(null)
+    setEnd(null)
+    setRound((r) => r + 1)
+  }
+
+  const myTurn = !thinking && !end
+  const playerLine = moveLine(playerMove, 'You')
+  const aiLine = moveLine(aiMove, 'Computer')
+
+  return (
+    <GameShell width="lg">
+      <GameToolbar backHref={backHref} onBack={onExit} onReset={restart} />
+
+      <ScoreBar
+        myScore={state.playerScore}
+        opponentName="Computer"
+        opponentScore={state.aiScore}
+        bagCount={state.bag.length}
+        myTurn={myTurn}
+        finished={!!end}
+        waitingText="Computer is thinking…"
+      />
+
+      {(playerLine || aiLine) && !errorKind && (
+        <p className="text-center text-xs text-ink-2">
+          {playerLine}
+          {playerLine && aiLine && <span aria-hidden> · </span>}
+          {aiLine && <span className="font-semibold text-ink">{aiLine}</span>}
+        </p>
+      )}
+      {errorKind && (
+        <p role="alert" className="text-center text-xs font-semibold text-[color:var(--game-danger)]">
+          {errorKind === 'rejected'
+            ? "That move isn't allowed. Try again."
+            : "Couldn't reach the game. Check your connection and try again."}
+        </p>
+      )}
+
+      <PlaySurface key={round} board={state.board} rack={state.playerRack} myTurn={myTurn} onMove={submitMove} />
+
+      <AnimatePresence>
+        {end && (
+          <GameEndCard
+            outcome={end}
+            title={end === 'win' ? 'You won!' : end === 'draw' ? "It's a draw" : 'Good game!'}
+            detail={`Final score. You: ${state.playerScore}, Computer: ${state.aiScore}`}
+            actionLabel="Play again"
+            onAction={restart}
+            secondary={saveStatus ? <GameResultNote status={saveStatus} /> : undefined}
+          />
+        )}
+      </AnimatePresence>
+    </GameShell>
+  )
+}
+
+/* ── Online, with a friend ─────────────────────────────────────────── */
+
+function WordTilesOnlineGame({ gameId, backHref, onExit }: { gameId: string; backHref: string; onExit: () => void }) {
+  const { game, side, inviteCode, rack, ready, notFound, moveError, sendMove } = useBoardGame(gameId)
+
+  // Hooks must run before the early returns below. A finished game goes into
+  // the player's history with their final score; guests get the register
+  // invitation instead (see GameResultNote).
+  const winner = game?.winner ?? null
+  const finalScore = useMemo(() => {
+    if (!game || !side) return null
+    const s = game.state as ScrabblePublicState | null
+    if (!s) return null
+    return side === 'host' ? s.hostScore : s.guestScore
+  }, [game, side])
+  const result = useMemo<GameResultInput | null>(() => {
+    if (!winner || !side) return null
+    return {
+      gameType: 'word-tiles',
+      mode: 'friend',
+      outcome: winner === side ? 'win' : winner === 'draw' ? 'draw' : 'loss',
+      // The end-of-game rack adjustment can push a score below zero;
+      // downtime_results only stores 0+.
+      score: finalScore != null ? Math.max(0, finalScore) : undefined,
+    }
+  }, [winner, side, finalScore])
+  const saveStatus = useGameResult(result)
+
+  if (!ready) return <GameMessage backHref={backHref} text="Loading…" />
+  if (notFound) return <GameMessage backHref={backHref} text="That game couldn't be found." />
+  if (!side || !game) return <GameMessage backHref={backHref} text="This game isn't yours." />
+
+  if (game.status === 'waiting') {
+    return (
+      <GameShell>
+        <GameBackLink href={backHref} onClick={onExit} />
+        <WaitingRoom inviteCode={inviteCode} onCancel={onExit} />
+      </GameShell>
+    )
+  }
+
+  const state = game.state as ScrabblePublicState
+  const myTurn = game.status === 'active' && game.turn === side
+  const won = game.winner
+  const myScore = side === 'host' ? state.hostScore : state.guestScore
+  const opponentScore = side === 'host' ? state.guestScore : state.hostScore
+  const opponentName = side === 'host' ? (game.guest_display_name ?? 'Friend') : game.host_display_name
+
+  return (
+    <GameShell width="lg">
+      <GameBackLink href={backHref} onClick={onExit} />
+
+      <ScoreBar
+        myScore={myScore}
+        opponentName={opponentName}
+        opponentScore={opponentScore}
+        bagCount={state.bagCount}
+        myTurn={myTurn}
+        finished={!!won}
+      />
+
+      {state.lastMove?.type === 'place' && (
+        <p className="text-center text-xs text-ink-2">
+          {state.lastMove.by === side ? 'You' : opponentName} played{' '}
+          <span className="font-semibold text-ink">{state.lastMove.words.join(', ')}</span> for {state.lastMove.points} points
+        </p>
+      )}
+      {moveError && (
+        <p role="alert" className="text-center text-xs font-semibold text-[color:var(--game-danger)]">
+          That move isn&apos;t allowed. Try again.
+        </p>
+      )}
+
+      <PlaySurface board={state.board} rack={rack} myTurn={myTurn && !won} onMove={(move) => sendMove(move)} />
 
       <AnimatePresence>
         {won && (
@@ -482,7 +711,7 @@ function WordTilesOnlineGame({ gameId, backHref, onExit }: { gameId: string; bac
 /** Scores, tiles left, and whose turn it is, in one strip. Whose turn it is
  *  is the thing a player checks most, so it gets the emphasis. */
 function ScoreBar({
-  myScore, opponentName, opponentScore, bagCount, myTurn, finished,
+  myScore, opponentName, opponentScore, bagCount, myTurn, finished, waitingText,
 }: {
   myScore: number
   opponentName: string
@@ -490,6 +719,7 @@ function ScoreBar({
   bagCount: number
   myTurn: boolean
   finished: boolean
+  waitingText?: string
 }) {
   return (
     <div className="overflow-hidden rounded-2xl border border-black/[0.07] bg-surface shadow-sm">
@@ -506,7 +736,7 @@ function ScoreBar({
           aria-live="polite"
           className={`px-3 py-1.5 text-center text-xs font-bold ${myTurn ? 'bg-brand/10 text-brand-700' : 'bg-black/[0.03] text-ink-2'}`}
         >
-          {myTurn ? 'Your turn' : `Waiting for ${opponentName}…`}
+          {myTurn ? 'Your turn' : (waitingText ?? `Waiting for ${opponentName}…`)}
         </p>
       )}
     </div>
