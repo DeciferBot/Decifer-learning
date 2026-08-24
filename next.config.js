@@ -11,10 +11,14 @@ const withPWA = require('next-pwa')({
 const nextConfig = {
   reactStrictMode: true,
   experimental: {
-    // The word-tile dictionary is read with readFileSync from a path the
-    // word-list package exports, which Vercel's file tracing cannot follow —
-    // without this, the deployed functions 500 with ENOENT on words.txt.
-    // Listed for every route that validates or generates words.
+    // word-list exports path.join(__dirname, 'words.txt'). Bundled, webpack
+    // bakes the BUILD machine's absolute path into that join, so the deployed
+    // function looked for /vercel/path0/... and 500'd with ENOENT. External,
+    // the package is required from node_modules at runtime with a real
+    // __dirname, and file tracing picks up words.txt on its own.
+    serverComponentsExternalPackages: ['word-list'],
+    // Belt and braces for the same file: ship it with every route that
+    // validates or generates words, in case the trace ever misses it.
     outputFileTracingIncludes: {
       '/api/downtime/games/[id]/move': ['./node_modules/word-list/words.txt'],
       '/api/downtime/word-tiles/computer': ['./node_modules/word-list/words.txt'],
