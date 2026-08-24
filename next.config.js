@@ -10,6 +10,16 @@ const withPWA = require('next-pwa')({
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  experimental: {
+    // The word-tile dictionary is read with readFileSync from a path the
+    // word-list package exports, which Vercel's file tracing cannot follow —
+    // without this, the deployed functions 500 with ENOENT on words.txt.
+    // Listed for every route that validates or generates words.
+    outputFileTracingIncludes: {
+      '/api/downtime/games/[id]/move': ['./node_modules/word-list/words.txt'],
+      '/api/downtime/word-tiles/computer': ['./node_modules/word-list/words.txt'],
+    },
+  },
   async redirects() {
     return [
       {
