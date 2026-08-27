@@ -129,5 +129,5 @@ export const abuDhabiSchoolFeesRatings: Guide = {
       url: 'https://www.reachbritishschool.com/admissions/tuition-fees',
     },
   ],
-  related: ['adek-ratings-explained', 'dubai-school-fees', 'khda-ratings-explained', 'choosing-british-school-dubai'],
+  related: ['outstanding-schools-abu-dhabi', 'adek-ratings-explained', 'dubai-school-fees', 'khda-ratings-explained', 'choosing-british-school-dubai'],
 }

@@ -4,6 +4,7 @@ import { trueCostUaeSchoolYear } from './content/true-cost-uae-school-year'
 import { dubaiSchoolFeeRules } from './content/dubai-school-fee-rules'
 import { khdaRatingsExplained } from './content/khda-ratings-explained'
 import { adekRatingsExplained } from './content/adek-ratings-explained'
+import { outstandingSchoolsAbuDhabi } from './content/outstanding-schools-abu-dhabi'
 import { choosingBritishSchoolDubai } from './content/choosing-british-school-dubai'
 import { abuDhabiSchoolFeesRatings } from './content/abu-dhabi-school-fees-ratings'
 import { britishCurriculumExplained } from './content/british-curriculum-explained'
@@ -28,6 +29,7 @@ const GUIDES: Guide[] = [
   choosingBritishSchoolDubai,
   abuDhabiSchoolFeesRatings,
   adekRatingsExplained,
+  outstandingSchoolsAbuDhabi,
   britishCurriculumExplained,
   cat4ExplainedUae,
   cat4ScoresExplained,

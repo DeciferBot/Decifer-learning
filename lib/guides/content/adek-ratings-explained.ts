@@ -42,6 +42,10 @@ export const adekRatingsExplained: Guide = {
       title: 'The number most parents misread',
       html: '<strong>Good is the middle of the scale, not the top of it.</strong> Parents arriving from the UK tend to read the word through an Ofsted lens, where the scale is shorter and Good sits second. Here it is third of six, and <strong>77% of Abu Dhabi schools are rated Good or better</strong>. So filtering a shortlist to "Good or above" removes barely a fifth of the sector and tells you very little. Outstanding, at 6.4% of schools, is the band that is genuinely hard to reach.',
     },
+    {
+      kind: 'p',
+      html: 'If you want the names rather than the proportions, the <a href="/guides/outstanding-schools-abu-dhabi">Outstanding-rated schools in Abu Dhabi</a> are listed in full, with the date each rating comes from and how to confirm a school still holds it.',
+    },
     { kind: 'h2', id: 'how-old-is-the-rating', text: 'How old is the rating you are looking at?' },
     {
       kind: 'p',
@@ -128,5 +132,5 @@ export const adekRatingsExplained: Guide = {
       url: 'https://www.thenationalnews.com/news/uae/2025/10/01/quality-standards-test-failed-by-47-private-schools-in-abu-dhabi/',
     },
   ],
-  related: ['abu-dhabi-school-fees-ratings', 'khda-ratings-explained', 'choosing-british-school-dubai'],
+  related: ['outstanding-schools-abu-dhabi', 'abu-dhabi-school-fees-ratings', 'khda-ratings-explained', 'choosing-british-school-dubai'],
 }
