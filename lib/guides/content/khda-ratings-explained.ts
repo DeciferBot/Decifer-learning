@@ -119,5 +119,5 @@ export const khdaRatingsExplained: Guide = {
       url: 'https://gulfnews.com/living-in-uae/education/dubais-23-outstanding-private-schools-rated-by-khda-1.500227394',
     },
   ],
-  related: ['adek-ratings-explained', 'dubai-school-fees', 'choosing-british-school-dubai', 'abu-dhabi-school-fees-ratings'],
+  related: ['adek-ratings-explained', 'outstanding-schools-abu-dhabi', 'dubai-school-fees', 'choosing-british-school-dubai', 'abu-dhabi-school-fees-ratings'],
 }
