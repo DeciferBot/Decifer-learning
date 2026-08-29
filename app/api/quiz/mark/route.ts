@@ -1,15 +1,29 @@
+/**
+ * Marks a pupil's written answer against the question's rubric.
+ *
+ * THE MODEL DOES NOT TALK TO THE CHILD. It returns one thing, a list of
+ * criterion indices, and this route bounds-checks that list against the rubric
+ * before using it. Both the marks and every word the child reads are then
+ * computed here from criteria a human wrote.
+ *
+ * It used to ask the model for the feedback sentence as well and pass that
+ * straight through to the child, unread by anything. That is what
+ * scripts/verify-content-safety.mjs check 7 exists to stop, and it had been
+ * failing on this file. Check 7 now allows this one route to import the SDK
+ * and fails it again the moment any model-authored string reaches the response.
+ */
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
+import {
+  buildFeedback,
+  MARKING_UNAVAILABLE_FEEDBACK,
+  type MarkingCriterion,
+} from '@/lib/quiz-marking-feedback'
 
 const anthropic = new Anthropic()
 const MARKING_MODEL = 'claude-haiku-4-5-20251001'
-
-type MarkingCriterion = {
-  criterion: string
-  marks: number
-}
 
 export type MarkingResult = {
   marksAwarded: number
@@ -90,14 +104,11 @@ ${answerText}
 Instructions:
 - For each criterion, decide: did the pupil's answer convey this idea, even approximately? If yes, award the mark.
 - criteriaMet: list the 0-based indices of criteria the pupil met (e.g. [0, 2] means criteria 1 and 3 were met).
-- feedback: 2–3 sentences in a warm, encouraging tone for a young pupil. State what they got right, then one specific thing to add next time.
-- Total marksAwarded must equal the sum of marks for all met criteria.
+- Return nothing else. Do not write feedback, praise or commentary: the pupil never sees your words, only which criteria you judged met.
 
 Return ONLY valid JSON:
 {
-  "marksAwarded": <integer 0–${marksAvailable}>,
-  "criteriaMet": [<0-based indices>],
-  "feedback": "<2–3 encouraging sentences>"
+  "criteriaMet": [<0-based indices>]
 }`
 
   let markingResult: MarkingResult
@@ -112,29 +123,35 @@ Return ONLY valid JSON:
     const raw = (msg.content[0] as { text: string }).text.trim()
     // Strip markdown code fences if present
     const jsonStr = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim()
-    const parsed = JSON.parse(jsonStr) as {
-      marksAwarded: number
-      criteriaMet: number[]
-      feedback: string
-    }
+    const parsed = JSON.parse(jsonStr) as { criteriaMet?: unknown }
 
-    // Recompute marksAwarded from criteriaMet — do not trust Claude's raw number,
-    // which can drift from the actual sum of met criteria marks.
-    const criteriaMet = (parsed.criteriaMet ?? []).filter(
-      (i): i is number => typeof i === 'number' && i >= 0 && i < criteria.length
-    )
+    // The only thing taken from the model, and it is bounds-checked against the
+    // rubric before use. Anything out of range, duplicated or not a whole
+    // number is dropped rather than trusted.
+    const criteriaMet = Array.from(
+      new Set(
+        (Array.isArray(parsed.criteriaMet) ? parsed.criteriaMet : []).filter(
+          (i): i is number => Number.isInteger(i) && (i as number) >= 0 && (i as number) < criteria.length
+        )
+      )
+    ).sort((a, b) => a - b)
+
     const marksAwarded = criteriaMet.reduce((sum, i) => sum + (criteria[i]?.marks ?? 1), 0)
 
     markingResult = {
       marksAwarded,
       marksAvailable,
       criteriaMet,
-      feedback: parsed.feedback ?? 'Good attempt! Review the model answer to see what to add next time.',
+      // Built here from the authored criteria, never from the model's words.
+      feedback: buildFeedback(criteria, criteriaMet),
       modelAnswer,
     }
   } catch (err) {
     console.error('[quiz/mark] Claude marking failed:', err)
-    return NextResponse.json({ error: 'Marking failed, please try again' }, { status: 502 })
+    return NextResponse.json(
+      { error: 'Marking failed, please try again', feedback: MARKING_UNAVAILABLE_FEEDBACK },
+      { status: 502 }
+    )
   }
 
   return NextResponse.json(markingResult)
