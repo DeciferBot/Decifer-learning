@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Chess, type Square } from 'chess.js'
 import { motion, AnimatePresence, useReducedMotion, type Variants } from 'framer-motion'
 import { fireFeedback } from '@/lib/feedback'
@@ -14,7 +14,7 @@ import { useGameResult, GameResultNote } from '@/components/games/GameResultNote
 import { OnlineLobby } from '@/components/games/OnlineLobby'
 import { WaitingRoom, TurnBanner, PlayAFriendDivider } from '@/components/games/OnlineBoardStatus'
 import {
-  GameShell, GameBackLink, GameToolbar, GameMessage, GameMenu, GameCrest,
+  GameShell, GameColumns, GameBackLink, GameToolbar, GameMessage, GameMenu, GameCrest,
   BoardFrame, PlayerStrip, GameEndCard,
   menuHeadingLevel,
 } from '@/components/games/GameChrome'
@@ -45,7 +45,16 @@ type Screen = 'difficulty' | 'online-lobby'
  * modal it needs is cut from this first pass; queen is what almost every
  * promotion wants anyway.
  */
-export function ChessGame({ backHref = '/downtime' }: { backHref?: string }) {
+export function ChessGame({
+  backHref = '/downtime',
+  intro,
+}: {
+  backHref?: string
+  /** The public page's heading block. Passed in rather than rendered above
+   *  this component so it can become the left column of the wide layout;
+   *  inside the child app there is no heading block and no left column. */
+  intro?: ReactNode
+}) {
   const [screen, setScreen] = useState<Screen>('difficulty')
   const [difficulty, setDifficulty] = useState<ChessDifficulty | null>(null)
   const [onlineGameId, setOnlineGameId] = useState<string | null>(null)
@@ -180,73 +189,80 @@ export function ChessGame({ backHref = '/downtime' }: { backHref?: string }) {
     )
   }
 
-  if (!difficulty) {
-    return (
-      <GameShell>
-        <GameBackLink href={backHref} />
-        <GameMenu
-          headingLevel={menuHeadingLevel(backHref)}
-          crest={<GameCrest glyph={<ChessPieceArt colour="b" type="n" className="h-12 w-12" />} />}
-          title="Chess"
-          blurb="Play the computer at three levels, or share a code and play a friend."
-          options={DIFFICULTIES}
-          onPick={(id) => setDifficulty(id as ChessDifficulty)}
-          footer={<PlayAFriendDivider onClick={() => setScreen('online-lobby')} />}
-        />
-      </GameShell>
-    )
-  }
-
-  const inCheck = game.inCheck() && !end
+  const started = !!difficulty
+  const inCheck = started && game.inCheck() && !end
   const checkedKing = inCheck ? findKing(game, game.turn()) : null
 
+  // The board is on screen from the moment the page loads, showing the
+  // opening position. It used to appear only after a level was picked, so
+  // the first thing a chess page showed was three buttons and no chess.
   return (
-    <GameShell>
-      <GameToolbar backHref={backHref} onReset={restart} />
-
-      <PlayerStrip
-        you={{ name: 'You', swatch: 'var(--game-piece-light)', active: !thinking && !end }}
-        them={{ name: 'Computer', swatch: 'var(--game-piece-dark)', active: thinking }}
-        status={
-          thinking
-            ? { text: 'Thinking…', tone: 'neutral' }
-            : inCheck
-              ? { text: 'Check!', tone: 'alert' }
-              : null
-        }
-      />
-
-      <ChessBoardGrid
-        fen={fen}
-        selected={selected}
-        legalTargets={legalTargets}
-        lastMove={lastMove}
-        checkedKing={checkedKing}
-        onTap={tapSquare}
-        disabled={!!end}
-      />
-
-      <CapturedStrip fen={fen} />
-
-      <AnimatePresence>
-        {end && (
-          <GameEndCard
-            outcome={end === 'win' ? 'win' : end === 'draw' ? 'draw' : 'loss'}
-            title={end === 'win' ? 'Checkmate. You won!' : end === 'draw' ? "It's a draw" : 'Good game!'}
-            detail={
-              end === 'win'
-                ? 'Nicely played.'
-                : end === 'draw'
-                  ? 'Neither side could break through.'
-                  : 'The computer got you this time. Have another go.'
-            }
-            actionLabel="Play again"
-            onAction={restart}
-            secondary={saveStatus ? <GameResultNote status={saveStatus} /> : undefined}
+    <GameColumns
+      intro={intro}
+      topBar={
+        <GameToolbar backHref={backHref} onReset={started ? restart : undefined} />
+      }
+      side={
+        started ? (
+          <>
+            <PlayerStrip
+              you={{ name: 'You', swatch: 'var(--game-piece-light)', active: !thinking && !end }}
+              them={{ name: 'Computer', swatch: 'var(--game-piece-dark)', active: thinking }}
+              status={
+                thinking
+                  ? { text: 'Thinking…', tone: 'neutral' }
+                  : inCheck
+                    ? { text: 'Check!', tone: 'alert' }
+                    : null
+              }
+            />
+            <AnimatePresence>
+              {end && (
+                <GameEndCard
+                  outcome={end === 'win' ? 'win' : end === 'draw' ? 'draw' : 'loss'}
+                  title={end === 'win' ? 'Checkmate. You won!' : end === 'draw' ? "It's a draw" : 'Good game!'}
+                  detail={
+                    end === 'win'
+                      ? 'Nicely played.'
+                      : end === 'draw'
+                        ? 'Neither side could break through.'
+                        : 'The computer got you this time. Have another go.'
+                  }
+                  actionLabel="Play again"
+                  onAction={restart}
+                  secondary={saveStatus ? <GameResultNote status={saveStatus} /> : undefined}
+                />
+              )}
+            </AnimatePresence>
+          </>
+        ) : (
+          <GameMenu
+            headingLevel={menuHeadingLevel(backHref)}
+            crest={<GameCrest glyph={<ChessPieceArt colour="b" type="n" className="h-12 w-12" />} />}
+            title="Chess"
+            blurb="Play the computer at three levels, or share a code and play a friend."
+            options={DIFFICULTIES}
+            onPick={(id) => setDifficulty(id as ChessDifficulty)}
+            footer={<PlayAFriendDivider onClick={() => setScreen('online-lobby')} />}
           />
-        )}
-      </AnimatePresence>
-    </GameShell>
+        )
+      }
+      board={
+        <>
+          <ChessBoardGrid
+            fen={fen}
+            selected={started ? selected : null}
+            legalTargets={started ? legalTargets : []}
+            lastMove={started ? lastMove : null}
+            checkedKing={checkedKing}
+            onTap={tapSquare}
+            disabled={!started || !!end}
+            decorative={!started}
+          />
+          {started && <CapturedStrip fen={fen} />}
+        </>
+      }
+    />
   )
 }
 
@@ -262,21 +278,24 @@ function findKing(game: Chess, colour: 'w' | 'b'): Square | null {
 }
 
 /**
- * One piece: the Staunton artwork from ChessPieceArt.tsx, which keeps the
- * rule the old glyph rendering established — each side's shape filled in its
- * own tone and ringed in the opposite one, because no single fill clears 3:1
- * against both a maple and a walnut square. See tokens.css §14.
+ * One piece: the rhosgfx artwork from ChessPieceArt.tsx, which keeps the rule
+ * the old glyph rendering established — each side's shape filled in its own
+ * tone and outlined in the opposite one, because no single fill clears 3:1
+ * against both square tones. See tokens.css §14.
  */
 function ChessPiece({ colour, type }: { colour: 'w' | 'b'; type: string }) {
   return (
     <ChessPieceArt
       colour={colour}
       type={type as PieceType}
-      className="pointer-events-none h-full w-full select-none"
+      // The padding is the gap between a piece and the edge of its square.
+      // The artwork fills its own viewBox to the corners, so without this
+      // the pieces on adjacent ranks touch and the board looks crowded.
+      className="pointer-events-none h-full w-full select-none p-[5%]"
       // A soft cast shadow so the piece sits ON the board rather than being
       // painted into it — drop-shadow hugs the artwork's outline, where a
       // box-shadow would draw a floating rectangle.
-      style={{ filter: 'drop-shadow(0 2px 2px rgba(20,12,6,.38))' }}
+      style={{ filter: 'drop-shadow(0 2px 3px rgba(0,0,0,.45))' }}
     />
   )
 }
@@ -298,7 +317,7 @@ const fileIndex = (square: string) => square.charCodeAt(0) - 97 // 'a' -> 0
 /** The 8x8 board, shared between computer and online modes — takes a FEN
  *  rather than a Chess instance so callers never need to share a ref. */
 function ChessBoardGrid({
-  fen, selected, legalTargets, lastMove, checkedKing, onTap, disabled,
+  fen, selected, legalTargets, lastMove, checkedKing, onTap, disabled, decorative,
 }: {
   fen: string
   selected: Square | null
@@ -307,6 +326,11 @@ function ChessBoardGrid({
   checkedKing?: Square | null
   onTap: (square: Square) => void
   disabled: boolean
+  /** Set on the board shown BEFORE a game starts. It is a picture of the
+   *  opening position, not something to play on, so it is taken out of the
+   *  accessibility tree entirely — otherwise a screen reader wades through
+   *  64 dead squares before reaching the three buttons that matter. */
+  decorative?: boolean
 }) {
   const board = new Chess(fen)
   const reduceMotion = useReducedMotion()
@@ -319,7 +343,12 @@ function ChessBoardGrid({
 
   return (
     <BoardFrame>
-      <div className="grid aspect-square w-full grid-cols-8" role="group" aria-label="Chess board">
+      <div
+        className="grid aspect-square w-full grid-cols-8"
+        role={decorative ? undefined : 'group'}
+        aria-label={decorative ? undefined : 'Chess board'}
+        aria-hidden={decorative || undefined}
+      >
         {RANKS.flatMap((rank) =>
           FILES.map((file) => {
             const square = `${file}${rank}` as Square

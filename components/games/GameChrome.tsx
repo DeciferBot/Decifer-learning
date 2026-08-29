@@ -35,6 +35,74 @@ export function GameShell({
   return <div className={`mx-auto w-full ${WIDTHS[width]} space-y-4`}>{children}</div>
 }
 
+/**
+ * The wide layout a board game gets once there is room for it: the page's
+ * heading block down the left, the board in the middle, the controls on the
+ * right. Below `lg` it collapses to the single stacked column the games have
+ * always had on a phone.
+ *
+ * Stacked on a phone the order is intro, BOARD, then the controls. The board
+ * comes second on purpose: this is a page about a board, and burying it under
+ * a heading block and three buttons meant a phone showed no game at all until
+ * you scrolled. `order` handles the phone; the explicit column and row
+ * placement takes over at `lg`, where order has no effect.
+ *
+ * `topBar` spans the full width above the columns, so the back link stays at
+ * the top of a phone screen instead of travelling under the board with the
+ * rest of the controls.
+ *
+ * Both `intro` and `board` are optional, and the column count follows. Inside
+ * the child app the game IS the page, so there is no heading block and no
+ * left column. Word Tiles and the Crossword have nothing to show before you
+ * have picked a puzzle, so on their opening screen there is no middle column
+ * either and the layout is simply text beside choices.
+ */
+export function GameColumns({
+  intro,
+  side,
+  board,
+  topBar,
+}: {
+  intro?: ReactNode
+  side: ReactNode
+  board?: ReactNode
+  topBar?: ReactNode
+}) {
+  const columns = board
+    ? intro
+      ? 'lg:grid-cols-[minmax(0,16rem)_minmax(0,1fr)_minmax(0,19rem)]'
+      : 'lg:grid-cols-[minmax(0,1fr)_minmax(0,20rem)]'
+    : intro
+      ? 'lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)]'
+      : ''
+  const sideColumn = board ? (intro ? 'lg:col-start-3' : 'lg:col-start-2') : intro ? 'lg:col-start-2' : ''
+  return (
+    <div className="w-full space-y-4">
+      {topBar}
+      <div className={`grid w-full grid-cols-1 gap-6 lg:items-start lg:gap-8 ${columns}`}>
+        {intro && <div className="order-1 lg:col-start-1 lg:row-start-1">{intro}</div>}
+        <div className={`order-3 mx-auto w-full max-w-[30rem] space-y-4 lg:row-start-1 lg:max-w-none ${sideColumn}`}>
+          {side}
+        </div>
+        {/* Capped and centred while the page is one column: on a tablet the
+            board would otherwise stretch to the full 700-odd pixels of text
+            measure, which is a bigger chessboard than anyone wants and pushes
+            everything else off the screen. The cap is lifted at `lg`, where
+            the middle column already bounds it. */}
+        {board && (
+          <div
+            className={`order-2 mx-auto w-full max-w-[30rem] space-y-3 lg:row-start-1 lg:max-w-none ${
+              intro ? 'lg:col-start-2' : 'lg:col-start-1'
+            }`}
+          >
+            {board}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 export function GameBackLink({ href, onClick }: { href: string; onClick?: () => void }) {
   // The same components render inside the logged-in Downtime section and on
   // the public, no-login /games/* pages — the label follows whichever one

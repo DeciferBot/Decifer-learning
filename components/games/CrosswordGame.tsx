@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { fireFeedback } from '@/lib/feedback'
 import {
@@ -12,7 +12,7 @@ import type { GameResultInput } from '@/lib/games/results'
 import { useGameResult, GameResultNote } from '@/components/games/GameResultNote'
 import { RefreshCw, Eye, Check, X as Backspace } from '@/components/ui/icons'
 import {
-  GameShell, GameBackLink, GameToolbar, GameMenu, GameCrest, GameEndCard,
+  GameShell, GameColumns, GameBackLink, GameToolbar, GameMenu, GameCrest, GameEndCard,
   menuHeadingLevel,
 } from '@/components/games/GameChrome'
 
@@ -38,7 +38,17 @@ type Direction = 'across' | 'down'
  *  on the spot (see lib/games/crossword-generator.ts). Solo, no timer, no
  *  points — reveal is always one tap away since Downtime is meant to be
  *  pressure-free. */
-export function CrosswordGame({ backHref = '/downtime' }: { backHref?: string }) {
+export function CrosswordGame({
+  backHref = '/downtime',
+  intro,
+}: {
+  backHref?: string
+  /** The public page's heading block. Used on the two choosing screens, where
+   *  it becomes the left column beside the choices. A crossword has no board
+   *  to show until a puzzle has been generated, so there is no middle column
+   *  here — see GameColumns. */
+  intro?: ReactNode
+}) {
   const [theme, setTheme] = useState<CrosswordTheme | null>(null)
   const [difficulty, setDifficulty] = useState<CrosswordDifficulty | null>(null)
   const [puzzle, setPuzzle] = useState<CrosswordPuzzle | null>(null)
@@ -74,44 +84,50 @@ export function CrosswordGame({ backHref = '/downtime' }: { backHref?: string })
 
   if (!theme) {
     return (
-      <GameShell>
-        <GameBackLink href={backHref} />
-        <GameMenu
-          headingLevel={menuHeadingLevel(backHref)}
-          crest={<GameCrest tone="paper" glyph="✎" />}
-          title="Crossword"
-          blurb="Pick a theme. Every puzzle is built fresh, so no two are the same."
-          options={CROSSWORD_THEMES.map((t) => ({ id: t.id, label: t.label, glyph: t.emoji }))}
-          onPick={(id) => {
-            const t = CROSSWORD_THEMES.find((x) => x.id === id)
-            if (t) setTheme(t)
-          }}
-        />
-      </GameShell>
+      <GameColumns
+        intro={intro}
+        topBar={<GameBackLink href={backHref} />}
+        side={
+          <GameMenu
+            headingLevel={menuHeadingLevel(backHref)}
+            crest={<GameCrest tone="paper" glyph="✎" />}
+            title="Crossword"
+            blurb="Pick a theme. Every puzzle is built fresh, so no two are the same."
+            options={CROSSWORD_THEMES.map((t) => ({ id: t.id, label: t.label, glyph: t.emoji }))}
+            onPick={(id) => {
+              const t = CROSSWORD_THEMES.find((x) => x.id === id)
+              if (t) setTheme(t)
+            }}
+          />
+        }
+      />
     )
   }
 
   if (!difficulty || !puzzle) {
     return (
-      <GameShell>
-        <GameBackLink href={backHref} />
-        <GameMenu
-          headingLevel={menuHeadingLevel(backHref)}
-          crest={<GameCrest tone="paper" glyph={theme.emoji} />}
-          title={theme.label}
-          blurb="How tricky should this one be?"
-          options={DIFFICULTIES}
-          onPick={(id) => startPuzzle(theme, id as CrosswordDifficulty)}
-          footer={
-            <button
-              onClick={exitToThemes}
-              className="mx-auto flex min-h-[48px] items-center justify-center px-4 text-sm font-semibold text-ink-2 transition-colors hover:text-ink"
-            >
-              Pick a different theme
-            </button>
-          }
-        />
-      </GameShell>
+      <GameColumns
+        intro={intro}
+        topBar={<GameBackLink href={backHref} />}
+        side={
+          <GameMenu
+            headingLevel={menuHeadingLevel(backHref)}
+            crest={<GameCrest tone="paper" glyph={theme.emoji} />}
+            title={theme.label}
+            blurb="How tricky should this one be?"
+            options={DIFFICULTIES}
+            onPick={(id) => startPuzzle(theme, id as CrosswordDifficulty)}
+            footer={
+              <button
+                onClick={exitToThemes}
+                className="mx-auto flex min-h-[48px] items-center justify-center px-4 text-sm font-semibold text-ink-2 transition-colors hover:text-ink"
+              >
+                Pick a different theme
+              </button>
+            }
+          />
+        }
+      />
     )
   }
 

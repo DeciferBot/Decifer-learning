@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState, type ReactNode } from 'react'
 import { motion, AnimatePresence, useReducedMotion, type Variants } from 'framer-motion'
 import { fireFeedback } from '@/lib/feedback'
 import {
@@ -15,7 +15,7 @@ import { OnlineLobby } from '@/components/games/OnlineLobby'
 import { WaitingRoom, TurnBanner, PlayAFriendDivider } from '@/components/games/OnlineBoardStatus'
 import { Crown } from '@/components/ui/icons'
 import {
-  GameShell, GameBackLink, GameToolbar, GameMessage, GameMenu, GameCrest,
+  GameShell, GameColumns, GameBackLink, GameToolbar, GameMessage, GameMenu, GameCrest,
   BoardFrame, PlayerStrip, GameEndCard,
   menuHeadingLevel,
 } from '@/components/games/GameChrome'
@@ -35,7 +35,15 @@ type Screen = 'difficulty' | 'online-lobby'
  *  board upward. Captures are mandatory, per standard American rules — see
  *  lib/games/checkers-ai.ts. Computer mode is the default landing screen;
  *  "play a friend" is a secondary option. */
-export function CheckersGame({ backHref = '/downtime' }: { backHref?: string }) {
+export function CheckersGame({
+  backHref = '/downtime',
+  intro,
+}: {
+  backHref?: string
+  /** The public page's heading block — see ChessGame for why it is passed in
+   *  rather than rendered above the game. */
+  intro?: ReactNode
+}) {
   const [screen, setScreen] = useState<Screen>('difficulty')
   const [difficulty, setDifficulty] = useState<CheckersDifficulty | null>(null)
   const [onlineGameId, setOnlineGameId] = useState<string | null>(null)
@@ -147,68 +155,76 @@ export function CheckersGame({ backHref = '/downtime' }: { backHref?: string }) 
     )
   }
 
-  if (!difficulty) {
-    return (
-      <GameShell>
-        <GameBackLink href={backHref} />
-        <GameMenu
-          headingLevel={menuHeadingLevel(backHref)}
-          crest={<GameCrest glyph={<CheckerDisc colour="red" size={44} />} />}
-          title="Checkers"
-          blurb="Jump across the board and crown some kings. Play the computer, or a friend."
-          options={DIFFICULTIES}
-          onPick={(id) => setDifficulty(id as CheckersDifficulty)}
-          footer={<PlayAFriendDivider onClick={() => setScreen('online-lobby')} />}
-        />
-      </GameShell>
-    )
-  }
+  const started = !!difficulty
 
+  // Same shape as the chess page: the board is on screen from the moment the
+  // page loads, showing the opening position, and picking a level makes it
+  // live. See GameColumns in GameChrome for the layout itself.
   return (
-    <GameShell>
-      <GameToolbar backHref={backHref} onReset={restart} />
-
-      <PlayerStrip
-        you={{ name: 'You', swatch: 'var(--game-piece-red)', active: !thinking && !end }}
-        them={{ name: 'Computer', swatch: 'var(--game-piece-dark)', active: thinking }}
-        status={
-          thinking
-            ? { text: 'Thinking…', tone: 'neutral' }
-            : mustCapture && !end
-              ? { text: 'You must capture!', tone: 'alert' }
-              : null
-        }
-      />
-
-      <CheckersGrid
-        board={board}
-        targets={targets}
-        movableFrom={movableFrom}
-        selected={selected}
-        lastMove={lastMove}
-        onTap={tapSquare}
-        disabled={!!end}
-      />
-
-      <AnimatePresence>
-        {end && (
-          <GameEndCard
-            outcome={end === 'win' ? 'win' : 'loss'}
-            title={end === 'win' ? 'You won!' : 'Good game!'}
-            detail={
-              end === 'win'
-                ? 'You captured every piece, or the computer had nowhere left to move.'
-                : 'The computer got you this time. Have another go.'
-            }
-            actionLabel="Play again"
-            onAction={restart}
-            secondary={saveStatus ? <GameResultNote status={saveStatus} /> : undefined}
+    <GameColumns
+      intro={intro}
+      topBar={<GameToolbar backHref={backHref} onReset={started ? restart : undefined} />}
+      side={
+        started ? (
+          <>
+            <PlayerStrip
+              you={{ name: 'You', swatch: 'var(--game-piece-red)', active: !thinking && !end }}
+              them={{ name: 'Computer', swatch: 'var(--game-piece-dark)', active: thinking }}
+              status={
+                thinking
+                  ? { text: 'Thinking…', tone: 'neutral' }
+                  : mustCapture && !end
+                    ? { text: 'You must capture!', tone: 'alert' }
+                    : null
+              }
+            />
+            <AnimatePresence>
+              {end && (
+                <GameEndCard
+                  outcome={end === 'win' ? 'win' : 'loss'}
+                  title={end === 'win' ? 'You won!' : 'Good game!'}
+                  detail={
+                    end === 'win'
+                      ? 'You captured every piece, or the computer had nowhere left to move.'
+                      : 'The computer got you this time. Have another go.'
+                  }
+                  actionLabel="Play again"
+                  onAction={restart}
+                  secondary={saveStatus ? <GameResultNote status={saveStatus} /> : undefined}
+                />
+              )}
+            </AnimatePresence>
+          </>
+        ) : (
+          <GameMenu
+            headingLevel={menuHeadingLevel(backHref)}
+            crest={<GameCrest glyph={<CheckerDisc colour="red" size={44} />} />}
+            title="Checkers"
+            blurb="Jump across the board and crown some kings. Play the computer, or a friend."
+            options={DIFFICULTIES}
+            onPick={(id) => setDifficulty(id as CheckersDifficulty)}
+            footer={<PlayAFriendDivider onClick={() => setScreen('online-lobby')} />}
           />
-        )}
-      </AnimatePresence>
-    </GameShell>
+        )
+      }
+      board={
+        <CheckersGrid
+          board={board}
+          targets={started ? targets : []}
+          movableFrom={started ? movableFrom : EMPTY_MOVABLE}
+          selected={started ? selected : null}
+          lastMove={started ? lastMove : null}
+          onTap={tapSquare}
+          disabled={!started || !!end}
+          decorative={!started}
+        />
+      }
+    />
   )
 }
+
+/** Shared so the pre-game board does not allocate a new Set every render. */
+const EMPTY_MOVABLE: ReadonlySet<string> = new Set()
 
 /**
  * One disc: a moulded piece with a rim, a ring groove and a cast shadow.
@@ -265,15 +281,18 @@ const DISC_EXIT: Variants = {
 /** The 8x8 board, shared between computer and online modes — only the data
  *  source and tap handler differ. */
 function CheckersGrid({
-  board, targets, movableFrom, selected, lastMove, onTap, disabled,
+  board, targets, movableFrom, selected, lastMove, onTap, disabled, decorative,
 }: {
   board: Board
   targets: Move[]
-  movableFrom: Set<string>
+  movableFrom: ReadonlySet<string>
   selected: Coord | null
   lastMove: { from: Coord; to: Coord } | null
   onTap: (r: number, c: number) => void
   disabled: boolean
+  /** Set on the board shown BEFORE a game starts — a picture of the opening
+   *  position, so it is taken out of the accessibility tree entirely. */
+  decorative?: boolean
 }) {
   const reduceMotion = useReducedMotion()
 
@@ -286,7 +305,12 @@ function CheckersGrid({
 
   return (
     <BoardFrame>
-      <div className="grid aspect-square w-full grid-cols-8" role="group" aria-label="Checkers board">
+      <div
+        className="grid aspect-square w-full grid-cols-8"
+        role={decorative ? undefined : 'group'}
+        aria-label={decorative ? undefined : 'Checkers board'}
+        aria-hidden={decorative || undefined}
+      >
         {Array.from({ length: 8 }, (_, rowFromTop) => {
           const row = 7 - rowFromTop
           return Array.from({ length: 8 }, (_, col) => {

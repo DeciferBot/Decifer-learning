@@ -3,8 +3,14 @@
  * inert markup — no hooks, no state — and the failure modes worth guarding
  * are all visible in the markup itself: a piece variant that renders empty,
  * or a fill/stroke that slipped back to a literal colour instead of a
- * tokens.css §14 variable (the artwork's source SVGs use #fff/#000/#ececec,
- * so a careless re-import would reintroduce them and break theming).
+ * tokens.css §14 variable (the rhosgfx source SVGs are hard-coded warm
+ * browns and creams, so a careless re-import would reintroduce them, ignore
+ * the board's palette, and on the dark board make the pieces disappear).
+ *
+ * The source files also colour themselves through a <style> block with
+ * generic `.cls-1` class names. Those selectors are document-wide once the
+ * SVG is inlined, so the import strips them; the class check below is what
+ * stops one creeping back in and repainting the rest of the page.
  */
 
 import { describe, it, expect } from 'vitest'
@@ -24,7 +30,7 @@ describe('ChessPieceArt', () => {
     for (const colour of COLOURS) {
       for (const type of TYPES) {
         const svg = render(colour, type)
-        expect(svg, `${colour}${type}`).toContain('viewBox="0 0 45 45"')
+        expect(svg, `${colour}${type}`).toContain('viewBox="0 0 72 72"')
         expect(svg, `${colour}${type}`).toContain('<path')
       }
     }
@@ -48,6 +54,16 @@ describe('ChessPieceArt', () => {
     for (const type of TYPES) {
       expect(render('w', type)).not.toContain('--game-piece-dark')
       expect(render('b', type)).not.toContain('--game-piece-light')
+    }
+  })
+
+  it('carries no class or <style>, which would leak out of the SVG', () => {
+    for (const colour of COLOURS) {
+      for (const type of TYPES) {
+        const svg = render(colour, type)
+        expect(svg, `${colour}${type}`).not.toContain('class=')
+        expect(svg, `${colour}${type}`).not.toContain('<style')
+      }
     }
   })
 
