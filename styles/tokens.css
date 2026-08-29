@@ -632,10 +632,18 @@
    light piece rim on a light square = 10.8:1, dark piece rim on a dark
    square = 13.6:1.
 
-   Direction: real objects on a warm table. Chess and checkers share one
-   maple/walnut board, Connect 4 is an indigo cabinet (Indigo is the brand
-   anchor colour), crossword and word tiles are paper. Warm throughout, to
-   match --background, rather than the cold blue-grey these boards had.
+   Direction (revised 2026-08-29): a soft-3D toy set on a deep slate board.
+   The boards were a warm maple/walnut table before. They now read as moulded
+   plastic pieces under a single top-left light — one flat body tone, a darker
+   underside, a small glint — sitting on a near-black slate board. Connect 4
+   is still an indigo cabinet (Indigo is the brand anchor colour), crossword
+   and word tiles are still paper.
+
+   The two square tones are deliberately close (1.43:1). That is a style
+   choice and it is safe: WCAG has nothing to say about two decorative
+   halves of a chequerboard, and every element that carries meaning — the
+   pieces, the coordinates, the state markers — is measured against BOTH
+   square tones below.
 
    Colour is never the only signal. Selection, legal moves, last move and
    errors each pair their colour with a shape (ring, dot, corner notch,
@@ -644,38 +652,59 @@
 
 :root {
   /* ── The table everything sits on ─────────────────────────── */
-  --game-table:        #2A211A;   /* deep walnut behind a board's bezel   */
-  --game-table-lit:    #3A2C21;   /* where the light falls on it          */
-  --game-table-far:    #1E1712;   /* the far edge, away from the light    */
-  --game-bezel:        #4A3728;   /* the board's raised wooden frame      */
-  --game-bezel-lip:    #6B5138;   /* top-lit edge of that frame           */
+  --game-table:        #101B22;   /* deep slate behind a board's bezel    */
+  --game-table-lit:    #1B2B36;   /* where the light falls on it          */
+  --game-table-far:    #0A1218;   /* the far edge, away from the light    */
+  --game-bezel:        #16242E;   /* the board's raised frame             */
+  --game-bezel-lip:    #243947;   /* top-lit edge of that frame           */
 
   /* ── Chess + checkers board ───────────────────────────────── */
-  --game-sq-light:     #EDDCC0;   /* maple                                */
-  --game-sq-dark:      #B08356;   /* walnut — 2.5:1 against maple         */
-  /* Rank and file labels. Both are dark, including the one on walnut: no
-     light tone clears 4.5:1 there (even pure white is only 3.37:1), and these
-     are 9px bold, which is not "large text". Measured 5.36:1 on maple and
-     4.75:1 on walnut. They were 3.69:1 and 2.64:1 before. */
-  --game-coord-light:  #6E5230;   /* rank/file label sitting on maple     */
-  --game-coord-dark:   #2E1E12;   /* …and on walnut                       */
+  --game-sq-light:     #2A404E;   /* the lit half of the chequer          */
+  --game-sq-dark:      #152631;   /* the shaded half — 1.43:1, see above  */
+  /* Rank and file labels. 9px bold is not "large text", so each clears
+     4.5:1 against the square it sits on: 6.7:1 and 6.24:1. One tone for
+     both would not — a single mid-slate lands at 4.35:1 on the light
+     square, which misses — so the label on the light square is its own,
+     lighter value. */
+  --game-coord-light:  #B9CFDB;   /* rank/file label on a light square    */
+  --game-coord-dark:   #8FA8B6;   /* …and on a dark one (6.24:1)          */
 
-  /* ── Pieces. Rim carries the contrast, fill carries identity ─ */
-  --game-piece-light:      #FFFDF8;
-  --game-piece-light-rim:  #3B2415;   /* 10.8:1 on maple, 8.4:1 on walnut */
-  --game-piece-dark:       #241A11;
-  --game-piece-dark-rim:   #F2E4CC;   /* 13.6:1 on the dark fill          */
-  --game-piece-red:        #D6452F;   /* checkers "your" disc             */
-  --game-piece-red-rim:    #FFD9CD;
-  --game-piece-shadow:     0 2px 3px rgba(20, 12, 6, .45);
+  /* ── Pieces ───────────────────────────────────────────────────
+     A ramp per side — highlight, body, mid, shade — over a rim, which is
+     the piece's outline. The RIM carries the contrast and the body only
+     says which side owns the piece: no single body tone clears 3:1
+     against both squares, so a light piece is ringed dark and a dark
+     piece ringed light. Measured: dark piece's light rim 5.7:1 on the
+     dark square and 4.0:1 on the light one; light piece's body 13.7:1
+     and 9.5:1. The two bodies are 6.4:1 apart, so which side a piece
+     belongs to never depends on hue.
+
+     The dark rim is deliberately only 2.7:1 above its own body. Brighter
+     — and it was, at first — and the outline out-shouts the fill, so the
+     piece reads as a wireframe outline rather than a solid object. */
+  --game-piece-light-hi:    #FFFFFF;  /* where the light lands            */
+  --game-piece-light:       #E9F2F8;  /* the body                         */
+  --game-piece-light-mid:   #C6D9E5;
+  --game-piece-light-shade: #AEC7D6;  /* underside, out of the light      */
+  --game-piece-light-rim:   #16242E;  /* its outline                      */
+  --game-piece-dark-hi:     #4A6C7D;
+  --game-piece-dark:        #3D5B6A;
+  --game-piece-dark-shade:  #2F4957;
+  --game-piece-dark-rim:    #7FA2B4;  /* its outline — 5.7:1 / 4.0:1      */
+  --game-piece-red:         #E4634A;  /* checkers "your" disc             */
+  --game-piece-red-shade:   #A8402C;
+  --game-piece-red-rim:     #FFB8A5;
+  --game-piece-shadow:      0 3px 4px rgba(0, 0, 0, .5);
 
   /* ── Board state. Each pairs with a shape, never colour alone ─ */
-  --game-sel:          rgba(251, 90, 36, .55);   /* ember — tap selection */
-  --game-sel-ring:     #B83300;
-  --game-last:         rgba(253, 216, 104, .45); /* fig — previous move   */
-  --game-last-ring:    #A87C00;
-  --game-hint:         #B83300;                  /* legal-move dot/ring   */
-  --game-danger:       #C0392B;                  /* check, wrong letter   */
+  /* Washes are lighter and thinner than the wood board's: on a near-black
+     square a heavy tint reads as a hole, not a highlight. */
+  --game-sel:          rgba(255, 150, 74, .34);   /* ember — tap selection */
+  --game-sel-ring:     #FF9440;
+  --game-last:         rgba(255, 214, 102, .22);  /* fig — previous move   */
+  --game-last-ring:    #E0B44A;
+  --game-hint:         #FFA65C;                   /* legal-move dot/ring   */
+  --game-danger:       #FF6B5B;                   /* check, wrong letter   */
 
   /* ── Connect 4 cabinet ────────────────────────────────────── */
   --game-c4-cabinet:      #2C3160;   /* brand indigo                      */
@@ -698,10 +727,10 @@
   --game-prem-dl:      #D6E6FF;   /* double letter — azure family         */
 
   /* ── Depth. Boards are recessed into their frame, not flat. ── */
-  --game-inset:        inset 0 2px 6px rgba(20, 12, 6, .38),
-                       inset 0 -1px 0 rgba(255, 245, 230, .10);
-  --game-lift:         0 10px 28px rgba(42, 33, 26, .26),
-                       0 2px 6px rgba(42, 33, 26, .18);
+  --game-inset:        inset 0 2px 6px rgba(0, 0, 0, .45),
+                       inset 0 -1px 0 rgba(190, 220, 235, .08);
+  --game-lift:         0 12px 30px rgba(6, 12, 16, .45),
+                       0 2px 6px rgba(6, 12, 16, .35);
 }
 
 

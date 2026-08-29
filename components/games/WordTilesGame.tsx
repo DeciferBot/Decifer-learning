@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState, type ReactNode } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { fireFeedback } from '@/lib/feedback'
 import {
@@ -14,7 +14,7 @@ import { OnlineLobby } from '@/components/games/OnlineLobby'
 import { WaitingRoom, PlayAFriendDivider } from '@/components/games/OnlineBoardStatus'
 import { RefreshCw, Star, X as ClearIcon } from '@/components/ui/icons'
 import {
-  GameShell, GameBackLink, GameToolbar, GameMessage, GameMenu, GameCrest, GameEndCard,
+  GameShell, GameColumns, GameBackLink, GameToolbar, GameMessage, GameMenu, GameCrest, GameEndCard,
   menuHeadingLevel,
 } from '@/components/games/GameChrome'
 
@@ -67,7 +67,17 @@ type Screen = 'menu' | 'online-lobby'
  *  three difficulty levels (the opponent's moves come from the server, where
  *  the dictionary lives — see lib/games/scrabble-ai.ts), or a friend via
  *  invite code. */
-export function WordTilesGame({ backHref = '/downtime' }: { backHref?: string }) {
+export function WordTilesGame({
+  backHref = '/downtime',
+  intro,
+}: {
+  backHref?: string
+  /** The public page's heading block. Used on the opening screen, where it
+   *  becomes the left column beside the choices. Word Tiles has no board to
+   *  show until a game exists, so there is no middle column here — see
+   *  GameColumns. Once a game is running the board takes the full width. */
+  intro?: ReactNode
+}) {
   const [screen, setScreen] = useState<Screen>('menu')
   const [difficulty, setDifficulty] = useState<WordTilesDifficulty | null>(null)
   const [gameId, setGameId] = useState<string | null>(null)
@@ -96,18 +106,21 @@ export function WordTilesGame({ backHref = '/downtime' }: { backHref?: string })
   }
 
   return (
-    <GameShell>
-      <GameBackLink href={backHref} />
-      <GameMenu
-        headingLevel={menuHeadingLevel(backHref)}
-        crest={<GameCrest tone="paper" glyph={<LetterTile letter="W" size={44} />} />}
-        title="Word Tiles"
-        blurb="Build words on a shared board. Most points wins. Play the computer, or a friend."
-        options={DIFFICULTIES}
-        onPick={(id) => setDifficulty(id as WordTilesDifficulty)}
-        footer={<PlayAFriendDivider onClick={() => setScreen('online-lobby')} />}
-      />
-    </GameShell>
+    <GameColumns
+      intro={intro}
+      topBar={<GameBackLink href={backHref} />}
+      side={
+        <GameMenu
+          headingLevel={menuHeadingLevel(backHref)}
+          crest={<GameCrest tone="paper" glyph={<LetterTile letter="W" size={44} />} />}
+          title="Word Tiles"
+          blurb="Build words on a shared board. Most points wins. Play the computer, or a friend."
+          options={DIFFICULTIES}
+          onPick={(id) => setDifficulty(id as WordTilesDifficulty)}
+          footer={<PlayAFriendDivider onClick={() => setScreen('online-lobby')} />}
+        />
+      }
+    />
   )
 }
 

@@ -24,7 +24,7 @@ export default function GamesLayout({ children }: { children: React.ReactNode })
         }}
       />
       <header className="relative border-b border-black/5">
-        <div className="mx-auto flex h-14 max-w-3xl items-center justify-between px-4">
+        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
           <Link href="/" className="inline-flex min-h-[48px] items-center">
             <DeciferLogo size="sm" product="Learning" />
           </Link>
@@ -36,7 +36,10 @@ export default function GamesLayout({ children }: { children: React.ReactNode })
           </Link>
         </div>
       </header>
-      <main className="relative mx-auto max-w-3xl px-4 py-6">{children}</main>
+      {/* max-w-3xl until `lg`, where a game page spreads into three columns
+          (see GameColumns) and needs the room. The catalogue page keeps its
+          own narrower measure. */}
+      <main className="relative mx-auto max-w-3xl px-4 py-6 lg:max-w-6xl">{children}</main>
     </div>
   )
 }

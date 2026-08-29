@@ -15,30 +15,49 @@ import { Clock, Sparkles } from '@/components/ui/icons'
  * arriving from a search result sees, and "how do I take a turn" is the
  * question they have before they have one.
  */
-export function GamePageIntro({ id, title }: { id: GameEntry['id']; title: string }) {
+export function GamePageIntro({
+  id,
+  title,
+  besideBoard,
+}: {
+  id: GameEntry['id']
+  title: string
+  /** Set when this block shares a page with the game's real board. The
+   *  decorative board slice is then dropped entirely: on a wide screen it
+   *  sits an inch from an actual chessboard and reads as a mistake, and on a
+   *  phone it filled the first screen so the real board started below the
+   *  fold. It stays on the pages whose board only appears after a choice. */
+  besideBoard?: boolean
+}) {
   const game = GAME_CATALOGUE.find((g) => g.id === id)
   if (!game) return null
 
+  // Centred when this block is the whole top of the page. Left-aligned from
+  // `lg` only in the wide layout, where it is a narrow left column beside the
+  // board and centred text there reads as ragged on both edges.
+  const wide = besideBoard ? 'lg:mx-0 lg:text-left' : ''
+  const wideStart = besideBoard ? 'lg:mx-0 lg:justify-start' : ''
+
   return (
-    <header className="mx-auto max-w-md text-center">
+    <header className={`mx-auto max-w-md text-center ${wide}`}>
       {/* The same slice of board the picker card showed, so arriving here
           from /games feels like walking up to the thing you just chose.
           Full height on purpose: capping it clipped the bottom row of squares
           part-way through, which read as a rendering fault rather than a
           crop. */}
-      <GamePreview game={id} className="mb-4" />
+      {!besideBoard && <GamePreview game={id} className="mb-4" />}
       <h1 className="text-balance font-heading text-2xl font-extrabold leading-[1.15] tracking-[-0.02em] text-ink">
         {title}
       </h1>
-      <p className="mx-auto mt-2 max-w-[44ch] text-pretty text-sm text-ink-2">{game.howToPlay}</p>
-      <p className="mx-auto mt-2 flex max-w-[44ch] items-start justify-center gap-1.5 text-pretty text-xs text-muted">
+      <p className={`mx-auto mt-2 max-w-[44ch] text-pretty text-sm text-ink-2 ${wide}`}>{game.howToPlay}</p>
+      <p className={`mx-auto mt-2 flex max-w-[44ch] items-start justify-center gap-1.5 text-pretty text-xs text-muted ${wideStart}`}>
         <Sparkles className="mt-[1px] h-3.5 w-3.5 shrink-0 text-brand-700" aria-hidden />
         <span>
           <span className="sr-only">What it builds: </span>
           {game.builds}
         </span>
       </p>
-      <ul className="mt-3 flex flex-wrap justify-center gap-1.5">
+      <ul className={`mt-3 flex flex-wrap justify-center gap-1.5 ${besideBoard ? 'lg:justify-start' : ''}`}>
         {game.modes.map((m) => {
           const Icon = MODE_ICON[m]
           return (

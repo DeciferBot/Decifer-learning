@@ -31,8 +31,13 @@ const schema = gamePageSchema({
 export default function PublicCrosswordPage() {
   return (
     <div className="space-y-5">
-      <GamePageIntro id="crossword" title="Free Crossword Puzzles for Kids" />
-      <CrosswordGame backHref="/games" />
+      {/* The heading block is handed to the game rather than stacked
+          above it: on a wide screen it becomes the left column. See
+          GameColumns in GameChrome. */}
+      <CrosswordGame
+        backHref="/games"
+        intro={<GamePageIntro id="crossword" title="Free Crossword Puzzles for Kids" />}
+      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLd(schema) }}

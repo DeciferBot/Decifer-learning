@@ -31,8 +31,13 @@ const schema = gamePageSchema({
 export default function PublicWordTilesPage() {
   return (
     <div className="space-y-5">
-      <GamePageIntro id="word-tiles" title="Free Word Tile Game, Play the Computer or a Friend" />
-      <WordTilesGame backHref="/games" />
+      {/* The heading block is handed to the game rather than stacked
+          above it: on a wide screen it becomes the left column. See
+          GameColumns in GameChrome. */}
+      <WordTilesGame
+        backHref="/games"
+        intro={<GamePageIntro id="word-tiles" title="Free Word Tile Game, Play the Computer or a Friend" />}
+      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLd(schema) }}

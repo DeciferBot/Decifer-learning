@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState, type ReactNode } from 'react'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { fireFeedback } from '@/lib/feedback'
 import {
@@ -14,7 +14,7 @@ import { OnlineLobby } from '@/components/games/OnlineLobby'
 import { WaitingRoom, TurnBanner, PlayAFriendDivider } from '@/components/games/OnlineBoardStatus'
 import { ChevronDown } from '@/components/ui/icons'
 import {
-  GameShell, GameBackLink, GameToolbar, GameMessage, GameMenu, GameCrest,
+  GameShell, GameColumns, GameBackLink, GameToolbar, GameMessage, GameMenu, GameCrest,
   PlayerStrip, GameEndCard,
   menuHeadingLevel,
 } from '@/components/games/GameChrome'
@@ -34,7 +34,15 @@ type Screen = 'difficulty' | 'online-lobby'
 /** Connect 4 — against the computer, or against a friend via invite code.
  *  In both modes the child is always Red and drops first. Computer mode is
  *  the default landing screen; "play a friend" is a secondary option. */
-export function Connect4Game({ backHref = '/downtime' }: { backHref?: string }) {
+export function Connect4Game({
+  backHref = '/downtime',
+  intro,
+}: {
+  backHref?: string
+  /** The public page's heading block — see ChessGame for why it is passed in
+   *  rather than rendered above the game. */
+  intro?: ReactNode
+}) {
   const [screen, setScreen] = useState<Screen>('difficulty')
   const [difficulty, setDifficulty] = useState<Connect4Difficulty | null>(null)
   const [onlineGameId, setOnlineGameId] = useState<string | null>(null)
@@ -141,63 +149,66 @@ export function Connect4Game({ backHref = '/downtime' }: { backHref?: string }) 
     )
   }
 
-  if (!difficulty) {
-    return (
-      <GameShell>
-        <GameBackLink href={backHref} />
-        <GameMenu
-          headingLevel={menuHeadingLevel(backHref)}
-          crest={<GameCrest tone="indigo" glyph={<Disc colour="red" size={42} />} />}
-          title="Connect 4"
-          blurb="Line up four in a row before your opponent does. Play the computer, or a friend."
-          options={DIFFICULTIES}
-          onPick={(id) => setDifficulty(id as Connect4Difficulty)}
-          footer={<PlayAFriendDivider onClick={() => setScreen('online-lobby')} />}
-        />
-      </GameShell>
-    )
-  }
+  const started = !!difficulty
+  const legal = started ? legalColumns(board) : []
 
-  const legal = legalColumns(board)
-
+  // Same shape as the chess page: the empty cabinet is on screen from the
+  // moment the page loads, and picking a level makes it live.
   return (
-    <GameShell>
-      <GameToolbar backHref={backHref} onReset={restart} />
-
-      <PlayerStrip
-        you={{ name: 'You', swatch: 'var(--game-c4-red)', active: !thinking && !end }}
-        them={{ name: 'Computer', swatch: 'var(--game-c4-yellow)', active: thinking }}
-        status={thinking ? { text: 'Thinking…', tone: 'neutral' } : null}
-      />
-
-      <Connect4Grid
-        board={board}
-        legal={legal}
-        onDrop={drop}
-        disabled={thinking || !!end}
-        lastDrop={lastDrop}
-        winLine={winLine}
-      />
-
-      <AnimatePresence>
-        {end && (
-          <GameEndCard
-            outcome={end === 'win' ? 'win' : end === 'draw' ? 'draw' : 'loss'}
-            title={end === 'win' ? 'Four in a row. You won!' : end === 'draw' ? "It's a draw" : 'Good game!'}
-            detail={
-              end === 'win'
-                ? 'Nicely spotted.'
-                : end === 'draw'
-                  ? 'The board filled up with nobody connecting four.'
-                  : 'The computer connected four first. Have another go.'
-            }
-            actionLabel="Play again"
-            onAction={restart}
-            secondary={saveStatus ? <GameResultNote status={saveStatus} /> : undefined}
+    <GameColumns
+      intro={intro}
+      topBar={<GameToolbar backHref={backHref} onReset={started ? restart : undefined} />}
+      side={
+        started ? (
+          <>
+            <PlayerStrip
+              you={{ name: 'You', swatch: 'var(--game-c4-red)', active: !thinking && !end }}
+              them={{ name: 'Computer', swatch: 'var(--game-c4-yellow)', active: thinking }}
+              status={thinking ? { text: 'Thinking…', tone: 'neutral' } : null}
+            />
+            <AnimatePresence>
+              {end && (
+                <GameEndCard
+                  outcome={end === 'win' ? 'win' : end === 'draw' ? 'draw' : 'loss'}
+                  title={end === 'win' ? 'Four in a row. You won!' : end === 'draw' ? "It's a draw" : 'Good game!'}
+                  detail={
+                    end === 'win'
+                      ? 'Nicely spotted.'
+                      : end === 'draw'
+                        ? 'The board filled up with nobody connecting four.'
+                        : 'The computer connected four first. Have another go.'
+                  }
+                  actionLabel="Play again"
+                  onAction={restart}
+                  secondary={saveStatus ? <GameResultNote status={saveStatus} /> : undefined}
+                />
+              )}
+            </AnimatePresence>
+          </>
+        ) : (
+          <GameMenu
+            headingLevel={menuHeadingLevel(backHref)}
+            crest={<GameCrest tone="indigo" glyph={<Disc colour="red" size={42} />} />}
+            title="Connect 4"
+            blurb="Line up four in a row before your opponent does. Play the computer, or a friend."
+            options={DIFFICULTIES}
+            onPick={(id) => setDifficulty(id as Connect4Difficulty)}
+            footer={<PlayAFriendDivider onClick={() => setScreen('online-lobby')} />}
           />
-        )}
-      </AnimatePresence>
-    </GameShell>
+        )
+      }
+      board={
+        <Connect4Grid
+          board={board}
+          legal={legal}
+          onDrop={drop}
+          disabled={!started || thinking || !!end}
+          lastDrop={started ? lastDrop : null}
+          winLine={winLine}
+          decorative={!started}
+        />
+      }
+    />
   )
 }
 
@@ -268,7 +279,7 @@ function Disc({
 /** The 7x6 grid + column drop targets, shared between computer and online
  *  modes — only the data source and the drop handler differ. */
 function Connect4Grid({
-  board, legal, onDrop, disabled, lastDrop, winLine, ghostColour = 'red',
+  board, legal, onDrop, disabled, lastDrop, winLine, ghostColour = 'red', decorative,
 }: {
   board: Board
   legal: number[]
@@ -278,6 +289,9 @@ function Connect4Grid({
   winLine?: Set<string>
   /** Colour of the "would land here" preview — the player's own colour. */
   ghostColour?: 'red' | 'yellow'
+  /** Set on the empty cabinet shown BEFORE a game starts, which is a picture
+   *  rather than something to play on, so it leaves the accessibility tree. */
+  decorative?: boolean
 }) {
   const [hoverCol, setHoverCol] = useState<number | null>(null)
   // globals.css only silences CSS animation, so the Framer drop and the
@@ -286,7 +300,7 @@ function Connect4Grid({
   const reduceMotion = useReducedMotion()
 
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-1.5" aria-hidden={decorative || undefined}>
       {/* Drop rail. Sits above the cabinet, the way your hand does. */}
       <div className="grid grid-cols-7 gap-1.5">
         {Array.from({ length: COLS }, (_, col) => {

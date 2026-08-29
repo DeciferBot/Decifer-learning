@@ -31,8 +31,13 @@ const schema = gamePageSchema({
 export default function PublicCheckersPage() {
   return (
     <div className="space-y-5">
-      <GamePageIntro id="checkers" title="Play Checkers Online Free" />
-      <CheckersGame backHref="/games" />
+      {/* The heading block is handed to the game rather than stacked
+          above it: on a wide screen it becomes the left column. See
+          GameColumns in GameChrome. */}
+      <CheckersGame
+        backHref="/games"
+        intro={<GamePageIntro id="checkers" title="Play Checkers Online Free" besideBoard />}
+      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLd(schema) }}

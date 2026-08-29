@@ -31,8 +31,13 @@ const schema = gamePageSchema({
 export default function PublicConnect4Page() {
   return (
     <div className="space-y-5">
-      <GamePageIntro id="connect-4" title="Play Connect 4 Online Free" />
-      <Connect4Game backHref="/games" />
+      {/* The heading block is handed to the game rather than stacked
+          above it: on a wide screen it becomes the left column. See
+          GameColumns in GameChrome. */}
+      <Connect4Game
+        backHref="/games"
+        intro={<GamePageIntro id="connect-4" title="Play Connect 4 Online Free" besideBoard />}
+      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLd(schema) }}
