@@ -276,19 +276,81 @@ header('7. No child-facing route imports AI provider code')
     'from "openai"',
   ]
 
+  // THE ONE EXCEPTION, AND WHAT IT COSTS TO KEEP IT.
+  //
+  // Marking a written answer needs a judgement no string match can make: did a
+  // nine-year-old's wording convey the same idea as the mark scheme. So this
+  // route calls a model.
+  //
+  // The rule this check protects is not "no model" though. It is that no
+  // model-authored text reaches a child. So the exception is allowed only
+  // while that route takes NOTHING but bounded numbers from the model: it must
+  // build the child's feedback from the authored rubric, and it must not read
+  // a feedback, message, comment or text field off the parsed response.
+  //
+  // Adding a file here is a deliberate act. The three assertions below are the
+  // price, and they fail loudly the moment the route starts passing model prose
+  // through again, which is how it was written before 2026-08-29.
+  const AI_ALLOWED = new Map([
+    ['app/api/quiz/mark/route.ts', {
+      mustImport: "@/lib/quiz-marking-feedback",
+      mustCall: 'buildFeedback(',
+      // WHITELIST THE ASSIGNMENT, DO NOT BLACKLIST THE READ.
+      //
+      // This was first written as a blacklist of `parsed.feedback` and friends,
+      // and it was useless: `(parsed as {feedback?: string}).feedback` walked
+      // straight past it, which is exactly how a real leak would be written.
+      // So instead every `feedback:` in the file must be one of the forms
+      // below. Anything else, however it is spelled, fails.
+      feedbackMustBeOneOf: [
+        /feedback:\s*string/,                       // the type declaration
+        /feedback:\s*buildFeedback\(/,              // built from the rubric
+        /feedback:\s*MARKING_UNAVAILABLE_FEEDBACK/, // the fixed fallback
+      ],
+    }],
+  ])
+
   let anyAiImport = false
   for (const file of childRouteFiles) {
     const content = readFileSync(file, 'utf8')
-    const relPath = path.relative(ROOT, file)
-    for (const pattern of aiImportPatterns) {
-      if (content.includes(pattern)) {
+    const relPath = path.relative(ROOT, file).split(path.sep).join('/')
+    const allowance = AI_ALLOWED.get(relPath)
+
+    const importsAi = aiImportPatterns.filter((p) => content.includes(p))
+    if (importsAi.length === 0) continue
+
+    if (!allowance) {
+      for (const pattern of importsAi) {
         fail(`${relPath} imports AI provider: ${pattern}`)
         anyAiImport = true
+      }
+      continue
+    }
+
+    if (!content.includes(allowance.mustImport)) {
+      fail(`${relPath} may call a model, but no longer imports ${allowance.mustImport} to build the child's words`)
+      anyAiImport = true
+    } else if (!content.includes(allowance.mustCall)) {
+      fail(`${relPath} imports the feedback builder but never calls ${allowance.mustCall}`)
+      anyAiImport = true
+    } else {
+      const feedbackAssignments = content.match(/feedback:\s*[^,\n]+/g) || []
+      const leak = feedbackAssignments.find(
+        (line) => !allowance.feedbackMustBeOneOf.some((re) => re.test(line))
+      )
+      if (leak) {
+        fail(`${relPath} sets the child's feedback from something other than the authored rubric: ${leak.trim().slice(0, 80)}`)
+        anyAiImport = true
+      } else if (feedbackAssignments.length === 0) {
+        fail(`${relPath} no longer sets any feedback for the child`)
+        anyAiImport = true
+      } else {
+        pass(`${relPath} calls a model but takes only bounded numbers from it; the child reads authored text`)
       }
     }
   }
   if (!anyAiImport) {
-    pass("No child-facing routes import AI provider packages")
+    pass("No child-facing route sends model-authored text to a child")
   }
 }
 
