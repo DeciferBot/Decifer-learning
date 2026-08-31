@@ -8,6 +8,7 @@ import { outstandingSchoolsAbuDhabi } from './content/outstanding-schools-abu-dh
 import { choosingBritishSchoolDubai } from './content/choosing-british-school-dubai'
 import { abuDhabiSchoolFeesRatings } from './content/abu-dhabi-school-fees-ratings'
 import { britishCurriculumExplained } from './content/british-curriculum-explained'
+import { ibCurriculumExplained } from './content/ib-curriculum-explained'
 import { gcseInUae } from './content/gcse-in-uae'
 import { schoolYearGroupsAgesUae } from './content/school-year-groups-ages-uae'
 import { uaeTermDates202627 } from './content/uae-term-dates-2026-27'
@@ -31,6 +32,7 @@ const GUIDES: Guide[] = [
   adekRatingsExplained,
   outstandingSchoolsAbuDhabi,
   britishCurriculumExplained,
+  ibCurriculumExplained,
   cat4ExplainedUae,
   cat4ScoresExplained,
   elevenPlusNonVerbalReasoning,

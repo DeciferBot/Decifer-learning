@@ -16,7 +16,7 @@ export const gcseInUae: Guide = {
   blocks: [
     {
       kind: 'p',
-      html: 'GCSEs are the first qualifications that follow your child for life, and the UAE version of them comes with its own wrinkles: international boards, two grading scales running side by side, and, in 2026, a cancelled exam season. Here is what parents at British schools in the UAE need to know.',
+      html: 'GCSEs are the first qualifications that follow your child for life, and the UAE version of them comes with its own wrinkles: international boards, two grading scales running side by side, and, in 2026, a cancelled exam season. Here is what parents at British schools in the UAE need to know. Some schools also offer the IB Diploma instead of A-levels after GCSEs — see our <a href="/guides/ib-curriculum-explained">IB curriculum guide</a> if that is on the table for your child.',
     },
     { kind: 'h2', id: 'gcse-vs-igcse', text: 'GCSE or IGCSE: what UAE schools actually offer' },
     {
@@ -111,5 +111,10 @@ export const gcseInUae: Guide = {
       url: 'https://whichschooladvisor.com/uae/school-news/pearson-edexcel-cambridge-cancel-igcse-and-a-level-exams-in-uae-for-2026',
     },
   ],
-  related: ['british-curriculum-explained', 'school-year-groups-ages-uae', 'khda-ratings-explained'],
+  related: [
+    'british-curriculum-explained',
+    'school-year-groups-ages-uae',
+    'khda-ratings-explained',
+    'ib-curriculum-explained',
+  ],
 }

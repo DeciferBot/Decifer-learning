@@ -40,7 +40,7 @@ export const schoolYearGroupsAgesUae: Guide = {
     { kind: 'h2', id: 'conversion-table', text: 'The conversion table: UK, UAE MOE, IB and US' },
     {
       kind: 'p',
-      html: 'This mapping comes from KHDA’s official student placement guidelines. Age means the age reached by 31 December for September-start schools.',
+      html: 'This mapping comes from KHDA’s official student placement guidelines. Age means the age reached by 31 December for September-start schools. For what the IB columns (PYP, MYP, DP) actually involve day to day, see our <a href="/guides/ib-curriculum-explained">IB curriculum guide</a>.',
     },
     {
       kind: 'table',
@@ -115,5 +115,10 @@ export const schoolYearGroupsAgesUae: Guide = {
       url: 'https://gulfnews.com/living-in-uae/education/dubai-school-admissions-202627-is-your-child-eligible-for-kg1fs2-1.500431269',
     },
   ],
-  related: ['british-curriculum-explained', 'moving-to-uae-school-admissions', 'uae-term-dates-2026-27'],
+  related: [
+    'british-curriculum-explained',
+    'ib-curriculum-explained',
+    'moving-to-uae-school-admissions',
+    'uae-term-dates-2026-27',
+  ],
 }
