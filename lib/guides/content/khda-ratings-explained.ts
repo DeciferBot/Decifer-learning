@@ -73,7 +73,7 @@ export const khdaRatingsExplained: Guide = {
     { kind: 'h2', id: 'outstanding-british', text: 'Which British schools are rated Outstanding?' },
     {
       kind: 'p',
-      html: 'Of the 23 Outstanding schools in Dubai, more than two-thirds follow the British curriculum or a British-IB hybrid. The UK-curriculum names on the list include Dubai College, Jumeirah College, both Jumeirah English Speaking School campuses (Al Safa and Arabian Ranches), Kings’ School Dubai and Kings’ School Al Barsha, Dubai English Speaking School and College, GEMS Jumeirah Primary School, Horizon English School, Safa Community School, Victory Heights Primary School, and both Dubai British School campuses (Emirates Hills and Jumeirah Park). Repton School, GEMS Wellington International, Nord Anglia International and Deira International School hold the rating with UK-IB hybrid programmes.',
+      html: 'Of the 23 Outstanding schools in Dubai, more than two-thirds follow the British curriculum or a British-IB hybrid. The UK-curriculum names on the list include Dubai College, Jumeirah College, both Jumeirah English Speaking School campuses (Al Safa and Arabian Ranches), Kings’ School Dubai and Kings’ School Al Barsha, Dubai English Speaking School and College, GEMS Jumeirah Primary School, Horizon English School, Safa Community School, Victory Heights Primary School, and both Dubai British School campuses (Emirates Hills and Jumeirah Park). Repton School, GEMS Wellington International, Nord Anglia International and Deira International School hold the rating with UK-IB hybrid programmes — see our <a href="/guides/ib-curriculum-explained">IB curriculum guide</a> for what that hybrid actually means.',
     },
     {
       kind: 'faq',
@@ -119,5 +119,12 @@ export const khdaRatingsExplained: Guide = {
       url: 'https://gulfnews.com/living-in-uae/education/dubais-23-outstanding-private-schools-rated-by-khda-1.500227394',
     },
   ],
-  related: ['adek-ratings-explained', 'outstanding-schools-abu-dhabi', 'dubai-school-fees', 'choosing-british-school-dubai', 'abu-dhabi-school-fees-ratings'],
+  related: [
+    'adek-ratings-explained',
+    'outstanding-schools-abu-dhabi',
+    'dubai-school-fees',
+    'choosing-british-school-dubai',
+    'abu-dhabi-school-fees-ratings',
+    'ib-curriculum-explained',
+  ],
 }

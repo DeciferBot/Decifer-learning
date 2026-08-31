@@ -48,7 +48,7 @@ export const britishCurriculumExplained: Guide = {
     { kind: 'h2', id: 'quality-marks', text: 'The quality marks: KHDA, BSO, COBIS and BSME' },
     {
       kind: 'p',
-      html: 'A British school in the UAE can carry several different stamps, and they measure different things.',
+      html: 'A British school in the UAE can carry several different stamps, and they measure different things. Some also run a second curriculum alongside the British one in the sixth form — our <a href="/guides/ib-curriculum-explained">IB curriculum guide</a> covers the “UK/IB hybrid” schools that offer the Diploma Programme instead of A-levels.',
     },
     {
       kind: 'list',
@@ -110,5 +110,11 @@ export const britishCurriculumExplained: Guide = {
       url: 'https://gulfnews.com/uae/education/10-new-private-schools-open-in-dubai-enrolments-up-by-6-1.500013123',
     },
   ],
-  related: ['sats-and-primary-assessments', 'school-year-groups-ages-uae', 'gcse-in-uae', 'khda-ratings-explained'],
+  related: [
+    'sats-and-primary-assessments',
+    'school-year-groups-ages-uae',
+    'gcse-in-uae',
+    'khda-ratings-explained',
+    'ib-curriculum-explained',
+  ],
 }
