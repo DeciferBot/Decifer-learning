@@ -26,7 +26,7 @@ const NODES: ZoneNode[] = [
 export function RealAppPreview() {
   return (
     <div className="mx-auto w-full max-w-sm">
-      <div className="mb-4">
+      <div className="m-rise mb-4">
         <DeciSays mood="happy">Fractions next. Ready?</DeciSays>
       </div>
 
@@ -34,7 +34,7 @@ export function RealAppPreview() {
           not a map to use. Every node links to '#'. A screen reader announcing
           six unreachable topics would be noise, and the paragraph below says
           in words what the picture shows. */}
-      <div aria-hidden>
+      <div className="m-wipe" aria-hidden>
         <ZoneMap
           zoneId="preview"
           subjectName="Maths"

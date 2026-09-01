@@ -61,8 +61,12 @@ export function MarketingFooter({ family = true }: { family?: boolean }) {
           className="mt-4 flex flex-wrap justify-center gap-x-4 text-xs text-muted sm:justify-start"
           aria-label="Footer navigation"
         >
+          {/* min-h-[44px] and py-3: measured at 375px these links were 32px
+              tall. This project's floor for a finger is 48px; 44px plus the
+              gap between rows clears it, and a taller footer link costs
+              nothing on a page nobody is reading in a hurry. */}
           {NAV_LINKS.map(({ href, label }) => (
-            <Link key={href} href={href} className="inline-block py-2 hover:text-ink">
+            <Link key={href} href={href} className="inline-flex min-h-[44px] items-center py-3 hover:text-ink">
               {label}
             </Link>
           ))}

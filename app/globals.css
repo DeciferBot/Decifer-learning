@@ -63,3 +63,87 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* ── Scroll-driven motion for the marketing pages ─────────────────────────
+   Two rules decide everything here.
+
+   1. FREQUENCY. A visitor sees these pages once. A child sees the quiz every
+      day. So the marketing pages can be dramatic and the app stays calm; the
+      classes below are deliberately not available inside the child's app.
+
+   2. THE PAGE MUST NEVER SHIP BLANK. Every element here is fully visible with
+      no CSS at all. The reveal is added only inside a feature query for
+      `animation-timeline`, so a browser that cannot do scroll-driven motion,
+      a crawler, or a screenshot renderer simply gets the finished state. That
+      matters more than usual: search traffic is the constraint on this site,
+      and a reveal that fails closed would hide the whole page from Google.
+
+   No JavaScript, so it runs off the main thread and cannot drop frames while
+   the page is still loading. */
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    /* Rise: the workhorse. Enters as the element crosses into view and is
+       finished by the time it is a quarter up the screen, so nothing is still
+       moving while you read it. */
+    .m-rise {
+      animation-name: m-rise;
+      animation-duration: auto;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry 5% cover 28%;
+    }
+
+    /* Same, staggered, for a row of cards. 60ms apart: enough to read as a
+       cascade, short enough that the last card is not still arriving. */
+    .m-stagger > * {
+      animation-name: m-rise;
+      animation-duration: auto;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry 5% cover 30%;
+    }
+    .m-stagger > *:nth-child(2) { animation-range: entry 9% cover 34%; }
+    .m-stagger > *:nth-child(3) { animation-range: entry 13% cover 38%; }
+    .m-stagger > *:nth-child(4) { animation-range: entry 17% cover 42%; }
+
+    /* Wipe: the picture of the app draws itself in from the bottom, the way a
+       chart is uncovered. clip-path only, so no layout work. */
+    .m-wipe {
+      animation-name: m-wipe;
+      animation-duration: auto;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 40%;
+    }
+
+    /* Deci leans in as you reach it, then settles. */
+    .m-greet {
+      animation-name: m-greet;
+      animation-duration: auto;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 35%;
+    }
+  }
+}
+
+@keyframes m-rise {
+  from { opacity: 0; transform: translateY(28px) scale(0.97); filter: blur(6px); }
+  to   { opacity: 1; transform: none;                        filter: blur(0);   }
+}
+
+@keyframes m-wipe {
+  from { clip-path: inset(0 0 100% 0); opacity: 0.4; transform: translateY(16px); }
+  to   { clip-path: inset(0 0 0 0);    opacity: 1;   transform: none;             }
+}
+
+@keyframes m-greet {
+  from { opacity: 0; transform: translateY(-18px) rotate(-8deg) scale(0.82); }
+  60%  { opacity: 1; transform: translateY(2px)   rotate(2deg)  scale(1.04); }
+  to   { opacity: 1; transform: none; }
+}
