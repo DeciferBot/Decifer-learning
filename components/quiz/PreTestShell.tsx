@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { stableChoiceOrder } from '@/lib/quiz/stable-order'
 import { motion, AnimatePresence } from 'framer-motion'
 import { HintButton } from './HintButton'
 import type { QuizQuestion } from './QuizShell'
@@ -16,18 +17,10 @@ type Props = {
   nextLabel: string
 }
 
-function shuffleChoices(correct: string, distractors: string[]): string[] {
-  const all = [correct, ...distractors]
-  for (let i = all.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[all[i], all[j]] = [all[j], all[i]]
-  }
-  return all
-}
 
 export function PreTestShell({ question, nextHref, nextLabel }: Props) {
   const [phase, setPhase] = useState<Phase>('attempt')
-  const [choices] = useState(() => shuffleChoices(question.correct_answer, question.distractors))
+  const [choices] = useState(() => stableChoiceOrder(question.id, question.correct_answer, question.distractors))
   const [selected, setSelected] = useState<string | null>(null)
   const [hintsRevealed, setHintsRevealed] = useState(0)
 

@@ -60,6 +60,9 @@ export async function GET() {
       // /api/daily-challenge/submit re-scores server-side as the source of truth.
       correct_answer: true,
       distractors: true,
+      // Picture questions store a letter as the answer; the picture is the answer
+      // as far as a child is concerned, so it has to come through here too.
+      option_images: true,
       hint_1: true,
       tier: true,
     },

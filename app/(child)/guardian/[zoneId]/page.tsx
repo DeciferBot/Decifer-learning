@@ -119,7 +119,7 @@ export default async function GuardianPage({ params }: { params: { zoneId: strin
       source_label: q.source_label ?? null,
       source_type: q.source_type ?? null,
       foundation_images: (q.foundation_images as { url: string; alt?: string }[] | null) ?? null,
-      option_images: (q.option_images as Record<string, string> | null) ?? null,
+      option_images: (q.option_images as Record<string, string | { url: string; alt?: string }> | null) ?? null,
     }))
 
   return (

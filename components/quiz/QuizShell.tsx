@@ -11,6 +11,8 @@ import { OrderedList, type OrderedListItem } from './OrderedList'
 import SourceAnalysis, { type SourceAnalysisSubQ } from './SourceAnalysis'
 import ExplainExample, { type ExplainExamplePart } from './ExplainExample'
 import StructuredAnswer, { type MarkingCriterion } from './StructuredAnswer'
+import { MatchPairs, type MatchPair } from './MatchPairs'
+import { TypeAnswer, type AcceptedAnswer } from './TypeAnswer'
 import { HeartsDisplay } from './HeartsDisplay'
 import { CardReveal } from '@/components/cards/CardReveal'
 import { BadgePopup } from '@/components/quiz/BadgePopup'
@@ -26,6 +28,7 @@ import { WinBurst } from './WinBurst'
 import MathText from '@/components/ui/MathText'
 import { buttonClasses } from '@/components/ui/Button'
 import { Deci } from '@/components/ui/Deci'
+import { stableChoiceOrder } from '@/lib/quiz/stable-order'
 import { GuardianVictoryScreen } from './GuardianVictoryScreen'
 import { HeartCrack, Swords, Sparkles, Trophy, Star, RefreshCw, Gift, Flame, Shield, Lightbulb, Target, Check } from '@/components/ui/icons'
 import { StudyBuddy } from './StudyBuddy'
@@ -40,7 +43,7 @@ import { QuestionListenButton } from './QuestionListenButton'
 // Points awarded per attempt number (1-indexed). Exhausting all attempts = 0.
 const POINTS_BY_ATTEMPT = [3, 2, 1] as const
 // These types render their own per-item feedback — QuizShell skips the raw correct_answer header.
-const MULTIPART_QTYPES = new Set(['true_false_grid', 'ordered_list', 'source_analysis', 'explain_example', 'structured_answer'])
+const MULTIPART_QTYPES = new Set(['true_false_grid', 'ordered_list', 'source_analysis', 'explain_example', 'structured_answer', 'match_pairs'])
 const MAX_ATTEMPTS = 3
 const MAX_HEARTS = 3
 // Hearts are lost when a question is fully exhausted (all attempts wrong),
@@ -74,7 +77,16 @@ export type QuizQuestion = {
   source_type: string | null
   foundation_images: { url: string; alt?: string }[] | null
   // KS1 visual-answer mode — { [answerText]: imageUrl }. See schema.prisma.
-  option_images: Record<string, string> | null
+  /**
+   * A picture to show instead of, or above, the words on an answer button.
+   *
+   * A bare link is the older shape and still works. The newer shape carries a
+   * description as well, and it exists because a button whose whole meaning is
+   * a picture says nothing at all to a child using a screen reader — the picture
+   * used to be given empty description text, so they heard only "A" or "B". Any
+   * picture whose meaning IS the answer must arrive with a description.
+   */
+  option_images: Record<string, string | { url: string; alt?: string }> | null
 }
 
 type AnswerLog = {
@@ -113,12 +125,23 @@ function clientShuffle<T>(arr: T[]): T[] {
   return a
 }
 
-function shuffleChoices(correct: string, distractors: string[]): string[] {
-  return clientShuffle([correct, ...distractors])
+
+/**
+ * The picture that goes with one answer, if there is one.
+ *
+ * On a picture question the answer we store is a plain letter, because the words
+ * Oak supplies to describe each picture are machine-written and run to a hundred
+ * characters — printing one as "the answer is..." would be gibberish on screen.
+ * So anywhere the answer is revealed shows the picture itself instead.
+ */
+function answerPicture(q: QuizQuestion, choice: string): { url: string; alt: string } | null {
+  const value = q.option_images?.[choice]
+  if (!value || typeof value === 'string') return null
+  return value.alt ? { url: value.url, alt: value.alt } : null
 }
 
 function buildInitialChoices(q: QuizQuestion): string[] {
-  return shuffleChoices(q.correct_answer, q.distractors)
+  return stableChoiceOrder(q.id, q.correct_answer, q.distractors)
 }
 
 // Pick one random index to be the "bonus challenge" question (worth 2× points).
@@ -384,9 +407,20 @@ export function QuizShell({
     !!q.worked_example &&
     !shownWorkedExampleFor.current.has(q.question_type)
 
-  function pick(choice: string) {
+  /**
+   * One try at a single-answer question.
+   *
+   * `choice` is normally one of the four buttons, and matching the stored answer
+   * exactly is the whole test. A typed answer is different: the child may write
+   * "twelve" where we hold "12", and Oak tells us every spelling that counts. So
+   * TypeAnswer does its own comparing and passes the verdict in through
+   * `knownCorrect`. Everything after this line — tries, clues, points, the streak,
+   * the record of what they answered — is shared, so a typed question behaves
+   * exactly like a tapped one.
+   */
+  function pick(choice: string, knownCorrect?: boolean) {
     if (questionDone) return
-    const isCorrect = choice === q.correct_answer
+    const isCorrect = knownCorrect ?? choice === q.correct_answer
     const timeSeconds = Math.max(1, Math.round((Date.now() - questionStartRef.current) / 1000))
     const newAttempts = attempts + 1
 
@@ -1055,7 +1089,16 @@ export function QuizShell({
           )}
           {!prevCorrect && (
             <div className="rounded-xl bg-correct/10 px-4 py-3 text-sm text-correct-700 font-semibold">
-              Correct answer: <MathText text={prevQ.correct_answer} />
+              Correct answer:{' '}
+              {answerPicture(prevQ, prevQ.correct_answer) ? (
+                <img
+                  src={answerPicture(prevQ, prevQ.correct_answer)!.url}
+                  alt={answerPicture(prevQ, prevQ.correct_answer)!.alt}
+                  className="mt-2 h-24 w-full rounded-lg bg-surface object-contain"
+                />
+              ) : (
+                <MathText text={prevQ.correct_answer} />
+              )}
             </div>
           )}
           {prevQ.explanation && (
@@ -1338,6 +1381,21 @@ export function QuizShell({
                 disabled={questionDone}
               />
             </div>
+          ) : q.question_type === 'match_pairs' && Array.isArray(q.answer_parts) && (q.answer_parts as MatchPair[])[0]?.left !== undefined ? (
+            <div className="mt-4">
+              <MatchPairs
+                pairs={q.answer_parts as MatchPair[]}
+                onAnswer={handleMultiPartAnswer}
+                disabled={questionDone}
+              />
+            </div>
+          ) : q.question_type === 'short_answer_text' && Array.isArray(q.answer_parts) && (q.answer_parts as AcceptedAnswer[])[0]?.accept !== undefined ? (
+            <TypeAnswer
+              accepted={q.answer_parts as AcceptedAnswer[]}
+              disabled={questionDone}
+              young={youngMode}
+              onSubmit={({ correct, matched }) => pick(matched, correct)}
+            />
           ) : q.question_type === 'source_analysis' && Array.isArray(q.answer_parts) && q.source_text ? (
             <div className="mt-4">
               <SourceAnalysis
@@ -1380,7 +1438,13 @@ export function QuizShell({
                 // question stays visible but stops being clickable, so a second
                 // guess is narrower rather than harder.
                 const isRuledOut = youngMode && !questionDone && ruledOut.has(choice)
-                const imageUrl = q.option_images?.[choice]
+                const optionPicture = q.option_images?.[choice]
+                const imageUrl = typeof optionPicture === 'string'
+                  ? optionPicture
+                  : optionPicture?.url
+                const imageAlt = typeof optionPicture === 'string'
+                  ? ''
+                  : (optionPicture?.alt ?? '')
 
                 let cls =
                   `rounded-md border-2 text-center font-heading font-bold text-ink shadow-clay-sm transition-[transform,box-shadow,background-color,border-color] duration-fast ease-out select-none touch-manipulation enabled:active:translate-y-[2px] enabled:active:shadow-clay-pressed enabled:active:duration-instant motion-reduce:transition-none motion-reduce:active:translate-y-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink ${
@@ -1404,18 +1468,36 @@ export function QuizShell({
                   cls += ' border-black/10 bg-background opacity-50 shadow-none'
                 }
 
-                // Build an accessible label that includes the outcome state when answered
-                let ariaLabel = choice
+                // What this button is called out loud. When the button IS a picture,
+                // the letter on it ("A") means nothing on its own, so the picture's
+                // description is what gets said. The outcome is added once answered.
+                // Just the description. The letter behind a picture button is only
+                // there so the answer can be stored as something short; reading it
+                // out ("C, a small black and white kitten...") is noise.
+                const spokenName = imageAlt || choice
+                let ariaLabel = spokenName
                 if (questionDone) {
-                  if (isCorrectChoice) ariaLabel = `${choice}, correct answer`
-                  else if (isWrongPick) ariaLabel = `${choice}, your incorrect answer`
+                  if (isCorrectChoice) ariaLabel = `${spokenName}, correct answer`
+                  else if (isWrongPick) ariaLabel = `${spokenName}, your incorrect answer`
                 } else if (isRuledOut) {
-                  ariaLabel = `${choice}, already tried, pick a different answer`
+                  ariaLabel = `${spokenName}, already tried, pick a different answer`
                 }
 
                 return (
                   <motion.button
-                    key={choice}
+                    // The question id is part of the key on purpose.
+                    //
+                    // Answer buttons used to be keyed by the answer text, which was
+                    // different in every question, so React always knew one
+                    // question's buttons from another's. Picture questions store
+                    // their answers as the letters A to D, and EVERY picture
+                    // question uses the same four letters — so during the moment
+                    // one question is leaving the screen and the next is arriving,
+                    // React matched up buttons that belonged to different questions.
+                    // The result was a button showing one picture while carrying
+                    // another's description, and the green "correct" mark landing on
+                    // the wrong picture. Seen happening, not imagined.
+                    key={`${q.id}:${choice}`}
                     onClick={() => pick(choice)}
                     disabled={questionDone || isRuledOut}
                     whileTap={questionDone || isRuledOut ? {} : { scale: 0.97 }}
@@ -1427,10 +1509,26 @@ export function QuizShell({
                       <>
                         <img
                           src={imageUrl}
+                          // Deliberately empty: the button itself is already named
+                          // out loud with this picture's description (see
+                          // spokenName above). Describing it here as well would
+                          // make a screen reader say the same thing twice.
                           alt=""
-                          className="h-20 w-20 rounded-lg object-contain"
+                          // When the picture IS the answer — telling a circle from
+                          // a triangle — a small thumbnail is not enough to judge,
+                          // so it fills the card instead.
+                          className={
+                            imageAlt
+                              ? 'h-24 w-full rounded-lg object-contain'
+                              : 'h-20 w-20 rounded-lg object-contain'
+                          }
                         />
-                        <span><MathText text={choice} /></span>
+                        {/* When the picture IS the answer, the words under it
+                            would be the description — printing "a white circle
+                            with an orange middle" beneath the picture of it hands
+                            the answer to a child who can see. It is said out loud
+                            for a child who cannot, through the button's name. */}
+                        {!imageAlt && <span><MathText text={choice} /></span>}
                       </>
                     ) : (
                       <MathText text={choice} />
@@ -1472,7 +1570,18 @@ export function QuizShell({
                         : <span className="flex items-center gap-1">
                             {/* aria-hidden on the ✗ symbol; the text carries the meaning */}
                             <span aria-hidden>✗</span>
-                            <span>Not quite. The answer is <strong><MathText text={q.correct_answer} /></strong></span>
+                            {answerPicture(q, q.correct_answer) ? (
+                              <span className="flex flex-col gap-1">
+                                <span>Not quite. This was the answer:</span>
+                                <img
+                                  src={answerPicture(q, q.correct_answer)!.url}
+                                  alt={answerPicture(q, q.correct_answer)!.alt}
+                                  className="h-24 w-full rounded-lg bg-surface object-contain"
+                                />
+                              </span>
+                            ) : (
+                              <span>Not quite. The answer is <strong><MathText text={q.correct_answer} /></strong></span>
+                            )}
                           </span>}
                     </p>
                   )}

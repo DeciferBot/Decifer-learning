@@ -15,19 +15,52 @@ export function QuestionListenButton({ text }: { text: string }) {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const tokenRef = useRef(0)
 
+  /**
+   * Second voice, for when the first one fails.
+   *
+   * The nice recorded voice comes from our own server. If that call fails —
+   * the server is busy, the connection drops — this button used to give up
+   * silently: a moment of "loading", then nothing. For most children that is
+   * a shrug; for a pre-reader in young mode this button is the only way to
+   * play at all, so silence means the quiz is over for them.
+   *
+   * Every phone and browser ships its own built-in voice. It sounds different
+   * on every device, which is exactly why it is not the FIRST choice — but a
+   * different voice beats no voice, every time. So: server voice first,
+   * device voice as the understudy.
+   */
+  function speakWithDeviceVoice(myToken: number) {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+      if (myToken === tokenRef.current) setState('idle')
+      return
+    }
+    window.speechSynthesis.cancel()
+    const utterance = new SpeechSynthesisUtterance(text)
+    utterance.lang = 'en-GB'
+    utterance.onend = () => { if (myToken === tokenRef.current) setState('idle') }
+    utterance.onerror = () => { if (myToken === tokenRef.current) setState('idle') }
+    window.speechSynthesis.speak(utterance)
+    if (myToken === tokenRef.current) setState('playing')
+  }
+
   useEffect(() => {
     // A fresh question invalidates any in-flight fetch or playing audio for
     // the previous one.
     tokenRef.current += 1
     audioRef.current?.pause()
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) window.speechSynthesis.cancel()
     setState('idle')
   }, [text])
 
-  useEffect(() => () => { audioRef.current?.pause() }, [])
+  useEffect(() => () => {
+    audioRef.current?.pause()
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) window.speechSynthesis.cancel()
+  }, [])
 
   function toggle() {
     if (state === 'playing') {
       audioRef.current?.pause()
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) window.speechSynthesis.cancel()
       setState('idle')
       return
     }
@@ -38,7 +71,7 @@ export function QuestionListenButton({ text }: { text: string }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text }),
     })
-      .then((res) => (res.ok ? res.json() : Promise.reject()))
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error(String(res.status)))))
       .then(({ url }: { url: string }) => {
         if (myToken !== tokenRef.current) return // stale — question changed mid-fetch
         if (!audioRef.current) audioRef.current = new Audio()
@@ -48,9 +81,9 @@ export function QuestionListenButton({ text }: { text: string }) {
         audio.onerror = () => { if (myToken === tokenRef.current) setState('idle') }
         audio.play()
           .then(() => { if (myToken === tokenRef.current) setState('playing') })
-          .catch(() => { if (myToken === tokenRef.current) setState('idle') })
+          .catch(() => speakWithDeviceVoice(myToken))
       })
-      .catch(() => { if (myToken === tokenRef.current) setState('idle') })
+      .catch(() => speakWithDeviceVoice(myToken))
   }
 
   return (

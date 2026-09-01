@@ -10,6 +10,8 @@ interface Question {
   question_text: string
   question_type: string
   correct_answer: string
+  /** Present only on picture questions, keyed by the answer each picture belongs to. */
+  option_images?: Record<string, string | { url: string; alt?: string }> | null
   distractors: string[]
   hint_1: string | null
   tier: string
@@ -126,6 +128,14 @@ export default function DailyChallengePageInner() {
 
   const q = challenge.questions[current]
   const options = [q.correct_answer, ...(q.distractors as string[])].sort()
+
+  // On a picture question the buttons are pictures. The words behind them are a
+  // machine-written description, useful only for saying aloud what a picture shows.
+  function pictureFor(opt: string): { url: string; alt: string } | null {
+    const value = q.option_images?.[opt]
+    if (!value || typeof value === 'string' || !value.alt) return null
+    return { url: value.url, alt: value.alt }
+  }
   const isLast = current === challenge.questions.length - 1
 
   function choose(opt: string) {
@@ -228,21 +238,34 @@ export default function DailyChallengePageInner() {
           } else {
             cls += ' border-black/5 bg-black/[0.02] text-muted'
           }
+          const picture = pictureFor(opt)
+          // A button that is a picture must still say what it shows.
+          const name = picture ? picture.alt : opt
           const stateLabel = selected !== null
             ? isSelected
-              ? isCorrect ? `${opt}, correct` : `${opt}, incorrect`
-              : !isSelected && isCorrect ? `${opt}, correct answer` : opt
-            : opt
+              ? isCorrect ? `${name}, correct` : `${name}, incorrect`
+              : !isSelected && isCorrect ? `${name}, correct answer` : name
+            : name
           return (
             <button
-              key={opt}
+              // Keyed by question as well as answer — see the note in QuizShell.
+              key={`${q.id}:${opt}`}
               className={cls}
               onClick={() => choose(opt)}
               aria-label={stateLabel}
               aria-pressed={isSelected}
               disabled={selected !== null}
             >
-              <MathText text={opt} />
+              {picture ? (
+                <img
+                  src={picture.url}
+                  // Already said by the button's own name, just above.
+                  alt=""
+                  className="h-24 w-full rounded-lg object-contain"
+                />
+              ) : (
+                <MathText text={opt} />
+              )}
             </button>
           )
         })}

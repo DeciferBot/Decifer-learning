@@ -284,8 +284,7 @@ export function RegisterForm() {
           </p>
           <p className="mt-1 text-sm leading-relaxed text-ink">
             Decifer Learning collects limited personal data (name, email, learning progress) to
-            operate the service. A parent or guardian must agree before a child
-            can use a Decifer Learning account.{' '}
+            operate the service. A parent or guardian must agree before a child can use it.{' '}
             <Link href="/legal/privacy" className="font-semibold text-on-maths underline">
               Read our privacy policy.
             </Link>

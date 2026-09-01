@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { resolvePlayer } from '@/lib/live/server'
-import { buildChoices, choiceSeed } from '@/lib/live/questions'
+import { buildChoices, choiceSeed, choicePictures } from '@/lib/live/questions'
 
 // GET /api/live/[id]/question?index=K
 // Returns the render payload for the current question: the prompt and shuffled
@@ -44,7 +44,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 
   const q = await prisma.quizQuestion.findFirst({
     where: { id: questionId, status: 'published' },
-    select: { tier: true, question_text: true, correct_answer: true, distractors: true },
+    select: { tier: true, question_text: true, correct_answer: true, distractors: true, option_images: true },
   })
   if (!q) return NextResponse.json({ error: 'Question unavailable' }, { status: 404 })
 
@@ -63,6 +63,10 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     tier: String(q.tier),
     questionText: q.question_text,
     choices,
+    // Present only on picture questions ("which of these is a circle?"). Keyed by
+    // the same text as `choices`, so a tile that has one shows the picture and is
+    // announced by its description instead of the words behind it.
+    choicePictures: choicePictures(q.option_images),
     secondsPerQuestion: game.seconds_per_question,
     startedAt: startedAtMs,
     endsAt,

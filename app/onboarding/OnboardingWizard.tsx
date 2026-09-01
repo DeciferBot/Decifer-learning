@@ -12,19 +12,8 @@ import {
   CONFIDENCE_LEVELS,
   type LearningProfile,
 } from '@/lib/onboarding-config'
-import {
-  Target, BookOpen, FlaskConical, Search,
-  Telescope, Dragon, PencilLine, Layers, Music, Leaf, Anvil,
-  Eye, Zap, TrendingUp, Star, Trophy,
-} from '@/components/ui/icons'
-import type { ComponentType, SVGProps } from 'react'
-
-type IconComp = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
-const ONBOARDING_ICONS: Record<string, IconComp> = {
-  Target, BookOpen, FlaskConical, Search,
-  Telescope, Dragon, PencilLine, Layers, Music, Leaf, Anvil,
-  Eye, Zap, TrendingUp, Star, Trophy,
-}
+import { Target, Star } from '@/components/ui/icons'
+import { ONBOARDING_ICONS } from '@/lib/onboarding-icons'
 
 // Accent colours — mirrors the Customise page palette.
 const COLOURS = [

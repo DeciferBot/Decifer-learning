@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ExamTimer } from '@/components/quiz/ExamTimer'
+import { stableChoiceOrder } from '@/lib/quiz/stable-order'
 import { HintButton } from '@/components/quiz/HintButton'
 import { TrueFalseGrid, type TrueFalseStatement } from '@/components/quiz/TrueFalseGrid'
 import { OrderedList, type OrderedListItem } from '@/components/quiz/OrderedList'
@@ -259,13 +260,41 @@ export default function ExamSessionPage({
   const distractors: string[] = Array.isArray(currentQuestion.distractors)
     ? (currentQuestion.distractors as string[])
     : []
+  // One shared rule for the order of answer buttons, everywhere. See
+  // lib/quiz/stable-order.ts for why a random order was actively harmful.
+  //
+  // Worked out fresh each time rather than remembered. Remembering it would need a
+  // React hook, and there are five early exits above this line, so a hook here
+  // would be skipped on some renders and not others — which React forbids and which
+  // breaks the screen. The calculation is a handful of sums on four short strings,
+  // and it now gives the same answer every time, so repeating it costs nothing.
   const choices = distractors.includes(currentQuestion.correct_answer)
-    ? distractors
-    : [...distractors, currentQuestion.correct_answer].sort(() => Math.random() - 0.5)
+    ? stableChoiceOrder(currentQuestion.id, distractors[0], distractors.slice(1))
+    : stableChoiceOrder(currentQuestion.id, currentQuestion.correct_answer, distractors)
 
   const isMultiPart = ['true_false_grid', 'ordered_list', 'source_analysis'].includes(
     currentQuestion.question_type,
   )
+
+  // Does this question offer answers to choose between?
+  //
+  // This used to ask whether the question type was the word "multiple_choice" —
+  // and NO question has ever been given that name. Every question in every exam,
+  // including thousands with four perfectly good answers, was therefore shown as
+  // an empty box the child had to type the exact answer into. Asking whether there
+  // are wrong answers to show is the question that was always meant.
+  const hasChoices = choices.length >= 2
+
+  // On a picture question the words behind each button are the picture's own
+  // description, so the button shows the picture and is named by the description.
+  const answerPictures: Record<string, { url: string; alt: string }> =
+    currentQuestion.option_images && typeof currentQuestion.option_images === 'object'
+      ? Object.fromEntries(
+          Object.entries(currentQuestion.option_images as Record<string, unknown>)
+            .filter(([, v]) => v && typeof v === 'object' && typeof (v as { url?: unknown }).url === 'string')
+            .map(([k, v]) => [k, v as { url: string; alt: string }]),
+        )
+      : {}
 
   return (
     <div className="flex min-h-[100dvh] flex-col pb-6">
@@ -355,7 +384,7 @@ export default function ExamSessionPage({
                   onAnswer={handleMultiPartAnswer}
                   disabled={submitted}
                 />
-              ) : currentQuestion.question_type === 'multiple_choice' ? (
+              ) : hasChoices ? (
                 <div className="space-y-2.5">
                   {choices.map((choice) => {
                     const isSelected = selectedChoice === choice
@@ -372,12 +401,25 @@ export default function ExamSessionPage({
                     }
                     return (
                       <button
-                        key={choice}
+                        // Keyed by question as well as answer: picture questions all
+                        // use the letters A to D, so the answer alone no longer tells
+                        // one question's buttons from another's.
+                        key={`${currentQuestion.id}:${choice}`}
                         onClick={() => handleMultipleChoiceSelect(choice)}
                         disabled={submitted}
+                        aria-label={answerPictures[choice]?.alt}
                         className={`w-full rounded-xl border px-4 py-3 text-left text-sm font-medium text-ink transition-colors min-h-[52px] ${bg}`}
                       >
-                        <MathText text={choice} />
+                        {answerPictures[choice] ? (
+                          <img
+                            src={answerPictures[choice].url}
+                            // Named by the button above; saying it twice helps nobody.
+                            alt=""
+                            className="h-24 w-full rounded-lg object-contain"
+                          />
+                        ) : (
+                          <MathText text={choice} />
+                        )}
                       </button>
                     )
                   })}
@@ -436,7 +478,17 @@ export default function ExamSessionPage({
                     {!answers[answers.length - 1]?.wasCorrect && (
                       <p className="text-sm text-ink">
                         <span className="font-semibold">Answer: </span>
-                        <MathText text={currentQuestion.correct_answer} />
+                        {/* On a picture question the stored answer is a letter, so
+                            the picture is what gets shown. */}
+                        {answerPictures[currentQuestion.correct_answer] ? (
+                          <img
+                            src={answerPictures[currentQuestion.correct_answer].url}
+                            alt={answerPictures[currentQuestion.correct_answer].alt}
+                            className="mt-1 h-24 w-full rounded-lg bg-surface object-contain"
+                          />
+                        ) : (
+                          <MathText text={currentQuestion.correct_answer} />
+                        )}
                       </p>
                     )}
                     {currentQuestion.explanation && (
