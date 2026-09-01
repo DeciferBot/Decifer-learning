@@ -195,12 +195,13 @@
       "year": "year-3"
     },
     "geography/ks2/year-3/climate-zones-what-are-they-and-why-do-they-matter": {
-      "unit_title": "Climate zones: what are they and why do they matter?",
-      "topic_slug": "none",
+      "unit_title": "climate zones what are they and why do they matter",
+      "topic_slug": "year-4-geography-climate-zones-and-biomes",
       "confidence": "high",
-      "reasoning": "Climate zones is a distinct physical geography topic covering global climate patterns and biomes, which does not align with any of the listed Year 3 topics (rivers/water cycle, rocks/soils/volcanoes, settlements/land use, or trade/global economy).",
+      "reasoning": "Questions directly test biomes, adaptation, and savannah climate zones.",
       "subject": "Geography",
-      "year": "year-3"
+      "year": "year-3",
+      "mapped_by": "oak-map-units-deep"
     },
     "geography/ks2/year-3/land-use-how-diverse-are-local-and-uk-landscapes": {
       "unit_title": "Land use: how diverse are local and UK landscapes?",
@@ -3072,6 +3073,1176 @@
       "subject": "Science",
       "year": "year-6",
       "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-4/a-journey-through-greek-myths-reading": {
+      "unit_title": "a journey through greek myths reading",
+      "topic_slug": "y3-english-reading-comprehension",
+      "confidence": "low",
+      "reasoning": "Involves reading and engaging with a myth text, loosely fitting comprehension skills.",
+      "subject": "English",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-3/the-journey-diary-writing": {
+      "unit_title": "the journey diary writing",
+      "topic_slug": "year-4-english-writing-composition-settings-characters-and-plot",
+      "confidence": "medium",
+      "reasoning": "Unit explores plot, characters and themes as preparation for diary writing, aligning with settings/characters/plot composition skills.",
+      "subject": "English",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-4/weather-descriptive-writing": {
+      "unit_title": "weather descriptive writing",
+      "topic_slug": "y6-english-writing-narrative",
+      "confidence": "low",
+      "reasoning": "Descriptive writing using figurative language loosely relates to narrative techniques, though it's not a strong fit.",
+      "subject": "English",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks3/year-7/the-tempest": {
+      "unit_title": "the tempest",
+      "topic_slug": "year-8-english-reading-shakespeare-play-study",
+      "confidence": "high",
+      "reasoning": "Unit studies Shakespeare's play The Tempest in depth, matching the Shakespeare play study topic.",
+      "subject": "English",
+      "year": "year-7",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks3/year-7/the-twisted-tree-fiction-reading": {
+      "unit_title": "the twisted tree fiction reading",
+      "topic_slug": "y7-english-reading-language-analysis",
+      "confidence": "medium",
+      "reasoning": "Unit focuses on analysing language techniques like similes, tension, and structure in a fiction text.",
+      "subject": "English",
+      "year": "year-7",
+      "mapped_by": "oak-map-units"
+    },
+    "geography/ks1/year-2/local-area-why-is-our-place-special": {
+      "unit_title": "local area why is our place special",
+      "topic_slug": "year-1-geography-comparing-localities-physical-and-human-features",
+      "confidence": "medium",
+      "reasoning": "Mapping and exploring local area features aligns with comparing physical and human features of localities.",
+      "subject": "Geography",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "geography/ks1/year-1/local-to-global-how-can-we-identify-special-places": {
+      "unit_title": "local to global how can we identify special places",
+      "topic_slug": "year-1-geography-maps-and-atlases-world-continents-and-oceans",
+      "confidence": "low",
+      "reasoning": "Covers world wonders which loosely relates to global geography knowledge, though not a precise match.",
+      "subject": "Geography",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "geography/ks2/year-6/earthquakes-how-do-they-change-the-world": {
+      "unit_title": "earthquakes how do they change the world",
+      "topic_slug": "year-4-geography-earthquakes-and-plate-tectonics",
+      "confidence": "high",
+      "reasoning": "Directly covers earthquake causes, measurement, and zones matching the earthquakes topic.",
+      "subject": "Geography",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "history/ks2/year-4/the-romans-what-is-the-story-of-christianitys-rise": {
+      "unit_title": "the romans what is the story of christianitys rise",
+      "topic_slug": "year-6-history-roman-britain",
+      "confidence": "low",
+      "reasoning": "Relates to the Roman Empire era but focuses on Christianity's spread rather than Britain specifically",
+      "subject": "History",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks1/year-1/comparing-quantities-part-whole-relationships": {
+      "unit_title": "comparing quantities part whole relationships",
+      "topic_slug": "year-1-maths-measurement",
+      "confidence": "medium",
+      "reasoning": "Focuses on comparing quantities by length, height and capacity, a measurement skill.",
+      "subject": "Maths",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks1/year-2/money-recognise-coins-and-use-and-p-symbols": {
+      "unit_title": "money recognise coins and use and p symbols",
+      "topic_slug": "year-1-maths-measurement",
+      "confidence": "medium",
+      "reasoning": "Money and coin recognition is typically covered under measurement in KS1 curricula.",
+      "subject": "Maths",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks1/year-2/time-write-and-tell-the-time-to-five-minutes": {
+      "unit_title": "time write and tell the time to five minutes",
+      "topic_slug": "year-1-maths-measurement",
+      "confidence": "high",
+      "reasoning": "Telling and writing time is a core measurement skill in KS1.",
+      "subject": "Maths",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks1/year-1/unitising-and-coin-recognition-value-of-a-set-of-coins": {
+      "unit_title": "unitising and coin recognition value of a set of coins",
+      "topic_slug": "year-1-maths-measurement",
+      "confidence": "low",
+      "reasoning": "Deals with coin values and totals, related to measurement (money) though could also touch addition skills.",
+      "subject": "Maths",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks3/year-7/arithmetic-procedures-with-fractions": {
+      "unit_title": "arithmetic procedures with fractions",
+      "topic_slug": "y7-maths-fractions-decimals-percentages",
+      "confidence": "medium",
+      "reasoning": "Covers core fraction operations (multiplication, division, addition/subtraction) matching this topic.",
+      "subject": "Maths",
+      "year": "year-7",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks3/year-7/arithmetic-procedures-with-integers-and-decimals": {
+      "unit_title": "arithmetic procedures with integers and decimals",
+      "topic_slug": "y7-maths-place-value-integers",
+      "confidence": "medium",
+      "reasoning": "Focuses on integer/decimal arithmetic and negative numbers, closest to the integers topic.",
+      "subject": "Maths",
+      "year": "year-7",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks3/year-7/comparing-and-ordering-fractions-and-decimals-positive-and-negative": {
+      "unit_title": "comparing and ordering fractions and decimals positive and negative",
+      "topic_slug": "y7-maths-fractions-decimals-percentages",
+      "confidence": "high",
+      "reasoning": "Deals with fractions/decimals conversion and ordering.",
+      "subject": "Maths",
+      "year": "year-7",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks3/year-8/constructions": {
+      "unit_title": "constructions",
+      "topic_slug": "y7-maths-geometry-angles",
+      "confidence": "high",
+      "reasoning": "Angle bisection and construction skills match this geometry topic.",
+      "subject": "Maths",
+      "year": "year-8",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks3/year-8/estimation-and-rounding": {
+      "unit_title": "estimation and rounding",
+      "topic_slug": "y7-maths-place-value-integers",
+      "confidence": "medium",
+      "reasoning": "Rounding and degrees of accuracy relate to number/place value understanding.",
+      "subject": "Maths",
+      "year": "year-8",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks3/year-7/expressions-and-equations": {
+      "unit_title": "expressions and equations",
+      "topic_slug": "y7-algebra-solving-linear-equations",
+      "confidence": "medium",
+      "reasoning": "Introduces algebraic notation and equation concepts foundational to solving linear equations.",
+      "subject": "Maths",
+      "year": "year-7",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks3/year-9/expressions-and-formulae": {
+      "unit_title": "expressions and formulae",
+      "topic_slug": "year-8-maths-algebra-solving-equations-and-inequalities",
+      "confidence": "medium",
+      "reasoning": "Changing the subject and solving linear equations fits equation-solving topic.",
+      "subject": "Maths",
+      "year": "year-9",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks3/year-8/geometrical-properties-polygons": {
+      "unit_title": "geometrical properties polygons",
+      "topic_slug": "y7-maths-geometry-angles",
+      "confidence": "high",
+      "reasoning": "Covers angle facts on parallel lines and polygons, matching angles topic.",
+      "subject": "Maths",
+      "year": "year-8",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks3/year-9/geometrical-properties-similarity-and-pythagoras-theorem": {
+      "unit_title": "geometrical properties similarity and pythagoras theorem",
+      "topic_slug": "year-8-maths-geometry-pythagoras-theorem",
+      "confidence": "high",
+      "reasoning": "Explicitly covers congruence, similarity, and Pythagoras' theorem.",
+      "subject": "Maths",
+      "year": "year-9",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks3/year-9/graphical-representations": {
+      "unit_title": "graphical representations",
+      "topic_slug": "year-9-maths-algebra-functions-and-sequences",
+      "confidence": "medium",
+      "reasoning": "Combines graph shapes and sequence extension, matching functions/sequences topic.",
+      "subject": "Maths",
+      "year": "year-9",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks3/year-8/graphical-representations-of-data": {
+      "unit_title": "graphical representations of data",
+      "topic_slug": "year-8-maths-probability-and-statistics",
+      "confidence": "medium",
+      "reasoning": "Pie charts and scatter graphs are typical year-8 statistics content.",
+      "subject": "Maths",
+      "year": "year-8",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks3/year-8/graphical-representations-of-linear-equations": {
+      "unit_title": "graphical representations of linear equations",
+      "topic_slug": "y7-maths-algebra-graphs",
+      "confidence": "high",
+      "reasoning": "Focuses on plotting coordinates and linear relationships.",
+      "subject": "Maths",
+      "year": "year-8",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks3/year-9/non-linear-relationships": {
+      "unit_title": "non linear relationships",
+      "topic_slug": "year-9-maths-algebra-functions-and-sequences",
+      "confidence": "medium",
+      "reasoning": "Covers arithmetic, geometric, and special sequences, fitting advanced sequences topic.",
+      "subject": "Maths",
+      "year": "year-9",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks3/year-8/numerical-summaries-of-data": {
+      "unit_title": "numerical summaries of data",
+      "topic_slug": "y7-maths-statistics-data",
+      "confidence": "high",
+      "reasoning": "Mean, median, mode calculations directly match this statistics topic.",
+      "subject": "Maths",
+      "year": "year-8",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks3/year-7/perimeter-and-area": {
+      "unit_title": "perimeter and area",
+      "topic_slug": "y7-maths-geometry-area-perimeter",
+      "confidence": "high",
+      "reasoning": "Area and perimeter of polygons matches this topic directly.",
+      "subject": "Maths",
+      "year": "year-7",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks3/year-8/perimeter-area-and-volume": {
+      "unit_title": "perimeter area and volume",
+      "topic_slug": "y7-maths-geometry-area-perimeter",
+      "confidence": "medium",
+      "reasoning": "Area and circumference of circles fit the area/perimeter topic despite volume mention.",
+      "subject": "Maths",
+      "year": "year-8",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks3/year-7/place-value": {
+      "unit_title": "place value",
+      "topic_slug": "y7-maths-place-value-integers",
+      "confidence": "high",
+      "reasoning": "Directly covers place value in integers and metric units.",
+      "subject": "Maths",
+      "year": "year-7",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks3/year-7/plotting-coordinates": {
+      "unit_title": "plotting coordinates",
+      "topic_slug": "y7-maths-algebra-graphs",
+      "confidence": "high",
+      "reasoning": "Plotting coordinates and rules matches graphs and coordinates topic.",
+      "subject": "Maths",
+      "year": "year-7",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks3/year-9/probability-possible-outcomes": {
+      "unit_title": "probability possible outcomes",
+      "topic_slug": "y7-maths-probability",
+      "confidence": "high",
+      "reasoning": "Basic probability outcomes and experiments match this topic.",
+      "subject": "Maths",
+      "year": "year-9",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks3/year-9/probability-theoretical-probabilities": {
+      "unit_title": "probability theoretical probabilities",
+      "topic_slug": "year-9-maths-probability-combined-events",
+      "confidence": "high",
+      "reasoning": "Two-event probability trees and two-way tables match combined events topic.",
+      "subject": "Maths",
+      "year": "year-9",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks3/year-7/properties-of-number-factors-multiples-squares-and-cubes": {
+      "unit_title": "properties of number factors multiples squares and cubes",
+      "topic_slug": "y7-maths-place-value-integers",
+      "confidence": "high",
+      "reasoning": "Factors, multiples, primes, and powers align with Integers, Powers and Roots topic.",
+      "subject": "Maths",
+      "year": "year-7",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks3/year-8/sequences": {
+      "unit_title": "sequences",
+      "topic_slug": "y7-maths-algebra-sequences",
+      "confidence": "high",
+      "reasoning": "Arithmetic sequences and nth term directly match this topic.",
+      "subject": "Maths",
+      "year": "year-8",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks3/year-8/solving-linear-equations": {
+      "unit_title": "solving linear equations",
+      "topic_slug": "y7-algebra-solving-linear-equations",
+      "confidence": "high",
+      "reasoning": "Covers solving linear equations, equality and brackets - core content of this topic.",
+      "subject": "Maths",
+      "year": "year-8",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks3/year-9/standard-form": {
+      "unit_title": "standard form",
+      "topic_slug": "year-8-maths-number-standard-form-and-indices",
+      "confidence": "high",
+      "reasoning": "Focuses on writing numbers in standard form and exponents, matching this topic exactly.",
+      "subject": "Maths",
+      "year": "year-9",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks3/year-7/transformations": {
+      "unit_title": "transformations",
+      "topic_slug": "year-8-maths-geometry-transformations",
+      "confidence": "high",
+      "reasoning": "Directly covers reflections, rotations, translations and enlargements, matching this topic.",
+      "subject": "Maths",
+      "year": "year-7",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks3/year-9/trigonometry": {
+      "unit_title": "trigonometry",
+      "topic_slug": "year-9-maths-geometry-trigonometry",
+      "confidence": "high",
+      "reasoning": "Covers trigonometric ratios, Pythagoras and triangle problem solving, matching this topic.",
+      "subject": "Maths",
+      "year": "year-9",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks3/year-7/understanding-multiplicative-relationships-fractions-and-ratio": {
+      "unit_title": "understanding multiplicative relationships fractions and ratio",
+      "topic_slug": "year-8-maths-ratio-and-proportion",
+      "confidence": "medium",
+      "reasoning": "Focuses on ratio, exchange rates and multiplicative relationships, aligning with ratio and proportion content.",
+      "subject": "Maths",
+      "year": "year-7",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks3/year-8/understanding-multiplicative-relationships-percentages-and-proportionality": {
+      "unit_title": "understanding multiplicative relationships percentages and proportionality",
+      "topic_slug": "year-8-maths-ratio-and-proportion",
+      "confidence": "medium",
+      "reasoning": "Covers percentage change and direct proportion, both core to ratio and proportion understanding.",
+      "subject": "Maths",
+      "year": "year-8",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks1/year-2/atinuke-and-other-authors-information-text": {
+      "unit_title": "atinuke and other authors information text",
+      "topic_slug": "y2-english-reading-comprehension",
+      "confidence": "medium",
+      "reasoning": "Questions focus on understanding structure and purpose of information text sections, a reading comprehension skill.",
+      "subject": "English",
+      "year": "year-2",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks1/year-1/capital-letters": {
+      "unit_title": "capital letters",
+      "topic_slug": "none",
+      "confidence": "high",
+      "reasoning": "Questions are about handwriting formation of capital letters, not covered by any topic.",
+      "subject": "English",
+      "year": "year-1",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks1/year-2/capital-letters-and-numerals": {
+      "unit_title": "capital letters and numerals",
+      "topic_slug": "none",
+      "confidence": "high",
+      "reasoning": "Focus on letter formation and handwriting, not a curriculum topic here.",
+      "subject": "English",
+      "year": "year-2",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks1/year-2/florence-nightingale-and-mary-seacole-non-chronological-report": {
+      "unit_title": "florence nightingale and mary seacole non chronological report",
+      "topic_slug": "y2-english-reading-comprehension",
+      "confidence": "medium",
+      "reasoning": "Questions test comprehension of report structure and comparing/contrasting information.",
+      "subject": "English",
+      "year": "year-2",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks1/year-2/florence-nightingale-diary-writing": {
+      "unit_title": "florence nightingale diary writing",
+      "topic_slug": "none",
+      "confidence": "low",
+      "reasoning": "Questions mix text-type identification and writing process, not clearly matching any listed topic.",
+      "subject": "English",
+      "year": "year-2",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks1/year-1/following-and-writing-instructions-to-make-a-sandwich-reading-and-writing": {
+      "unit_title": "following and writing instructions to make a sandwich reading and writing",
+      "topic_slug": "y2-english-grammar-word-classes",
+      "confidence": "high",
+      "reasoning": "Questions focus on identifying verbs and matching word classes to definitions/examples.",
+      "subject": "English",
+      "year": "year-1",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks1/year-1/looking-after-pets-reading-and-writing": {
+      "unit_title": "looking after pets reading and writing",
+      "topic_slug": "y2-english-grammar-sentences",
+      "confidence": "medium",
+      "reasoning": "Questions test sentence punctuation types like commands and question marks.",
+      "subject": "English",
+      "year": "year-1",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks1/year-2/monster-pizza-instructions-writing": {
+      "unit_title": "monster pizza instructions writing",
+      "topic_slug": "none",
+      "confidence": "medium",
+      "reasoning": "Questions test recipe/instruction ordering and fronted adverbials, not covered by any topic.",
+      "subject": "English",
+      "year": "year-2",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks1/year-2/nocturnal-animals-non-chronological-report": {
+      "unit_title": "nocturnal animals non chronological report",
+      "topic_slug": "y2-english-grammar-sentences",
+      "confidence": "high",
+      "reasoning": "Questions test compound sentences and joining words, which is sentence-level grammar and punctuation.",
+      "subject": "English",
+      "year": "year-2",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks1/year-1/numerals-1-10": {
+      "unit_title": "numerals 1 10",
+      "topic_slug": "none",
+      "confidence": "high",
+      "reasoning": "Questions test handwriting grip and numeral/maths recognition, not covered by any English topic.",
+      "subject": "English",
+      "year": "year-1",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks1/year-2/pre-cursive-lower-case-letters-or-lower-case-letters-revision-487": {
+      "unit_title": "pre cursive lower case letters or lower case letters revision 487",
+      "topic_slug": "none",
+      "confidence": "high",
+      "reasoning": "Questions test handwriting formation concepts (ascenders/descenders), a skill not covered by any topic.",
+      "subject": "English",
+      "year": "year-2",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks1/year-2/pre-cursive-lower-case-letters-or-lower-case-letters-revision-488": {
+      "unit_title": "pre cursive lower case letters or lower case letters revision 488",
+      "topic_slug": "none",
+      "confidence": "high",
+      "reasoning": "Questions test letter formation/handwriting, not covered by any topic.",
+      "subject": "English",
+      "year": "year-2",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks1/year-2/sharing-our-opinions-agreeing-and-disagreeing": {
+      "unit_title": "sharing our opinions agreeing and disagreeing",
+      "topic_slug": "none",
+      "confidence": "high",
+      "reasoning": "Questions test spoken conversation and listening skills, not covered by any topic.",
+      "subject": "English",
+      "year": "year-2",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks1/year-1/speaking-and-listening": {
+      "unit_title": "speaking and listening",
+      "topic_slug": "none",
+      "confidence": "high",
+      "reasoning": "Questions test speaking and listening skills, not covered by any topic.",
+      "subject": "English",
+      "year": "year-1",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks1/year-1/speaking-loud-and-proud": {
+      "unit_title": "speaking loud and proud",
+      "topic_slug": "none",
+      "confidence": "high",
+      "reasoning": "Questions test public speaking and audience awareness, not covered by any topic.",
+      "subject": "English",
+      "year": "year-1",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks1/year-2/spoken-language-sharing-your-opinion": {
+      "unit_title": "spoken language sharing your opinion",
+      "topic_slug": "none",
+      "confidence": "high",
+      "reasoning": "Questions test spoken opinion-sharing and audience/performance vocabulary, not covered by any topic.",
+      "subject": "English",
+      "year": "year-2",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks1/year-2/suffixes": {
+      "unit_title": "suffixes",
+      "topic_slug": "y2-english-grammar-word-classes",
+      "confidence": "medium",
+      "reasoning": "Several questions ask about identifying nouns, aligning with word classes despite other spelling/suffix content.",
+      "subject": "English",
+      "year": "year-2",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks1/year-2/the-four-joins-489": {
+      "unit_title": "the four joins 489",
+      "topic_slug": "none",
+      "confidence": "high",
+      "reasoning": "Questions test cursive letter formation and joins, a handwriting skill not covered by any topic.",
+      "subject": "English",
+      "year": "year-2",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks1/year-2/the-four-joins-490": {
+      "unit_title": "the four joins 490",
+      "topic_slug": "none",
+      "confidence": "high",
+      "reasoning": "Questions test print letter formation, a handwriting skill not covered by any topic.",
+      "subject": "English",
+      "year": "year-2",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks1/year-1/writing-lower-case-letters-in-print": {
+      "unit_title": "writing lower case letters in print",
+      "topic_slug": "none",
+      "confidence": "high",
+      "reasoning": "Questions test letter recognition, alphabet order and writing direction, all handwriting skills not covered by any topic.",
+      "subject": "English",
+      "year": "year-1",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-4/ancient-greeks-or-anglo-saxons-non-chronological-report-327": {
+      "unit_title": "ancient greeks or anglo saxons non chronological report 327",
+      "topic_slug": "y3-english-grammar-conjunctions",
+      "confidence": "high",
+      "reasoning": "Questions focus on co-ordinating conjunctions, subordinate clauses, and complex/compound sentence structure.",
+      "subject": "English",
+      "year": "year-4",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-4/ancient-greeks-or-anglo-saxons-non-chronological-report-937": {
+      "unit_title": "ancient greeks or anglo saxons non chronological report 937",
+      "topic_slug": "y3-english-grammar-conjunctions",
+      "confidence": "high",
+      "reasoning": "Nearly identical to the other unit, testing conjunctions and clause types.",
+      "subject": "English",
+      "year": "year-4",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-6/ancient-islamic-civilisation-essay-writing": {
+      "unit_title": "ancient islamic civilisation essay writing",
+      "topic_slug": "none",
+      "confidence": "low",
+      "reasoning": "Mostly tests generic text purpose/audience/layout concepts not covered by any grammar topic, with only a stray fronted adverbial question.",
+      "subject": "English",
+      "year": "year-6",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-4/angler-fish-non-chronological-report": {
+      "unit_title": "angler fish non chronological report",
+      "topic_slug": "year-5-english-grammar-relative-clauses",
+      "confidence": "medium",
+      "reasoning": "Includes explicit identification of relative clauses alongside other grammar points, with relative clauses being the most specific and advanced skill tested.",
+      "subject": "English",
+      "year": "year-4",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-6/building-fluency-with-note-taking-choice-quotations-and-emphasis": {
+      "unit_title": "building fluency with note taking choice quotations and emphasis",
+      "topic_slug": "none",
+      "confidence": "high",
+      "reasoning": "Questions are entirely about handwriting and cursive joins, a skill not covered by any topic.",
+      "subject": "English",
+      "year": "year-6",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-5/building-handwriting-fluency-through-speed-choices-and-writing-dialogue": {
+      "unit_title": "building handwriting fluency through speed choices and writing dialogue",
+      "topic_slug": "none",
+      "confidence": "high",
+      "reasoning": "Questions test cursive handwriting joins, not covered by any English curriculum topic.",
+      "subject": "English",
+      "year": "year-5",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-6/charles-darwin-biographical-writing": {
+      "unit_title": "charles darwin biographical writing",
+      "topic_slug": "y3-english-grammar-fronted-adverbials",
+      "confidence": "medium",
+      "reasoning": "Several questions directly test identifying fronted adverbials, despite other unrelated formality/person questions.",
+      "subject": "English",
+      "year": "year-6",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-6/climate-emergency-journalistic-report-writing": {
+      "unit_title": "climate emergency journalistic report writing",
+      "topic_slug": "y6-english-punctuation-advanced",
+      "confidence": "medium",
+      "reasoning": "Questions test semi-colon placement and advanced punctuation for direct speech and parenthesis, matching the advanced punctuation topic.",
+      "subject": "English",
+      "year": "year-6",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-6/debating-important-topics": {
+      "unit_title": "debating important topics",
+      "topic_slug": "none",
+      "confidence": "high",
+      "reasoning": "Tests debating skills and acronyms, not covered by any English curriculum topic.",
+      "subject": "English",
+      "year": "year-6",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-3/developing-reading-preferences-in-year-3": {
+      "unit_title": "developing reading preferences in year 3",
+      "topic_slug": "none",
+      "confidence": "medium",
+      "reasoning": "Tests genre and series-fiction awareness/reading preferences, not comprehension inference or vocabulary in context.",
+      "subject": "English",
+      "year": "year-3",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-4/developing-reading-preferences-in-year-4": {
+      "unit_title": "developing reading preferences in year 4",
+      "topic_slug": "none",
+      "confidence": "medium",
+      "reasoning": "Tests non-fiction text types and reading-for-pleasure concepts, not comparisons or language/structure analysis.",
+      "subject": "English",
+      "year": "year-4",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-5/developing-reading-preferences-in-year-5": {
+      "unit_title": "developing reading preferences in year 5",
+      "topic_slug": "none",
+      "confidence": "medium",
+      "reasoning": "Tests publisher roles, empathy and character traits, not figurative language or summarising/retrieving.",
+      "subject": "English",
+      "year": "year-5",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-6/developing-reading-preferences-in-year-6": {
+      "unit_title": "developing reading preferences in year 6",
+      "topic_slug": "none",
+      "confidence": "medium",
+      "reasoning": "Tests text form/adaptation and character trait vocabulary, not etymology or inference/authorial intent.",
+      "subject": "English",
+      "year": "year-6",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-4/el-deafo-book-club": {
+      "unit_title": "el deafo book club",
+      "topic_slug": "none",
+      "confidence": "medium",
+      "reasoning": "Tests genre/form definitions like memoir and graphic novel features, not covered by any listed topic.",
+      "subject": "English",
+      "year": "year-4",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-5/front-desk-book-club": {
+      "unit_title": "front desk book club",
+      "topic_slug": "none",
+      "confidence": "medium",
+      "reasoning": "Tests memoir/fiction definitions and vocabulary like 'immigration', not matching comprehension or vocabulary-in-context skills specifically.",
+      "subject": "English",
+      "year": "year-5",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-5/front-desk-persuasive-letter-writing": {
+      "unit_title": "front desk persuasive letter writing",
+      "topic_slug": "y3-english-grammar-fronted-adverbials",
+      "confidence": "low",
+      "reasoning": "Multiple questions focus on fronted adverbials (cause and formal types), though other grammar areas also appear.",
+      "subject": "English",
+      "year": "year-5",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-3/further-study-of-the-four-joins": {
+      "unit_title": "further study of the four joins",
+      "topic_slug": "none",
+      "confidence": "high",
+      "reasoning": "Tests handwriting joins, not covered by any topic.",
+      "subject": "English",
+      "year": "year-3",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-4/getting-ready-to-debate": {
+      "unit_title": "getting ready to debate",
+      "topic_slug": "none",
+      "confidence": "high",
+      "reasoning": "Tests debating skills, not covered by any topic.",
+      "subject": "English",
+      "year": "year-4",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-6/girl-of-ink-and-stars-book-club": {
+      "unit_title": "girl of ink and stars book club",
+      "topic_slug": "y6-english-reading-inference",
+      "confidence": "medium",
+      "reasoning": "Questions test comprehension, perspective and inference about a complex narrative text.",
+      "subject": "English",
+      "year": "year-6",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-5/harriet-tubman-biographical-writing": {
+      "unit_title": "harriet tubman biographical writing",
+      "topic_slug": "y3-english-grammar-fronted-adverbials",
+      "confidence": "low",
+      "reasoning": "Includes a direct fronted adverbial definition question amid genre-feature questions.",
+      "subject": "English",
+      "year": "year-5",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-4/healthy-eating-adverts-persuasive-writing": {
+      "unit_title": "healthy eating adverts persuasive writing",
+      "topic_slug": "none",
+      "confidence": "medium",
+      "reasoning": "Tests persuasive writing/advert vocabulary concepts not covered by any specific topic.",
+      "subject": "English",
+      "year": "year-4",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-3/how-bees-make-honey-explanation-text": {
+      "unit_title": "how bees make honey explanation text",
+      "topic_slug": "none",
+      "confidence": "medium",
+      "reasoning": "Tests basic word class definitions (noun, adjective, adverb) not matching a specific topic.",
+      "subject": "English",
+      "year": "year-3",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-5/introduction-to-debate": {
+      "unit_title": "introduction to debate",
+      "topic_slug": "none",
+      "confidence": "high",
+      "reasoning": "Tests fact vs opinion and persuasive speaking skills, not covered by any topic.",
+      "subject": "English",
+      "year": "year-5",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-3/introduction-to-speeches": {
+      "unit_title": "introduction to speeches",
+      "topic_slug": "none",
+      "confidence": "high",
+      "reasoning": "Tests public speaking and speech features, a skill not covered by any topic.",
+      "subject": "English",
+      "year": "year-3",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-6/key-terminology-including-determiners-fronted-adverbials-and-parenthesis": {
+      "unit_title": "key terminology including determiners fronted adverbials and parenthesis",
+      "topic_slug": "year-4-english-grammar-noun-phrases-and-determiners",
+      "confidence": "low",
+      "reasoning": "Questions focus on noun phrases and word classes, closest match to noun phrases and determiners topic though the unit also touches on clauses and sentence types.",
+      "subject": "English",
+      "year": "year-6",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-3/king-tut-or-healthy-lifestyle-non-chronological-report-629": {
+      "unit_title": "king tut or healthy lifestyle non chronological report 629",
+      "topic_slug": "y3-english-grammar-fronted-adverbials",
+      "confidence": "low",
+      "reasoning": "One question explicitly tests fronted adverbials, though the rest cover unrelated non-fiction text features.",
+      "subject": "English",
+      "year": "year-3",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-3/king-tut-or-healthy-lifestyle-non-chronological-report-630": {
+      "unit_title": "king tut or healthy lifestyle non chronological report 630",
+      "topic_slug": "y3-english-grammar-fronted-adverbials",
+      "confidence": "low",
+      "reasoning": "Same quiz content as unit 629, one fronted adverbial question stands out as the clearest curriculum match.",
+      "subject": "English",
+      "year": "year-3",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-4/little-red-riding-hood-journalistic-report": {
+      "unit_title": "little red riding hood journalistic report",
+      "topic_slug": "none",
+      "confidence": "high",
+      "reasoning": "Questions test journalistic content knowledge (crimes, perpetrators, victims), not any English grammar, spelling, reading or writing skill listed.",
+      "subject": "English",
+      "year": "year-4",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-3/mummification-explanation-text": {
+      "unit_title": "mummification explanation text",
+      "topic_slug": "none",
+      "confidence": "medium",
+      "reasoning": "Questions test basic word class definitions (noun, adjective, adverb, verb) which are not specifically covered by any listed KS2 topic.",
+      "subject": "English",
+      "year": "year-3",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-3/oral-storytelling": {
+      "unit_title": "oral storytelling",
+      "topic_slug": "none",
+      "confidence": "high",
+      "reasoning": "Questions test speaking, listening and story retelling skills, not covered by any English topic in the list.",
+      "subject": "English",
+      "year": "year-3",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-6/pandas-or-antarctic-animals-non-chronological-report-773": {
+      "unit_title": "pandas or antarctic animals non chronological report 773",
+      "topic_slug": "year-4-english-grammar-noun-phrases-and-determiners",
+      "confidence": "low",
+      "reasoning": "The expanded noun phrase question aligns with noun phrases and determiners, though most questions test report structure knowledge.",
+      "subject": "English",
+      "year": "year-6",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-6/pandas-or-antarctic-animals-non-chronological-report-774": {
+      "unit_title": "pandas or antarctic animals non chronological report 774",
+      "topic_slug": "year-5-english-grammar-parenthesis-brackets-dashes-commas",
+      "confidence": "medium",
+      "reasoning": "A question directly asks about identifying parenthesis in sentences, matching this grammar topic.",
+      "subject": "English",
+      "year": "year-6",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-5/poetry-about-personal-experiences-reading": {
+      "unit_title": "poetry about personal experiences reading",
+      "topic_slug": "year-5-english-reading-figurative-language-and-authorial-choices",
+      "confidence": "medium",
+      "reasoning": "Questions test poetic devices, similes and verse structure, matching figurative language and authorial choices.",
+      "subject": "English",
+      "year": "year-5",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-6/polar-regions-essay-writing": {
+      "unit_title": "polar regions essay writing",
+      "topic_slug": "y3-english-grammar-fronted-adverbials",
+      "confidence": "low",
+      "reasoning": "Most questions focus on fronted adverbials though some also test relative clauses and parenthesis.",
+      "subject": "English",
+      "year": "year-6",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-3/reading-and-performing-scripts": {
+      "unit_title": "reading and performing scripts",
+      "topic_slug": "none",
+      "confidence": "high",
+      "reasoning": "Questions test play-script conventions (stage directions, scene headings) which no listed topic covers.",
+      "subject": "English",
+      "year": "year-3",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-6/review-and-revision-of-all-taught-spelling": {
+      "unit_title": "review and revision of all taught spelling",
+      "topic_slug": "none",
+      "confidence": "medium",
+      "reasoning": "Questions test phoneme sounds and word meaning/origin recognition, not matching a specific spelling or vocabulary topic precisely.",
+      "subject": "English",
+      "year": "year-6",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-6/review-including-word-class-sentence-types-tense-commas-and-colons": {
+      "unit_title": "review including word class sentence types tense commas and colons",
+      "topic_slug": "y3-english-grammar-conjunctions",
+      "confidence": "medium",
+      "reasoning": "Focus on compound sentences and co-ordinating conjunctions aligns with conjunctions and clauses topic.",
+      "subject": "English",
+      "year": "year-6",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-5/school-uniform-persuasive-letter-writing": {
+      "unit_title": "school uniform persuasive letter writing",
+      "topic_slug": "none",
+      "confidence": "medium",
+      "reasoning": "Tests persuasive letter structure and techniques, a writing skill not covered by any listed grammar/reading topic.",
+      "subject": "English",
+      "year": "year-5",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-6/sherlock-holmes-descriptive-and-letter-writing": {
+      "unit_title": "sherlock holmes descriptive and letter writing",
+      "topic_slug": "none",
+      "confidence": "medium",
+      "reasoning": "Tests vocabulary definitions and first-person narrative voice, not matching any specific listed topic.",
+      "subject": "English",
+      "year": "year-6",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-4/speeches": {
+      "unit_title": "speeches",
+      "topic_slug": "none",
+      "confidence": "high",
+      "reasoning": "Tests persuasive speech features and audience engagement, a speaking skill not covered by any topic.",
+      "subject": "English",
+      "year": "year-4",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-5/successful-speeches": {
+      "unit_title": "successful speeches",
+      "topic_slug": "none",
+      "confidence": "high",
+      "reasoning": "Tests persuasive speech concepts and emotive vocabulary, not covered by any grammar/reading/spelling topic.",
+      "subject": "English",
+      "year": "year-5",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-3/swallows-kiss-book-club": {
+      "unit_title": "swallows kiss book club",
+      "topic_slug": "y3-english-reading-comprehension",
+      "confidence": "medium",
+      "reasoning": "Questions test comprehension and inference of a narrative text (author, perspective, character relationships, true/false facts).",
+      "subject": "English",
+      "year": "year-3",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-6/talking-transitions": {
+      "unit_title": "talking transitions",
+      "topic_slug": "none",
+      "confidence": "high",
+      "reasoning": "Questions test PSHE/emotional skills around transitions and active listening, not an English curriculum skill.",
+      "subject": "English",
+      "year": "year-6",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-5/the-amazon-rainforest-essay-writing": {
+      "unit_title": "the amazon rainforest essay writing",
+      "topic_slug": "y3-english-grammar-fronted-adverbials",
+      "confidence": "medium",
+      "reasoning": "Multiple questions focus on identifying and using fronted adverbials, though other grammar points also appear.",
+      "subject": "English",
+      "year": "year-5",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-5/the-aye-aye-or-wild-cats-non-chronological-report-504": {
+      "unit_title": "the aye aye or wild cats non chronological report 504",
+      "topic_slug": "year-5-english-grammar-relative-clauses",
+      "confidence": "medium",
+      "reasoning": "Includes a direct question on identifying relative pronouns alongside other grammar/comma content.",
+      "subject": "English",
+      "year": "year-5",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-5/the-aye-aye-or-wild-cats-non-chronological-report-506": {
+      "unit_title": "the aye aye or wild cats non chronological report 506",
+      "topic_slug": "year-5-english-grammar-relative-clauses",
+      "confidence": "medium",
+      "reasoning": "Duplicate of unit 504 with same relative pronoun and comma-function questions.",
+      "subject": "English",
+      "year": "year-5",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-3/the-day-the-crayons-quit-reading-and-writing-persuasive-letters": {
+      "unit_title": "the day the crayons quit reading and writing persuasive letters",
+      "topic_slug": "none",
+      "confidence": "high",
+      "reasoning": "Tests basic literary terms (author, illustrator, plot, character) and communication forms, not matched by any specific topic.",
+      "subject": "English",
+      "year": "year-3",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-4/the-digestive-system-explanation-writing": {
+      "unit_title": "the digestive system explanation writing",
+      "topic_slug": "y3-english-grammar-conjunctions",
+      "confidence": "low",
+      "reasoning": "Includes a question on co-ordinating conjunctions among broader punctuation and vocabulary questions.",
+      "subject": "English",
+      "year": "year-4",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-6/the-empire-windrush-diary-writing": {
+      "unit_title": "the empire windrush diary writing",
+      "topic_slug": "y3-english-reading-comprehension",
+      "confidence": "medium",
+      "reasoning": "Questions test recall and inference of story events/characters, matching reading comprehension skills.",
+      "subject": "English",
+      "year": "year-6",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-6/the-empire-windrush-essay-writing": {
+      "unit_title": "the empire windrush essay writing",
+      "topic_slug": "year-4-english-reading-language-structure-and-presentation",
+      "confidence": "medium",
+      "reasoning": "Questions focus on text purpose, audience and layout, which relate to language, structure and presentation.",
+      "subject": "English",
+      "year": "year-6",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-3/the-portia-spider-non-chronological-report": {
+      "unit_title": "the portia spider non chronological report",
+      "topic_slug": "year-4-english-grammar-noun-phrases-and-determiners",
+      "confidence": "low",
+      "reasoning": "Questions on punctuation of expanded noun phrases and word class definitions relate to noun phrase grammar.",
+      "subject": "English",
+      "year": "year-3",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-3/the-stone-age-non-chronological-report": {
+      "unit_title": "the stone age non chronological report",
+      "topic_slug": "y3-english-grammar-fronted-adverbials",
+      "confidence": "medium",
+      "reasoning": "A key question explicitly tests understanding of fronted adverbials, aligning with that topic.",
+      "subject": "English",
+      "year": "year-3",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "english/ks2/year-5/the-titanic-journalistic-report-writing": {
+      "unit_title": "the titanic journalistic report writing",
+      "topic_slug": "y3-english-grammar-conjunctions",
+      "confidence": "medium",
+      "reasoning": "Questions test sentence types (simple, compound, complex) which relate to conjunctions and clause structure.",
+      "subject": "English",
+      "year": "year-5",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "geography/ks1/year-1/local-area-how-do-we-read-maps-and-plan-routes": {
+      "unit_title": "local area how do we read maps and plan routes",
+      "topic_slug": "year-1-geography-comparing-localities-physical-and-human-features",
+      "confidence": "medium",
+      "reasoning": "Questions focus on map symbols, routes, human/physical features, and fieldwork observation of a local area.",
+      "subject": "Geography",
+      "year": "year-1",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "geography/ks2/year-6/around-the-world-in-80-days-what-have-we-learnt-about-our-world": {
+      "unit_title": "around the world in 80 days what have we learnt about our world",
+      "topic_slug": "year-3-geography-trade-and-the-global-economy",
+      "confidence": "medium",
+      "reasoning": "Questions focus on natural resources, renewables, and economy, matching trade and global economy content.",
+      "subject": "Geography",
+      "year": "year-6",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "geography/ks2/year-4/europe-how-diverse-are-its-landscapes-and-places": {
+      "unit_title": "europe how diverse are its landscapes and places",
+      "topic_slug": "none",
+      "confidence": "low",
+      "reasoning": "Questions test basic continent/ocean knowledge and cartography terms not covered by any specific topic.",
+      "subject": "Geography",
+      "year": "year-4",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "geography/ks2/year-4/europe-what-is-it-like-to-live-in-northern-italy": {
+      "unit_title": "europe what is it like to live in northern italy",
+      "topic_slug": "year-3-geography-settlements-and-land-use",
+      "confidence": "medium",
+      "reasoning": "Questions about cities, tourism impacts, and land use fit settlements and land use.",
+      "subject": "Geography",
+      "year": "year-4",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "geography/ks2/year-5/north-and-south-america-how-diverse-are-their-places-and-landscapes": {
+      "unit_title": "north and south america how diverse are their places and landscapes",
+      "topic_slug": "year-4-geography-climate-zones-and-biomes",
+      "confidence": "medium",
+      "reasoning": "Questions test latitude, climate, and weather concepts central to climate zones and biomes.",
+      "subject": "Geography",
+      "year": "year-5",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "geography/ks2/year-6/time-zones-can-we-time-travel-on-planet-earth": {
+      "unit_title": "time zones can we time travel on planet earth",
+      "topic_slug": "year-6-geography-fieldwork-and-geographical-skills",
+      "confidence": "medium",
+      "reasoning": "Questions test globe, longitude, and geographic coordinate skills, matching fieldwork and geographical skills.",
+      "subject": "Geography",
+      "year": "year-6",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "history/ks1/year-1/traditional-stories-what-do-they-tell-us-about-the-distant-past-1756": {
+      "unit_title": "traditional stories what do they tell us about the distant past 1756",
+      "topic_slug": "year-2-history-significant-individuals-in-the-past",
+      "confidence": "medium",
+      "reasoning": "Questions focus on the actions and life of Aethelflaed and Alfred the Great, significant historical individuals.",
+      "subject": "History",
+      "year": "year-1",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "history/ks1/year-1/traditional-stories-what-do-they-tell-us-about-the-distant-past-1757": {
+      "unit_title": "traditional stories what do they tell us about the distant past 1757",
+      "topic_slug": "year-2-history-significant-individuals-in-the-past",
+      "confidence": "medium",
+      "reasoning": "Questions focus on the actions of Robert the Bruce, a significant historical individual.",
+      "subject": "History",
+      "year": "year-1",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "history/ks2/year-6/significant-turning-points-how-did-experiences-differ-during-ww2": {
+      "unit_title": "significant turning points how did experiences differ during ww2",
+      "topic_slug": "none",
+      "confidence": "high",
+      "reasoning": "WW2 history is not covered by any listed KS2 topic, which stops at Anglo-Saxons/Vikings and ancient civilisations.",
+      "subject": "History",
+      "year": "year-6",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "history/ks2/year-6/significant-turning-points-in-what-ways-did-britain-change-after-ww2": {
+      "unit_title": "significant turning points in what ways did britain change after ww2",
+      "topic_slug": "none",
+      "confidence": "high",
+      "reasoning": "Post-WW2 British social history (1950s-60s) is not covered by any listed KS2 topic.",
+      "subject": "History",
+      "year": "year-6",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "maths/ks2/year-6/area-perimeter-position-and-direction": {
+      "unit_title": "area perimeter position and direction",
+      "topic_slug": "year-4-maths-multiplication-and-division",
+      "confidence": "medium",
+      "reasoning": "Questions test doubling, multiplying, dividing, and multiples rather than area, perimeter, or position/direction.",
+      "subject": "Maths",
+      "year": "year-6",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "maths/ks3/year-9/calculator-functionality": {
+      "unit_title": "calculator functionality",
+      "topic_slug": "year-9-maths-algebra-quadratics-and-simultaneous-equations",
+      "confidence": "medium",
+      "reasoning": "Questions cover quadratic equations, identities and solving equations, matching quadratics/simultaneous equations topic.",
+      "subject": "Maths",
+      "year": "year-9",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "maths/ks3/year-9/maths-and-the-environment": {
+      "unit_title": "maths and the environment",
+      "topic_slug": "y7-maths-statistics-data",
+      "confidence": "medium",
+      "reasoning": "Majority of questions ask for range, median, mode and mean of a data set.",
+      "subject": "Maths",
+      "year": "year-9",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "maths/ks3/year-9/maths-in-the-workplace": {
+      "unit_title": "maths in the workplace",
+      "topic_slug": "year-8-maths-geometry-pythagoras-theorem",
+      "confidence": "high",
+      "reasoning": "Most questions apply Pythagoras' theorem to find missing side lengths.",
+      "subject": "Maths",
+      "year": "year-9",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "maths/ks3/year-9/thinking-critically-with-maths": {
+      "unit_title": "thinking critically with maths",
+      "topic_slug": "none",
+      "confidence": "low",
+      "reasoning": "Questions span probability, averages, and percentages evenly with no single dominant topic.",
+      "subject": "Maths",
+      "year": "year-9",
+      "mapped_by": "oak-map-units-deep"
+    },
+    "science/ks2/year-6/climate-change-and-sustainability-non-statutory": {
+      "unit_title": "climate change and sustainability non statutory",
+      "topic_slug": "none",
+      "confidence": "high",
+      "reasoning": "Climate change, fossil fuels and sustainability are not covered by any listed KS2 science topic.",
+      "subject": "Science",
+      "year": "year-6",
+      "mapped_by": "oak-map-units-deep"
     }
   }
 }

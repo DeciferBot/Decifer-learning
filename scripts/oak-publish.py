@@ -123,7 +123,11 @@ def dsn() -> str:
 # though they are multiple-choice.
 _MULTI_REQUIRED = re.compile(
     r"\b(two|three|four|both|all that apply|all of the|select all|tick all|"
-    r"choose all|which \w+ are correct)\b", re.I)
+    # "which of the statements below ARE correct" — plural phrasing promises
+    # several right answers, and our screen offers one. The answers we would
+    # show are safe (the extra right ones are never displayed), but the wording
+    # itself tells the child to look for more than one. Words over children.
+    r"choose all|which [^?]{0,60}are (correct|true|right)|are correct\?|are true\?)\b", re.I)
 
 # Wordings that point at styling we cannot show. Oak writes emphasis as **stars**,
 # which our quiz screen would print literally, so clean() removes it — and that turns
@@ -674,6 +678,8 @@ def main() -> int:
 
     cur.execute("SELECT question_text, correct_answer FROM quiz_questions")
     seen = {norm(r["question_text"]) + "|" + norm(r["correct_answer"]) for r in cur.fetchall()}
+    cur.execute("SELECT COUNT(*) AS n FROM quiz_questions WHERE generator_version = 'oak-publish-v2'")
+    already_v2 = cur.fetchone()["n"]
 
     cur.execute("""
         SELECT lesson_slug, unit_slug, key_stage, subject, oak_year_slug,
@@ -714,7 +720,18 @@ def main() -> int:
             reasons["examined-and-has-no-home-here"] += 1
             continue
 
-        if (entry.get("confidence") or "medium").lower() not in allowed_confidence:
+        confidence = (entry.get("confidence") or "medium").lower()
+        # Two kinds of match, two bars. A name-based match rests on the unit's
+        # title, so it must be highly sure. A deep match was judged on the unit's
+        # own quiz questions — stronger evidence — so its "medium" is worth more
+        # than a name-based "medium", and is accepted. "Low" is never enough:
+        # low from either pass means even the model reading the questions could
+        # not tell where they belong, and guessing is how questions end up in
+        # front of the wrong children.
+        deep = entry.get("mapped_by") == "oak-map-units-deep"
+        acceptable = (confidence in allowed_confidence
+                      or (deep and confidence in ("high", "medium")))
+        if not acceptable:
             reasons["match-to-a-topic-not-sure-enough"] += 1
             continue
 
@@ -864,9 +881,22 @@ def main() -> int:
         VALUES (%s,%s,%s,%s,%s,%s,%s::jsonb,%s,%s,%s,%s,%s::jsonb,%s::jsonb,%s::jsonb,
                 100.0,'published',%s::jsonb,'oak-publish-v2','oak-authoritative',
                 now(), now())
+        ON CONFLICT DO NOTHING
     """, to_write, page_size=200)
+    # ON CONFLICT DO NOTHING, because the database has its own duplicate rule from
+    # the July clean-up: no two questions may share wording + answer + wrong
+    # answers. Two DIFFERENT picture questions with the same wording collide on it
+    # — their stored answers are just the letters A to D, so to the rule they look
+    # identical even though their pictures differ. One such collision used to
+    # abort the entire batch and nothing at all was written. Now the colliding
+    # question is quietly dropped and everything else lands; the count below is
+    # measured from the database, not assumed.
+    cur.execute("SELECT COUNT(*) AS n FROM quiz_questions WHERE generator_version = 'oak-publish-v2'")
+    before_commit = cur.fetchone()["n"]
     conn.commit()
-    print(f"\nWrote {len(to_write)} live questions.")
+    skipped_by_db = len(to_write) - (before_commit - already_v2)
+    print(f"\nWrote {before_commit - already_v2} live questions."
+          + (f" ({skipped_by_db} dropped by the database's duplicate rule.)" if skipped_by_db else ""))
     return 0
 
 
