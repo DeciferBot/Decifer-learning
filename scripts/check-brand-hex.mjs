@@ -29,6 +29,7 @@ const ALLOW = [
   /components\/explore\//,      // 3D / canvas visualisations
   /components\/ui\/DeciferMark\.tsx$/,   // the canonical mark colour lives here once
   /components\/ui\/DeciferAvatar\.tsx$/, // avatar palette
+  /components\/ui\/Deci\.tsx$/, // Deci the navigator — illustration, drawn in code
   /lib\/avatar-catalogue\.ts$/,
   /lib\/og\.tsx$/,
   /lib\/(engagement-emails|parent-notify|parent-verification|pipeline-alert)\.ts$/,

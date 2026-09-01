@@ -43,12 +43,14 @@ export function BottomNav() {
               href={tab.href}
               aria-label={tab.label}
               aria-current={active ? 'page' : undefined}
-              className={`flex min-h-[56px] min-w-[48px] flex-1 flex-col items-center justify-center gap-0.5 py-2 text-center transition-colors ${
-                active ? 'text-brand-700' : 'text-muted hover:text-ink'
+              className={`flex min-h-[56px] min-w-[48px] flex-1 flex-col items-center justify-center gap-0.5 py-1.5 text-center transition-[color,transform] duration-fast ease-out active:scale-95 motion-reduce:transition-none motion-reduce:active:scale-100 ${
+                active ? 'text-sea-deep' : 'text-muted hover:text-ink'
               }`}
             >
-              <tab.Icon size={22} aria-hidden />
-              <span className={`text-[10px] font-semibold leading-tight ${active ? 'text-brand-700' : ''}`}>
+              <span className={`flex h-8 w-12 items-center justify-center rounded-full transition-colors duration-fast ${active ? 'bg-sea-soft' : ''}`}>
+                <tab.Icon size={22} aria-hidden />
+              </span>
+              <span className={`text-[10px] leading-tight ${active ? 'font-bold text-sea-deep' : 'font-semibold'}`}>
                 {tab.label}
               </span>
             </Link>
