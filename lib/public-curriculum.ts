@@ -497,8 +497,11 @@ export async function getPublicTopicDetail(
 //
 // Same snapshot, same published-only questions, same public-answer trade-off.
 
-/** A topic needs at least this many usable questions before /try will offer it. */
-export const TRY_MIN_QUESTIONS = 3
+/**
+ * A topic needs a full set of usable questions before /try will offer it. The
+ * page promises five, so a topic with three does not qualify.
+ */
+export const TRY_MIN_QUESTIONS = TRY_QUESTION_COUNT
 
 export type PublicTrySubject = { name: string; slug: string; colourToken: string }
 

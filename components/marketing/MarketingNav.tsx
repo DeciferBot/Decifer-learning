@@ -69,11 +69,14 @@ export function MarketingNav() {
 
         {/* Section links — only once there is room for them to read as a row */}
         <div className="hidden items-center gap-1 lg:flex">
-          {SECTION_LINKS.slice(0, 5).map((l) => (
+          {/* Four fit beside the logo and the action buttons at lg (1024px);
+              the fifth only once xl gives it room. Five at lg overflowed the
+              bar, since every control here is shrink-0 and nowrap. */}
+          {SECTION_LINKS.slice(0, 5).map((l, i) => (
             <Link
               key={l.href}
               href={l.href}
-              className="flex h-12 items-center whitespace-nowrap rounded-lg px-3 text-sm font-medium text-muted transition-colors hover:bg-black/5 hover:text-ink"
+              className={`${i >= 4 ? 'hidden xl:flex' : 'flex'} h-12 items-center whitespace-nowrap rounded-lg px-3 text-sm font-medium text-muted transition-colors hover:bg-black/5 hover:text-ink`}
             >
               {l.label}
             </Link>
