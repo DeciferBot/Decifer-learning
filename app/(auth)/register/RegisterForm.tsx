@@ -28,12 +28,11 @@ import {
 // (components/parent/LinkChildForm.tsx). The student path is the same four
 // things for the student: year, name, email, password.
 //
-// Parental consent is no longer asked for on this form. It is handled after
-// sign-up by the existing soft gate (lib/parental-consent.ts): a self-registered
-// student gets seven days of full access, the ConsentBanner asks them to add a
-// parent's email, and quizzes pause after that until a parent confirms or
-// links the account. The consent lives where the child can already see what it
-// is for, not on the first screen they meet.
+// A student does not need parental consent to learn. There is no consent
+// gate anywhere in the product any more — no checkbox here, no soft gate on
+// quizzes, no parent-verification email. Only a parent-created account (the
+// recommended path) links a parent, and that link is informational, not a
+// requirement to use Decifer.
 type Step = 'choose' | SelfRegisterableRole
 
 const INPUT =

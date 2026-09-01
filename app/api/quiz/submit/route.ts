@@ -8,7 +8,6 @@ import { sm2 } from '@/lib/sm2'
 import { rarityForRoundResult, type Rarity } from '@/lib/cards'
 import { checkAndUpdateMilestone } from '@/lib/vault/status'
 import { recordLearningEvent } from '@/lib/learning-events'
-import { getConsentGate, CONSENT_GATE_RESPONSE } from '@/lib/parental-consent'
 import { notifyParentBigMoment } from '@/lib/parent-notify'
 import { applyRoundToStreak } from '@/lib/streak-server'
 
@@ -109,13 +108,6 @@ export async function POST(req: Request) {
     }
   }
   // ── End screen-time enforcement ───────────────────────────────────────────
-
-  // ── Parental-consent soft gate (Children's Code) — quizzes pause when the
-  // grace window lapses with no parent confirmation; Learn stays open. ───────
-  const consentGate = await getConsentGate(user.id)
-  if (consentGate.state === 'gated') {
-    return NextResponse.json(CONSENT_GATE_RESPONSE, { status: 422 })
-  }
 
   // ── Server-side verification — never trust the client's wasCorrect ────────
   const scoredAnswers = scoreAnswers(answers, correctAnswers)

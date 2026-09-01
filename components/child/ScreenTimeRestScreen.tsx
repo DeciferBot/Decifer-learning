@@ -1,5 +1,5 @@
 // Friendly "good place to stop" screen shown in place of a quiz once the
-// parent's daily screen-time limit is reached. Mirrors ConsentGateScreen:
+// parent's daily screen-time limit is reached:
 // Learn pages stay open, only quiz surfaces are replaced. Positive framing is
 // the Children's-Code-endorsed nudge — we celebrate the session rather than
 // throwing an error after the child has done the work.

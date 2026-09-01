@@ -14,8 +14,6 @@ const PUBLIC_EXACT = new Set<string>([
   // Marketing + legal pages — must be reachable without a session.
   '/pricing', '/subjects', '/how-it-works',
   '/legal/terms', '/legal/privacy', '/legal/privacy-for-kids',
-  // Parent/guardian consent confirmation — opened from an email, no session.
-  '/verify-parent',
   // Stripe webhook — Stripe's servers carry no session cookie; the route
   // authenticates via signature verification (STRIPE_WEBHOOK_SECRET).
   '/api/stripe/webhook',
@@ -28,8 +26,6 @@ const PUBLIC_EXACT = new Set<string>([
 // Help pages are public so unauthenticated visitors can read guides linked from the homepage.
 // Vercel Cron routes carry no session cookie — they self-authenticate via the CRON_SECRET
 // bearer header inside each handler, so the middleware must NOT redirect them to /login.
-// /api/parent-verification is called right after child signup, before any
-// session exists (email-confirmation flow), so it must also stay public.
 // /curriculum/* is the public, indexable curriculum browse surface — published
 // topic titles only, no gated content — so crawlers and logged-out visitors must
 // reach it without a session.
@@ -51,7 +47,7 @@ const PUBLIC_EXACT = new Set<string>([
 // email gate is enforced inside lib/skills-check/server.ts, not by auth.
 const PUBLIC_PREFIX = [
   '/auth/', '/_next/', '/help', '/curriculum', '/guides', '/sitemap', '/robots', '/legal/',
-  '/api/cron/', '/api/parent-verification/', '/join', '/live/', '/api/live/', '/blitz',
+  '/api/cron/', '/join', '/live/', '/api/live/', '/blitz',
   '/games', '/api/downtime/', '/skills-check', '/api/skills-check/',
   '/reasoning', '/api/reasoning/',
 ]

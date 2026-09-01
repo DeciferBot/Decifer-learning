@@ -5,9 +5,7 @@ import { getCurrentProfile } from '@/lib/profile'
 import { prisma } from '@/lib/prisma'
 import { QuizShell, type QuizQuestion } from '@/components/quiz/QuizShell'
 import { GuardianBattleHeader } from '@/components/quiz/GuardianBattleHeader'
-import { getConsentGate } from '@/lib/parental-consent'
 import { getGuardianGate } from '@/lib/guardian'
-import { ConsentGateScreen } from '@/components/child/ConsentGateScreen'
 
 const GUARDIAN_QUESTION_COUNT = 15
 
@@ -37,12 +35,6 @@ export default async function GuardianPage({ params }: { params: { zoneId: strin
 
   const profile = await getCurrentProfile(supabase, user.id)
   if (!profile?.year_group_id) redirect('/dashboard')
-
-  // Parental-consent soft gate — the Guardian boss is a quiz surface too.
-  const consentGate = await getConsentGate(user.id)
-  if (consentGate.state === 'gated') {
-    return <ConsentGateScreen />
-  }
 
   // Zone must belong to this child's year group
   const zone = await prisma.zone.findUnique({
