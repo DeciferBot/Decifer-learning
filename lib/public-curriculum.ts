@@ -97,7 +97,31 @@ export type PublicTopicDetail = {
    * Computed from the lesson list, so it corrects itself if the content diverges.
    */
   canonicalPath: string
+  /**
+   * Up to TRY_QUESTION_COUNT real published questions from this topic, answers
+   * included, for the try-before-signup panel.
+   *
+   * Yes, this puts correct answers in public HTML. That is the deliberate trade:
+   * until Sept 2026 a stranger could not see a single question without creating
+   * an account, and 17 of 29 registered children never signed in even once. Five
+   * questions out of a bank of 11,000 is a sample, and the topic pages are the
+   * surface people already arrive on.
+   */
+  tryQuestions: PublicTryQuestion[]
 }
+
+/** One question offered on a public page. Hints are NOT included. */
+export type PublicTryQuestion = {
+  id: string
+  question: string
+  /** correct answer plus distractors, already shuffled, stable per build. */
+  options: string[]
+  answer: string
+  explanation: string | null
+}
+
+/** How many questions a logged-out visitor may try per topic. */
+export const TRY_QUESTION_COUNT = 5
 
 function yearNumber(label: string): number {
   const m = label.match(/(\d+)/)
@@ -219,13 +243,36 @@ type TopicRow = {
 type Snapshot = {
   topics: TopicRow[]
   lessonsByTopic: Map<string, string[]>
+  tryByTopic: Map<string, PublicTryQuestion[]>
+}
+
+// LaTeX is fine: the public panel renders question text through MathText, the
+// same way the signed-in quiz does. Markdown tables are not, so a question
+// carrying one is skipped rather than shown as a row of raw pipes.
+const UNRENDERABLE_PUBLICLY = /\|/
+
+// Deterministic shuffle. Math.random() would reorder the options on every
+// prerender, so two builds of the same page would differ for no reason.
+function seededShuffle<T>(items: T[], seed: string): T[] {
+  let h = 2166136261
+  for (let i = 0; i < seed.length; i++) {
+    h ^= seed.charCodeAt(i)
+    h = Math.imul(h, 16777619)
+  }
+  const out = [...items]
+  for (let i = out.length - 1; i > 0; i--) {
+    h = Math.imul(h ^ (h >>> 15), 2246822507)
+    const j = Math.abs(h) % (i + 1)
+    ;[out[i], out[j]] = [out[j], out[i]]
+  }
+  return out
 }
 
 const SNAPSHOT_TTL_MS = 60_000
 let snapshotCache: { at: number; data: Promise<Snapshot> } | null = null
 
 async function loadSnapshot(): Promise<Snapshot> {
-  const [topics, units] = await withDbRetry(() => Promise.all([
+  const [topics, units, questions] = await withDbRetry(() => Promise.all([
     prisma.topic.findMany({
       where: { is_published: true, subject: { slug: { in: [...PUBLIC_SUBJECT_SLUGS] } } },
       orderBy: { order_index: 'asc' },
@@ -242,6 +289,21 @@ async function loadSnapshot(): Promise<Snapshot> {
       orderBy: { order_index: 'asc' },
       select: { topic_id: true, title: true },
     }),
+    // Only published questions ever leave this file, same rule as everywhere
+    // else. 'sprout' is the gentlest tier, which is what a stranger should meet
+    // first. Ordered by id so every build picks the same five.
+    prisma.quizQuestion.findMany({
+      where: { status: 'published', tier: 'sprout' },
+      orderBy: { id: 'asc' },
+      select: {
+        id: true,
+        topic_id: true,
+        question_text: true,
+        correct_answer: true,
+        distractors: true,
+        explanation: true,
+      },
+    }),
   ]))
 
   const lessonsByTopic = new Map<string, string[]>()
@@ -252,8 +314,37 @@ async function loadSnapshot(): Promise<Snapshot> {
     else lessonsByTopic.set(u.topic_id, [u.title])
   }
 
+  const tryByTopic = new Map<string, PublicTryQuestion[]>()
+  for (const q of questions) {
+    if (!q.topic_id) continue
+    const kept = tryByTopic.get(q.topic_id)
+    if (kept && kept.length >= TRY_QUESTION_COUNT) continue
+    if (UNRENDERABLE_PUBLICLY.test(q.question_text)) continue
+
+    // A question with no distractors has nothing to choose between.
+    const distractors = Array.isArray(q.distractors)
+      ? (q.distractors as unknown[]).filter((d): d is string => typeof d === 'string' && d.length > 0)
+      : []
+    if (distractors.length < 2) continue
+    if (distractors.some((d) => UNRENDERABLE_PUBLICLY.test(d))) continue
+    if (UNRENDERABLE_PUBLICLY.test(q.correct_answer)) continue
+    // A distractor equal to the answer would make the question unanswerable.
+    if (distractors.includes(q.correct_answer)) continue
+
+    const entry: PublicTryQuestion = {
+      id: q.id,
+      question: q.question_text,
+      options: seededShuffle([q.correct_answer, ...distractors], q.id),
+      answer: q.correct_answer,
+      explanation: q.explanation ?? null,
+    }
+    if (kept) kept.push(entry)
+    else tryByTopic.set(q.topic_id, [entry])
+  }
+
   return {
     lessonsByTopic,
+    tryByTopic,
     topics: topics.map((t) => ({
       id: t.id,
       title: t.title,
@@ -346,7 +437,7 @@ export async function getPublicTopicDetail(
   topicSlug: string,
 ): Promise<PublicTopicDetail | null> {
   if (!PUBLIC_SUBJECT_SLUGS.includes(subjectSlug as PublicSubjectSlug)) return null
-  const { topics, lessonsByTopic } = await getSnapshot()
+  const { topics, lessonsByTopic, tryByTopic } = await getSnapshot()
 
   const siblings = topics
     .filter((t) => t.subjectSlug === subjectSlug && t.yearLabel === yearLabel)
@@ -395,5 +486,6 @@ export async function getPublicTopicDetail(
     previousTopic: link(siblings[idx - 1]),
     nextTopic: link(siblings[idx + 1]),
     canonicalPath,
+    tryQuestions: tryByTopic.get(topic.id) ?? [],
   }
 }
