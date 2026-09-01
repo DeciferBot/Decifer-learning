@@ -8,7 +8,7 @@ import type { NodeState } from '@/components/world-map/TopicNode'
 import { MapFold, Swords, ArrowRight, Gamepad } from '@/components/ui/icons'
 import Link from 'next/link'
 
-export const metadata = { title: 'World Map' }
+export const metadata = { title: 'Subjects' }
 
 export const revalidate = 60
 
@@ -76,8 +76,10 @@ export default async function WorldMapPage() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="font-heading text-2xl font-bold text-ink">World Map</h1>
-        <p className="mt-1 text-sm text-muted">Your learning adventure</p>
+        {/* Called "Subjects" because that is what it lists, and because the
+            tile that brings a child here says Subjects too. */}
+        <h1 className="font-heading text-2xl font-bold text-ink">Subjects</h1>
+        <p className="mt-1 text-sm text-muted">Everything you are learning this year</p>
       </div>
 
       {/* Decifer Live — Kahoot-style quiz battle */}
@@ -112,8 +114,8 @@ export default async function WorldMapPage() {
       {zonesWithContent.length === 0 && (
         <div className="rounded-2xl border border-black/5 bg-surface px-5 py-10 text-center shadow-sm">
           <div className="flex justify-center"><MapFold className="w-8 h-8 text-muted" aria-hidden /></div>
-          <p className="mt-3 font-heading text-base font-bold text-ink">Your world map is being built</p>
-          <p className="mt-1 text-sm text-muted">Check back soon. Your zones will appear here.</p>
+          <p className="mt-3 font-heading text-base font-bold text-ink">Your subjects are being built</p>
+          <p className="mt-1 text-sm text-muted">Check back soon. They will appear here.</p>
         </div>
       )}
 
