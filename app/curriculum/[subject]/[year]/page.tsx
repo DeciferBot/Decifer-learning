@@ -13,6 +13,8 @@ import { notFound } from 'next/navigation'
 import { getPublicYearDetail, getPublicYearParams } from '@/lib/public-curriculum'
 import { jsonLd } from '@/lib/json-ld'
 import { MarketingNav } from '@/components/marketing/MarketingNav'
+import { Card, CardLink, Masonry, MasonryItem } from '@/components/ui/Surface'
+import { ButtonLink } from '@/components/ui/Button'
 import { inkOn } from '@/lib/subject-colour'
 
 export const revalidate = 86400
@@ -111,52 +113,58 @@ export default async function YearCurriculumPage({ params }: Props) {
           </p>
         </header>
 
-        <ol className="mt-12 space-y-3">
-          {detail.topics.map((topic, i) => (
-            <li
-              key={topic.title}
-              className="rounded-2xl border border-black/5 bg-surface p-5 shadow-sm"
-            >
-              <div className="flex items-start gap-4">
-                <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-black/[0.04] text-xs font-bold text-muted">
+        {/* Stacked cards rather than a list of identical rows. Every topic used
+            to occupy an equal box with the same faint edge, so nothing pulled
+            the eye and the only tappable thing was a text link a few pixels
+            tall. Now the whole card is the target, and cards keep their own
+            height so the wall has texture. */}
+        <Masonry columns={3} className="mt-12">
+          {detail.topics.map((topic, i) => {
+            const body = (
+              <>
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-black/[0.05] font-mono text-xs font-bold text-muted">
                   {i + 1}
                 </span>
-                <div className="min-w-0 flex-1">
-                  {topic.hasPage ? (
-                    <Link
-                      href={`/curriculum/${detail.subjectSlug}/${detail.yearLabel}/${topic.slug}`}
-                      className="font-heading font-semibold text-ink underline underline-offset-4 hover:no-underline"
-                    >
-                      {topic.title}
-                    </Link>
-                  ) : (
-                    <span className="font-heading font-semibold text-ink">{topic.title}</span>
-                  )}
-                  {topic.lessonCount > 0 && (
-                    <p className="mt-1 text-sm text-muted">
-                      {topic.lessonCount} {topic.lessonCount === 1 ? 'lesson' : 'lessons'}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </li>
-          ))}
-        </ol>
+                <h2 className="mt-3 font-heading text-lg font-bold leading-snug text-ink text-balance">
+                  {topic.title}
+                </h2>
+                {topic.lessonCount > 0 && (
+                  <p className="mt-1.5 text-sm text-muted">
+                    {topic.lessonCount} {topic.lessonCount === 1 ? 'lesson' : 'lessons'}
+                  </p>
+                )}
+              </>
+            )
+            return (
+              <MasonryItem key={topic.title}>
+                {topic.hasPage ? (
+                  <CardLink
+                    href={`/curriculum/${detail.subjectSlug}/${detail.yearLabel}/${topic.slug}`}
+                  >
+                    {body}
+                    <span className="mt-3 inline-block text-sm font-bold text-brand-700">
+                      Try it →
+                    </span>
+                  </CardLink>
+                ) : (
+                  <Card lift="flat">{body}</Card>
+                )}
+              </MasonryItem>
+            )
+          })}
+        </Masonry>
 
-        <div className="mt-12 rounded-2xl border border-brand/20 bg-brand/5 p-8 text-center">
-          <h2 className="font-heading text-2xl font-bold text-ink">
+        <Card tone="brand" lift="floating" className="mt-12 p-8 text-center">
+          <h2 className="font-heading text-2xl font-bold text-ink text-balance">
             Start {detail.displayLabel} {detail.subjectName}
           </h2>
-          <p className="mt-2 text-muted">
+          <p className="mx-auto mt-2 max-w-md text-muted">
             Every subject and year group, free while we are in beta. No card required.
           </p>
-          <Link
-            href="/register"
-            className="mt-6 inline-flex h-12 items-center rounded-xl bg-brand-600 transition-colors hover:bg-brand-700 px-8 font-semibold text-white"
-          >
+          <ButtonLink href="/register" size="lg" className="mt-6">
             Create a free account
-          </Link>
-        </div>
+          </ButtonLink>
+        </Card>
 
         <p className="mt-8 text-center text-sm text-muted">
           <Link href={`/curriculum/${detail.subjectSlug}`} className="hover:text-ink">

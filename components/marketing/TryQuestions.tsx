@@ -7,7 +7,8 @@
 // what. The score lives until they close the tab, which is all it needs to do.
 
 import { useState } from 'react'
-import Link from 'next/link'
+import { Button, ButtonLink } from '@/components/ui/Button'
+import { Card } from '@/components/ui/Surface'
 import MathText from '@/components/ui/MathText'
 import type { PublicTryQuestion } from '@/lib/public-curriculum'
 
@@ -52,7 +53,7 @@ export function TryQuestions({ questions, topicTitle, yearLabel, subjectName }: 
 
   if (finished) {
     return (
-      <section className="mt-12 rounded-2xl border border-brand/20 bg-brand/5 p-8 text-center">
+      <Card tone="brand" lift="floating" className="mt-12 p-8 text-center" >
         <p className="text-sm font-semibold uppercase tracking-widest text-brand-700">Your score</p>
         <p className="mt-2 font-heading text-4xl font-bold text-ink">
           {correctCount} out of {questions.length}
@@ -63,27 +64,21 @@ export function TryQuestions({ questions, topicTitle, yearLabel, subjectName }: 
             : `That is a start. Decifer works out which bits need another go, then keeps bringing them back until they stick.`}
         </p>
         <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <Link
-            href="/register"
-            className="inline-flex h-12 w-full items-center justify-center rounded-xl bg-brand-600 px-8 font-semibold text-white transition-colors hover:bg-brand-700 sm:w-auto"
-          >
+          <ButtonLink href="/register" size="lg" className="w-full sm:w-auto">
             Keep going, free
-          </Link>
-          <button
-            onClick={restart}
-            className="inline-flex h-12 w-full items-center justify-center rounded-xl border border-black/10 px-6 font-semibold text-ink transition-colors hover:bg-black/[0.03] sm:w-auto"
-          >
+          </ButtonLink>
+          <Button variant="secondary" size="lg" onClick={restart} className="w-full sm:w-auto">
             Try again
-          </button>
+          </Button>
         </div>
-      </section>
+      </Card>
     )
   }
 
   if (!question) return null
 
   return (
-    <section className="mt-12 rounded-2xl border border-black/8 bg-surface p-6 shadow-sm sm:p-8">
+    <Card lift="floating" className="mt-12 p-6 sm:p-8">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="font-heading text-xl font-bold text-ink">Try it now</h2>
         <span className="text-sm text-muted">
@@ -133,7 +128,7 @@ export function TryQuestions({ questions, topicTitle, yearLabel, subjectName }: 
                     ? `${option}. ${isAnswer ? 'Correct answer' : isPicked ? 'Your answer, wrong' : ''}`
                     : option
                 }
-                className={`flex min-h-[52px] w-full items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left text-base font-medium text-ink transition-colors disabled:cursor-default ${tone}`}
+                className={`flex min-h-[56px] w-full items-center justify-between gap-3 rounded-md border-2 px-4 py-3 text-left text-base font-medium text-ink shadow-clay-sm transition-[transform,box-shadow,background-color,border-color] duration-fast ease-out enabled:active:translate-y-[2px] enabled:active:shadow-clay-pressed enabled:active:duration-instant disabled:cursor-default disabled:shadow-none touch-manipulation select-none motion-reduce:transition-none motion-reduce:active:translate-y-0 ${tone}`}
               >
                 <span><MathText text={option} /></span>
                 {answered && isAnswer && (
@@ -158,14 +153,11 @@ export function TryQuestions({ questions, topicTitle, yearLabel, subjectName }: 
               <MathText text={question.explanation} />
             </p>
           )}
-          <button
-            onClick={next}
-            className="mt-5 inline-flex h-12 items-center rounded-xl bg-brand-600 px-6 font-semibold text-white transition-colors hover:bg-brand-700"
-          >
+          <Button onClick={next} className="mt-5">
             {isLast ? 'See my score' : 'Next question'}
-          </button>
+          </Button>
         </div>
       )}
-    </section>
+    </Card>
   )
 }
