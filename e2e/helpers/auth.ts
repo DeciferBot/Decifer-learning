@@ -58,8 +58,8 @@ export async function registerChild(
   await page.getByLabel(/your email/i).fill(account.email)
   await page.getByLabel(/^password$/i).fill(account.password)
 
-  // No parent email or consent box here any more: consent runs through the
-  // post-signup soft gate (lib/parental-consent.ts), not the register form.
+  // No parent email or consent box: students do not need parental consent
+  // to use Decifer, so the form never asks for either.
 
   await page.getByRole('button', { name: /create account/i }).click()
 

@@ -126,10 +126,6 @@ vi.mock('@/lib/supabase/server', () => ({
     auth: { getUser: async () => ({ data: { user: { id: 'user-1' } } }) },
   }),
 }))
-vi.mock('@/lib/parental-consent', () => ({
-  getConsentGate: async () => ({ state: 'ok' }),
-  CONSENT_GATE_RESPONSE: { error: 'gated' },
-}))
 vi.mock('@/lib/parent-notify', () => ({ notifyParentBigMoment: vi.fn() }))
 
 const PROFILE = {

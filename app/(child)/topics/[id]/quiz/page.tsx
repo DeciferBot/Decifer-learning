@@ -10,8 +10,6 @@ import { selectQuizQuestions, selectInterleavedQuestions } from '@/lib/adaptive'
 import { QuizEventTracker } from '@/components/quiz/QuizEventTracker'
 import { UpgradeWall } from '@/components/ui/UpgradeWall'
 import { isTopicAccessible } from '@/lib/stripe'
-import { getConsentGate } from '@/lib/parental-consent'
-import { ConsentGateScreen } from '@/components/child/ConsentGateScreen'
 import { ScreenTimeRestScreen } from '@/components/child/ScreenTimeRestScreen'
 
 // RLS: topics_select_published (is_published=true)
@@ -47,15 +45,6 @@ export default async function QuizPage({ params }: { params: { id: string } }) {
   const user = await getAuthUser()
 
   const profile = user ? await getCurrentProfile(supabase, user.id) : null
-
-  // Parental-consent soft gate — quizzes pause after the grace window until a
-  // parent confirms. /api/quiz/submit enforces the same rule server-side.
-  if (user) {
-    const consentGate = await getConsentGate(user.id)
-    if (consentGate.state === 'gated') {
-      return <ConsentGateScreen learnHref={`/topics/${params.id}/learn`} />
-    }
-  }
 
   // Screen-time soft gate — show a friendly "good place to stop" screen before
   // the child plays, rather than blocking at submit after they've done the work.
