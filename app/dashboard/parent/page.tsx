@@ -123,10 +123,11 @@ export default async function ParentDashboardPage() {
       {children.length === 0 && (
         <div className="space-y-4">
           <div className="rounded-2xl border border-dashed border-muted/40 bg-surface p-6">
-            <p className="font-heading font-semibold text-ink">Link your child&apos;s account</p>
+            <p className="font-heading font-semibold text-ink">Set up your child</p>
             <p className="mb-4 mt-1 text-sm text-muted">
-              Your child needs their own Decifer account. Ask them to sign up and choose
-              &quot;Student&quot;. Once they&apos;ve registered, enter their email below to connect the accounts.
+              Add their first name and school year, and pick a short number for them to
+              tap in with. No email address needed. They can start straight away, on this
+              device or their own.
             </p>
             <LinkChildForm />
           </div>
@@ -323,10 +324,10 @@ export default async function ParentDashboardPage() {
       {children.length > 0 && (
         <div className="rounded-2xl border border-black/5 bg-surface px-5 py-4 shadow-sm">
           <h2 className="font-heading text-sm font-semibold uppercase tracking-wide text-muted">
-            Link another child
+            Add another child
           </h2>
           <p className="mb-4 mt-1 text-sm text-muted">
-            Add a second child account using their registered email.
+            First name and school year is all it takes. No email address needed.
           </p>
           <LinkChildForm />
         </div>
