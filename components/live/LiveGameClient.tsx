@@ -13,6 +13,8 @@ type QuestionPayload = {
   tier: string
   questionText: string
   choices: string[]
+  /** Only on picture questions. Keyed by the choice each picture belongs to. */
+  choicePictures?: Record<string, { url: string; alt: string }>
   secondsPerQuestion: number
   startedAt: number
   endsAt: number
@@ -436,6 +438,7 @@ function QuestionView({
 
       <AnswerTiles
         choices={payload.choices}
+        pictures={payload.choicePictures}
         disabled={locked}
         selected={selected}
         correctAnswer={result?.correctAnswer ?? null}
@@ -469,7 +472,7 @@ function QuestionView({
 
       {/* Host-only: answer distribution, revealed once the timer is up */}
       {isHost && locked && tally ? (
-        <AnswerDistribution choices={payload.choices} tally={tally} />
+        <AnswerDistribution choices={payload.choices} pictures={payload.choicePictures} tally={tally} />
       ) : null}
 
       {/* Mini live standings */}
@@ -494,7 +497,11 @@ function QuestionView({
 // Host reveal: a Kahoot-style bar of how many players chose each option, with
 // the correct tile highlighted.
 const TILE_COLOURS = ['#F0506E', '#4C8DFF', '#FFC53D', '#2FBF87']
-function AnswerDistribution({ choices, tally }: { choices: string[]; tally: Tally }) {
+function AnswerDistribution({ choices, pictures, tally }: {
+  choices: string[]
+  pictures?: Record<string, { url: string; alt: string }>
+  tally: Tally
+}) {
   const max = Math.max(1, ...choices.map((c) => tally.distribution[c] ?? 0))
   const norm = (s: string) => s.trim().toLowerCase()
   return (
@@ -519,8 +526,17 @@ function AnswerDistribution({ choices, tally }: { choices: string[]; tally: Tall
                   opacity: isCorrect ? 1 : 0.5,
                 }}
               />
-              <span className="absolute inset-y-0 left-2.5 flex items-center text-xs font-bold text-ink">
-                {c} {isCorrect ? '✓' : ''}
+              <span className="absolute inset-y-0 left-2.5 flex items-center gap-1.5 text-xs font-bold text-ink">
+                {pictures?.[c] ? (
+                  <img
+                    src={pictures[c].url}
+                    alt={pictures[c].alt}
+                    className="h-6 w-6 rounded bg-white/90 object-contain"
+                  />
+                ) : (
+                  c
+                )}
+                {isCorrect ? '✓' : ''}
               </span>
             </div>
             <span className="w-6 text-right font-mono text-sm font-bold text-ink">{count}</span>

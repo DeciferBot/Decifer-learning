@@ -3,6 +3,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import { getCurrentProfile } from '@/lib/profile'
 import { scoreExamAnswers, examPointsAwarded, type ExamAnswerRecord } from '@/lib/exam'
+import { MULTIPART_TYPES } from '@/lib/points'
 
 type SubmitBody = {
   attemptId: string
@@ -45,24 +46,32 @@ export async function POST(request: Request) {
   })
   const questionMap = new Map(dbQuestions.map((q) => [q.id, q]))
 
-  const SIMPLE_TYPES = new Set([
-    'multiple_choice',
-    'true_false',
-    'fill_blank',
-    'short_answer',
-    'numeric',
-  ])
+  // Which answers the server re-checks for itself rather than taking the browser's
+  // word for it.
+  //
+  // This used to be a list of five names — 'multiple_choice', 'true_false',
+  // 'fill_blank', 'short_answer', 'numeric' — and NOT ONE question in the database
+  // has ever carried any of them. So the check never ran on anything, and every
+  // exam result was whatever the browser said it was. Turned around: the browser is
+  // trusted ONLY for the shapes it alone can mark, which is the same rule the main
+  // quiz uses, and everything else is checked here.
 
   const scoredAnswers: ExamAnswerRecord[] = answers.map((a) => {
     const q = questionMap.get(a.questionId)
     if (!q) return a
-    if (SIMPLE_TYPES.has(q.question_type)) {
-      const wasCorrect =
-        a.childAnswer.trim().toLowerCase() === q.correct_answer.trim().toLowerCase()
-      return { ...a, wasCorrect, topicId: q.topic_id }
+    if (MULTIPART_TYPES.has(q.question_type)) {
+      // Several parts to one answer; only the browser saw them all. A blank answer
+      // is still wrong, so nothing can claim a mark for doing nothing.
+      const answered = typeof a.childAnswer === 'string' && a.childAnswer.trim().length > 0
+      return { ...a, wasCorrect: answered && Boolean(a.wasCorrect), topicId: a.topicId || q.topic_id }
     }
-    // Complex types: trust client (same as QuizShell)
-    return { ...a, topicId: a.topicId || q.topic_id }
+    // Written defensively: this branch now runs for EVERY ordinary question,
+    // where before it ran for none. A missing answer must come back as "wrong",
+    // never as a crash that costs the child the whole exam.
+    const given = typeof a.childAnswer === 'string' ? a.childAnswer.trim() : ''
+    const wasCorrect =
+      given.length > 0 && given.toLowerCase() === (q.correct_answer ?? '').trim().toLowerCase()
+    return { ...a, wasCorrect, topicId: q.topic_id }
   })
 
   // Mark unanswered questions as incorrect

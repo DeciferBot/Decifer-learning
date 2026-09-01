@@ -1505,3 +1505,34 @@ model ReasoningLead {
   @@index([parent_email])
   @@map("reasoning_leads")
 }
+
+/// Oak National Academy lessons, fetched once each and kept forever.
+///
+/// Oak stops answering us after roughly a thousand fetches a day, and every earlier
+/// importer spent that allowance re-reading lessons we already had. This table means
+/// each lesson is fetched once, ever. Changing which questions we accept, or matching
+/// a unit to a different topic, is then local work over this table with no fetching
+/// at all.
+///
+/// No page reads this. Only the nightly jobs touch it, as the service role.
+/// Content is Oak National Academy, Open Government Licence v3.0.
+model OakLessonRaw {
+  lesson_slug   String    @id
+  unit_slug     String?
+  key_stage     String?
+  subject       String?
+  oak_year_slug String?
+  lesson_title  String?
+  /// Oak's starter and exit quizzes, exactly as Oak returned them.
+  quiz_json     Json?
+  /// Oak's lesson summary. Its keywords make the first hint on a question.
+  summary_json  Json?
+  fetch_status  String?
+  fetched_at    DateTime? @db.Timestamptz(6)
+  created_at    DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@index([subject, oak_year_slug])
+  @@index([unit_slug])
+  @@index([fetch_status])
+  @@map("oak_lessons_raw")
+}

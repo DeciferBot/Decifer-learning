@@ -5,15 +5,10 @@
 // status='published' only (CLAUDE.md §8).
 
 import { prisma } from '@/lib/prisma'
-
-// Types that render their own multi-part UI in QuizShell — unfit for tap-tiles.
-const MULTIPART_TYPES = new Set([
-  'true_false_grid',
-  'ordered_list',
-  'source_analysis',
-  'explain_example',
-  'structured_answer',
-])
+// One list, shared with the exam and with scoring. It used to be copied here, and
+// a copy is how a new question shape gets added in one place and forgotten in the
+// other — which would show a Blitz player a single tile holding the answer.
+import { NEEDS_ITS_OWN_ANSWER_AREA } from '@/lib/points'
 
 // How many answer tiles a Live question shows (1 correct + up to 3 distractors).
 export const LIVE_MAX_CHOICES = 4
@@ -28,6 +23,31 @@ export type LiveQuestionRow = {
   question_text: string
   correct_answer: string
   distractors: string[]
+}
+
+/** A picture to show on an answer tile, with the words that describe it. */
+export type ChoicePicture = { url: string; alt: string }
+
+/**
+ * Read the pictures stored against a question's answers, if it has any.
+ *
+ * Two shapes are stored: a bare link (older) and a link with a description. Only
+ * the second is used out here. A tile whose whole meaning is a picture must be able
+ * to say what it shows, or a child using a screen reader is handed four tiles that
+ * announce nothing they can act on.
+ */
+export function choicePictures(optionImages: unknown): Record<string, ChoicePicture> {
+  if (!optionImages || typeof optionImages !== 'object') return {}
+  const out: Record<string, ChoicePicture> = {}
+  for (const [choice, value] of Object.entries(optionImages as Record<string, unknown>)) {
+    if (value && typeof value === 'object') {
+      const { url, alt } = value as { url?: unknown; alt?: unknown }
+      if (typeof url === 'string' && typeof alt === 'string' && url && alt) {
+        out[choice] = { url, alt }
+      }
+    }
+  }
+  return out
 }
 
 type SelectArgs = {
@@ -67,7 +87,7 @@ export async function selectLiveQuestions(args: SelectArgs): Promise<LiveQuestio
     where: {
       topic_id: { in: topicIds },
       status: 'published',
-      question_type: { notIn: [...MULTIPART_TYPES] },
+      question_type: { notIn: [...NEEDS_ITS_OWN_ANSWER_AREA] },
     },
     select: {
       id: true,

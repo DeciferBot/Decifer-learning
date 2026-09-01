@@ -47,7 +47,39 @@ export const MULTIPART_TYPES = new Set([
   'source_analysis',
   'explain_example',
   'structured_answer',
+  // Pairing cards up: the answer is several joins, not one word, so there is no
+  // single stored string to compare against. Must be listed here or every one of
+  // them is marked wrong no matter what the child does.
+  'match_pairs',
 ])
+
+/**
+ * Every question shape that needs its own answer area rather than a row of
+ * buttons. The full quiz screen knows how to draw all of these. Exams and Blitz
+ * build their own buttons out of the right answer and the wrong ones, so a
+ * question from this list would appear there as a single button showing the
+ * answer. Those two places must filter it out — see lib/exam.ts and
+ * app/api/live/create/route.ts.
+ */
+export const NEEDS_ITS_OWN_ANSWER_AREA = new Set([
+  ...MULTIPART_TYPES,
+  // Typing. Every spelling Oak accepts is carried on the question itself, and only
+  // the full quiz screen reads them, so anywhere else would mark "twelve" wrong
+  // against a stored "12".
+  'short_answer_text',
+])
+
+// Note on picture questions ('picture_choice'): they are NOT in the list above.
+// They are ordinary tap-one-of-four questions that happen to show a picture on each
+// button, so exams and Blitz serve them like any other — those screens read the
+// pictures too. What each button stores is the picture's description, which is why
+// a screen that showed the words instead of the pictures would give the answer
+// away. Every such screen shows the pictures.
+
+// Deliberately NOT listed in MULTIPART_TYPES: 'short_answer_text', where the child types.
+// Oak gives us every spelling that counts, the browser checks against all of
+// them, and when it accepts one it sends back the tidy form we store. So the
+// plain comparison below still works and the server keeps the final say.
 
 export type SubmittedAnswer = {
   questionId: string

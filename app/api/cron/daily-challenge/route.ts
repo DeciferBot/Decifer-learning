@@ -8,12 +8,17 @@ export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server'
 import { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
+import { NEEDS_ITS_OWN_ANSWER_AREA } from '@/lib/points'
 
 // The daily-challenge UI renders only plain single-answer multiple choice.
-// It cannot present the multi-part question types the main QuizShell handles,
-// and "select all"-style prompts are multi-answer (no multi-select UI exists).
-// Keep this list in sync with MULTIPART_QTYPES in components/quiz/QuizShell.tsx.
-const MULTIPART_QTYPES = ['true_false_grid', 'ordered_list', 'source_analysis', 'explain_example', 'structured_answer']
+// It cannot present the question shapes the main quiz screen handles — typing,
+// pairing, ordering, choosing between pictures — and "select all"-style prompts are
+// multi-answer (no multi-select UI exists).
+//
+// This used to be its own copy of the list, which is how a picture-choice question
+// nearly ended up here printing each picture's DESCRIPTION on a button, answer and
+// all. One shared list now, in lib/points.ts.
+const CANNOT_SHOW_HERE = [...NEEDS_ITS_OWN_ANSWER_AREA]
 
 // Multi-answer ("select all/any") prompts can't be scored by the single-answer
 // daily UI. Mirrors _MULTISELECT_PROMPT_RE in services/content-pipeline/pipeline.py
@@ -58,7 +63,7 @@ async function handler(req: Request) {
         JOIN topics t ON t.id = q.topic_id
         WHERE q.status = 'published'
           AND t.year_group_id = ${yg.id}::uuid
-          AND q.question_type NOT IN (${Prisma.join(MULTIPART_QTYPES)})
+          AND q.question_type NOT IN (${Prisma.join(CANNOT_SHOW_HERE)})
           AND (CASE WHEN jsonb_typeof(q.distractors) = 'array'
                     THEN jsonb_array_length(q.distractors) ELSE 0 END) = 3
           AND q.question_text !~* ${MULTISELECT_PROMPT_RE}
