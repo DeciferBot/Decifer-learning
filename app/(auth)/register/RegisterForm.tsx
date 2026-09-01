@@ -6,9 +6,7 @@ import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 import { trackEvent } from '@/lib/analytics'
 import {
   MVP_YEAR_GROUPS,
-  SELF_REGISTERABLE_ROLES,
   EXAM_BOARDS,
-  isSelfRegisterableRole,
   isYearGroupLabel,
   isExamBoard,
   yearGroupRequiresExamBoard,
@@ -16,6 +14,21 @@ import {
   type YearGroupLabel,
   type ExamBoard,
 } from '@/lib/auth/roles'
+
+// Two steps, and the first one is a choice, not a form.
+//
+// The old page put role, eleven year groups, name, email, a parent's email,
+// password and a boxed legal notice on one screen, with "Child" selected by
+// default. A seven-year-old cannot fill that in, and a parent arriving to set
+// their child up was shown the child's form first. Of 29 registered children,
+// 22 never played a round.
+//
+// Now the parent path is the recommended one: name, email, password, done. The
+// child gets set up from the parent dashboard with a name and a PIN, no email
+// (components/parent/LinkChildForm.tsx). The student path stays for older
+// children who register themselves, trimmed to what the law and the account
+// actually need.
+type Step = 'choose' | SelfRegisterableRole
 
 // Children under 13 require verifiable parental consent. Decifer operates from
 // the UAE, so the UAE Child Digital Safety Law 26/2025 is the governing regime;
@@ -25,8 +38,16 @@ import {
 // Y7–Y11 may be 11–16, so we always ask to be safe.
 const ALWAYS_CONSENT_REQUIRED = true
 
+const INPUT =
+  'mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/30'
+
+const CHIP = (active: boolean) =>
+  `h-12 rounded-lg border text-sm font-semibold transition ${
+    active ? 'border-brand bg-brand/10 text-on-maths' : 'border-black/10 bg-surface text-ink'
+  }`
+
 export function RegisterForm() {
-  const [role, setRole] = useState<SelfRegisterableRole>('child')
+  const [step, setStep] = useState<Step>('choose')
   // No default on purpose: a pre-selected year sent kids into the wrong year
   // group when they didn't notice the picker. They must choose explicitly.
   const [yearGroup, setYearGroup] = useState<YearGroupLabel | null>(null)
@@ -41,18 +62,25 @@ export function RegisterForm() {
   const [notice, setNotice] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
+  const role: SelfRegisterableRole | null = step === 'choose' ? null : step
   const needsExamBoard =
     role === 'child' && yearGroup !== null && yearGroupRequiresExamBoard(yearGroup)
   const needsConsent = role === 'child' && ALWAYS_CONSENT_REQUIRED
+
+  function choose(next: SelfRegisterableRole) {
+    setError(null)
+    setNotice(null)
+    setStep(next)
+  }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>): void {
     e.preventDefault()
     setError(null)
     setNotice(null)
+    if (!role) return
 
     const trimmedName = displayName.trim()
-    if (!trimmedName) { setError('Display name is required.'); return }
-    if (!isSelfRegisterableRole(role)) { setError('Choose a role.'); return }
+    if (!trimmedName) { setError(role === 'child' ? 'Tell us what to call you.' : 'Your name is required.'); return }
     if (role === 'child') {
       if (!isYearGroupLabel(yearGroup)) { setError('Choose the school year you are in now.'); return }
       if (needsExamBoard && !isExamBoard(examBoard)) {
@@ -66,7 +94,7 @@ export function RegisterForm() {
         setError('Your parent or guardian’s email must be different from your own.'); return
       }
       if (needsConsent && !parentalConsent) {
-        setError('A parent or guardian must confirm consent before a child account can be created.'); return
+        setError('A parent or guardian must tick the box before a student account can be created.'); return
       }
     }
     if (role === 'parent' && !ageConfirm) {
@@ -127,169 +155,177 @@ export function RegisterForm() {
     })
   }
 
-  return (
-    <form onSubmit={handleSubmit} className="mt-5 space-y-4" noValidate>
-      {/* Role */}
-      <fieldset>
-        <legend className="text-sm font-medium">I am a…</legend>
-        <div className="mt-2 grid grid-cols-2 gap-2">
-          {SELF_REGISTERABLE_ROLES.map((r) => {
-            const active = role === r
-            return (
-              <button
-                key={r}
-                type="button"
-                onClick={() => setRole(r)}
-                aria-pressed={active}
-                className={`h-12 rounded-lg border text-sm font-semibold capitalize transition ${
-                  active
-                    ? 'border-brand bg-brand/10 text-on-maths'
-                    : 'border-black/10 bg-surface text-ink'
-                }`}
-              >
-                {r}
-              </button>
-            )
-          })}
-        </div>
-      </fieldset>
+  // ── Step 1: who is this for? ──────────────────────────────────────────────
+  if (step === 'choose') {
+    return (
+      <div>
+        <h2 className="font-heading text-2xl font-bold text-ink">Who&apos;s signing up?</h2>
 
-      {/* Year group (child only) */}
-      {role === 'child' ? (
-        <fieldset>
-          <legend className="text-sm font-medium">Year group</legend>
-          <p className="mt-0.5 text-xs text-muted">
-            Pick the school year you&apos;re in now. It decides which topics you see.
-          </p>
-          <div className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-4">
-            {MVP_YEAR_GROUPS.map((y) => {
-              const active = yearGroup === y.label
-              return (
+        <div className="mt-5 space-y-3">
+          <button
+            type="button"
+            onClick={() => choose('parent')}
+            className="block w-full rounded-xl border-2 border-brand bg-brand/5 p-4 text-left transition active:scale-[0.99]"
+          >
+            <span className="flex items-center justify-between gap-2">
+              <span className="font-heading text-lg font-bold text-ink">I&apos;m a parent</span>
+              <span className="rounded-full bg-brand-600 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-white">
+                Quickest
+              </span>
+            </span>
+            <span className="mt-1 block text-sm text-muted">
+              Set your child up in a minute. They sign in with their name and a PIN. No email needed for them.
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => choose('child')}
+            className="block w-full rounded-xl border border-black/10 bg-surface p-4 text-left transition hover:bg-black/[0.02] active:scale-[0.99]"
+          >
+            <span className="font-heading text-lg font-bold text-ink">I&apos;m a student</span>
+            <span className="mt-1 block text-sm text-muted">
+              Signing up yourself? You&apos;ll need a parent or guardian&apos;s email so they can say yes.
+            </span>
+          </button>
+        </div>
+
+        <p className="mt-5 text-center text-sm text-muted">
+          Got a name and PIN from your parent?{' '}
+          <Link href="/login?mode=pin" className="font-semibold text-brand-700 underline">
+            Sign in with your PIN
+          </Link>
+        </p>
+      </div>
+    )
+  }
+
+  // ── Step 2: one short form ────────────────────────────────────────────────
+  const isChild = step === 'child'
+
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => { setStep('choose'); setError(null); setNotice(null) }}
+        className="-ml-1 inline-flex min-h-[44px] items-center text-sm font-semibold text-muted hover:text-ink"
+      >
+        <span aria-hidden>←</span>&nbsp;Back
+      </button>
+      <h2 className="mt-1 font-heading text-2xl font-bold text-ink">
+        {isChild ? 'Create your student account.' : 'Create your parent account.'}
+      </h2>
+      {!isChild ? (
+        <p className="mt-1.5 text-sm text-muted">
+          You&apos;ll add your child on the next screen.
+        </p>
+      ) : null}
+
+      <form onSubmit={handleSubmit} className="mt-5 space-y-4" noValidate>
+        {/* Year group (student only) */}
+        {isChild ? (
+          <fieldset>
+            <legend className="text-sm font-medium">Which year are you in?</legend>
+            <div className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-4">
+              {MVP_YEAR_GROUPS.map((y) => (
                 <button
                   key={y.label}
                   type="button"
                   onClick={() => { setYearGroup(y.label); setExamBoard('') }}
-                  aria-pressed={active}
-                  className={`h-12 rounded-lg border text-sm font-semibold transition ${
-                    active
-                      ? 'border-brand bg-brand/10 text-on-maths'
-                      : 'border-black/10 bg-surface text-ink'
-                  }`}
+                  aria-pressed={yearGroup === y.label}
+                  className={CHIP(yearGroup === y.label)}
                 >
                   {y.display}
-                  <span className="ml-1 text-xs font-normal text-muted">
-                    ({y.keyStage})
-                  </span>
                 </button>
-              )
-            })}
-          </div>
-        </fieldset>
-      ) : null}
+              ))}
+            </div>
+          </fieldset>
+        ) : null}
 
-      {/* Exam board (Y10/Y11 only) */}
-      {needsExamBoard ? (
-        <fieldset>
-          <legend className="text-sm font-medium">Exam board</legend>
-          <p className="mt-0.5 text-xs text-muted">
-            Check your school&apos;s website if you&apos;re not sure.
-          </p>
-          <div className="mt-2 grid grid-cols-3 gap-2">
-            {EXAM_BOARDS.map((b) => {
-              const active = examBoard === b
-              return (
+        {/* Exam board (Y10/Y11 only) */}
+        {needsExamBoard ? (
+          <fieldset>
+            <legend className="text-sm font-medium">Exam board</legend>
+            <p className="mt-0.5 text-xs text-muted">
+              Check your school&apos;s website if you&apos;re not sure.
+            </p>
+            <div className="mt-2 grid grid-cols-3 gap-2">
+              {EXAM_BOARDS.map((b) => (
                 <button
                   key={b}
                   type="button"
                   onClick={() => setExamBoard(b)}
-                  aria-pressed={active}
-                  className={`h-12 rounded-lg border text-sm font-semibold transition ${
-                    active
-                      ? 'border-brand bg-brand/10 text-on-maths'
-                      : 'border-black/10 bg-surface text-ink'
-                  }`}
+                  aria-pressed={examBoard === b}
+                  className={CHIP(examBoard === b)}
                 >
                   {b}
                 </button>
-              )
-            })}
-          </div>
-        </fieldset>
-      ) : null}
+              ))}
+            </div>
+          </fieldset>
+        ) : null}
 
-      {/* Display name */}
-      <label className="block">
-        <span className="text-sm font-medium">
-          {role === 'child' ? 'Display name (shown in the app)' : 'Your name'}
-        </span>
-        <input
-          type="text"
-          autoComplete="nickname"
-          required
-          value={displayName}
-          onChange={(e) => setDisplayName(e.target.value)}
-          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/30"
-        />
-      </label>
-
-      <label className="block">
-        <span className="text-sm font-medium">Email</span>
-        <input
-          type="email"
-          autoComplete="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/30"
-        />
-      </label>
-
-      {/* Parent / guardian email (child accounts) — used for consent verification */}
-      {role === 'child' ? (
         <label className="block">
-          <span className="text-sm font-medium">Parent or guardian&apos;s email</span>
+          <span className="text-sm font-medium">{isChild ? 'What should we call you?' : 'Your name'}</span>
+          <input
+            type="text"
+            autoComplete={isChild ? 'nickname' : 'name'}
+            required
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            className={INPUT}
+          />
+        </label>
+
+        <label className="block">
+          <span className="text-sm font-medium">{isChild ? 'Your email' : 'Email'}</span>
           <input
             type="email"
-            autoComplete="off"
+            autoComplete="email"
             required
-            value={parentEmail}
-            onChange={(e) => setParentEmail(e.target.value)}
-            className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/30"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className={INPUT}
           />
-          <span className="mt-1 block text-xs text-muted">
-            We&apos;ll send them one email to confirm it&apos;s OK for you to use Decifer Learning.
-          </span>
         </label>
-      ) : null}
 
-      <label className="block">
-        <span className="text-sm font-medium">Password</span>
-        <input
-          type="password"
-          autoComplete="new-password"
-          required
-          minLength={8}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/30"
-        />
-        <span className="mt-1 block text-xs text-muted">At least 8 characters.</span>
-      </label>
+        <label className="block">
+          <span className="text-sm font-medium">Password</span>
+          <input
+            type="password"
+            autoComplete="new-password"
+            required
+            minLength={8}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className={INPUT}
+          />
+          <span className="mt-1 block text-xs text-muted">At least 8 characters.</span>
+        </label>
 
-      {/* Parental consent (child accounts) */}
-      {needsConsent ? (
-        <div className="rounded-lg border border-black/10 bg-amber-50 p-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">
-            Parent or guardian: please read
-          </p>
-          <p className="mt-1 text-sm leading-relaxed text-ink">
-            Decifer Learning collects limited personal data (name, email, learning progress) to
-            operate the service. A parent or guardian must agree before a child can use it.{' '}
-            <Link href="/legal/privacy" className="font-semibold text-on-maths underline">
-              Read our privacy policy.
-            </Link>
-          </p>
-          <label className="mt-3 flex cursor-pointer items-start gap-3">
+        {/* Parent / guardian email (student accounts) — used for consent verification */}
+        {isChild ? (
+          <label className="block">
+            <span className="text-sm font-medium">Parent or guardian&apos;s email</span>
+            <input
+              type="email"
+              autoComplete="off"
+              required
+              value={parentEmail}
+              onChange={(e) => setParentEmail(e.target.value)}
+              className={INPUT}
+            />
+            <span className="mt-1 block text-xs text-muted">
+              We&apos;ll send them one email to say yes.
+            </span>
+          </label>
+        ) : null}
+
+        {/* Parental consent (student accounts). One checkbox, in the parent's
+            voice, with the privacy policy a tap away. The heading and the
+            paragraph that used to sit above it said the same thing twice. */}
+        {needsConsent ? (
+          <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-black/10 bg-amber-50 p-3">
             <input
               type="checkbox"
               className="mt-0.5 h-5 w-5 shrink-0 rounded border-black/20 accent-maths"
@@ -297,54 +333,57 @@ export function RegisterForm() {
               onChange={(e) => setParentalConsent(e.target.checked)}
             />
             <span className="text-sm leading-snug text-ink">
-              I am the parent or guardian of this child. I consent to Decifer Learning collecting
-              and processing their data as described in the privacy policy, and confirm they are
-              at least 5 years old.
+              <span className="font-semibold">Parent or guardian:</span> I agree to Decifer Learning
+              collecting this child&apos;s name, email and learning progress as set out in the{' '}
+              <Link href="/legal/privacy" className="font-semibold text-on-maths underline">
+                privacy policy
+              </Link>
+              , and confirm they are at least 5 years old.
             </span>
           </label>
-        </div>
-      ) : null}
+        ) : null}
 
-      {/* Age confirmation (parent accounts) */}
-      {role === 'parent' ? (
-        <label className="flex cursor-pointer items-start gap-3">
-          <input
-            type="checkbox"
-            className="mt-0.5 h-5 w-5 shrink-0 rounded border-black/20 accent-maths"
-            checked={ageConfirm}
-            onChange={(e) => setAgeConfirm(e.target.checked)}
-          />
-          <span className="text-sm leading-snug text-ink">
-            I confirm I am 18 years old or over.
-          </span>
-        </label>
-      ) : null}
+        {/* Age confirmation (parent accounts) */}
+        {!isChild ? (
+          <label className="flex cursor-pointer items-start gap-3">
+            <input
+              type="checkbox"
+              className="mt-0.5 h-5 w-5 shrink-0 rounded border-black/20 accent-maths"
+              checked={ageConfirm}
+              onChange={(e) => setAgeConfirm(e.target.checked)}
+            />
+            <span className="text-sm leading-snug text-ink">
+              I confirm I am 18 years old or over.
+            </span>
+          </label>
+        ) : null}
 
-      {error ? (
-        <p role="alert" className="rounded-md bg-incorrect/10 px-3 py-2 text-sm text-incorrect-700">
-          {error}
+        {error ? (
+          <p role="alert" className="rounded-md bg-incorrect/10 px-3 py-2 text-sm text-incorrect-700">
+            {error}
+          </p>
+        ) : null}
+        {notice ? (
+          <p role="status" className="rounded-md bg-brand/10 px-3 py-2 text-sm text-on-maths">
+            {notice}
+          </p>
+        ) : null}
+
+        <button
+          type="submit"
+          disabled={isPending}
+          className="flex h-12 w-full items-center justify-center rounded-lg bg-brand-600 hover:bg-brand-700 font-semibold text-white transition active:scale-[0.98] disabled:opacity-60"
+        >
+          {isPending ? 'Creating…' : 'Create account'}
+        </button>
+
+        <p className="text-center text-xs text-muted">
+          By creating an account you agree to our{' '}
+          <Link href="/legal/terms" className="underline">Terms of Service</Link>{' '}
+          and{' '}
+          <Link href="/legal/privacy" className="underline">Privacy Policy</Link>.
         </p>
-      ) : null}
-      {notice ? (
-        <p role="status" className="rounded-md bg-brand/10 px-3 py-2 text-sm text-on-maths">
-          {notice}
-        </p>
-      ) : null}
-
-      <button
-        type="submit"
-        disabled={isPending}
-        className="flex h-12 w-full items-center justify-center rounded-lg bg-brand-600 hover:bg-brand-700 font-semibold text-white transition active:scale-[0.98] disabled:opacity-60"
-      >
-        {isPending ? 'Creating…' : 'Create account'}
-      </button>
-
-      <p className="text-center text-xs text-muted">
-        By creating an account you agree to our{' '}
-        <Link href="/legal/terms" className="underline">Terms of Service</Link>{' '}
-        and{' '}
-        <Link href="/legal/privacy" className="underline">Privacy Policy</Link>.
-      </p>
-    </form>
+      </form>
+    </div>
   )
 }

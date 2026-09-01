@@ -44,11 +44,11 @@ export async function registerChild(
 ): Promise<boolean> {
   await page.goto('/register')
 
-  // Role picker — buttons are labelled by role text ("child" / "parent").
+  // Step 1 is a who-are-you choice; the student card opens the child form.
   // SUGGESTED data-testid: data-testid="role-child" on the role <button>.
-  await page.getByRole('button', { name: /^child$/i }).click()
+  await page.getByRole('button', { name: /i.m a student/i }).click()
 
-  // Year group picker — buttons read e.g. "Year 3 (KS2)". Match the year prefix.
+  // Year group picker — buttons read e.g. "Year 3". Match the year prefix.
   // SUGGESTED data-testid: data-testid="year-group-3".
   await page.getByRole('button', { name: new RegExp(`^${yearLabel}\\b`, 'i') }).click()
 

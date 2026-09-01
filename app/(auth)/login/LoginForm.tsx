@@ -15,7 +15,9 @@ export function LoginForm() {
   const rawRedirect = searchParams.get('redirectTo')
   const redirectTo = rawRedirect && /^\/(?![/\\])/.test(rawRedirect) ? rawRedirect : '/dashboard'
 
-  const [mode, setMode] = useState<Mode>('password')
+  // /register sends a child who already has a name and PIN straight here with
+  // ?mode=pin, so they do not land on an email box they cannot fill in.
+  const [mode, setMode] = useState<Mode>(searchParams.get('mode') === 'pin' ? 'pin' : 'password')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(

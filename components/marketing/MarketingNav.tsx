@@ -23,6 +23,7 @@ import { Zap, Gamepad } from '@/components/ui/icons'
 // Subjects and How it works existed only in the footer. They are here now.
 
 const SECTION_LINKS: { href: string; label: string }[] = [
+  { href: '/try', label: 'Try free' },
   { href: '/how-it-works', label: 'How it works' },
   { href: '/subjects', label: 'Subjects' },
   { href: '/curriculum', label: 'Curriculum' },
@@ -67,7 +68,7 @@ export function MarketingNav() {
 
         {/* Section links — only once there is room for them to read as a row */}
         <div className="hidden items-center gap-1 lg:flex">
-          {SECTION_LINKS.slice(0, 4).map((l) => (
+          {SECTION_LINKS.slice(0, 5).map((l) => (
             <Link
               key={l.href}
               href={l.href}

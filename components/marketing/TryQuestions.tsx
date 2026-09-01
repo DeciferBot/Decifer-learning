@@ -17,9 +17,11 @@ interface Props {
   topicTitle: string
   yearLabel: string
   subjectName: string
+  /** Outer spacing. The topic pages sit it under a long lesson list; /try puts it first. */
+  className?: string
 }
 
-export function TryQuestions({ questions, topicTitle, yearLabel, subjectName }: Props) {
+export function TryQuestions({ questions, topicTitle, yearLabel, subjectName, className = 'mt-12' }: Props) {
   const [index, setIndex] = useState(0)
   const [picked, setPicked] = useState<string | null>(null)
   const [correctCount, setCorrectCount] = useState(0)
@@ -53,7 +55,7 @@ export function TryQuestions({ questions, topicTitle, yearLabel, subjectName }: 
 
   if (finished) {
     return (
-      <Card tone="brand" lift="floating" className="mt-12 p-8 text-center" >
+      <Card tone="brand" lift="floating" className={`${className} p-8 text-center`}>
         <p className="text-sm font-semibold uppercase tracking-widest text-brand-700">Your score</p>
         <p className="mt-2 font-heading text-4xl font-bold text-ink">
           {correctCount} out of {questions.length}
@@ -78,7 +80,7 @@ export function TryQuestions({ questions, topicTitle, yearLabel, subjectName }: 
   if (!question) return null
 
   return (
-    <Card lift="floating" className="mt-12 p-6 sm:p-8">
+    <Card lift="floating" className={`${className} p-6 sm:p-8`}>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="font-heading text-xl font-bold text-ink">Try it now</h2>
         <span className="text-sm text-muted">

@@ -70,12 +70,10 @@ export default function Home({
                 Decifer gives parents a clear picture of their child&apos;s learning. What the curriculum covers. What they have done. Where they are strong. What to do next.
               </p>
 
-              <p className="mt-3 text-sm leading-relaxed text-muted">
-                Decifer works alongside school and is built for parents as much as children, so you can see exactly where yours stands.
-              </p>
-
-              {/* Trust chips */}
-              <div className="mt-5 flex flex-wrap gap-2">
+              {/* Trust chips — desktop only. On a phone they are a fourth block of
+                  text between the headline and the button, and the button is the
+                  point. */}
+              <div className="mt-5 hidden flex-wrap gap-2 sm:flex">
                 {TRUST_CHIPS.map((chip) => (
                   <span
                     key={chip.label}
@@ -87,27 +85,27 @@ export default function Home({
                 ))}
               </div>
 
-              {/* CTAs */}
+              {/* CTAs. The first one needs no account: a child (or a parent
+                  checking the level) is answering a real question two taps from
+                  here. The account comes after they have seen what it is for. */}
               <div className="mt-7 flex flex-col gap-3 sm:flex-row">
                 <Link
-                  href="/register"
+                  href="/try"
                   className="flex h-12 items-center justify-center rounded-xl bg-brand-600 px-7 font-semibold text-white transition-colors hover:bg-brand-700"
                 >
-                  See your child&apos;s learning map
+                  Try five questions, free
                 </Link>
                 <Link
-                  href="/how-it-works"
+                  href="/register"
                   className="flex h-12 items-center justify-center rounded-xl border border-black/10 bg-surface px-7 font-semibold text-ink transition-colors hover:bg-black/5"
                 >
-                  How it works
+                  Set up my child
                 </Link>
               </div>
-              <p className="mt-3 text-xs text-muted">No credit card required. Set up in two minutes.</p>
+              <p className="mt-3 text-xs text-muted">No account needed to try. Set-up takes a minute. No credit card.</p>
 
-              {/* No-signup entry point. The free games are the one thing on the
-                  site a child will ask for by name, and until now the homepage
-                  never mentioned them — /games was reachable only from the
-                  footer. */}
+              {/* The free games are the one thing on the site a child will ask
+                  for by name. */}
               <Link
                 href="/games"
                 className="mt-4 inline-flex min-h-[44px] items-center gap-2 rounded-xl px-1 text-sm font-semibold text-brand-700 transition-colors hover:text-brand-700"
