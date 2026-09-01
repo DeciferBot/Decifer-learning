@@ -9,7 +9,12 @@ type Tab = 'existing' | 'create'
 
 export function LinkChildForm() {
   const router = useRouter()
-  const [tab, setTab] = useState<Tab>('existing')
+  // Setting up the child here is the default. Asking a parent to go and get
+  // their seven-year-old to register first, with an email address the child
+  // does not have, was the step almost nobody completed: of 29 children on the
+  // product, 22 never played a single round. Linking an account the child
+  // already made is now the second option, not the first.
+  const [tab, setTab] = useState<Tab>('create')
 
   return (
     <div className="space-y-4">
@@ -17,21 +22,21 @@ export function LinkChildForm() {
       <div className="grid grid-cols-2 gap-1 rounded-xl bg-black/5 p-1">
         <button
           type="button"
-          onClick={() => setTab('existing')}
-          className={`h-9 rounded-lg text-sm font-semibold transition ${
-            tab === 'existing' ? 'bg-surface text-ink shadow-sm' : 'text-muted'
-          }`}
-        >
-          They have an account
-        </button>
-        <button
-          type="button"
           onClick={() => setTab('create')}
           className={`h-9 rounded-lg text-sm font-semibold transition ${
             tab === 'create' ? 'bg-surface text-ink shadow-sm' : 'text-muted'
           }`}
         >
-          Create one for them
+          Set them up now
+        </button>
+        <button
+          type="button"
+          onClick={() => setTab('existing')}
+          className={`h-9 rounded-lg text-sm font-semibold transition ${
+            tab === 'existing' ? 'bg-surface text-ink shadow-sm' : 'text-muted'
+          }`}
+        >
+          They already have an account
         </button>
       </div>
 
