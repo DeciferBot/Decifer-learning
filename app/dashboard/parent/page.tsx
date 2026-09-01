@@ -24,7 +24,7 @@ import { LinkChildForm } from '@/components/parent/LinkChildForm'
 import { CurriculumMap } from '@/components/parent/CurriculumMap'
 import { SubscriptionStatus } from '@/components/parent/SubscriptionStatus'
 import { PurchaseTracker } from '@/components/analytics/PurchaseTracker'
-import { Star, Flame, Gift, BarChart, Target, MapPin, CalendarDays, Check, CircleCheck, ClipboardList, Clock } from '@/components/ui/icons'
+import { Star, Flame, Gift, BarChart, Target, MapPin, CalendarDays, Check, CircleCheck, ClipboardList, Clock, UserCircle } from '@/components/ui/icons'
 import type { ComponentType, SVGProps } from 'react'
 
 type IconComponent = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
@@ -111,6 +111,26 @@ export default async function ParentDashboardPage() {
               : "Here's how your children are getting on."}
         </p>
       </div>
+
+      {/* Handing the iPad over. Only worth showing once there is someone to
+          hand it to. */}
+      {children.length > 0 && (
+        <Link
+          href="/switch"
+          className="flex min-h-[64px] items-center gap-3 rounded-2xl bg-brand-600 px-5 py-4 text-white shadow-sm transition-colors hover:bg-brand-700"
+        >
+          <UserCircle className="w-6 h-6 flex-none" aria-hidden />
+          <div className="min-w-0 flex-1">
+            <p className="font-heading text-base font-extrabold leading-tight">
+              Hand over to {children.length === 1 ? children[0].displayName : 'a child'}
+            </p>
+            <p className="text-sm text-white/85">
+              They tap their own name and start. Nothing to type.
+            </p>
+          </div>
+          <span className="flex-none text-sm font-bold">Open →</span>
+        </Link>
+      )}
 
       {/* Subscription status */}
       <SubscriptionStatus

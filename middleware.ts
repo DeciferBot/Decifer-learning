@@ -79,6 +79,9 @@ function requiredRoleForPath(pathname: string): Role | null {
   if (pathname === '/dashboard/parent' || pathname.startsWith('/dashboard/parent/')) return 'parent'
   if (pathname === '/dashboard/admin' || pathname.startsWith('/dashboard/admin/')) return 'admin'
   if (pathname.startsWith('/api/admin/')) return 'admin'
+  // "Who's learning?" hands the family iPad from the parent to a child, so only
+  // a signed-in parent may open it. The page checks this again for itself.
+  if (pathname === '/switch') return 'parent'
   return null
 }
 
