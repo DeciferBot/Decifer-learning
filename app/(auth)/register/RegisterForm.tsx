@@ -25,18 +25,16 @@ import {
 //
 // Now the parent path is the recommended one: name, email, password, done. The
 // child gets set up from the parent dashboard with a name and a PIN, no email
-// (components/parent/LinkChildForm.tsx). The student path stays for older
-// children who register themselves, trimmed to what the law and the account
-// actually need.
+// (components/parent/LinkChildForm.tsx). The student path is the same four
+// things for the student: year, name, email, password.
+//
+// Parental consent is no longer asked for on this form. It is handled after
+// sign-up by the existing soft gate (lib/parental-consent.ts): a self-registered
+// student gets seven days of full access, the ConsentBanner asks them to add a
+// parent's email, and quizzes pause after that until a parent confirms or
+// links the account. The consent lives where the child can already see what it
+// is for, not on the first screen they meet.
 type Step = 'choose' | SelfRegisterableRole
-
-// Children under 13 require verifiable parental consent. Decifer operates from
-// the UAE, so the UAE Child Digital Safety Law 26/2025 is the governing regime;
-// the user-facing wording no longer cites a specific law, because the same rule
-// (an adult must agree first) holds wherever the family is.
-// We gate on Year group as a proxy: Y1–Y6 (ages 5–11) always require consent;
-// Y7–Y11 may be 11–16, so we always ask to be safe.
-const ALWAYS_CONSENT_REQUIRED = true
 
 const INPUT =
   'mt-1 block h-12 w-full rounded-lg border border-black/10 bg-surface px-3 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/30'
@@ -54,9 +52,7 @@ export function RegisterForm() {
   const [examBoard, setExamBoard] = useState<ExamBoard | ''>('')
   const [displayName, setDisplayName] = useState('')
   const [email, setEmail] = useState('')
-  const [parentEmail, setParentEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [parentalConsent, setParentalConsent] = useState(false)
   const [ageConfirm, setAgeConfirm] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
@@ -65,7 +61,6 @@ export function RegisterForm() {
   const role: SelfRegisterableRole | null = step === 'choose' ? null : step
   const needsExamBoard =
     role === 'child' && yearGroup !== null && yearGroupRequiresExamBoard(yearGroup)
-  const needsConsent = role === 'child' && ALWAYS_CONSENT_REQUIRED
 
   function choose(next: SelfRegisterableRole) {
     setError(null)
@@ -86,16 +81,6 @@ export function RegisterForm() {
       if (needsExamBoard && !isExamBoard(examBoard)) {
         setError('Choose your exam board for GCSE subjects.'); return
       }
-      const trimmedParentEmail = parentEmail.trim()
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedParentEmail)) {
-        setError('Enter your parent or guardian’s email address.'); return
-      }
-      if (trimmedParentEmail.toLowerCase() === email.trim().toLowerCase()) {
-        setError('Your parent or guardian’s email must be different from your own.'); return
-      }
-      if (needsConsent && !parentalConsent) {
-        setError('A parent or guardian must tick the box before a student account can be created.'); return
-      }
     }
     if (role === 'parent' && !ageConfirm) {
       setError('Please confirm you are 18 or over.'); return
@@ -113,9 +98,7 @@ export function RegisterForm() {
               role,
               display_name: trimmedName,
               ...(role === 'child' && yearGroup ? { year_group: yearGroup } : {}),
-              ...(role === 'child' ? { parent_email: parentEmail.trim() } : {}),
               ...(needsExamBoard && examBoard ? { exam_board: examBoard } : {}),
-              ...(needsConsent && parentalConsent ? { parental_consent_given: true } : {}),
             },
           },
         })
@@ -127,22 +110,8 @@ export function RegisterForm() {
           trackEvent('sign_up', { method: 'email' })
         }
 
-        // Kick off the parent/guardian verification email. Best-effort — the
-        // daily parent-verify cron retries any child who never got one.
-        if (role === 'child' && data.user?.id) {
-          fetch('/api/parent-verification/send', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: data.user.id }),
-          }).catch(() => {})
-        }
-
         if (!data.session) {
-          setNotice(
-            role === 'child'
-              ? 'Check your email to confirm your account, then sign in. We’ve also emailed your parent or guardian to confirm.'
-              : 'Check your email to confirm your account, then sign in.'
-          )
+          setNotice('Check your email to confirm your account, then sign in.')
           return
         }
         // Hard navigation: a client-side router.push() here can leave the
@@ -185,7 +154,7 @@ export function RegisterForm() {
           >
             <span className="font-heading text-lg font-bold text-ink">I&apos;m a student</span>
             <span className="mt-1 block text-sm text-muted">
-              Signing up yourself? You&apos;ll need a parent or guardian&apos;s email so they can say yes.
+              Sign up yourself with an email and password. Your year, your name, done.
             </span>
           </button>
         </div>
@@ -302,46 +271,6 @@ export function RegisterForm() {
           />
           <span className="mt-1 block text-xs text-muted">At least 8 characters.</span>
         </label>
-
-        {/* Parent / guardian email (student accounts) — used for consent verification */}
-        {isChild ? (
-          <label className="block">
-            <span className="text-sm font-medium">Parent or guardian&apos;s email</span>
-            <input
-              type="email"
-              autoComplete="off"
-              required
-              value={parentEmail}
-              onChange={(e) => setParentEmail(e.target.value)}
-              className={INPUT}
-            />
-            <span className="mt-1 block text-xs text-muted">
-              We&apos;ll send them one email to say yes.
-            </span>
-          </label>
-        ) : null}
-
-        {/* Parental consent (student accounts). One checkbox, in the parent's
-            voice, with the privacy policy a tap away. The heading and the
-            paragraph that used to sit above it said the same thing twice. */}
-        {needsConsent ? (
-          <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-black/10 bg-amber-50 p-3">
-            <input
-              type="checkbox"
-              className="mt-0.5 h-5 w-5 shrink-0 rounded border-black/20 accent-maths"
-              checked={parentalConsent}
-              onChange={(e) => setParentalConsent(e.target.checked)}
-            />
-            <span className="text-sm leading-snug text-ink">
-              <span className="font-semibold">Parent or guardian:</span> I agree to Decifer Learning
-              collecting this child&apos;s name, email and learning progress as set out in the{' '}
-              <Link href="/legal/privacy" className="font-semibold text-on-maths underline">
-                privacy policy
-              </Link>
-              , and confirm they are at least 5 years old.
-            </span>
-          </label>
-        ) : null}
 
         {/* Age confirmation (parent accounts) */}
         {!isChild ? (

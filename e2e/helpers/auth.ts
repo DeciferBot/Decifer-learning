@@ -54,14 +54,12 @@ export async function registerChild(
 
   // Text fields are wrapped in <label><span>…</span><input/></label>, so the
   // accessible name comes from the span text.
-  await page.getByLabel(/display name/i).fill(account.displayName)
-  await page.getByLabel(/^email$/i).fill(account.email)
-  await page.getByLabel(/parent or guardian.*email/i).fill(account.parentEmail)
+  await page.getByLabel(/what should we call you/i).fill(account.displayName)
+  await page.getByLabel(/your email/i).fill(account.email)
   await page.getByLabel(/^password$/i).fill(account.password)
 
-  // Parental consent checkbox (always required for child accounts).
-  // SUGGESTED data-testid: data-testid="parental-consent".
-  await page.getByRole('checkbox').first().check()
+  // No parent email or consent box here any more: consent runs through the
+  // post-signup soft gate (lib/parental-consent.ts), not the register form.
 
   await page.getByRole('button', { name: /create account/i }).click()
 
