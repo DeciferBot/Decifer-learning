@@ -64,7 +64,7 @@ export default function Home({
             {/* Deci is the product's face and, until now, appeared on exactly
                 two screens, both behind a sign-in. The one page a stranger
                 sees had no face at all. */}
-            <Deci mood="happy" size={72} className="mx-auto mb-3" />
+            <Deci mood="happy" size={72} className="m-greet mx-auto mb-3" />
             <span className="inline-flex items-center gap-1.5 rounded-full border border-brand/20 bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-700">
               UK National Curriculum · Years 1 to 11
             </span>
@@ -81,7 +81,7 @@ export default function Home({
           {/* Each door is one tap target. On a phone the three stack, with the
               picture on the left so all three fit on the first screen with the
               headline. From md up they sit side by side, picture on top. */}
-          <ul className="mt-8 grid gap-3 md:grid-cols-3 md:gap-5">
+          <ul className="m-stagger mt-8 grid gap-3 md:grid-cols-3 md:gap-5">
             {DOORS.map((d) => (
               <li key={d.href}>
                 <Link
@@ -111,7 +111,12 @@ export default function Home({
 
           <p className="mt-5 text-center text-sm text-muted">
             No account needed for any of these.{' '}
-            <Link href="/register" className="font-semibold text-brand-700 underline">
+            {/* This is the only route to sign-up in the whole hero, and it was
+                38px tall on a phone. Given up. */}
+            <Link
+              href="/register"
+              className="inline-flex min-h-[48px] items-center px-2 font-semibold text-brand-700 underline"
+            >
               Setting up for your child?
             </Link>
           </p>
@@ -122,7 +127,7 @@ export default function Home({
           <div className="mx-auto grid max-w-5xl gap-8 px-4 md:grid-cols-2 md:items-center">
             <div>
               <p className="text-xs font-bold uppercase tracking-widest text-brand-700">For parents</p>
-              <h2 className="mt-2 font-heading text-2xl font-bold text-ink md:text-3xl">
+              <h2 className="m-rise mt-2 font-heading text-2xl font-bold text-ink md:text-3xl">
                 Know exactly where your child stands.
               </h2>
               <p className="mt-3 text-base leading-relaxed text-muted">
@@ -151,10 +156,10 @@ export default function Home({
         {/* ── About, in brief ─────────────────────────────────────────────── */}
         <section className="py-14 md:py-16">
           <div className="mx-auto max-w-5xl px-4">
-            <h2 className="text-center font-heading text-2xl font-bold text-ink md:text-3xl">
+            <h2 className="m-rise text-center font-heading text-2xl font-bold text-ink md:text-3xl">
               What Decifer is
             </h2>
-            <div className="mt-8 grid gap-4 sm:grid-cols-3">
+            <div className="m-stagger mt-8 grid gap-4 sm:grid-cols-3">
               {ABOUT_POINTS.map((p) => (
                 <div key={p.title} className="rounded-xl border-2 border-black/8 bg-surface p-5 shadow-clay-sm">
                   <p.Icon size={24} className="text-brand-700" aria-hidden />
