@@ -66,8 +66,8 @@ export async function sendParentVerificationEmail(opts: {
       <h1 style="margin:0 0 8px;font-size:20px;color:#2D3748">Please confirm ${childName}'s account</h1>
       <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#2D3748">${intro}</p>
       <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#2D3748">
-        Under the UK Children's Code we need a parent or guardian to confirm they're happy for
-        ${childName} to use Decifer Learning. It takes one tap:
+        We need a parent or guardian to confirm they're happy for ${childName} to use
+        Decifer Learning. It takes one tap:
       </p>
     </td></tr>
     <tr><td style="padding:8px 0 24px">
@@ -93,7 +93,7 @@ export async function sendParentVerificationEmail(opts: {
     '',
     introText,
     '',
-    `Under the UK Children's Code we need a parent or guardian to confirm they're happy for ${rawName} to use Decifer Learning.`,
+    `We need a parent or guardian to confirm they're happy for ${rawName} to use Decifer Learning.`,
     '',
     `Confirm here: ${url}`,
     '',

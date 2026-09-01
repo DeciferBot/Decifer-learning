@@ -17,7 +17,10 @@ import {
   type ExamBoard,
 } from '@/lib/auth/roles'
 
-// Children under 13 require verifiable parental consent (UK Children's Code).
+// Children under 13 require verifiable parental consent. Decifer operates from
+// the UAE, so the UAE Child Digital Safety Law 26/2025 is the governing regime;
+// the user-facing wording no longer cites a specific law, because the same rule
+// (an adult must agree first) holds wherever the family is.
 // We gate on Year group as a proxy: Y1–Y6 (ages 5–11) always require consent;
 // Y7–Y11 may be 11–16, so we always ask to be safe.
 const ALWAYS_CONSENT_REQUIRED = true
@@ -281,8 +284,8 @@ export function RegisterForm() {
           </p>
           <p className="mt-1 text-sm leading-relaxed text-ink">
             Decifer Learning collects limited personal data (name, email, learning progress) to
-            operate the service. Under the UK Children&apos;s Code, a parent or guardian must
-            consent before a child account can be created.{' '}
+            operate the service. A parent or guardian must agree before a child
+            can use a Decifer Learning account.{' '}
             <Link href="/legal/privacy" className="font-semibold text-on-maths underline">
               Read our privacy policy.
             </Link>

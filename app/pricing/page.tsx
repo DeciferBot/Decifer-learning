@@ -108,7 +108,7 @@ export default function PricingPage() {
               },
               {
                 q: 'Is it safe for my child to use?',
-                a: "Child accounts have no social features and no advertising. Content is checked for age-appropriateness at every stage. We comply with the UK Children's Code.",
+                a: "Child accounts have no social features and no advertising. Content is checked for age-appropriateness at every stage. A child is never shown to anyone outside their own family, and we use no outside tracking of any kind.",
               },
             ].map(({ q, a }) => (
               <div key={q} className="py-5">

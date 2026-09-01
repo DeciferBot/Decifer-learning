@@ -8,7 +8,10 @@ export const metadata: Metadata = {
   alternates: { canonical: '/legal/privacy-for-kids' },
 }
 
-// Child-friendly privacy notice — required by UK Children's Code (Standard 4).
+// Child-friendly privacy notice: a plain-words version of the privacy policy,
+// written for the child rather than the adult. Decifer operates from the UAE,
+// so the UAE Child Digital Safety Law 26/2025 is the governing regime; this
+// page is good practice under it and under the UK code alike.
 // Written at approximately Year 3 reading level. No legal jargon.
 
 export default function PrivacyForKidsPage() {
@@ -99,9 +102,7 @@ export default function PrivacyForKidsPage() {
             <Link href="/legal/privacy" className="underline">
               /legal/privacy
             </Link>
-            . For our Children&apos;s Code compliance audit, see{' '}
-            <span className="font-mono text-xs">docs/CHILDRENS_CODE_COMPLIANCE.md</span>{' '}
-            in our repository.
+            .
           </p>
         </div>
       </div>
