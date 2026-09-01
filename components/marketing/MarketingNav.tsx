@@ -28,6 +28,7 @@ const SECTION_LINKS: { href: string; label: string }[] = [
   { href: '/subjects', label: 'Subjects' },
   { href: '/curriculum', label: 'Curriculum' },
   { href: '/pricing', label: 'Pricing' },
+  { href: '/about', label: 'About' },
   { href: '/games', label: 'Free games' },
   { href: '/blitz', label: 'Blitz' },
 ]
