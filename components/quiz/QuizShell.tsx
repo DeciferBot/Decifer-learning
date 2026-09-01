@@ -11,6 +11,8 @@ import { OrderedList, type OrderedListItem } from './OrderedList'
 import SourceAnalysis, { type SourceAnalysisSubQ } from './SourceAnalysis'
 import ExplainExample, { type ExplainExamplePart } from './ExplainExample'
 import StructuredAnswer, { type MarkingCriterion } from './StructuredAnswer'
+import { MatchPairs, type MatchPair } from './MatchPairs'
+import { TypeAnswer, type AcceptedAnswer } from './TypeAnswer'
 import { HeartsDisplay } from './HeartsDisplay'
 import { CardReveal } from '@/components/cards/CardReveal'
 import { BadgePopup } from '@/components/quiz/BadgePopup'
@@ -38,7 +40,7 @@ import { QuestionListenButton } from './QuestionListenButton'
 // Points awarded per attempt number (1-indexed). Exhausting all attempts = 0.
 const POINTS_BY_ATTEMPT = [3, 2, 1] as const
 // These types render their own per-item feedback — QuizShell skips the raw correct_answer header.
-const MULTIPART_QTYPES = new Set(['true_false_grid', 'ordered_list', 'source_analysis', 'explain_example', 'structured_answer'])
+const MULTIPART_QTYPES = new Set(['true_false_grid', 'ordered_list', 'source_analysis', 'explain_example', 'structured_answer', 'match_pairs'])
 const MAX_ATTEMPTS = 3
 const MAX_HEARTS = 3
 // Hearts are lost when a question is fully exhausted (all attempts wrong),
@@ -382,9 +384,20 @@ export function QuizShell({
     !!q.worked_example &&
     !shownWorkedExampleFor.current.has(q.question_type)
 
-  function pick(choice: string) {
+  /**
+   * One try at a single-answer question.
+   *
+   * `choice` is normally one of the four buttons, and matching the stored answer
+   * exactly is the whole test. A typed answer is different: the child may write
+   * "twelve" where we hold "12", and Oak tells us every spelling that counts. So
+   * TypeAnswer does its own comparing and passes the verdict in through
+   * `knownCorrect`. Everything after this line — tries, clues, points, the streak,
+   * the record of what they answered — is shared, so a typed question behaves
+   * exactly like a tapped one.
+   */
+  function pick(choice: string, knownCorrect?: boolean) {
     if (questionDone) return
-    const isCorrect = choice === q.correct_answer
+    const isCorrect = knownCorrect ?? choice === q.correct_answer
     const timeSeconds = Math.max(1, Math.round((Date.now() - questionStartRef.current) / 1000))
     const newAttempts = attempts + 1
 
@@ -1322,6 +1335,21 @@ export function QuizShell({
                 disabled={questionDone}
               />
             </div>
+          ) : q.question_type === 'match_pairs' && Array.isArray(q.answer_parts) && (q.answer_parts as MatchPair[])[0]?.left !== undefined ? (
+            <div className="mt-4">
+              <MatchPairs
+                pairs={q.answer_parts as MatchPair[]}
+                onAnswer={handleMultiPartAnswer}
+                disabled={questionDone}
+              />
+            </div>
+          ) : q.question_type === 'short_answer_text' && Array.isArray(q.answer_parts) && (q.answer_parts as AcceptedAnswer[])[0]?.accept !== undefined ? (
+            <TypeAnswer
+              accepted={q.answer_parts as AcceptedAnswer[]}
+              disabled={questionDone}
+              young={youngMode}
+              onSubmit={({ correct, matched }) => pick(matched, correct)}
+            />
           ) : q.question_type === 'source_analysis' && Array.isArray(q.answer_parts) && q.source_text ? (
             <div className="mt-4">
               <SourceAnalysis

@@ -5,15 +5,10 @@
 // status='published' only (CLAUDE.md §8).
 
 import { prisma } from '@/lib/prisma'
-
-// Types that render their own multi-part UI in QuizShell — unfit for tap-tiles.
-const MULTIPART_TYPES = new Set([
-  'true_false_grid',
-  'ordered_list',
-  'source_analysis',
-  'explain_example',
-  'structured_answer',
-])
+// One list, shared with the exam and with scoring. It used to be copied here, and
+// a copy is how a new question shape gets added in one place and forgotten in the
+// other — which would show a Blitz player a single tile holding the answer.
+import { NEEDS_ITS_OWN_ANSWER_AREA } from '@/lib/points'
 
 // How many answer tiles a Live question shows (1 correct + up to 3 distractors).
 export const LIVE_MAX_CHOICES = 4
@@ -67,7 +62,7 @@ export async function selectLiveQuestions(args: SelectArgs): Promise<LiveQuestio
     where: {
       topic_id: { in: topicIds },
       status: 'published',
-      question_type: { notIn: [...MULTIPART_TYPES] },
+      question_type: { notIn: [...NEEDS_ITS_OWN_ANSWER_AREA] },
     },
     select: {
       id: true,

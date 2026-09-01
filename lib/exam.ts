@@ -6,6 +6,7 @@
 //   - Tier mix: 40% sprout / 40% explorer / 20% lightning (same as regular quiz).
 
 import { prisma } from './prisma'
+import { NEEDS_ITS_OWN_ANSWER_AREA } from './points'
 
 export interface ExamQuestion {
   id: string
@@ -179,6 +180,11 @@ export async function selectExamQuestions(
     where: {
       topic_id: { in: topicIds },
       status: 'published',
+      // An exam draws its own answer buttons from the right answer and the wrong
+      // ones. A question that needs its own answer area — typing, pairing,
+      // ordering — would show up here as one button with the answer written on
+      // it. Those belong in the full quiz screen only.
+      question_type: { notIn: [...NEEDS_ITS_OWN_ANSWER_AREA] },
     },
     select: {
       id: true,

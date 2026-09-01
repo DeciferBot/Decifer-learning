@@ -28,12 +28,30 @@ quiz screen could only show four lines of plain text:
     code rejected those on sight, because there was no picture. Now that check only
     applies when the item genuinely has no picture attached.
 
+THE OTHER THREE SHAPES (added 2026-09-01, about 12,000 more items). Oak also writes
+questions the child types, pairs up, or puts in order. The quiz screen now draws all
+three, so we import them too:
+
+  * short-answer -> the child types. Oak lists EVERY spelling it accepts ("12",
+    "12.", "twelve", "Twelve"), so we never guess at what counts. A "true or false?"
+    written this way becomes two buttons instead, because making a child spell out
+    "true" is a worse question, not a harder one.
+  * match  -> the child pairs a card on the left with one on the right.
+  * order  -> the child moves things up and down into the right order.
+
+None of the three uses dragging. Dragging fails the moment a finger wanders on a
+phone, cannot be done with a keyboard, and shuts out a child using a screen reader.
+Every one of these is answered by pressing buttons.
+
 WHAT WE STILL SKIP, HONESTLY.
-  * short-answer / match / order (about 12,000 items) — the child types or drags,
-    and our quiz screen only does "pick one of four". A real UI change, not a filter.
   * multiple-choice whose ANSWERS are pictures (about 1,200) — the screen can show
     picture choices, but it hardcodes empty alt text on them, so a child using a
     screen reader would get nothing. Fixing that comes before importing these.
+
+WHERE THE NEW SHAPES MAY APPEAR. The full quiz screen only. Exams and Blitz build
+their own row of buttons out of the right answer and the wrong ones, so a typing or
+pairing question would show up there as a single button with the answer written on
+it. Both filter these out; the list lives in lib/points.ts.
 
 Oak content is Open Government Licence v3.0 and carries Oak's own answer key, so it
 goes live directly at confidence 100 — same as every earlier Oak import. It is not
@@ -167,14 +185,181 @@ def picture_of(node) -> dict | None:
     return {"url": url, "alt": (node.get("alt") or "").strip() or "Question diagram"}
 
 
+def common_checks(item: dict) -> tuple[str, dict | None, str]:
+    """
+    The tests every Oak item must pass whatever its shape.
+    Returns (cleaned question text, picture or None, reason to reject).
+    """
+    raw_q = (item.get("question") or "").strip()
+    if len(raw_q) < 10:
+        return "", None, "question-too-short"
+    if raw_q.endswith(":"):
+        return "", None, "dangling-question"
+    if _STYLE_REFS.search(raw_q):
+        return "", None, "points-at-bold-or-underlined-text-we-cannot-show"
+
+    picture = picture_of(item.get("questionImage"))
+    if picture is None and any(p in raw_q.lower() for p in _VISUAL_REFS):
+        return "", None, "refers-to-a-picture-we-do-not-have"
+    return clean(raw_q), picture, ""
+
+
+def renderable(*texts: str) -> bool:
+    """Nothing left in the text that our screen would print as gibberish."""
+    return not any(mark in t for t in texts
+                   for mark in ("{{", "}}", "**", "\\frac", "<", ">"))
+
+
+def build_short_answer(item: dict, question_text: str) -> tuple[dict | None, str]:
+    """
+    A question the child types the answer to.
+
+    Oak lists every spelling it accepts — "12", "12.", "twelve", "Twelve" — so we
+    never have to guess at what counts. We keep all of them.
+    """
+    accepted, seen = [], set()
+    for a in (item.get("answers") or []):
+        if a.get("type") != "text":
+            return None, "typed-answer-is-not-text"
+        text = clean(str(a.get("content") or ""))
+        if not text or len(text) > 40:
+            continue                      # typing a paragraph is not the point here
+        if text.lower() not in seen:
+            seen.add(text.lower())
+            accepted.append({"accept": text})
+    if not accepted:
+        return None, "no-answer-a-child-could-type"
+
+    # Oak files "true or false?" questions as type-in ones. Making a child spell out
+    # "true" is a worse question, not a harder one — and it marks "yes" wrong. Two
+    # buttons is the honest shape, so these become pick-one instead.
+    words = {a["accept"].lower() for a in accepted}
+    if words <= {"true", "false"} and len(words) == 1:
+        right = accepted[0]["accept"]
+        return {
+            "question_type_suffix": None,
+            "question_text": question_text,
+            "correct_answer": right,
+            "distractors": ["false" if right.lower() == "true" else "true"],
+            "answer_parts": None,
+            "explanation": f"The answer is: {right}.",
+        }, ""
+    # More than one blank means more than one box, and we show one.
+    if question_text.count("_____") > 1:
+        return None, "more-than-one-blank-to-fill"
+    if not renderable(question_text, *(a["accept"] for a in accepted)):
+        return None, "leftover-formatting-we-cannot-render"
+
+    return {
+        "question_type_suffix": "short_answer_text",
+        "question_text": question_text,
+        "correct_answer": accepted[0]["accept"],
+        "distractors": [],
+        "answer_parts": accepted,
+        "explanation": f"The answer is: {accepted[0]['accept']}.",
+    }, ""
+
+
+def build_match(item: dict, question_text: str) -> tuple[dict | None, str]:
+    """A question where the child pairs things up."""
+    pairs, lefts, rights = [], set(), set()
+    for a in (item.get("answers") or []):
+        left_node, right_node = a.get("matchOption") or {}, a.get("correctChoice") or {}
+        if left_node.get("type") != "text" or right_node.get("type") != "text":
+            return None, "pairs-use-pictures-we-cannot-show"
+        left, right = clean(str(left_node.get("content") or "")), clean(str(right_node.get("content") or ""))
+        if not left or not right:
+            return None, "a-pair-is-missing-a-side"
+        if len(left) > 60 or len(right) > 60:
+            return None, "pair-text-too-long-for-a-card"
+        # A repeated card on either side makes the pairing unanswerable.
+        if left.lower() in lefts or right.lower() in rights:
+            return None, "the-same-card-appears-twice"
+        lefts.add(left.lower())
+        rights.add(right.lower())
+        pairs.append({"left": left, "right": right})
+
+    if not 2 <= len(pairs) <= 6:
+        return None, "too-few-or-too-many-pairs"
+    if not renderable(question_text, *(p["left"] for p in pairs), *(p["right"] for p in pairs)):
+        return None, "leftover-formatting-we-cannot-render"
+
+    return {
+        "question_type_suffix": "match_pairs",
+        "question_text": question_text,
+        "correct_answer": "; ".join(f"{p['left']} = {p['right']}" for p in pairs)[:500],
+        "distractors": [],
+        "answer_parts": pairs,
+        "explanation": "The pairs are: "
+                       + "; ".join(f"{p['left']} goes with {p['right']}" for p in pairs),
+    }, ""
+
+
+def build_order(item: dict, question_text: str) -> tuple[dict | None, str]:
+    """A question where the child puts things in the right order."""
+    rows = []
+    for a in (item.get("answers") or []):
+        if a.get("type") != "text":
+            return None, "order-uses-pictures-we-cannot-show"
+        text = clean(str(a.get("content") or ""))
+        position = a.get("order")
+        if not text or not isinstance(position, int):
+            return None, "an-item-has-no-position"
+        if len(text) > 80:
+            return None, "item-text-too-long-for-a-card"
+        rows.append((position, text))
+
+    rows.sort(key=lambda r: r[0])
+    items = [{"item": t} for _, t in rows]
+    if not 3 <= len(items) <= 6:
+        return None, "too-few-or-too-many-things-to-order"
+    if len({i["item"].lower() for i in items}) != len(items):
+        return None, "the-same-item-appears-twice"
+    if [p for p, _ in rows] != sorted({p for p, _ in rows}):
+        return None, "two-items-claim-the-same-position"
+    if not renderable(question_text, *(i["item"] for i in items)):
+        return None, "leftover-formatting-we-cannot-render"
+
+    return {
+        "question_type_suffix": "ordered_list",
+        "question_text": question_text,
+        "correct_answer": " → ".join(i["item"] for i in items)[:500],
+        "distractors": [],
+        "answer_parts": items,
+        "explanation": "The right order is: " + " → ".join(i["item"] for i in items),
+    }, ""
+
+
 def build_question(item: dict, tier: str,
                    keywords: list[tuple[str, str]]) -> tuple[dict | None, str]:
     """
     Turn one Oak quiz item into one of our questions, or explain why we can't.
     Returns (question, reason). Exactly one of the two is meaningful.
     """
-    if item.get("questionType") != "multiple-choice":
-        return None, "not-multiple-choice"
+    kind = item.get("questionType")
+    if kind in ("short-answer", "match", "order"):
+        question_text, picture, why = common_checks(item)
+        if why:
+            return None, why
+        builder = {"short-answer": build_short_answer,
+                   "match": build_match,
+                   "order": build_order}[kind]
+        built, why = builder(item, question_text)
+        if built is None:
+            return None, why
+        built.update({
+            "tier": tier,
+            "hint_1": hint_for(keywords, built["question_text"], built["correct_answer"])
+                      or GENERIC_HINTS[0],
+            "hint_2": GENERIC_HINTS[1],
+            "hint_3": GENERIC_HINTS[2],
+            "foundation_images": [picture] if picture else None,
+            "kept_one_of_several_correct": False,
+        })
+        return built, ""
+
+    if kind != "multiple-choice":
+        return None, "not-a-shape-we-can-show"
 
     raw_q = (item.get("question") or "").strip()
     if len(raw_q) < 15:
@@ -224,9 +409,11 @@ def build_question(item: dict, tier: str,
             return None, "leftover-formatting-we-cannot-render"
 
     return {
+        "question_type_suffix": None,          # a plain pick-one question
         "question_text": question_text,
         "correct_answer": answer_text,
         "distractors": distractors,
+        "answer_parts": None,
         "hint_1": hint_for(keywords, question_text, answer_text) or GENERIC_HINTS[0],
         "hint_2": GENERIC_HINTS[1],
         "hint_3": GENERIC_HINTS[2],
@@ -341,6 +528,7 @@ def main() -> int:
     to_write: list[tuple] = []
     kept_multi = 0
     with_picture = 0
+    shapes: Counter[str] = Counter()
 
     for row in lessons:
         if args.subject and row["subject"] not in args.subject:
@@ -406,18 +594,27 @@ def main() -> int:
                 if q["foundation_images"]:
                     with_picture += 1
 
+                # The quiz screen chooses which answer area to show from
+                # question_type. A pick-one question keeps the old oak_<subject>
+                # naming; the three new shapes must use the exact names the screen
+                # looks for, or the child would be shown four empty buttons.
+                qtype = q["question_type_suffix"] or f"oak_{(row['subject'] or 'gen').lower()}"
+                shapes[qtype] += 1
+
                 to_write.append((
                     str(uuid.uuid4()), topic["id"], q["tier"], q["question_text"],
-                    f"oak_{(row['subject'] or 'gen').lower()}",
+                    qtype,
                     q["correct_answer"], json.dumps(q["distractors"]),
                     q["hint_1"], q["hint_2"], q["hint_3"], q["explanation"],
                     json.dumps(q["foundation_images"]) if q["foundation_images"] else None,
+                    json.dumps(q["answer_parts"]) if q["answer_parts"] else None,
                     json.dumps({
                         "source": "oak",
                         "topic_slug": slug,
                         "oak_lesson_slug": row["lesson_slug"],
                         "oak_unit_slug": row["unit_slug"],
                         "oak_quiz": oak_quiz,
+                        "oak_question_type": item.get("questionType"),
                         "kept_one_of_several_correct": q["kept_one_of_several_correct"],
                         "has_question_picture": bool(q["foundation_images"]),
                         "license": "OGL-v3.0 Oak National Academy",
@@ -429,6 +626,10 @@ def main() -> int:
     print(f"Ready to add {len(to_write)} questions across {len(added_per_topic)} topics.")
     print(f"  {with_picture} of them keep an Oak diagram.")
     print(f"  {kept_multi} of them are Oak multi-answer questions kept as pick-one.")
+    if shapes:
+        print("\nBy how the child answers:")
+        for name, n in shapes.most_common():
+            print(f"  {n:>7}  {name}")
     if reasons:
         print("\nSkipped:")
         for why, n in reasons.most_common():
@@ -444,11 +645,14 @@ def main() -> int:
         step = max(1, len(to_write) // args.show)
         print("\n" + "=" * 70)
         for row in to_write[::step][:args.show]:
-            meta = json.loads(row[12])
+            meta = json.loads(row[13])
             print(f"\n{meta['topic_slug']}")
             print(f"[{row[2]}] {row[3]}")
             print(f"   right: {row[5]}")
-            print(f"   wrong: {', '.join(json.loads(row[6]))}")
+            if row[12]:
+                print(f"   parts: {json.dumps(json.loads(row[12]))[:220]}")
+            else:
+                print(f"   wrong: {', '.join(json.loads(row[6]))}")
             if row[11]:
                 print(f"   picture: {json.loads(row[11])[0]['url']}")
             if meta["kept_one_of_several_correct"]:
@@ -472,9 +676,9 @@ def main() -> int:
         INSERT INTO quiz_questions
           (id, topic_id, tier, question_text, question_type, correct_answer,
            distractors, hint_1, hint_2, hint_3, explanation, foundation_images,
-           confidence_score, status, question_metadata, generator_version,
-           verifier_version, published_at, created_at)
-        VALUES (%s,%s,%s,%s,%s,%s,%s::jsonb,%s,%s,%s,%s,%s::jsonb,
+           answer_parts, confidence_score, status, question_metadata,
+           generator_version, verifier_version, published_at, created_at)
+        VALUES (%s,%s,%s,%s,%s,%s,%s::jsonb,%s,%s,%s,%s,%s::jsonb,%s::jsonb,
                 100.0,'published',%s::jsonb,'oak-publish-v2','oak-authoritative',
                 now(), now())
     """, to_write, page_size=200)

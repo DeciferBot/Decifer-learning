@@ -14,13 +14,32 @@ type Props = {
   disabled: boolean
 }
 
-function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr]
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[a[i], a[j]] = [a[j], a[i]]
-  }
-  return a
+/**
+ * Mix the items up, the same way every time for the same items.
+ *
+ * This used to use a random shuffle. The page is drawn once on the server and
+ * again in the browser, and a random shuffle gives a different order each time,
+ * so the two drawings disagreed and React tore the whole list down and rebuilt
+ * it — an error in the console and a visible flicker for the child. It never
+ * showed up because no ordering question had ever gone live; the first 93 of
+ * them arrived on 2026-09-01 and it appeared immediately.
+ *
+ * Ordering off the items themselves means the server and the browser always
+ * agree. The last step guards the one thing a fixed order could get wrong:
+ * handing the child the answer already correct.
+ */
+function shuffle(items: string[]): string[] {
+  const mixed = [...items]
+    .map((v) => {
+      let h = 0
+      for (let i = 0; i < v.length; i++) h = (h * 31 + v.charCodeAt(i)) | 0
+      return { v, h }
+    })
+    .sort((a, b) => a.h - b.h || a.v.localeCompare(b.v))
+    .map((x) => x.v)
+
+  const alreadyRight = mixed.every((v, i) => v === items[i])
+  return alreadyRight && mixed.length > 1 ? [...mixed.slice(1), mixed[0]] : mixed
 }
 
 export function OrderedList({ items, onAnswer, disabled }: Props) {
