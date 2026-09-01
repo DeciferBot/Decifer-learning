@@ -43,10 +43,21 @@ None of the three uses dragging. Dragging fails the moment a finger wanders on a
 phone, cannot be done with a keyboard, and shuts out a child using a screen reader.
 Every one of these is answered by pressing buttons.
 
-WHAT WE STILL SKIP, HONESTLY.
-  * multiple-choice whose ANSWERS are pictures (about 1,200) — the screen can show
-    picture choices, but it hardcodes empty alt text on them, so a child using a
-    screen reader would get nothing. Fixing that comes before importing these.
+PICTURE ANSWERS (added 2026-09-01). "Which of these is a circle?", where the child
+chooses between pictures. These were held back because the answer buttons were given
+no description, so a child using a screen reader heard nothing where the answer
+should be. The button is now named out loud by its picture's description, and that
+description is also what we store as the answer, so the record of what a child
+answered reads as words rather than "B".
+
+Held to the strictest rules here, because a picture question with a missing or
+muddled picture is not merely ugly, it is impossible:
+  * every picture must have been fetched and seen to load (see oak-check-images.py);
+  * every picture must carry a description, under 120 characters, that does not
+    repeat itself the way an auto-written one does;
+  * no two pictures in one question may be described the same way, or a child
+    listening cannot tell them apart.
+Anything failing any of those is left out.
 
 WHERE THE NEW SHAPES MAY APPEAR. The full quiz screen only. Exams and Blitz build
 their own row of buttons out of the right answer and the wrong ones, so a typing or
@@ -175,17 +186,23 @@ def year_number(label: str | None) -> int | None:
 MAX_YEAR_GAP = 2
 
 
-def picture_of(node) -> dict | None:
-    """Oak image nodes are {url, alt, width, height}. We keep url + alt only."""
+def picture_of(node, picture_ok=None) -> dict | None:
+    """
+    Oak image nodes are {url, alt, width, height}. We keep url + alt only, and only
+    when the link has been fetched and seen to load — a broken box beside a question
+    is worse than no picture, because the question then refers to nothing.
+    """
     if not isinstance(node, dict):
         return None
     url = (node.get("url") or "").strip()
     if not url.startswith("https://"):
         return None
+    if picture_ok is not None and not picture_ok(url):
+        return None
     return {"url": url, "alt": (node.get("alt") or "").strip() or "Question diagram"}
 
 
-def common_checks(item: dict) -> tuple[str, dict | None, str]:
+def common_checks(item: dict, picture_ok=None) -> tuple[str, dict | None, str]:
     """
     The tests every Oak item must pass whatever its shape.
     Returns (cleaned question text, picture or None, reason to reject).
@@ -198,9 +215,11 @@ def common_checks(item: dict) -> tuple[str, dict | None, str]:
     if _STYLE_REFS.search(raw_q):
         return "", None, "points-at-bold-or-underlined-text-we-cannot-show"
 
-    picture = picture_of(item.get("questionImage"))
+    picture = picture_of(item.get("questionImage"), picture_ok)
     if picture is None and any(p in raw_q.lower() for p in _VISUAL_REFS):
         return "", None, "refers-to-a-picture-we-do-not-have"
+    if picture is None and item.get("questionImage"):
+        return "", None, "the-picture-beside-this-question-does-not-load"
     return clean(raw_q), picture, ""
 
 
@@ -208,6 +227,118 @@ def renderable(*texts: str) -> bool:
     """Nothing left in the text that our screen would print as gibberish."""
     return not any(mark in t for t in texts
                    for mark in ("{{", "}}", "**", "\\frac", "<", ">"))
+
+
+# Turns of phrase that only appear in a description written by a machine looking at
+# a photograph. They describe the photograph rather than the thing being asked about
+# — "a white rock sitting on top of a counter next to a knife and a bowl of food" is
+# an answer about rocks, and the knife and the food are noise a child does not need.
+# Oak's picture descriptions are auto-written and many read like this, so they are
+# left out rather than read aloud to a child who cannot see the picture.
+_AUTO_CAPTION_TELLS = re.compile(
+    r"\b(on a white background|in the background|sitting on top of|"
+    r"laying on top of|next to a|in the middle of the|a close up of|"
+    r"a picture of a|a photo of a|with a white wall|on a wooden table|"
+    r"on a white table|in front of a)\b", re.I)
+
+
+def rambling(text: str) -> bool:
+    """
+    True when a description repeats itself, the way an auto-written one does.
+
+    Oak's picture descriptions are mostly good, but some loop: "a pink square with
+    a black border in the middle of the square is a square with a black border in
+    the middle of the square is a rectangle". Read out to a child who cannot see the
+    picture, that is worse than useless. Any run of four words that appears twice is
+    enough to throw it out.
+    """
+    words = re.findall(r"[a-z]+", text.lower())
+    runs = set()
+    for i in range(len(words) - 3):
+        run = tuple(words[i:i + 4])
+        if run in runs:
+            return True
+        runs.add(run)
+    return False
+
+
+def build_picture_choice(item: dict, question_text: str,
+                         picture_ok) -> tuple[dict | None, str]:
+    """
+    A question where the child chooses between pictures — "which of these is a
+    circle?".
+
+    These were left out until now because the answer buttons were given no
+    description at all, so a child using a screen reader heard nothing but silence
+    where the answer should be. Every picture here carries a description, that
+    description is what the button is called out loud, and the description is also
+    the answer we store — so the record of what a child answered reads as words
+    rather than "B".
+
+    Nothing is allowed through unless EVERY picture in it has been fetched and seen
+    to load. A missing picture in a question like this does not merely look wrong;
+    it makes the question impossible.
+    """
+    options, seen = [], set()
+    for a in (item.get("answers") or []):
+        if a.get("type") != "image":
+            return None, "mixes-pictures-and-words"
+        content = a.get("content") or {}
+        url = (content.get("url") or "").strip()
+        alt = clean(str(content.get("alt") or ""))
+        if not url.startswith("https://"):
+            return None, "a-picture-has-no-address"
+        if not alt:
+            return None, "a-picture-has-no-description"
+        # Oak's picture descriptions are written by machine, not by a teacher:
+        # measured across all 3,618 of them, the average is 111 characters and half
+        # contain phrases like "sitting on top of a counter next to a knife". Only
+        # 16 are under 60 characters. So there is no clean subset to keep, and the
+        # descriptions are used for ONE thing only — saying out loud what a picture
+        # shows, to a child who cannot see it. They are never printed on screen and
+        # never stored as the answer (see below). A rambling one is still far better
+        # than silence; one that repeats itself is not, so that check stays.
+        if len(alt) > 200:
+            return None, "a-picture-description-is-too-long-to-listen-to"
+        if rambling(alt):
+            return None, "a-picture-description-repeats-itself"
+        if not picture_ok(url):
+            return None, "a-picture-does-not-load"
+        # Two pictures described the same way cannot be told apart by ear.
+        if alt.lower() in seen:
+            return None, "two-pictures-are-described-the-same-way"
+        seen.add(alt.lower())
+        options.append({"alt": alt, "url": url, "wrong": a.get("distractor") is True})
+
+    right = [o for o in options if not o["wrong"]]
+    wrong = [o for o in options if o["wrong"]]
+    if len(right) != 1:
+        return None, "not-exactly-one-right-picture"
+    if len(wrong) < 2:
+        return None, "fewer-than-two-wrong-pictures"
+    if not renderable(question_text):
+        return None, "leftover-formatting-we-cannot-render"
+
+    # The answer stored is a plain letter, NOT the description.
+    #
+    # The first version stored the description, and it would have been printed to
+    # every child who got the question wrong: "Not quite. The answer is an adult
+    # oranguel holding a baby oranguel on a tree branch in a zoo enclosure at the
+    # zoo". Misspelling and all, because Oak's descriptions are machine-written.
+    # A letter can never embarrass us on screen, and every screen that shows these
+    # questions shows the picture rather than the letter.
+    chosen = [right[0]] + wrong[:3]
+    letters = ["A", "B", "C", "D"][:len(chosen)]
+    return {
+        "question_type_suffix": "picture_choice",
+        "question_text": question_text,
+        "correct_answer": letters[0],
+        "distractors": letters[1:],
+        "answer_parts": None,
+        "option_images": {letters[i]: {"url": o["url"], "alt": o["alt"]}
+                          for i, o in enumerate(chosen)},
+        "explanation": "The right picture is shown above.",
+    }, ""
 
 
 def build_short_answer(item: dict, question_text: str) -> tuple[dict | None, str]:
@@ -330,15 +461,36 @@ def build_order(item: dict, question_text: str) -> tuple[dict | None, str]:
     }, ""
 
 
-def build_question(item: dict, tier: str,
-                   keywords: list[tuple[str, str]]) -> tuple[dict | None, str]:
+def build_question(item: dict, tier: str, keywords: list[tuple[str, str]],
+                   picture_ok) -> tuple[dict | None, str]:
     """
     Turn one Oak quiz item into one of our questions, or explain why we can't.
     Returns (question, reason). Exactly one of the two is meaningful.
     """
     kind = item.get("questionType")
+    picture_answers = any(a.get("type") == "image" for a in (item.get("answers") or []))
+
+    if kind == "multiple-choice" and picture_answers:
+        question_text, picture, why = common_checks(item, picture_ok)
+        if why:
+            return None, why
+        built, why = build_picture_choice(item, question_text, picture_ok)
+        if built is None:
+            return None, why
+        built.update({
+            "tier": tier,
+            "hint_1": hint_for(keywords, built["question_text"], built["correct_answer"])
+                      or GENERIC_HINTS[0],
+            "hint_2": GENERIC_HINTS[1],
+            "hint_3": GENERIC_HINTS[2],
+            "foundation_images": [picture] if picture else None,
+            "kept_one_of_several_correct": False,
+        })
+        built.setdefault("option_images", None)
+        return built, ""
+
     if kind in ("short-answer", "match", "order"):
-        question_text, picture, why = common_checks(item)
+        question_text, picture, why = common_checks(item, picture_ok)
         if why:
             return None, why
         builder = {"short-answer": build_short_answer,
@@ -356,6 +508,7 @@ def build_question(item: dict, tier: str,
             "foundation_images": [picture] if picture else None,
             "kept_one_of_several_correct": False,
         })
+        built.setdefault("option_images", None)
         return built, ""
 
     if kind != "multiple-choice":
@@ -372,10 +525,6 @@ def build_question(item: dict, tier: str,
         return None, "points-at-bold-or-underlined-text-we-cannot-show"
 
     answers = item.get("answers") or []
-    if any(a.get("type") == "image" for a in answers):
-        # The screen can show picture choices but gives them empty alt text, so a
-        # child using a screen reader would get nothing. Not until that is fixed.
-        return None, "picture-answers-not-accessible-yet"
 
     correct = [a for a in answers if a.get("type") == "text" and a.get("distractor") is not True]
     wrong = [a for a in answers if a.get("type") == "text" and a.get("distractor") is True]
@@ -384,9 +533,11 @@ def build_question(item: dict, tier: str,
     if len(wrong) < 2:
         return None, "fewer-than-two-wrong-answers"
 
-    picture = picture_of(item.get("questionImage"))
+    picture = picture_of(item.get("questionImage"), picture_ok)
     if picture is None and any(p in raw_q.lower() for p in _VISUAL_REFS):
         return None, "refers-to-a-picture-we-do-not-have"
+    if picture is None and item.get("questionImage"):
+        return None, "the-picture-beside-this-question-does-not-load"
 
     answer_text = clean(correct[0].get("content") or "")
     if not answer_text:
@@ -411,6 +562,7 @@ def build_question(item: dict, tier: str,
     return {
         "question_type_suffix": None,          # a plain pick-one question
         "question_text": question_text,
+        "option_images": None,
         "correct_answer": answer_text,
         "distractors": distractors,
         "answer_parts": None,
@@ -472,6 +624,9 @@ def main() -> int:
                     help="restrict to a subject; repeatable")
     ap.add_argument("--report-unmapped", metavar="FILE",
                     help="write Oak units that have no topic yet, for the mapper")
+    ap.add_argument("--only", metavar="SHAPE",
+                    help="restrict to one way of answering, e.g. picture_choice. "
+                         "Meant for reading a new shape before it goes live.")
     ap.add_argument("--show", type=int, default=0, metavar="N",
                     help="print N of the questions in full, so they can be read "
                          "before anything goes in front of a child")
@@ -510,6 +665,13 @@ def main() -> int:
 
     # Every question we already hold, in any state, so we never add a repeat and
     # never resurrect something that was deliberately retired.
+    # Pictures already fetched and seen to load. Anything not in here is treated as
+    # broken, so a picture nobody has checked is never put in front of a child.
+    cur.execute("SELECT url FROM oak_image_checks WHERE ok")
+    working_pictures = {r["url"] for r in cur.fetchall()}
+    picture_ok = working_pictures.__contains__
+    print(f"{len(working_pictures)} Oak pictures have been checked and load.")
+
     cur.execute("SELECT question_text, correct_answer FROM quiz_questions")
     seen = {norm(r["question_text"]) + "|" + norm(r["correct_answer"]) for r in cur.fetchall()}
 
@@ -577,9 +739,17 @@ def main() -> int:
                 if have >= args.target:
                     break
 
-                q, why = build_question(item, tier, keywords)
+                q, why = build_question(item, tier, keywords, picture_ok)
                 if q is None:
                     reasons[why] += 1
+                    continue
+
+                # The shape name the quiz screen dispatches on. A plain pick-one
+                # question keeps the old oak_<subject> naming; the newer shapes must
+                # use the exact names the screen looks for, or a child would be shown
+                # four empty buttons.
+                qtype = q["question_type_suffix"] or f"oak_{(row['subject'] or 'gen').lower()}"
+                if args.only and qtype != args.only:
                     continue
 
                 dedup_key = norm(q["question_text"]) + "|" + norm(q["correct_answer"])
@@ -594,11 +764,6 @@ def main() -> int:
                 if q["foundation_images"]:
                     with_picture += 1
 
-                # The quiz screen chooses which answer area to show from
-                # question_type. A pick-one question keeps the old oak_<subject>
-                # naming; the three new shapes must use the exact names the screen
-                # looks for, or the child would be shown four empty buttons.
-                qtype = q["question_type_suffix"] or f"oak_{(row['subject'] or 'gen').lower()}"
                 shapes[qtype] += 1
 
                 to_write.append((
@@ -608,6 +773,7 @@ def main() -> int:
                     q["hint_1"], q["hint_2"], q["hint_3"], q["explanation"],
                     json.dumps(q["foundation_images"]) if q["foundation_images"] else None,
                     json.dumps(q["answer_parts"]) if q["answer_parts"] else None,
+                    json.dumps(q["option_images"]) if q.get("option_images") else None,
                     json.dumps({
                         "source": "oak",
                         "topic_slug": slug,
@@ -645,7 +811,7 @@ def main() -> int:
         step = max(1, len(to_write) // args.show)
         print("\n" + "=" * 70)
         for row in to_write[::step][:args.show]:
-            meta = json.loads(row[13])
+            meta = json.loads(row[14])
             print(f"\n{meta['topic_slug']}")
             print(f"[{row[2]}] {row[3]}")
             print(f"   right: {row[5]}")
@@ -676,9 +842,9 @@ def main() -> int:
         INSERT INTO quiz_questions
           (id, topic_id, tier, question_text, question_type, correct_answer,
            distractors, hint_1, hint_2, hint_3, explanation, foundation_images,
-           answer_parts, confidence_score, status, question_metadata,
+           answer_parts, option_images, confidence_score, status, question_metadata,
            generator_version, verifier_version, published_at, created_at)
-        VALUES (%s,%s,%s,%s,%s,%s,%s::jsonb,%s,%s,%s,%s,%s::jsonb,%s::jsonb,
+        VALUES (%s,%s,%s,%s,%s,%s,%s::jsonb,%s,%s,%s,%s,%s::jsonb,%s::jsonb,%s::jsonb,
                 100.0,'published',%s::jsonb,'oak-publish-v2','oak-authoritative',
                 now(), now())
     """, to_write, page_size=200)

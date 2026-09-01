@@ -16,12 +16,22 @@ const TILES = [
 
 export function AnswerTiles({
   choices,
+  pictures,
   disabled,
   selected,
   correctAnswer,
   onPick,
 }: {
   choices: string[]
+  /**
+   * Only on picture questions. Keyed by the choice it belongs to.
+   *
+   * On these questions the words behind a tile are the picture's description, so
+   * printing them would hand over the answer. The tile shows the picture and says
+   * the description out loud instead — which is how a child using a screen reader
+   * can play at all.
+   */
+  pictures?: Record<string, { url: string; alt: string }>
   disabled: boolean
   selected: string | null
   correctAnswer: string | null // set only after the player is locked in / time's up
@@ -34,18 +44,23 @@ export function AnswerTiles({
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
       {choices.map((choice, i) => {
         const tile = TILES[i % TILES.length]
+        const picture = pictures?.[choice]
         const isCorrect = revealed && norm(choice) === norm(correctAnswer)
         const isMine = selected !== null && norm(choice) === norm(selected)
         const dim = revealed && !isCorrect && !isMine
 
         return (
           <motion.button
-            key={`${choice}-${i}`}
+            // Position is part of the key: every picture question uses the
+            // same letters A to D, so the answer alone is not unique across
+            // questions.
+            key={`${i}:${choice}`}
             whileHover={disabled ? undefined : { y: -2 }}
             whileTap={disabled ? undefined : { y: 2, scale: 0.99 }}
             disabled={disabled}
             onClick={() => onPick(choice)}
             aria-pressed={isMine}
+            aria-label={picture ? picture.alt : undefined}
             animate={{
               opacity: dim ? 0.35 : 1,
               scale: revealed && isCorrect ? 1.015 : 1,
@@ -69,7 +84,17 @@ export function AnswerTiles({
             >
               {tile.shape}
             </span>
-            <span className="flex-1 leading-snug">{choice}</span>
+            {picture ? (
+              <img
+                src={picture.url}
+                // The tile is already named by this picture's description, so
+                // repeating it here would say the same thing twice.
+                alt=""
+                className="h-16 flex-1 rounded-lg bg-white/90 object-contain p-1"
+              />
+            ) : (
+              <span className="flex-1 leading-snug">{choice}</span>
+            )}
             {isCorrect ? (
               <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-surface/90">
                 <Check className="h-5 w-5" style={{ color: tile.lip }} />

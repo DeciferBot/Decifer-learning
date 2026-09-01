@@ -25,6 +25,31 @@ export type LiveQuestionRow = {
   distractors: string[]
 }
 
+/** A picture to show on an answer tile, with the words that describe it. */
+export type ChoicePicture = { url: string; alt: string }
+
+/**
+ * Read the pictures stored against a question's answers, if it has any.
+ *
+ * Two shapes are stored: a bare link (older) and a link with a description. Only
+ * the second is used out here. A tile whose whole meaning is a picture must be able
+ * to say what it shows, or a child using a screen reader is handed four tiles that
+ * announce nothing they can act on.
+ */
+export function choicePictures(optionImages: unknown): Record<string, ChoicePicture> {
+  if (!optionImages || typeof optionImages !== 'object') return {}
+  const out: Record<string, ChoicePicture> = {}
+  for (const [choice, value] of Object.entries(optionImages as Record<string, unknown>)) {
+    if (value && typeof value === 'object') {
+      const { url, alt } = value as { url?: unknown; alt?: unknown }
+      if (typeof url === 'string' && typeof alt === 'string' && url && alt) {
+        out[choice] = { url, alt }
+      }
+    }
+  }
+  return out
+}
+
 type SelectArgs = {
   mode: 'topic' | 'subject'
   topicId?: string | null

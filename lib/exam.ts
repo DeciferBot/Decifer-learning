@@ -26,6 +26,8 @@ export interface ExamQuestion {
   technique_hint: string | null
   technique_note: string | null
   answer_parts: unknown
+  /** Pictures for the answer buttons, on picture questions. */
+  option_images: unknown
   source_text: string | null
   source_label: string | null
   source_type: string | null
@@ -203,6 +205,7 @@ export async function selectExamQuestions(
       technique_hint: true,
       technique_note: true,
       answer_parts: true,
+      option_images: true,
       source_text: true,
       source_label: true,
       source_type: true,
@@ -252,6 +255,7 @@ export async function selectExamQuestions(
     technique_hint: q.technique_hint,
     technique_note: q.technique_note,
     answer_parts: q.answer_parts,
+    option_images: q.option_images,
     source_text: q.source_text,
     source_label: q.source_label,
     source_type: q.source_type,

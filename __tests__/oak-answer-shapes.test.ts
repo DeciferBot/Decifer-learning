@@ -15,6 +15,7 @@ import {
   MULTIPART_TYPES,
   NEEDS_ITS_OWN_ANSWER_AREA,
 } from '@/lib/points'
+import { stableChoiceOrder } from '@/lib/quiz/stable-order'
 
 const key = [
   { id: 'pick', question_type: 'oak_maths', correct_answer: '12' },
@@ -64,13 +65,37 @@ describe('marking a typed question', () => {
 })
 
 describe('where each shape is allowed to appear', () => {
-  it('keeps typing, pairing and ordering out of exams and Blitz', () => {
-    // Those two screens build their own buttons out of the right answer and the
-    // wrong ones. A question with no wrong answers would appear as a single
-    // button with the answer written on it.
+  it('keeps typing, pairing and ordering off screens that only draw buttons', () => {
+    // Exams, Blitz and the daily challenge build their own buttons out of the right
+    // answer and the wrong ones. A question with no wrong answers would appear there
+    // as a single button with the answer written on it.
     for (const shape of ['short_answer_text', 'match_pairs', 'ordered_list']) {
       expect(NEEDS_ITS_OWN_ANSWER_AREA.has(shape)).toBe(true)
     }
+  })
+
+  it('lets picture questions go everywhere, because they are still tap-one-of-four', () => {
+    // They were briefly held back. That was wrong: the shape is ordinary, only the
+    // face of each button is a picture. Every screen that offers them reads the
+    // pictures, so none of them prints the descriptions instead.
+    expect(NEEDS_ITS_OWN_ANSWER_AREA.has('picture_choice')).toBe(false)
+  })
+
+  it('marks a picture question on the server like any other pick-one', () => {
+    // The answer stored is the right picture's description, and that is exactly
+    // what the browser sends back when a child taps it. No special trust needed.
+    expect(MULTIPART_TYPES.has('picture_choice')).toBe(false)
+    const [right] = scoreAnswers(
+      [{ questionId: 'pic', childAnswer: 'a red circle', wasCorrect: true, hintNumber: 0, timeSeconds: 3 }],
+      [{ id: 'pic', question_type: 'picture_choice', correct_answer: 'a red circle' }],
+    )
+    expect(right.wasCorrect).toBe(true)
+
+    const [wrong] = scoreAnswers(
+      [{ questionId: 'pic', childAnswer: 'a blue square', wasCorrect: true, hintNumber: 0, timeSeconds: 3 }],
+      [{ id: 'pic', question_type: 'picture_choice', correct_answer: 'a red circle' }],
+    )
+    expect(wrong.wasCorrect).toBe(false)
   })
 
   it('leaves ordinary pick-one questions alone', () => {
@@ -82,5 +107,32 @@ describe('where each shape is allowed to appear', () => {
     for (const shape of MULTIPART_TYPES) {
       expect(NEEDS_ITS_OWN_ANSWER_AREA.has(shape)).toBe(true)
     }
+  })
+})
+
+describe('the order the answer buttons appear in', () => {
+  it('is the same every time for the same question', () => {
+    // This is the whole point. The page is drawn once on the server and again in
+    // the browser. When the order was random, the two disagreed on every question:
+    // the browser kept the pictures the server sent but relabelled the buttons in
+    // its own order, so a button showed one picture while carrying another's
+    // description — and the green "correct" mark landed on the wrong picture.
+    const a = stableChoiceOrder('q-123', 'A', ['B', 'C', 'D'])
+    const b = stableChoiceOrder('q-123', 'A', ['B', 'C', 'D'])
+    expect(a).toEqual(b)
+  })
+
+  it('puts the answers in a different place for different questions', () => {
+    // Every picture question stores its answers as the letters A to D, so an order
+    // worked out from the answers alone would put the right one in the same place
+    // on every single picture question. It comes from the question's id instead.
+    const orders = ['q-1', 'q-2', 'q-3', 'q-4', 'q-5', 'q-6']
+      .map((id) => stableChoiceOrder(id, 'A', ['B', 'C', 'D']).indexOf('A'))
+    expect(new Set(orders).size).toBeGreaterThan(1)
+  })
+
+  it('keeps every answer, exactly once', () => {
+    const out = stableChoiceOrder('q-9', 'A', ['B', 'C', 'D'])
+    expect([...out].sort()).toEqual(['A', 'B', 'C', 'D'])
   })
 })

@@ -37,7 +37,8 @@ export interface AdaptiveQuestion {
   // structurally compatible with the QuizShell QuizQuestion type it is cast to.
   foundation_images: { url: string; alt?: string }[] | null
   // KS1 visual-answer mode — { [answerText]: imageUrl }. See schema.prisma.
-  option_images: Record<string, string> | null
+  /** A bare link is the older shape; the newer one carries a description too. */
+  option_images: Record<string, string | { url: string; alt?: string }> | null
   // IRT Rasch difficulty (logits); null until the nightly calibration has enough data.
   difficulty_b: number | null
 }
