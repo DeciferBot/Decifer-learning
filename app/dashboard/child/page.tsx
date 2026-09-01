@@ -347,8 +347,20 @@ export default async function ChildDashboardPage() {
       {/* Offered as soon as the child has finished a round, not at streak >= 2. */}
       {!neverPlayed && <StreakReminderPrompt />}
 
-      {/* ── Daily challenge (secondary once there is a topic to do) ─────── */}
-      {nextAction && (
+      {/* ── One reward row, only when it carries news ───────────────────── */}
+      {vaultCredits > 0 ? (
+        <Link
+          href="/vault"
+          className="flex items-center gap-3 rounded-2xl border-2 border-correct/50 bg-correct/10 px-4 py-3 shadow-clay-sm transition-[transform,box-shadow,background-color] duration-fast ease-out hover:bg-correct/15 active:translate-y-[2px] active:shadow-clay-pressed motion-reduce:transition-none motion-reduce:active:translate-y-0"
+        >
+          <Gift className="w-5 h-5 flex-none text-correct-700" aria-hidden />
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-bold text-ink">Reward Vault</p>
+            <p className="text-xs text-muted">{vaultCredits} reward{vaultCredits !== 1 ? 's' : ''} ready to claim</p>
+          </div>
+          <span className="flex-none text-xs font-bold text-correct-700">Open &rarr;</span>
+        </Link>
+      ) : nextAction ? (
         <Link
           href="/daily-challenge"
           className="flex items-center gap-3 rounded-2xl border-2 border-points-gold/40 bg-points-gold/10 px-4 py-3 shadow-clay-sm transition-[transform,box-shadow,background-color] duration-fast ease-out hover:bg-points-gold/15 active:translate-y-[2px] active:shadow-clay-pressed motion-reduce:transition-none motion-reduce:active:translate-y-0"
@@ -356,34 +368,11 @@ export default async function ChildDashboardPage() {
           <Star className="w-5 h-5 flex-none text-points-gold-700" aria-hidden />
           <div className="min-w-0 flex-1">
             <p className="text-sm font-bold text-ink">Daily Mystery Challenge</p>
-            <p className="text-xs text-muted">3 fresh questions · bonus points</p>
+            <p className="text-xs text-muted">3 fresh questions &middot; bonus points</p>
           </div>
-          <span className="flex-none text-xs font-bold text-points-gold-700">Play →</span>
+          <span className="flex-none text-xs font-bold text-points-gold-700">Play &rarr;</span>
         </Link>
-      )}
-
-      {/* ── Reward Vault — our best asset, so it sits above the small print ─ */}
-      <Link
-        href="/vault"
-        className={`flex items-center gap-3 rounded-2xl px-4 py-3 shadow-clay-sm transition-[transform,box-shadow,background-color] duration-fast ease-out active:translate-y-[2px] active:shadow-clay-pressed motion-reduce:transition-none motion-reduce:active:translate-y-0 ${
-          vaultCredits > 0
-            ? 'border-2 border-correct/50 bg-correct/10 hover:bg-correct/15'
-            : 'border-2 border-sea/25 bg-sea/5 hover:bg-sea/10'
-        }`}
-      >
-        <Gift className={`w-5 h-5 flex-none ${vaultCredits > 0 ? 'text-correct-700' : 'text-brand-700'}`} aria-hidden />
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-bold text-ink">Reward Vault</p>
-          <p className="text-xs text-muted">
-            {vaultCredits > 0
-              ? `${vaultCredits} reward${vaultCredits !== 1 ? 's' : ''} ready to claim`
-              : vaultBand !== 'none'
-                ? 'Keep going to unlock your next reward'
-                : 'Real rewards for real progress'}
-          </p>
-        </div>
-        <span className="flex-none text-xs font-bold text-brand-700">Open →</span>
-      </Link>
+      ) : null}
 
       {/* ── Everywhere else, three across ───────────────────────────────────
           Three columns rather than four, so each tile is wide enough for a
@@ -410,14 +399,28 @@ export default async function ChildDashboardPage() {
         ))}
       </div>
 
-      {/* ── More topics to revisit, if SM-2 queued several ──────────────── */}
-      {revisitDue.length > 1 && (
-        <details className="rounded-2xl border border-black/5 bg-surface px-4 py-3 shadow-sm">
+      {/* ── Everything extra, in one closed drawer ──────────────────────── */}
+      {(revisitDue.length > 1 || assignedMissions.length > 1) && (
+        <details className="rounded-2xl border-2 border-black/8 bg-surface px-4 py-3 shadow-clay-sm">
           <summary className="cursor-pointer text-sm font-semibold text-ink">
-            <RefreshCw className="mr-1.5 inline w-3.5 h-3.5 text-explorer" aria-hidden />
-            {revisitDue.length - 1} more ready for a replay
+            <RefreshCw className="mr-1.5 inline w-3.5 h-3.5 text-sea" aria-hidden />
+            More for you ({(revisitDue.length > 1 ? revisitDue.length - 1 : 0) + (assignedMissions.length > 1 ? assignedMissions.length - 1 : 0)})
           </summary>
           <ul className="mt-2 space-y-1.5">
+            {assignedMissions.slice(1).map((m) => m.topic && (
+              <li key={m.id}>
+                <Link
+                  href={`/topics/${m.topic.id}/learn`}
+                  className="flex items-center justify-between gap-3 rounded-xl px-2 py-2 text-sm transition-colors hover:bg-black/[0.03]"
+                >
+                  <span className="truncate font-semibold text-ink">
+                    <MapPin className="mr-1 inline w-3 h-3 text-points-gold-700" aria-hidden />
+                    {m.topic.title}
+                  </span>
+                  <span className="flex-none text-xs font-bold text-brand-700">Set by your parent &rarr;</span>
+                </Link>
+              </li>
+            ))}
             {revisitDue.slice(1).map((t) => (
               <li key={t.id}>
                 <Link
@@ -425,34 +428,12 @@ export default async function ChildDashboardPage() {
                   className="flex items-center justify-between gap-3 rounded-xl px-2 py-2 text-sm transition-colors hover:bg-black/[0.03]"
                 >
                   <span className="truncate font-semibold text-ink">{t.title}</span>
-                  <span className="flex-none text-xs font-bold text-explorer">Replay →</span>
+                  <span className="flex-none text-xs font-bold text-sea">Replay &rarr;</span>
                 </Link>
               </li>
             ))}
           </ul>
         </details>
-      )}
-
-      {/* ── Other focus topics set by a parent ──────────────────────────── */}
-      {assignedMissions.length > 1 && (
-        <div className="rounded-2xl border border-points-gold/40 bg-points-gold/8 px-4 py-3 space-y-2">
-          <p className="text-xs font-bold uppercase tracking-widest text-points-gold-700 flex items-center gap-1.5">
-            <MapPin className="w-3.5 h-3.5" aria-hidden /> Also set by your parent
-          </p>
-          <ul className="space-y-1.5">
-            {assignedMissions.slice(1).map((m) => m.topic && (
-              <li key={m.id}>
-                <Link
-                  href={`/topics/${m.topic.id}/learn`}
-                  className="flex items-center justify-between gap-3 rounded-xl bg-surface/60 px-3 py-2 transition-colors hover:bg-surface"
-                >
-                  <span className="truncate text-sm font-semibold text-ink">{m.topic.title}</span>
-                  <span className="flex-none text-xs font-bold text-brand-700">Start →</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
       )}
 
       {/* ── Curriculum map ──────────────────────────────────────────────── */}
