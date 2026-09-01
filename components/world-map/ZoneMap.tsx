@@ -5,6 +5,7 @@ import { TopicNode, NODE_CIRCLE, type NodeState } from './TopicNode'
 import { Leaf, TreePine, Mountain, Hexagon, ScrollText, Flame, MapFold, FlagCheckered, Swords } from '@/components/ui/icons'
 import type { ComponentType, SVGProps } from 'react'
 import { onPaper } from '@/lib/subject-colour'
+import { buttonClasses } from '@/components/ui/Button'
 
 type IconType = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
 
@@ -74,7 +75,7 @@ export function ZoneMap({ zoneId, subjectName, theme, subjectColor, nodes, allCo
   const height = PAD_TOP + rowCount * ROW_H
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-black/5 bg-surface shadow-sm">
+    <div className="overflow-hidden rounded-2xl border-2 border-black/8 bg-surface shadow-clay">
       {/* Zone header */}
       <div className="flex items-center gap-3 px-5 pb-3 pt-4">
         <span
@@ -98,8 +99,8 @@ export function ZoneMap({ zoneId, subjectName, theme, subjectColor, nodes, allCo
       {/* Node canvas */}
       {placed.length > 0 && (
         <div
-          className="relative mx-5"
-          style={{ height }}
+          className="relative mx-3 rounded-2xl bg-gradient-to-b from-sea-soft/50 to-sea-soft px-2 py-3"
+          style={{ height: height + 24 }}
           role="region"
           aria-label={`${subjectName} topic map`}
         >
@@ -115,10 +116,10 @@ export function ZoneMap({ zoneId, subjectName, theme, subjectColor, nodes, allCo
                   y1={from.yPx + NODE_CIRCLE / 2}
                   x2={`${to.xPct}%`}
                   y2={to.yPx + NODE_CIRCLE / 2}
-                  stroke={walked ? subjectColor : '#D7DBE2'}
-                  strokeOpacity={walked ? 0.55 : 1}
-                  strokeWidth={3}
-                  strokeDasharray="0.5 9"
+                  stroke={walked ? 'rgb(var(--tw-correct))' : 'rgb(var(--tw-sea-deep))'}
+                  strokeOpacity={walked ? 0.6 : 0.3}
+                  strokeWidth={3.5}
+                  strokeDasharray="1 10"
                   strokeLinecap="round"
                 />
               )
@@ -150,11 +151,8 @@ export function ZoneMap({ zoneId, subjectName, theme, subjectColor, nodes, allCo
             <FlagCheckered size={18} style={{ color: onPaper(subjectColor) }} /> Zone Checkpoint!
           </p>
           <p className="mt-1 text-sm text-muted">Great progress! 3 quick questions to check you&apos;re on track.</p>
-          <Link
-            href={`/topics/${checkpointTopicId}/checkpoint`}
-            className="mt-3 inline-flex min-h-[48px] items-center justify-center rounded-xl bg-brand-600 px-6 py-2 font-heading font-bold text-white transition-colors hover:bg-brand-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
-          >
-            Take Checkpoint →
+          <Link href={`/topics/${checkpointTopicId}/checkpoint`} className={buttonClasses('primary', 'md', 'mt-3')}>
+            Take Checkpoint &rarr;
           </Link>
         </div>
       )}
@@ -166,11 +164,8 @@ export function ZoneMap({ zoneId, subjectName, theme, subjectColor, nodes, allCo
             <Swords size={18} className="text-points-gold-700" /> Zone Guardian Awakens!
           </p>
           <p className="mt-1 text-sm text-muted">All topics complete. Face the guardian!</p>
-          <Link
-            href={`/guardian/${zoneId}`}
-            className="mt-3 inline-flex min-h-[48px] items-center justify-center rounded-xl bg-brand-600 px-6 py-2 font-heading font-bold text-white transition-colors hover:bg-brand-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
-          >
-            Battle Guardian →
+          <Link href={`/guardian/${zoneId}`} className={buttonClasses('primary', 'md', 'mt-3')}>
+            Battle Guardian &rarr;
           </Link>
         </div>
       )}
