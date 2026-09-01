@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useId, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Check } from '@/components/ui/icons'
 
@@ -43,6 +43,10 @@ function tidy(s: string): string {
 }
 
 export function TypeAnswer({ accepted, onSubmit, disabled, young = false }: Props) {
+  // A name unique to this box. A fixed one would collide the moment two
+  // questions were ever on screen together, and then the label would point at the
+  // wrong box for anyone using a screen reader.
+  const inputId = useId()
   const [text, setText] = useState('')
   const [lastWrong, setLastWrong] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -66,7 +70,7 @@ export function TypeAnswer({ accepted, onSubmit, disabled, young = false }: Prop
   return (
     <div className="mt-4 space-y-3">
       <label
-        htmlFor="type-answer"
+        htmlFor={inputId}
         className="block text-sm font-bold text-muted"
       >
         Type your answer
@@ -74,7 +78,7 @@ export function TypeAnswer({ accepted, onSubmit, disabled, young = false }: Prop
 
       <div className="flex flex-col gap-3 sm:flex-row">
         <input
-          id="type-answer"
+          id={inputId}
           ref={inputRef}
           type="text"
           value={text}

@@ -65,8 +65,12 @@ export async function POST(request: Request) {
       const answered = typeof a.childAnswer === 'string' && a.childAnswer.trim().length > 0
       return { ...a, wasCorrect: answered && Boolean(a.wasCorrect), topicId: a.topicId || q.topic_id }
     }
+    // Written defensively: this branch now runs for EVERY ordinary question,
+    // where before it ran for none. A missing answer must come back as "wrong",
+    // never as a crash that costs the child the whole exam.
+    const given = typeof a.childAnswer === 'string' ? a.childAnswer.trim() : ''
     const wasCorrect =
-      a.childAnswer.trim().toLowerCase() === q.correct_answer.trim().toLowerCase()
+      given.length > 0 && given.toLowerCase() === (q.correct_answer ?? '').trim().toLowerCase()
     return { ...a, wasCorrect, topicId: q.topic_id }
   })
 

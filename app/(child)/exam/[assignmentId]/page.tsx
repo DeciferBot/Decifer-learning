@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ExamTimer } from '@/components/quiz/ExamTimer'
@@ -262,13 +262,15 @@ export default function ExamSessionPage({
     : []
   // One shared rule for the order of answer buttons, everywhere. See
   // lib/quiz/stable-order.ts for why a random order was actively harmful.
-  const choices = useMemo(
-    () => distractors.includes(currentQuestion.correct_answer)
-      ? stableChoiceOrder(currentQuestion.id, distractors[0], distractors.slice(1))
-      : stableChoiceOrder(currentQuestion.id, currentQuestion.correct_answer, distractors),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [currentQuestion.id, currentQuestion.correct_answer, distractors.join('\u0000')],
-  )
+  //
+  // Worked out fresh each time rather than remembered. Remembering it would need a
+  // React hook, and there are five early exits above this line, so a hook here
+  // would be skipped on some renders and not others — which React forbids and which
+  // breaks the screen. The calculation is a handful of sums on four short strings,
+  // and it now gives the same answer every time, so repeating it costs nothing.
+  const choices = distractors.includes(currentQuestion.correct_answer)
+    ? stableChoiceOrder(currentQuestion.id, distractors[0], distractors.slice(1))
+    : stableChoiceOrder(currentQuestion.id, currentQuestion.correct_answer, distractors)
 
   const isMultiPart = ['true_false_grid', 'ordered_list', 'source_analysis'].includes(
     currentQuestion.question_type,

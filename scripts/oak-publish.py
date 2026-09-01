@@ -752,7 +752,18 @@ def main() -> int:
                 if args.only and qtype != args.only:
                     continue
 
-                dedup_key = norm(q["question_text"]) + "|" + norm(q["correct_answer"])
+                # What makes this question different from one we already hold.
+                #
+                # Normally the wording plus the right answer is enough. Picture
+                # questions store their answer as the letter "A", so two completely
+                # different questions that happen to share a stem — "Which of these
+                # is a plant?" appears in several Oak lessons with different
+                # photographs — would look identical and the second would be thrown
+                # away. For those, the pictures themselves are what differs.
+                identity = q["correct_answer"]
+                if q.get("option_images"):
+                    identity = "|".join(sorted(v["url"] for v in q["option_images"].values()))
+                dedup_key = norm(q["question_text"]) + "|" + norm(identity)
                 if dedup_key in seen:
                     reasons["already-have-this-question"] += 1
                     continue
