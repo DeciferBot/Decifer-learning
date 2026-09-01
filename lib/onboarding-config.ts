@@ -9,11 +9,16 @@
 // Curriculum content still lives in the DB (CLAUDE.md §16.5); this is app
 // configuration, like AVATARS in lib/customise-config.ts.
 
+// The five subjects Decifer actually teaches, so a child who loves History or
+// Geography can say so. This list was written when only Maths, English and
+// Science existed; the humanities shipped later and it was never updated.
 export const FAVOURITE_SUBJECTS = [
-  { id: 'maths',   label: 'Maths',        iconName: 'Target' },
-  { id: 'english', label: 'English',      iconName: 'BookOpen' },
-  { id: 'science', label: 'Science',      iconName: 'FlaskConical' },
-  { id: 'unsure',  label: 'Not sure yet', iconName: 'Search' },
+  { id: 'maths',     label: 'Maths',        iconName: 'Target' },
+  { id: 'english',   label: 'English',      iconName: 'BookOpen' },
+  { id: 'science',   label: 'Science',      iconName: 'FlaskConical' },
+  { id: 'history',   label: 'History',      iconName: 'ScrollText' },
+  { id: 'geography', label: 'Geography',    iconName: 'MapFold' },
+  { id: 'unsure',    label: 'Not sure yet', iconName: 'Search' },
 ] as const
 
 export type FavouriteSubjectId = typeof FAVOURITE_SUBJECTS[number]['id']
