@@ -44,6 +44,13 @@ say "--- 2/4 match new units to our topics"
 timeout 40m $PY -u "$S/oak-map-units.py" --apply --max-calls 40 >> "$LOG" 2>&1
 say "match finished with code $?"
 
+# Second look at whatever the name-based match could not place. This one reads
+# the unit's actual quiz questions, and writes down a final "none" for units
+# that genuinely teach something we have no topic for (handwriting, debating),
+# so they stop being re-asked night after night.
+timeout 30m $PY -u "$S/oak-map-units.py" --deep --apply --batch 8 --max-calls 15 >> "$LOG" 2>&1
+say "second-look match finished with code $?"
+
 # Between matching and publishing, because publishing refuses any question whose
 # picture has not been fetched and seen to load. Skipping this would not show a
 # broken picture — it would quietly hold back every question that has one.

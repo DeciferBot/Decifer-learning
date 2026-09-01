@@ -708,6 +708,12 @@ def main() -> int:
             reasons["unit-not-mapped-to-a-topic"] += 1
             continue
 
+        if entry.get("topic_slug") == "none":
+            # Examined, questions and all, and found to teach something we have no
+            # topic for — handwriting, debating, speaking. A decision, not a gap.
+            reasons["examined-and-has-no-home-here"] += 1
+            continue
+
         if (entry.get("confidence") or "medium").lower() not in allowed_confidence:
             reasons["match-to-a-topic-not-sure-enough"] += 1
             continue

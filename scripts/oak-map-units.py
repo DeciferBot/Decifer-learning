@@ -97,6 +97,42 @@ Reply with JSON only, no other text:
 "confidence": "high|medium|low", "reasoning": "one short sentence"}}]}}"""
 
 
+# The second look, for units the first pass could not place.
+#
+# The first pass judges a unit by its NAME, and that fails in a predictable way:
+# Oak names many units after a kind of writing ("Harriet Tubman: biographical
+# writing", "persuasive letter writing") while our topics are named after the
+# skill being tested ("relative clauses", "cohesion across paragraphs"). The two
+# vocabularies share no words, so the model rightly says "none" — even though the
+# QUESTIONS inside such a unit often test exactly one of our skills. So the second
+# look shows the model the actual questions and asks it to judge by those alone.
+DEEP_PROMPT = """You are placing question banks from Oak National Academy into a \
+UK National Curriculum learning app.
+
+Our {subject} topics for {key_stage}:
+
+{topic_list}
+
+Below are Oak units WITH SAMPLE QUIZ QUESTIONS from inside them. The unit's name \
+describes the writing task the class did; ignore it. Judge ONLY by what the sample \
+questions actually test. A unit called "biographical writing" whose questions ask \
+about relative clauses belongs in a relative-clauses topic.
+
+Rules:
+- Match on what the questions test, not the unit name or year.
+- If the questions test handwriting, speaking, debating, or another skill none of \
+the topics covers, answer "none" — that is a correct answer, not a failure. A wrong \
+match puts questions in front of the wrong children.
+- confidence is "high", "medium" or "low".
+
+Oak units and their sample questions:
+{unit_list}
+
+Reply with JSON only, no other text:
+{{"mappings": [{{"unit_slug": "...", "topic_slug": "..." or "none", \
+"confidence": "high|medium|low", "reasoning": "one short sentence"}}]}}"""
+
+
 def dsn() -> str:
     raw = (os.environ.get("DIRECT_URL") or os.environ.get("DATABASE_URL") or "").strip().strip('"')
     if not raw:
@@ -132,6 +168,11 @@ def main() -> int:
     ap.add_argument("--apply", action="store_true", help="write the map file")
     ap.add_argument("--subject", action="append", help="restrict to a subject; repeatable")
     ap.add_argument("--rebuild", action="store_true", help="re-decide units already mapped")
+    ap.add_argument("--deep", action="store_true",
+                    help="the second look: show the model each unit's actual quiz "
+                         "questions instead of its name, and record a final 'none' "
+                         "for units that truly have no home. Slower per unit; run "
+                         "it only on what the first pass could not place.")
     ap.add_argument("--batch", type=int, default=25, help="units per model call")
     ap.add_argument("--max-calls", type=int, default=200, help="cap the model calls")
     args = ap.parse_args()
@@ -177,6 +218,28 @@ def main() -> int:
     """)
     units = [dict(r) for r in cur.fetchall()]
 
+    if args.deep:
+        # The evidence for the second look: a handful of real questions from each
+        # unit, pulled from the mirror. What a unit's questions test is a far
+        # better witness than what the unit is called.
+        cur.execute("""
+            SELECT unit_slug, quiz_json FROM oak_lessons_raw
+            WHERE fetch_status = 'done' AND quiz_json IS NOT NULL
+        """)
+        samples: dict[str, list[str]] = defaultdict(list)
+        for r in cur.fetchall():
+            bucket = samples[r["unit_slug"]]
+            if len(bucket) >= 6:
+                continue
+            quiz = r["quiz_json"] or {}
+            for part in ("starterQuiz", "exitQuiz"):
+                for item in (quiz.get(part) or []):
+                    text = (item.get("question") or "").strip().replace("\n", " ")
+                    if len(text) > 12 and len(bucket) < 6:
+                        bucket.append(text[:140])
+        for u in units:
+            u["question_samples"] = samples.get(u["unit_slug"], [])
+
     # Let go of the database before the thinking starts. The model calls below take
     # many minutes, and an open read transaction blocks anything that needs to change
     # this table — a real deadlock we hit on 2026-09-01. Everything needed is already
@@ -191,8 +254,14 @@ def main() -> int:
             continue
         map_key = (f"{(u['subject'] or '').lower()}/{u['key_stage']}/"
                    f"{u['oak_year_slug']}/{u['unit_slug']}")
-        if map_key in mappings and not args.rebuild:
-            continue
+        settled = mappings.get(map_key)
+        if settled and not args.rebuild:
+            # A unit already placed in a topic stays placed. A unit recorded as
+            # "none" is re-examined ONLY by the deep pass, which brings new
+            # evidence (the questions); repeating the name-based pass on it
+            # would just repeat the same shrug.
+            if settled.get("topic_slug") != "none" or not args.deep:
+                continue
         u["map_key"] = map_key
         pending[(u["subject"], u["key_stage"])].append(u)
 
@@ -219,13 +288,19 @@ def main() -> int:
                 print("\nReached the model-call cap. Re-run to continue.")
                 break
             chunk = group[i:i + args.batch]
-            unit_list = "\n".join(
-                f"  {u['unit_slug']}  —  teaches: "
-                f"{'; '.join((u['lesson_titles'] or [])[:5])}" for u in chunk)
+            if args.deep:
+                unit_list = "\n\n".join(
+                    f"  {u['unit_slug']}\n" + "\n".join(
+                        f"    Q: {q}" for q in (u.get("question_samples") or [])[:6])
+                    for u in chunk)
+            else:
+                unit_list = "\n".join(
+                    f"  {u['unit_slug']}  —  teaches: "
+                    f"{'; '.join((u['lesson_titles'] or [])[:5])}" for u in chunk)
 
             print(f"-- {subject} {ks}: asking about {len(chunk)} units "
                   f"({len(candidates)} topics to choose from)")
-            reply = ask(client, PROMPT.format(
+            reply = ask(client, (DEEP_PROMPT if args.deep else PROMPT).format(
                 subject=subject, key_stage=ks.upper(),
                 topic_list=topic_list, unit_list=unit_list))
             calls += 1
@@ -237,6 +312,22 @@ def main() -> int:
                     continue
                 topic_slug = (m.get("topic_slug") or "none").strip()
                 if topic_slug == "none":
+                    if args.deep:
+                        # The deep pass has read the unit's own questions and still
+                        # found no home — that IS the answer, so it is written down.
+                        # Without a record, every future run would ask again, and
+                        # the publisher would keep reporting the unit as work left
+                        # to do rather than a decision already made.
+                        mappings[u["map_key"]] = {
+                            "unit_title": u["unit_slug"].replace("-", " "),
+                            "topic_slug": "none",
+                            "confidence": m.get("confidence", "medium"),
+                            "reasoning": (m.get("reasoning") or "")[:400],
+                            "subject": subject,
+                            "year": u["oak_year_slug"],
+                            "mapped_by": "oak-map-units-deep",
+                        }
+                        print(f"    {u['unit_slug'][:52]:<52} -> none ({(m.get('reasoning') or '')[:60]})")
                     skipped += 1
                     continue
                 if topic_slug not in known_slugs:
@@ -251,7 +342,7 @@ def main() -> int:
                     "reasoning": (m.get("reasoning") or "")[:400],
                     "subject": subject,
                     "year": u["oak_year_slug"],
-                    "mapped_by": "oak-map-units",
+                    "mapped_by": "oak-map-units-deep" if args.deep else "oak-map-units",
                 }
                 matched += 1
                 print(f"    {u['unit_slug'][:52]:<52} -> {topic_slug}")
