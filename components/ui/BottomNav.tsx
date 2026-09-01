@@ -2,22 +2,24 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, MapFold, LayoutGrid, UserCircle, Telescope, ClipboardList, Gamepad } from '@/components/ui/icons'
+import { Home, LayoutGrid, UserCircle, Gamepad } from '@/components/ui/icons'
 import type { SVGProps } from 'react'
 
 type TabIcon = (props: SVGProps<SVGSVGElement> & { size?: number }) => JSX.Element
 
+// Four tabs, not seven. Seven gave each one 53px of a 375px phone with a 10px
+// label under it, which is smaller than the 48px tap target this project
+// requires. It also put "Home" on the world map and "Progress" on the screen
+// that actually says what to do next, which is backwards.
+//
+// Learn is now the child's home: the one-thing-to-do-next screen. The four
+// that came off the bar (world map, Explore, Exams, and the duplicate
+// Progress) all live in the tile grid on that screen, three across.
 const TABS: { href: string; label: string; Icon: TabIcon }[] = [
-  { href: '/world-map',       label: 'Home',       Icon: Home },
-  { href: '/dashboard/child', label: 'Progress',   Icon: MapFold },
-  { href: '/explore',         label: 'Explore',    Icon: Telescope },
-  // /downtime is the games picker (Quiz Battle, Daily Challenge, Decifer
-  // Downtime board games). It sits in the tab bar because it was previously
-  // only reachable from one small tile near the bottom of /dashboard/child.
-  { href: '/downtime',        label: 'Games',      Icon: Gamepad },
-  { href: '/exam',            label: 'Exams',      Icon: ClipboardList },
-  { href: '/collection',      label: 'Cards',      Icon: LayoutGrid },
-  { href: '/profile',         label: 'Profile',    Icon: UserCircle },
+  { href: '/dashboard/child', label: 'Learn',   Icon: Home },
+  { href: '/downtime',        label: 'Games',   Icon: Gamepad },
+  { href: '/collection',      label: 'Cards',   Icon: LayoutGrid },
+  { href: '/profile',         label: 'Profile', Icon: UserCircle },
 ]
 
 export function BottomNav() {
