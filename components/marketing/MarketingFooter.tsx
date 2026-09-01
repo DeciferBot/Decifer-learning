@@ -20,6 +20,7 @@ const NAV_LINKS: { href: string; label: string }[] = [
   { href: '/curriculum', label: 'Curriculum' },
   { href: '/subjects', label: 'Subjects' },
   { href: '/how-it-works', label: 'How it works' },
+  { href: '/about', label: 'About' },
   { href: '/guides', label: 'UAE guides' },
   { href: '/blitz', label: 'Blitz' },
   { href: '/games', label: 'Free games' },

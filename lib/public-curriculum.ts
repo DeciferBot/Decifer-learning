@@ -489,3 +489,111 @@ export async function getPublicTopicDetail(
     tryQuestions: tryByTopic.get(topic.id) ?? [],
   }
 }
+
+// ── /try: the two-tap route to a real question ───────────────────────────────
+// The five-question panel above lives on 293 topic pages, three levels down a
+// browse tree built for search engines. A child on the homepage never reaches
+// it. /try asks two things, year and subject, and then asks a question.
+//
+// Same snapshot, same published-only questions, same public-answer trade-off.
+
+/**
+ * A topic needs a full set of usable questions before /try will offer it. The
+ * page promises five, so a topic with three does not qualify.
+ */
+export const TRY_MIN_QUESTIONS = TRY_QUESTION_COUNT
+
+export type PublicTrySubject = { name: string; slug: string; colourToken: string }
+
+export type PublicTryYear = {
+  label: string
+  displayLabel: string
+  keyStage: string
+  subjects: PublicTrySubject[]
+}
+
+export type PublicTrySet = {
+  yearLabel: string
+  displayLabel: string
+  keyStage: string
+  subjectName: string
+  subjectSlug: string
+  colourToken: string
+  topicTitle: string
+  /** The topic's own public page, when it has one. */
+  topicPath: string | null
+  questions: PublicTryQuestion[]
+  /** How many other topics in this year and subject could have been offered. */
+  otherTopics: number
+}
+
+function tryCandidates(snapshot: Snapshot): TopicRow[] {
+  return snapshot.topics.filter(
+    (t) => t.subjectSlug && (snapshot.tryByTopic.get(t.id)?.length ?? 0) >= TRY_MIN_QUESTIONS,
+  )
+}
+
+/** Every year that has at least one subject with questions to try, in year order. */
+export async function getPublicTryYears(): Promise<PublicTryYear[]> {
+  const snapshot = await getSnapshot()
+  const byYear = new Map<string, PublicTryYear>()
+  for (const t of tryCandidates(snapshot)) {
+    let y = byYear.get(t.yearLabel)
+    if (!y) {
+      y = { label: t.yearLabel, displayLabel: displayYear(t.yearLabel), keyStage: t.keyStage, subjects: [] }
+      byYear.set(t.yearLabel, y)
+    }
+    if (!y.subjects.some((s) => s.slug === t.subjectSlug)) {
+      y.subjects.push({ name: t.subjectName, slug: t.subjectSlug, colourToken: t.colourToken })
+    }
+  }
+  return [...byYear.values()]
+    .map((y) => ({
+      ...y,
+      subjects: y.subjects.sort(
+        (a, b) =>
+          PUBLIC_SUBJECT_SLUGS.indexOf(a.slug as PublicSubjectSlug) -
+          PUBLIC_SUBJECT_SLUGS.indexOf(b.slug as PublicSubjectSlug),
+      ),
+    }))
+    .sort((a, b) => yearNumber(a.label) - yearNumber(b.label))
+}
+
+export async function getPublicTryYear(yearLabel: string): Promise<PublicTryYear | null> {
+  const years = await getPublicTryYears()
+  return years.find((y) => y.label === yearLabel) ?? null
+}
+
+/**
+ * The questions to offer for one year and subject. The topic rotates once a day
+ * so a child who comes back tomorrow meets something new; within a day it is
+ * stable, so the page can be prerendered and shared.
+ */
+export async function getPublicTrySet(
+  yearLabel: string,
+  subjectSlug: string,
+): Promise<PublicTrySet | null> {
+  if (!PUBLIC_SUBJECT_SLUGS.includes(subjectSlug as PublicSubjectSlug)) return null
+  const snapshot = await getSnapshot()
+  const candidates = tryCandidates(snapshot)
+    .filter((t) => t.yearLabel === yearLabel && t.subjectSlug === subjectSlug)
+    .sort((a, b) => a.orderIndex - b.orderIndex)
+  if (candidates.length === 0) return null
+
+  const dayOfYear = Math.floor(Date.now() / 86_400_000)
+  const topic = candidates[dayOfYear % candidates.length]
+  const hasPage = Boolean(topic.slug) && topic.lessonCount >= PUBLIC_TOPIC_MIN_UNITS
+
+  return {
+    yearLabel,
+    displayLabel: displayYear(yearLabel),
+    keyStage: topic.keyStage,
+    subjectName: topic.subjectName,
+    subjectSlug: topic.subjectSlug,
+    colourToken: topic.colourToken,
+    topicTitle: topic.title,
+    topicPath: hasPage ? `/curriculum/${topic.subjectSlug}/${yearLabel}/${topic.slug}` : null,
+    questions: snapshot.tryByTopic.get(topic.id) ?? [],
+    otherTopics: candidates.length - 1,
+  }
+}
