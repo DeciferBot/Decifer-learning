@@ -1,6 +1,6 @@
 {
   "version": "1",
-  "note": "LLM-assisted Oak unit \u2192 NC topic map. Commit this file. Re-run build-oak-topic-map.py after re-seeding topics.",
+  "note": "LLM-assisted Oak unit → NC topic map. Commit this file. Re-run build-oak-topic-map.py after re-seeding topics.",
   "mappings": {
     "history/ks2/year-3/stone-age-britain-and-ireland-what-do-archaeologists-think-they-know-about-it": {
       "unit_title": "Stone Age Britain: what do archaeologists think they know about it?",
@@ -62,7 +62,7 @@
       "unit_title": "The Black Death and the Silk Road: how connected was the medieval world?",
       "topic_slug": "year-7-history-world-history-a-significant-society-or-issue",
       "confidence": "high",
-      "reasoning": "This unit focuses on the Black Death and Silk Road as a world history topic examining medieval global connections, trade networks and pandemic spread \u2014 a significant world history issue rather than a Britain-specific medieval study.",
+      "reasoning": "This unit focuses on the Black Death and Silk Road as a world history topic examining medieval global connections, trade networks and pandemic spread — a significant world history issue rather than a Britain-specific medieval study.",
       "subject": "History",
       "year": "year-7"
     },
@@ -78,7 +78,7 @@
       "unit_title": "Medieval women: what can we learn from Matilda about women in medieval England?",
       "topic_slug": "year-7-history-medieval-britain-1066-1509-church-state-and-society",
       "confidence": "high",
-      "reasoning": "The unit focuses on Empress Matilda and women in medieval England, placing it squarely within the Medieval Britain 1066\u20131509 period covering church, state and society.",
+      "reasoning": "The unit focuses on Empress Matilda and women in medieval England, placing it squarely within the Medieval Britain 1066–1509 period covering church, state and society.",
       "subject": "History",
       "year": "year-7"
     },
@@ -86,7 +86,7 @@
       "unit_title": "The Crusades: did Europeans go on crusade to capture the 'holy land'?",
       "topic_slug": "year-7-history-world-history-a-significant-society-or-issue",
       "confidence": "high",
-      "reasoning": "The Crusades were a major world-historical phenomenon involving European, Islamic and Byzantine societies; while they touch on the medieval period, they are primarily a non-British world history topic, best fitting 'World History: A Significant Society or Issue' rather than the Britain-focused Medieval 1066\u20131509 topic.",
+      "reasoning": "The Crusades were a major world-historical phenomenon involving European, Islamic and Byzantine societies; while they touch on the medieval period, they are primarily a non-British world history topic, best fitting 'World History: A Significant Society or Issue' rather than the Britain-focused Medieval 1066–1509 topic.",
       "subject": "History",
       "year": "year-7"
     },
@@ -94,7 +94,7 @@
       "unit_title": "England under Henry II: how successfully did Henry reassert royal authority?",
       "topic_slug": "year-7-history-medieval-britain-1066-1509-church-state-and-society",
       "confidence": "high",
-      "reasoning": "Henry II reigned 1154\u20131189, firmly within the medieval period 1066\u20131509, and the unit's focus on royal authority, church-state relations (e.g. Becket controversy), and governance aligns directly with 'Church, State and Society' themes.",
+      "reasoning": "Henry II reigned 1154–1189, firmly within the medieval period 1066–1509, and the unit's focus on royal authority, church-state relations (e.g. Becket controversy), and governance aligns directly with 'Church, State and Society' themes.",
       "subject": "History",
       "year": "year-7"
     },
@@ -102,7 +102,7 @@
       "unit_title": "The Wars of the Roses: what does it tell us about fifteenth-century England?",
       "topic_slug": "year-7-history-medieval-britain-1066-1509-church-state-and-society",
       "confidence": "high",
-      "reasoning": "The Wars of the Roses (1455\u20131487) falls squarely within the Medieval Britain 1066\u20131509 period, focusing on political conflict, state power and society in fifteenth-century England.",
+      "reasoning": "The Wars of the Roses (1455–1487) falls squarely within the Medieval Britain 1066–1509 period, focusing on political conflict, state power and society in fifteenth-century England.",
       "subject": "History",
       "year": "year-7"
     },
@@ -110,7 +110,7 @@
       "unit_title": "The Renaissance: what do the artefacts of the Renaissance tell us about it?",
       "topic_slug": "year-7-history-world-history-a-significant-society-or-issue",
       "confidence": "high",
-      "reasoning": "The Renaissance is a world history topic covering a significant cultural and intellectual movement (c.14th\u201317th century) centred in Europe, not specifically British history, making it the best fit for the 'World History: A Significant Society or Issue' topic.",
+      "reasoning": "The Renaissance is a world history topic covering a significant cultural and intellectual movement (c.14th–17th century) centred in Europe, not specifically British history, making it the best fit for the 'World History: A Significant Society or Issue' topic.",
       "subject": "History",
       "year": "year-7"
     },
@@ -118,7 +118,7 @@
       "unit_title": "The Norman Conquest: how do we know about the impact of the Conquest on England?",
       "topic_slug": "year-7-history-medieval-britain-1066-1509-church-state-and-society",
       "confidence": "high",
-      "reasoning": "The Norman Conquest of 1066 falls precisely at the start of the Medieval Britain 1066\u20131509 period, and examining its impact on England aligns directly with the Church, State and Society theme of that topic.",
+      "reasoning": "The Norman Conquest of 1066 falls precisely at the start of the Medieval Britain 1066–1509 period, and examining its impact on England aligns directly with the Church, State and Society theme of that topic.",
       "subject": "History",
       "year": "year-7"
     },
@@ -126,7 +126,7 @@
       "unit_title": "Edward I: What stopped Edward uniting all of Britain?",
       "topic_slug": "year-7-history-medieval-britain-1066-1509-church-state-and-society",
       "confidence": "high",
-      "reasoning": "Edward I reigned 1272\u20131307, placing this unit firmly within the Medieval Britain 1066\u20131509 period, covering themes of kingship, state power, and the political union of Britain.",
+      "reasoning": "Edward I reigned 1272–1307, placing this unit firmly within the Medieval Britain 1066–1509 period, covering themes of kingship, state power, and the political union of Britain.",
       "subject": "History",
       "year": "year-7"
     },
@@ -134,7 +134,7 @@
       "unit_title": "The Peasants' Revolt: why do historians disagree about its causes?",
       "topic_slug": "year-7-history-medieval-britain-1066-1509-church-state-and-society",
       "confidence": "high",
-      "reasoning": "The Peasants' Revolt of 1381 falls squarely within the Medieval Britain 1066\u20131509 period, and its causes relate directly to themes of church, state, and society (poll tax, feudalism, serfdom, and social upheaval).",
+      "reasoning": "The Peasants' Revolt of 1381 falls squarely within the Medieval Britain 1066–1509 period, and its causes relate directly to themes of church, state, and society (poll tax, feudalism, serfdom, and social upheaval).",
       "subject": "History",
       "year": "year-7"
     },
@@ -142,7 +142,7 @@
       "unit_title": "The Christian Church: how completely did the Great Schism transform Christendom?",
       "topic_slug": "year-7-history-medieval-britain-1066-1509-church-state-and-society",
       "confidence": "high",
-      "reasoning": "The Great Schism (1054) and the medieval Christian Church fall squarely within the Medieval period and directly address the 'Church' theme in the Medieval Britain 1066\u20131509: Church, State and Society topic.",
+      "reasoning": "The Great Schism (1054) and the medieval Christian Church fall squarely within the Medieval period and directly address the 'Church' theme in the Medieval Britain 1066–1509: Church, State and Society topic.",
       "subject": "History",
       "year": "year-7"
     },
@@ -150,7 +150,7 @@
       "unit_title": "Local history: how similar were medieval lives in Norwich?",
       "topic_slug": "year-7-history-medieval-britain-1066-1509-church-state-and-society",
       "confidence": "high",
-      "reasoning": "The unit examines medieval life in Norwich, which falls squarely within the Medieval Britain 1066\u20131509 period, focusing on society and everyday life consistent with the Church, State and Society topic.",
+      "reasoning": "The unit examines medieval life in Norwich, which falls squarely within the Medieval Britain 1066–1509 period, focusing on society and everyday life consistent with the Church, State and Society topic.",
       "subject": "History",
       "year": "year-7"
     },
@@ -158,7 +158,7 @@
       "unit_title": "Magna Carta: how did Magna Carta survive?",
       "topic_slug": "year-7-history-medieval-britain-1066-1509-church-state-and-society",
       "confidence": "high",
-      "reasoning": "Magna Carta (1215) falls squarely within the Medieval Britain 1066\u20131509 period and directly addresses the theme of Church, State and Society through its significance for the relationship between crown and barons.",
+      "reasoning": "Magna Carta (1215) falls squarely within the Medieval Britain 1066–1509 period and directly addresses the theme of Church, State and Society through its significance for the relationship between crown and barons.",
       "subject": "History",
       "year": "year-7"
     },
@@ -222,7 +222,7 @@
       "unit_title": "Geography: what makes a geographer?",
       "topic_slug": "none",
       "confidence": "high",
-      "reasoning": "This introductory unit focuses on geographical skills, enquiry methods, and what it means to be a geographer \u2014 it is a skills/methodology unit that does not align with any of the specific physical or human geography content topics listed for Year 7.",
+      "reasoning": "This introductory unit focuses on geographical skills, enquiry methods, and what it means to be a geographer — it is a skills/methodology unit that does not align with any of the specific physical or human geography content topics listed for Year 7.",
       "subject": "Geography",
       "year": "year-7"
     },
@@ -246,7 +246,7 @@
       "unit_title": "India: a global superpower?",
       "topic_slug": "year-7-geography-globalisation-and-development",
       "confidence": "high",
-      "reasoning": "A unit examining India as a 'global superpower' focuses on economic development, global connections, trade, and inequality \u2014 core themes of Globalisation and Development in the KS3 NC.",
+      "reasoning": "A unit examining India as a 'global superpower' focuses on economic development, global connections, trade, and inequality — core themes of Globalisation and Development in the KS3 NC.",
       "subject": "Geography",
       "year": "year-7"
     },
@@ -262,7 +262,7 @@
       "unit_title": "China: a global superpower?",
       "topic_slug": "year-7-geography-globalisation-and-development",
       "confidence": "high",
-      "reasoning": "A unit examining China as a global superpower focuses on economic development, global trade, interdependence, and China's growing international influence \u2014 core themes of Globalisation and Development in the KS3 NC.",
+      "reasoning": "A unit examining China as a global superpower focuses on economic development, global trade, interdependence, and China's growing international influence — core themes of Globalisation and Development in the KS3 NC.",
       "subject": "Geography",
       "year": "year-7"
     },
@@ -273,6 +273,2805 @@
       "reasoning": "Forest biomes, their importance, and the life they support are core content within ecosystems and biodiversity, covering biome characteristics, ecological relationships, and the value of natural environments.",
       "subject": "Geography",
       "year": "year-7"
+    },
+    "english/ks1/year-1/a-superhero-like-you-reading-and-writing": {
+      "unit_title": "a superhero like you reading and writing",
+      "topic_slug": "year-1-english-reading-comprehension-stories-and-poetry",
+      "confidence": "medium",
+      "reasoning": "Focuses on character, theme and story comprehension typical of KS1 story units.",
+      "subject": "English",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks1/year-1/ada-twist-scientist-reading-and-writing": {
+      "unit_title": "ada twist scientist reading and writing",
+      "topic_slug": "year-1-english-reading-comprehension-stories-and-poetry",
+      "confidence": "medium",
+      "reasoning": "Character/plot/theme exploration of a story matches reading comprehension of stories.",
+      "subject": "English",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks1/year-2/adverbial-complex-sentences": {
+      "unit_title": "adverbial complex sentences",
+      "topic_slug": "y2-english-grammar-sentences",
+      "confidence": "high",
+      "reasoning": "Subordination with because/so/when/if is a Year 2 sentence-grammar objective.",
+      "subject": "English",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks1/year-2/alternative-gpcs-for-consonants-and-homophones": {
+      "unit_title": "alternative gpcs for consonants and homophones",
+      "topic_slug": "y2-english-phonics",
+      "confidence": "high",
+      "reasoning": "Alternative spellings for consonant sounds fits Year 2 phonics/digraphs work.",
+      "subject": "English",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks1/year-2/alternative-gpcs-for-long-vowels": {
+      "unit_title": "alternative gpcs for long vowels",
+      "topic_slug": "y2-english-phonics",
+      "confidence": "high",
+      "reasoning": "Alternative vowel graphemes match Year 2 phonics content.",
+      "subject": "English",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks1/year-2/and-tango-makes-three-book-club": {
+      "unit_title": "and tango makes three book club",
+      "topic_slug": "year-1-english-reading-comprehension-stories-and-poetry",
+      "confidence": "medium",
+      "reasoning": "Character, setting, plot and theme exploration fits story comprehension.",
+      "subject": "English",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks1/year-1/anna-hibiscus-song-reading-and-writing": {
+      "unit_title": "anna hibiscus song reading and writing",
+      "topic_slug": "year-1-english-reading-comprehension-stories-and-poetry",
+      "confidence": "medium",
+      "reasoning": "Story-based character and setting description fits reading comprehension of stories.",
+      "subject": "English",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks1/year-2/apostrophes": {
+      "unit_title": "apostrophes",
+      "topic_slug": "y2-english-grammar-sentences",
+      "confidence": "high",
+      "reasoning": "Apostrophes for contraction and possession are Year 2 punctuation objectives.",
+      "subject": "English",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks1/year-2/compound-sentences": {
+      "unit_title": "compound sentences",
+      "topic_slug": "y2-english-grammar-sentences",
+      "confidence": "high",
+      "reasoning": "Co-ordination with and/but and exclamations are Year 2 sentence-punctuation skills.",
+      "subject": "English",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks1/year-2/humorous-poetry": {
+      "unit_title": "humorous poetry",
+      "topic_slug": "year-1-english-reading-comprehension-stories-and-poetry",
+      "confidence": "high",
+      "reasoning": "Reading and responding to poems fits stories and poetry comprehension.",
+      "subject": "English",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks1/year-1/jack-and-the-beanstalk-reading-and-writing": {
+      "unit_title": "jack and the beanstalk reading and writing",
+      "topic_slug": "year-1-english-reading-comprehension-stories-and-poetry",
+      "confidence": "high",
+      "reasoning": "Fairy tale reading, retelling and character description matches story comprehension.",
+      "subject": "English",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks1/year-1/nursery-rhymes-reading-poetry": {
+      "unit_title": "nursery rhymes reading poetry",
+      "topic_slug": "year-1-english-reading-comprehension-stories-and-poetry",
+      "confidence": "high",
+      "reasoning": "Reading and performing nursery rhymes fits poetry comprehension.",
+      "subject": "English",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks1/year-1/paddington-reading-and-writing": {
+      "unit_title": "paddington reading and writing",
+      "topic_slug": "year-1-english-reading-comprehension-stories-and-poetry",
+      "confidence": "medium",
+      "reasoning": "Character, setting, plot and theme work fits story comprehension.",
+      "subject": "English",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks1/year-2/review-using-lead-ins-or-no-lead-ins-492": {
+      "unit_title": "review using lead ins or no lead ins 492",
+      "topic_slug": "y2-english-spelling-exceptions",
+      "confidence": "medium",
+      "reasoning": "Focuses on reviewing common exception and high-frequency words, matching exception word spelling topic.",
+      "subject": "English",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks1/year-2/review-using-lead-ins-or-no-lead-ins-493": {
+      "unit_title": "review using lead ins or no lead ins 493",
+      "topic_slug": "y2-english-spelling-exceptions",
+      "confidence": "medium",
+      "reasoning": "Same content as 492 but without lead-ins, still about exception word review.",
+      "subject": "English",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks1/year-2/school-trip-recount-writing": {
+      "unit_title": "school trip recount writing",
+      "topic_slug": "year-1-english-writing-composition-sentences-and-narratives",
+      "confidence": "low",
+      "reasoning": "Recount writing is a form of composition, closest match among writing topics though not narrative.",
+      "subject": "English",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks1/year-1/school-trip-writing-a-recount": {
+      "unit_title": "school trip writing a recount",
+      "topic_slug": "year-1-english-writing-composition-sentences-and-narratives",
+      "confidence": "low",
+      "reasoning": "Recount writing composition skills align loosely with narrative writing topic.",
+      "subject": "English",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks1/year-1/simple-sentences": {
+      "unit_title": "simple sentences",
+      "topic_slug": "y2-english-grammar-sentences",
+      "confidence": "medium",
+      "reasoning": "Covers sentence joining and tense, aligning with sentence-level grammar.",
+      "subject": "English",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks1/year-2/the-children-of-lir-reading": {
+      "unit_title": "the children of lir reading",
+      "topic_slug": "y2-english-reading-comprehension",
+      "confidence": "medium",
+      "reasoning": "Involves sequencing and comprehension of a traditional tale.",
+      "subject": "English",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks1/year-2/the-great-fire-of-london-non-chronological-report": {
+      "unit_title": "the great fire of london non chronological report",
+      "topic_slug": "year-1-english-writing-composition-sentences-and-narratives",
+      "confidence": "low",
+      "reasoning": "Report writing composition, loosely fits writing composition topic.",
+      "subject": "English",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks1/year-2/the-magic-box-reading-imaginative-poetry": {
+      "unit_title": "the magic box reading imaginative poetry",
+      "topic_slug": "year-1-english-reading-comprehension-stories-and-poetry",
+      "confidence": "high",
+      "reasoning": "Focuses on reading and writing poetry, matching stories and poetry topic.",
+      "subject": "English",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks1/year-1/the-magic-porridge-pot-reading-and-writing": {
+      "unit_title": "the magic porridge pot reading and writing",
+      "topic_slug": "year-1-english-reading-comprehension-stories-and-poetry",
+      "confidence": "high",
+      "reasoning": "Fairy tale reading and comprehension activities align with stories and poetry.",
+      "subject": "English",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks1/year-2/the-owl-who-was-afraid-of-the-dark-reading": {
+      "unit_title": "the owl who was afraid of the dark reading",
+      "topic_slug": "year-1-english-reading-comprehension-stories-and-poetry",
+      "confidence": "high",
+      "reasoning": "Story comprehension focusing on character, setting, plot.",
+      "subject": "English",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks1/year-2/the-planet-in-a-pickle-jar-book-club": {
+      "unit_title": "the planet in a pickle jar book club",
+      "topic_slug": "year-1-english-reading-comprehension-stories-and-poetry",
+      "confidence": "high",
+      "reasoning": "Book club reading comprehension of a story.",
+      "subject": "English",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks1/year-2/the-proudest-blue-reading-and-writing": {
+      "unit_title": "the proudest blue reading and writing",
+      "topic_slug": "year-1-english-reading-comprehension-stories-and-poetry",
+      "confidence": "medium",
+      "reasoning": "Primarily reading comprehension of a story with some writing extension.",
+      "subject": "English",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks1/year-1/the-three-billy-goats-gruff-reading-and-writing": {
+      "unit_title": "the three billy goats gruff reading and writing",
+      "topic_slug": "year-1-english-reading-comprehension-stories-and-poetry",
+      "confidence": "high",
+      "reasoning": "Traditional tale reading and comprehension activities.",
+      "subject": "English",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks1/year-1/the-three-little-pigs-reading-and-writing": {
+      "unit_title": "the three little pigs reading and writing",
+      "topic_slug": "year-1-english-reading-comprehension-stories-and-poetry",
+      "confidence": "high",
+      "reasoning": "Story reading, sequencing and character description align with stories and poetry.",
+      "subject": "English",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks1/year-2/the-wolf-the-duck-and-the-mouse-book-club": {
+      "unit_title": "the wolf the duck and the mouse book club",
+      "topic_slug": "year-1-english-reading-comprehension-stories-and-poetry",
+      "confidence": "high",
+      "reasoning": "Book club reading comprehension of a story.",
+      "subject": "English",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks1/year-1/word-class": {
+      "unit_title": "word class",
+      "topic_slug": "y2-english-grammar-word-classes",
+      "confidence": "high",
+      "reasoning": "Covers nouns, adjectives, adverbs matching word classes topic.",
+      "subject": "English",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks1/year-2/yoshi-the-stonecutter-reading": {
+      "unit_title": "yoshi the stonecutter reading",
+      "topic_slug": "year-1-english-reading-comprehension-stories-and-poetry",
+      "confidence": "high",
+      "reasoning": "Story reading comprehension and fluency building.",
+      "subject": "English",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-4/a-christmas-carol-narrative-writing-and-reading": {
+      "unit_title": "a christmas carol narrative writing and reading",
+      "topic_slug": "y6-english-reading-inference",
+      "confidence": "medium",
+      "reasoning": "Focus on themes, characterisation and comprehension of a classic novel fits inference/authorial intent reading.",
+      "subject": "English",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-6/a-kind-of-spark-narrative-writing": {
+      "unit_title": "a kind of spark narrative writing",
+      "topic_slug": "y6-english-writing-narrative",
+      "confidence": "high",
+      "reasoning": "Planning build-up/climax and perspective switches are narrative writing techniques.",
+      "subject": "English",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-6/a-kind-of-spark-reading": {
+      "unit_title": "a kind of spark reading",
+      "topic_slug": "y6-english-reading-inference",
+      "confidence": "high",
+      "reasoning": "Inferring characters' thoughts/motives and exploring perspectives is inference-based reading.",
+      "subject": "English",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-3/anansi-and-the-antelope-baby-reading": {
+      "unit_title": "anansi and the antelope baby reading",
+      "topic_slug": "y3-english-reading-comprehension",
+      "confidence": "medium",
+      "reasoning": "Building comprehension of a folktale with basic inference and genre understanding.",
+      "subject": "English",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-4/apostrophes-and-speech-punctuation": {
+      "unit_title": "apostrophes and speech punctuation",
+      "topic_slug": "y3-english-grammar-apostrophes",
+      "confidence": "high",
+      "reasoning": "Covers apostrophes for contraction and singular/plural possession, matching the Year 3 apostrophes topic.",
+      "subject": "English",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-4/arthur-and-the-golden-rope-reading": {
+      "unit_title": "arthur and the golden rope reading",
+      "topic_slug": "y3-english-reading-comprehension",
+      "confidence": "medium",
+      "reasoning": "Exploring genre and themes fits general reading comprehension.",
+      "subject": "English",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-6/beowulf-narrative-writing": {
+      "unit_title": "beowulf narrative writing",
+      "topic_slug": "y6-english-writing-narrative",
+      "confidence": "high",
+      "reasoning": "Planning build-up, climax and vocabulary generation for a narrative retelling fits narrative writing techniques.",
+      "subject": "English",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-6/beowulf-reading": {
+      "unit_title": "beowulf reading",
+      "topic_slug": "year-5-english-reading-summarising-and-retrieving-information",
+      "confidence": "medium",
+      "reasoning": "Sequential story sections suggest summarising and retrieving key story information.",
+      "subject": "English",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-6/blackberry-blue-reading": {
+      "unit_title": "blackberry blue reading",
+      "topic_slug": "y6-english-reading-inference",
+      "confidence": "medium",
+      "reasoning": "Exploring characterisation and making connections aligns with inference-based reading.",
+      "subject": "English",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-3/building-fluency-in-silent-letters-homophones-and-common-exception-words": {
+      "unit_title": "building fluency in silent letters homophones and common exception words",
+      "topic_slug": "y3-english-spelling-homophones",
+      "confidence": "high",
+      "reasoning": "Explicit focus on writing homophones and common exception words matches this spelling topic.",
+      "subject": "English",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-4/building-fluency-in-the-four-joins-suffixes-and-common-exception-words": {
+      "unit_title": "building fluency in the four joins suffixes and common exception words",
+      "topic_slug": "y3-english-spelling-homophones",
+      "confidence": "medium",
+      "reasoning": "Includes practising homophones and common exception words alongside handwriting.",
+      "subject": "English",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-6/cloudbusting-book-club": {
+      "unit_title": "cloudbusting book club",
+      "topic_slug": "y6-english-reading-inference",
+      "confidence": "medium",
+      "reasoning": "Rich discussion-based response and understanding development fits inference reading.",
+      "subject": "English",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-6/coming-to-england-reading": {
+      "unit_title": "coming to england reading",
+      "topic_slug": "y6-english-reading-inference",
+      "confidence": "medium",
+      "reasoning": "Exploring themes, characterisation and turning points aligns with inference and authorial intent.",
+      "subject": "English",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-5/crazy-about-cats-reading": {
+      "unit_title": "crazy about cats reading",
+      "topic_slug": "y3-english-reading-comprehension",
+      "confidence": "low",
+      "reasoning": "Vague 'impact' exploration suggests basic comprehension skills.",
+      "subject": "English",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-5/curiosity-reading": {
+      "unit_title": "curiosity reading",
+      "topic_slug": "year-5-english-reading-summarising-and-retrieving-information",
+      "confidence": "medium",
+      "reasoning": "Nonfiction story about a Mars rover with context and comprehension building fits summarising/retrieving information.",
+      "subject": "English",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-4/danny-chung-does-not-do-maths-book-club": {
+      "unit_title": "danny chung does not do maths book club",
+      "topic_slug": "y6-english-reading-inference",
+      "confidence": "low",
+      "reasoning": "Book club discussion developing understanding suggests inference-based comprehension.",
+      "subject": "English",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-4/escape-from-pompeii-reading": {
+      "unit_title": "escape from pompeii reading",
+      "topic_slug": "y3-english-reading-comprehension",
+      "confidence": "medium",
+      "reasoning": "Builds comprehension, themes and characterisation through discussion, matching comprehension and inference skills.",
+      "subject": "English",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-5/etymology-and-prefixes": {
+      "unit_title": "etymology and prefixes",
+      "topic_slug": "year-5-english-spelling-silent-letters-and-etymology",
+      "confidence": "high",
+      "reasoning": "Covers Greek/Latin origin spellings and unstressed vowels, matching silent letters and etymology topic.",
+      "subject": "English",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-5/five-sentence-types": {
+      "unit_title": "five sentence types",
+      "topic_slug": "y3-english-grammar-conjunctions",
+      "confidence": "low",
+      "reasoning": "Covers clause types and sentence structures, loosely related to conjunctions and clauses.",
+      "subject": "English",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-4/greenling-reading": {
+      "unit_title": "greenling reading",
+      "topic_slug": "y3-english-reading-comprehension",
+      "confidence": "medium",
+      "reasoning": "Predictions, themes and characterisation exploration align with comprehension and inference skills.",
+      "subject": "English",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-6/homophones-and-tense": {
+      "unit_title": "homophones and tense",
+      "topic_slug": "year-5-english-spelling-homophones-and-commonly-confused-words",
+      "confidence": "medium",
+      "reasoning": "Focus on further/near-homophones matches the more advanced homophones spelling topic.",
+      "subject": "English",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-5/how-to-train-your-dragon-diary-and-narrative-writing": {
+      "unit_title": "how to train your dragon diary and narrative writing",
+      "topic_slug": "year-4-english-writing-composition-settings-characters-and-plot",
+      "confidence": "high",
+      "reasoning": "Planning narrative openings and setting descriptions matches settings, characters and plot composition.",
+      "subject": "English",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-5/how-to-train-your-dragon-reading": {
+      "unit_title": "how to train your dragon reading",
+      "topic_slug": "y3-english-reading-comprehension",
+      "confidence": "medium",
+      "reasoning": "Explicitly builds comprehension through discussion of themes, characters and events.",
+      "subject": "English",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-4/into-the-forest-diary-writing": {
+      "unit_title": "into the forest diary writing",
+      "topic_slug": "year-4-english-writing-composition-settings-characters-and-plot",
+      "confidence": "medium",
+      "reasoning": "Diary writing engaging with plot and paragraph planning aligns with narrative composition skills.",
+      "subject": "English",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-5/key-grammar-terminology-including-determiners-and-fronted-adverbials": {
+      "unit_title": "key grammar terminology including determiners and fronted adverbials",
+      "topic_slug": "year-4-english-grammar-noun-phrases-and-determiners",
+      "confidence": "medium",
+      "reasoning": "Majority of content covers determiners, matching noun phrases and determiners topic.",
+      "subject": "English",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-3/letter-strings": {
+      "unit_title": "letter strings",
+      "topic_slug": "y3-english-spelling-prefixes-suffixes",
+      "confidence": "high",
+      "reasoning": "Covers basic prefixes and suffixes matching this topic directly.",
+      "subject": "English",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-6/letter-strings-etymology-and-curriculum-words": {
+      "unit_title": "letter strings etymology and curriculum words",
+      "topic_slug": "year-5-english-spelling-silent-letters-and-etymology",
+      "confidence": "medium",
+      "reasoning": "Involves letter strings, curriculum word spelling and French etymology.",
+      "subject": "English",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-5/mirror-reading": {
+      "unit_title": "mirror reading",
+      "topic_slug": "y3-english-reading-comprehension",
+      "confidence": "low",
+      "reasoning": "Focuses on inference, themes and comprehension of a picture book.",
+      "subject": "English",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-3/more-suffixes-and-silent-letters": {
+      "unit_title": "more suffixes and silent letters",
+      "topic_slug": "year-4-english-spelling-further-prefixes-and-suffixes",
+      "confidence": "medium",
+      "reasoning": "Majority of content covers suffixes -y, -ly, -er, -est.",
+      "subject": "English",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-3/mulan-reading": {
+      "unit_title": "mulan reading",
+      "topic_slug": "y3-english-reading-comprehension",
+      "confidence": "low",
+      "reasoning": "General comprehension, character and theme exploration of a story.",
+      "subject": "English",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-4/noun-and-adjective-suffixes": {
+      "unit_title": "noun and adjective suffixes",
+      "topic_slug": "year-4-english-spelling-further-prefixes-and-suffixes",
+      "confidence": "medium",
+      "reasoning": "Focuses on suffixes like -tion, -sion, -al, -ness fitting further suffixes topic.",
+      "subject": "English",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-5/noun-suffixes-letter-strings-and-homophones": {
+      "unit_title": "noun suffixes letter strings and homophones",
+      "topic_slug": "year-5-english-spelling-homophones-and-commonly-confused-words",
+      "confidence": "low",
+      "reasoning": "Title references homophones and complex spelling patterns.",
+      "subject": "English",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-5/oliver-twist-reading": {
+      "unit_title": "oliver twist reading",
+      "topic_slug": "y6-english-reading-inference",
+      "confidence": "medium",
+      "reasoning": "Involves inference, characterisation and thematic analysis of a novel.",
+      "subject": "English",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-6/poetry-about-migration": {
+      "unit_title": "poetry about migration",
+      "topic_slug": "year-4-english-reading-comparisons-within-and-across-texts",
+      "confidence": "medium",
+      "reasoning": "Compares and contrasts two poems on structure, language and perspective.",
+      "subject": "English",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-5/poetry-inspired-by-animals-reading": {
+      "unit_title": "poetry inspired by animals reading",
+      "topic_slug": "year-5-english-reading-figurative-language-and-authorial-choices",
+      "confidence": "medium",
+      "reasoning": "Reading and responding to poems focusing on imagery and authorial choices.",
+      "subject": "English",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-3/poetry-inspired-by-big-and-small-objects-understanding-form": {
+      "unit_title": "poetry inspired by big and small objects understanding form",
+      "topic_slug": "year-5-english-reading-figurative-language-and-authorial-choices",
+      "confidence": "medium",
+      "reasoning": "Reading a poem for form and figurative meaning.",
+      "subject": "English",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-4/poetry-inspired-by-weather": {
+      "unit_title": "poetry inspired by weather",
+      "topic_slug": "year-5-english-reading-figurative-language-and-authorial-choices",
+      "confidence": "low",
+      "reasoning": "Reading and responding to poems with some figurative language focus.",
+      "subject": "English",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-6/poetry-of-place": {
+      "unit_title": "poetry of place",
+      "topic_slug": "year-5-english-reading-figurative-language-and-authorial-choices",
+      "confidence": "medium",
+      "reasoning": "Explores imagery, form and impact in a poem.",
+      "subject": "English",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-3/prefixes-homonyms-and-homophones": {
+      "unit_title": "prefixes homonyms and homophones",
+      "topic_slug": "year-5-english-spelling-homophones-and-commonly-confused-words",
+      "confidence": "medium",
+      "reasoning": "Focuses on spelling homonyms and homophones, matching commonly confused words topic.",
+      "subject": "English",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-5/princess-sophia-duleep-singh-my-story-reading": {
+      "unit_title": "princess sophia duleep singh my story reading",
+      "topic_slug": "y6-english-reading-inference",
+      "confidence": "medium",
+      "reasoning": "Explores perspective, characterisation and authorial intent in a biographical text.",
+      "subject": "English",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-6/punctuation": {
+      "unit_title": "punctuation",
+      "topic_slug": "y6-english-punctuation-advanced",
+      "confidence": "medium",
+      "reasoning": "Covers colons, hyphens, bullet points, matching advanced punctuation topic.",
+      "subject": "English",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-4/review-of-determiners-prepositions-and-fronted-adverbials": {
+      "unit_title": "review of determiners prepositions and fronted adverbials",
+      "topic_slug": "y3-english-grammar-fronted-adverbials",
+      "confidence": "low",
+      "reasoning": "Fronted adverbials appear twice among mixed grammar review topics.",
+      "subject": "English",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-5/shakespeares-macbeth-narrative-and-soliloquy-writing": {
+      "unit_title": "shakespeares macbeth narrative and soliloquy writing",
+      "topic_slug": "y6-english-writing-narrative",
+      "confidence": "medium",
+      "reasoning": "Focuses on narrative and soliloquy writing techniques.",
+      "subject": "English",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-6/shakespeares-romeo-and-juliet-diary-and-narrative-writing": {
+      "unit_title": "shakespeares romeo and juliet diary and narrative writing",
+      "topic_slug": "y6-english-writing-narrative",
+      "confidence": "medium",
+      "reasoning": "Diary and narrative writing based on themes/characters/plot fits narrative techniques.",
+      "subject": "English",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-4/simple-compound-adverbial-and-relative-complex-sentences": {
+      "unit_title": "simple compound adverbial and relative complex sentences",
+      "topic_slug": "year-5-english-grammar-relative-clauses",
+      "confidence": "high",
+      "reasoning": "Explicitly teaches relative clauses and relative complex sentences.",
+      "subject": "English",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-3/simple-compound-and-adverbial-complex-sentences": {
+      "unit_title": "simple compound and adverbial complex sentences",
+      "topic_slug": "y3-english-grammar-conjunctions",
+      "confidence": "medium",
+      "reasoning": "Covers compound, adverbial complex sentences and clause coordination.",
+      "subject": "English",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-3/speech-first-punctuation-and-apostrophes": {
+      "unit_title": "speech first punctuation and apostrophes",
+      "topic_slug": "y3-english-grammar-apostrophes",
+      "confidence": "medium",
+      "reasoning": "Majority of lessons focus on apostrophes for contraction/possession.",
+      "subject": "English",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-5/speech-punctuation-parenthesis-and-apostrophes": {
+      "unit_title": "speech punctuation parenthesis and apostrophes",
+      "topic_slug": "year-5-english-grammar-parenthesis-brackets-dashes-commas",
+      "confidence": "medium",
+      "reasoning": "Includes explicit parenthesis lessons on brackets and dashes.",
+      "subject": "English",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-4/suffixes-etymology-and-homophones": {
+      "unit_title": "suffixes etymology and homophones",
+      "topic_slug": "year-4-english-spelling-further-prefixes-and-suffixes",
+      "confidence": "low",
+      "reasoning": "Focuses on suffix spelling rules despite etymology in title.",
+      "subject": "English",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-3/tense-forms-simple-progressive-and-perfect": {
+      "unit_title": "tense forms simple progressive and perfect",
+      "topic_slug": "y3-english-grammar-verb-tenses",
+      "confidence": "high",
+      "reasoning": "Directly teaches simple, progressive and perfect tense forms.",
+      "subject": "English",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-4/tense-forms-simple-progressive-and-perfect-consolidation": {
+      "unit_title": "tense forms simple progressive and perfect consolidation",
+      "topic_slug": "y3-english-grammar-verb-tenses",
+      "confidence": "high",
+      "reasoning": "Consolidation of the same verb tense forms.",
+      "subject": "English",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-3/the-bfg-reading-and-narrative-writing": {
+      "unit_title": "the bfg reading and narrative writing",
+      "topic_slug": "year-4-english-writing-composition-settings-characters-and-plot",
+      "confidence": "medium",
+      "reasoning": "Narrative writing planning involving setting and plot from The BFG.",
+      "subject": "English",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-4/the-borrowers-narrative-writing-and-reading": {
+      "unit_title": "the borrowers narrative writing and reading",
+      "topic_slug": "year-4-english-writing-composition-settings-characters-and-plot",
+      "confidence": "medium",
+      "reasoning": "Focuses on setting description and narrative writing based on The Borrowers.",
+      "subject": "English",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-6/the-final-year-reading": {
+      "unit_title": "the final year reading",
+      "topic_slug": "y6-english-reading-inference",
+      "confidence": "low",
+      "reasoning": "Generic reflective reading discussion best fits inference/authorial intent skills.",
+      "subject": "English",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-3/the-firework-makers-daughter-reading-and-diary-writing": {
+      "unit_title": "the firework makers daughter reading and diary writing",
+      "topic_slug": "y3-english-reading-comprehension",
+      "confidence": "medium",
+      "reasoning": "Character, relationship and emotion exploration align with comprehension and inference skills.",
+      "subject": "English",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-3/the-firework-makers-daughter-reading-and-narrative-writing": {
+      "unit_title": "the firework makers daughter reading and narrative writing",
+      "topic_slug": "year-4-english-writing-composition-settings-characters-and-plot",
+      "confidence": "medium",
+      "reasoning": "Planning build-up and climax of a story matches narrative composition skills.",
+      "subject": "English",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-4/the-happy-prince-narrative-writing-and-reading": {
+      "unit_title": "the happy prince narrative writing and reading",
+      "topic_slug": "year-4-english-writing-composition-settings-characters-and-plot",
+      "confidence": "medium",
+      "reasoning": "Planning story structure elements matches settings/characters/plot writing composition.",
+      "subject": "English",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-5/the-highwayman-narrative-writing": {
+      "unit_title": "the highwayman narrative writing",
+      "topic_slug": "year-4-english-writing-composition-settings-characters-and-plot",
+      "confidence": "medium",
+      "reasoning": "Writing a setting and character description fits narrative composition topic.",
+      "subject": "English",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-3/the-iron-man-narrative-writing": {
+      "unit_title": "the iron man narrative writing",
+      "topic_slug": "year-4-english-writing-composition-settings-characters-and-plot",
+      "confidence": "medium",
+      "reasoning": "Planning story stages (build-up, climax, resolution) matches narrative writing composition.",
+      "subject": "English",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-3/the-iron-man-reading": {
+      "unit_title": "the iron man reading",
+      "topic_slug": "y6-english-reading-inference",
+      "confidence": "low",
+      "reasoning": "Characterisation and theme exploration suggest higher-order inference reading skills.",
+      "subject": "English",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-4/the-jabberwocky-narrative-writing": {
+      "unit_title": "the jabberwocky narrative writing",
+      "topic_slug": "y6-english-writing-narrative",
+      "confidence": "medium",
+      "reasoning": "Editing and vocabulary generation for a narrative align with advanced narrative technique skills.",
+      "subject": "English",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-4/the-miraculous-journey-of-edward-tulane-book-club": {
+      "unit_title": "the miraculous journey of edward tulane book club",
+      "topic_slug": "y6-english-reading-inference",
+      "confidence": "low",
+      "reasoning": "Book club discussions focus on deeper responses akin to inference and authorial intent.",
+      "subject": "English",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-3/the-moon-dragons-reading": {
+      "unit_title": "the moon dragons reading",
+      "topic_slug": "y3-english-reading-comprehension",
+      "confidence": "low",
+      "reasoning": "Character and theme exploration fits general comprehension and inference skills.",
+      "subject": "English",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-3/the-sheep-pig-reading": {
+      "unit_title": "the sheep pig reading",
+      "topic_slug": "y3-english-reading-comprehension",
+      "confidence": "low",
+      "reasoning": "Comprehension and character relationship exploration align with basic comprehension skills.",
+      "subject": "English",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-5/the-unforgotten-coat-book-club": {
+      "unit_title": "the unforgotten coat book club",
+      "topic_slug": "y6-english-reading-inference",
+      "confidence": "low",
+      "reasoning": "Rich discussion-based responses align with inference and authorial intent reading skills.",
+      "subject": "English",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-5/the-viewer-narrative-writing": {
+      "unit_title": "the viewer narrative writing",
+      "topic_slug": "year-4-english-writing-composition-settings-characters-and-plot",
+      "confidence": "medium",
+      "reasoning": "Vocabulary generation for character/setting and build-up planning fits narrative composition.",
+      "subject": "English",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-4/the-wild-robot-book-club": {
+      "unit_title": "the wild robot book club",
+      "topic_slug": "y6-english-reading-inference",
+      "confidence": "low",
+      "reasoning": "Book club discussion format aligns with inference-based reading skills.",
+      "subject": "English",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-5/three-tense-forms-and-modal-verbs": {
+      "unit_title": "three tense forms and modal verbs",
+      "topic_slug": "year-5-english-grammar-modal-verbs-and-adverbs-for-possibility",
+      "confidence": "medium",
+      "reasoning": "Modal verb usage is a central focus alongside tense forms.",
+      "subject": "English",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-6/three-tense-forms-modality-active-voice-and-passive-voice": {
+      "unit_title": "three tense forms modality active voice and passive voice",
+      "topic_slug": "y6-english-grammar-subjunctive-passive",
+      "confidence": "medium",
+      "reasoning": "Active and passive voice instruction matches this advanced grammar topic.",
+      "subject": "English",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-6/using-five-sentence-types": {
+      "unit_title": "using five sentence types",
+      "topic_slug": "year-5-english-grammar-relative-clauses",
+      "confidence": "medium",
+      "reasoning": "Introduction of relative pronouns and subordinate clauses aligns with relative clause grammar.",
+      "subject": "English",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-3/varjak-paw-book-club": {
+      "unit_title": "varjak paw book club",
+      "topic_slug": "y6-english-reading-inference",
+      "confidence": "low",
+      "reasoning": "Book club discussions on themes and characters align with inference and authorial intent.",
+      "subject": "English",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-5/verb-adjective-and-noun-suffixes": {
+      "unit_title": "verb adjective and noun suffixes",
+      "topic_slug": "y3-english-spelling-prefixes-suffixes",
+      "confidence": "medium",
+      "reasoning": "Focuses on basic suffixes and plural formation typical of Year 3 spelling.",
+      "subject": "English",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-4/verb-and-adjective-suffixes": {
+      "unit_title": "verb and adjective suffixes",
+      "topic_slug": "year-4-english-spelling-further-prefixes-and-suffixes",
+      "confidence": "medium",
+      "reasoning": "More advanced suffixes (-ate, -ify) fit further prefixes/suffixes work.",
+      "subject": "English",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-4/whale-rider-narrative-writing": {
+      "unit_title": "whale rider narrative writing",
+      "topic_slug": "y6-english-writing-narrative",
+      "confidence": "medium",
+      "reasoning": "Narrative planning, editing, and perspective work align with narrative writing techniques.",
+      "subject": "English",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-6/when-stars-are-scattered-book-club": {
+      "unit_title": "when stars are scattered book club",
+      "topic_slug": "y6-english-reading-inference",
+      "confidence": "low",
+      "reasoning": "Book club discussions on themes suggest inference and comprehension focus.",
+      "subject": "English",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-6/when-the-sky-falls-narrative-and-diary-writing": {
+      "unit_title": "when the sky falls narrative and diary writing",
+      "topic_slug": "y6-english-writing-narrative",
+      "confidence": "medium",
+      "reasoning": "Planning and self-editing narrative and journalistic pieces align with narrative writing techniques.",
+      "subject": "English",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-6/when-the-sky-falls-reading": {
+      "unit_title": "when the sky falls reading",
+      "topic_slug": "y6-english-reading-inference",
+      "confidence": "medium",
+      "reasoning": "Exploring characters' motives and emotions matches inference and authorial intent focus.",
+      "subject": "English",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-5/wonder-book-club": {
+      "unit_title": "wonder book club",
+      "topic_slug": "y6-english-reading-inference",
+      "confidence": "low",
+      "reasoning": "Discussion-based book club likely involves inference and comprehension skills.",
+      "subject": "English",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "english/ks2/year-3/writing-ed-and-ing-suffixes": {
+      "unit_title": "writing ed and ing suffixes",
+      "topic_slug": "y3-english-spelling-prefixes-suffixes",
+      "confidence": "medium",
+      "reasoning": "Covers suffix rules and plural formation typical of Year 3 spelling curriculum.",
+      "subject": "English",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "geography/ks1/year-2/cold-places-what-is-it-like-at-the-north-and-south-poles": {
+      "unit_title": "cold places what is it like at the north and south poles",
+      "topic_slug": "year-2-geography-physical-and-human-geography-hot-and-cold-places",
+      "confidence": "high",
+      "reasoning": "Covers Arctic/Antarctic living conditions, matching hot and cold places topic.",
+      "subject": "Geography",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "geography/ks1/year-1/continents-and-oceans-what-can-we-find-out-about-the-world": {
+      "unit_title": "continents and oceans what can we find out about the world",
+      "topic_slug": "year-1-geography-maps-and-atlases-world-continents-and-oceans",
+      "confidence": "high",
+      "reasoning": "Covers continents, oceans and world mapping.",
+      "subject": "Geography",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "geography/ks1/year-2/contrasting-locality-what-is-it-like-to-live-in-jamaica-tanzania-777": {
+      "unit_title": "contrasting locality what is it like to live in jamaica tanzania 777",
+      "topic_slug": "year-2-geography-comparing-localities-uk-and-non-european-country",
+      "confidence": "high",
+      "reasoning": "Compares life in Tanzania (Africa) with UK connections, a non-European locality comparison.",
+      "subject": "Geography",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "geography/ks1/year-2/contrasting-locality-what-is-it-like-to-live-in-jamaica-tanzania-778": {
+      "unit_title": "contrasting locality what is it like to live in jamaica tanzania 778",
+      "topic_slug": "year-2-geography-comparing-localities-uk-and-non-european-country",
+      "confidence": "high",
+      "reasoning": "Explores Jamaica's location and climate as a non-European locality comparison.",
+      "subject": "Geography",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "geography/ks1/year-2/hot-places-where-are-they-and-what-are-they-like": {
+      "unit_title": "hot places where are they and what are they like",
+      "topic_slug": "year-2-geography-physical-and-human-geography-hot-and-cold-places",
+      "confidence": "high",
+      "reasoning": "Focuses on the world's hottest places, matching hot and cold places topic.",
+      "subject": "Geography",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "geography/ks1/year-2/life-in-a-capital-city-london-cardiff-775": {
+      "unit_title": "life in a capital city london cardiff 775",
+      "topic_slug": "year-1-geography-uk-countries-capital-cities-and-seas",
+      "confidence": "high",
+      "reasoning": "Covers the River Thames in London, a UK capital city feature.",
+      "subject": "Geography",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "geography/ks1/year-2/life-in-a-capital-city-london-cardiff-776": {
+      "unit_title": "life in a capital city london cardiff 776",
+      "topic_slug": "year-1-geography-uk-countries-capital-cities-and-seas",
+      "confidence": "high",
+      "reasoning": "Covers Cardiff as a capital city and its geographical features.",
+      "subject": "Geography",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "geography/ks1/year-1/seasons-how-does-the-weather-change-through-the-year": {
+      "unit_title": "seasons how does the weather change through the year",
+      "topic_slug": "year-1-geography-seasonal-and-daily-weather-patterns",
+      "confidence": "high",
+      "reasoning": "Directly introduces seasonal weather changes.",
+      "subject": "Geography",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "geography/ks1/year-2/the-uk-what-kind-of-place-is-it": {
+      "unit_title": "the uk what kind of place is it",
+      "topic_slug": "year-1-geography-uk-countries-capital-cities-and-seas",
+      "confidence": "high",
+      "reasoning": "Covers UK geographical features and surrounding seas.",
+      "subject": "Geography",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "geography/ks2/year-6/coasts-what-happens-where-the-land-meets-the-sea": {
+      "unit_title": "coasts what happens where the land meets the sea",
+      "topic_slug": "year-5-geography-coasts-features-and-processes",
+      "confidence": "high",
+      "reasoning": "Directly covers coastal change and processes.",
+      "subject": "Geography",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "geography/ks2/year-5/energy-how-do-we-power-the-world": {
+      "unit_title": "energy how do we power the world",
+      "topic_slug": "year-5-geography-environmental-issues-and-sustainability",
+      "confidence": "high",
+      "reasoning": "Covers energy use, climate change and renewable sources, core sustainability content.",
+      "subject": "Geography",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "geography/ks2/year-6/farms-and-factories-where-does-our-food-come-from": {
+      "unit_title": "farms and factories where does our food come from",
+      "topic_slug": "year-3-geography-trade-and-the-global-economy",
+      "confidence": "medium",
+      "reasoning": "Focuses on sourcing food, production and distance travelled, tying to trade/supply chains.",
+      "subject": "Geography",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "geography/ks2/year-5/fieldwork-how-can-we-investigate-the-sustainability-of-our-school": {
+      "unit_title": "fieldwork how can we investigate the sustainability of our school",
+      "topic_slug": "year-6-geography-fieldwork-and-geographical-skills",
+      "confidence": "high",
+      "reasoning": "Explicitly about planning, collecting and presenting fieldwork data.",
+      "subject": "Geography",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "geography/ks2/year-6/global-trade-how-do-we-get-our-stuff": {
+      "unit_title": "global trade how do we get our stuff",
+      "topic_slug": "year-5-geography-trade-links-and-globalisation",
+      "confidence": "high",
+      "reasoning": "Covers global trade, transportation, production and supply chains.",
+      "subject": "Geography",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "geography/ks2/year-5/local-and-global-why-are-trees-and-forests-important": {
+      "unit_title": "local and global why are trees and forests important",
+      "topic_slug": "year-5-geography-environmental-issues-and-sustainability",
+      "confidence": "medium",
+      "reasoning": "Focuses on forests, deforestation mapping and sustainability benefits of trees.",
+      "subject": "Geography",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "geography/ks2/year-4/mountains-and-volcanoes-what-where-and-why": {
+      "unit_title": "mountains and volcanoes what where and why",
+      "topic_slug": "year-5-geography-mountains-and-mountain-ranges",
+      "confidence": "medium",
+      "reasoning": "Majority content covers mountain features and formation despite some volcano content.",
+      "subject": "Geography",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "geography/ks2/year-5/natural-resources-what-are-they-where-are-they-found-why-are-they-important": {
+      "unit_title": "natural resources what are they where are they found why are they important",
+      "topic_slug": "year-5-geography-environmental-issues-and-sustainability",
+      "confidence": "high",
+      "reasoning": "Covers renewable/non-renewable resources and sustainability of food, water and wood.",
+      "subject": "Geography",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "geography/ks2/year-5/south-america-why-does-the-amazon-matter": {
+      "unit_title": "south america why does the amazon matter",
+      "topic_slug": "year-6-geography-south-america-physical-and-human-geography",
+      "confidence": "high",
+      "reasoning": "Focuses specifically on the Amazon rainforest's physical and human geography.",
+      "subject": "Geography",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "geography/ks2/year-5/sustainable-world-does-it-matter-how-we-live": {
+      "unit_title": "sustainable world does it matter how we live",
+      "topic_slug": "year-5-geography-environmental-issues-and-sustainability",
+      "confidence": "high",
+      "reasoning": "Covers biodiversity, carbon footprints and sustainable living directly.",
+      "subject": "Geography",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "geography/ks2/year-4/the-uk-who-are-we": {
+      "unit_title": "the uk who are we",
+      "topic_slug": "year-4-geography-human-geography-population-and-migration",
+      "confidence": "medium",
+      "reasoning": "Focuses on movement/migration within the UK.",
+      "subject": "Geography",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "geography/ks2/year-4/uk-region-why-is-the-lake-district-a-national-park": {
+      "unit_title": "uk region why is the lake district a national park",
+      "topic_slug": "year-6-geography-environmental-change-and-human-impact",
+      "confidence": "medium",
+      "reasoning": "Explores human pressures and impacts on the Lake District National Park.",
+      "subject": "Geography",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "history/ks1/year-1/changes-within-living-memory-what-changed-during-elizabeth-iis-lifetime": {
+      "unit_title": "changes within living memory what changed during elizabeth iis lifetime",
+      "topic_slug": "year-2-history-changes-within-living-memory",
+      "confidence": "high",
+      "reasoning": "Covers changes in Britain during Elizabeth II's reign, a classic 'living memory' topic.",
+      "subject": "History",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "history/ks1/year-1/photographs-from-history-what-can-they-tell-us-about-britains-recent-past": {
+      "unit_title": "photographs from history what can they tell us about britains recent past",
+      "topic_slug": "year-2-history-changes-within-living-memory",
+      "confidence": "medium",
+      "reasoning": "Uses photographs to explore changes in Britain across recent decades, fitting living memory change study.",
+      "subject": "History",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "history/ks1/year-2/queen-victoria-how-did-britain-change-during-her-lifetime": {
+      "unit_title": "queen victoria how did britain change during her lifetime",
+      "topic_slug": "year-2-history-events-beyond-living-memory-national-significance",
+      "confidence": "medium",
+      "reasoning": "Explores national change during the Victorian era, well beyond living memory.",
+      "subject": "History",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "history/ks1/year-1/significant-explorers-how-has-seafaring-changed-over-time-1703": {
+      "unit_title": "significant explorers how has seafaring changed over time 1703",
+      "topic_slug": "year-2-history-significant-individuals-in-the-past",
+      "confidence": "medium",
+      "reasoning": "Focuses on notable explorers and their achievements, matching significant individuals study.",
+      "subject": "History",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "history/ks1/year-1/significant-explorers-how-has-seafaring-changed-over-time-1704": {
+      "unit_title": "significant explorers how has seafaring changed over time 1704",
+      "topic_slug": "year-2-history-significant-individuals-in-the-past",
+      "confidence": "medium",
+      "reasoning": "Covers explorers like Brunel and Adams, fitting significant individuals content.",
+      "subject": "History",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "history/ks1/year-2/significant-individuals-how-did-they-change-the-world": {
+      "unit_title": "significant individuals how did they change the world",
+      "topic_slug": "year-2-history-significant-individuals-in-the-past",
+      "confidence": "high",
+      "reasoning": "Explicitly about significant historical figures and their impact.",
+      "subject": "History",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "history/ks1/year-2/significant-rulers-from-the-past-what-can-their-stories-tell-us-1709": {
+      "unit_title": "significant rulers from the past what can their stories tell us 1709",
+      "topic_slug": "year-2-history-significant-individuals-in-the-past",
+      "confidence": "medium",
+      "reasoning": "Covers rulers like Boudica and Constantine II, aligning with significant individuals theme.",
+      "subject": "History",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "history/ks1/year-2/significant-rulers-from-the-past-what-can-their-stories-tell-us-1710": {
+      "unit_title": "significant rulers from the past what can their stories tell us 1710",
+      "topic_slug": "year-2-history-significant-individuals-in-the-past",
+      "confidence": "medium",
+      "reasoning": "Focuses on historical rulers such as Eleanor and Elizabeth I, matching individuals study.",
+      "subject": "History",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "history/ks2/year-4/ancient-greek-civilisation-how-has-it-influenced-the-western-world": {
+      "unit_title": "ancient greek civilisation how has it influenced the western world",
+      "topic_slug": "year-6-history-ancient-greece",
+      "confidence": "medium",
+      "reasoning": "Advanced themes like democracy, philosophy and legacy fit the deeper Year 6 Ancient Greece study.",
+      "subject": "History",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "history/ks2/year-4/ancient-greek-civilisation-what-do-we-know-about-ancient-greece": {
+      "unit_title": "ancient greek civilisation what do we know about ancient greece",
+      "topic_slug": "year-6-history-ancient-greece",
+      "confidence": "medium",
+      "reasoning": "Covers city-states and Greek history broadly, matching the Year 6 Ancient Greece topic.",
+      "subject": "History",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "history/ks2/year-4/ancient-greek-civilisation-why-is-alexander-called-the-great": {
+      "unit_title": "ancient greek civilisation why is alexander called the great",
+      "topic_slug": "year-6-history-ancient-greece",
+      "confidence": "medium",
+      "reasoning": "Alexander, Persia and Greek wars are advanced Ancient Greece content fitting Year 6.",
+      "subject": "History",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "history/ks2/year-5/britain-after-the-romans-what-evidence-is-there-that-christianity-survived": {
+      "unit_title": "britain after the romans what evidence is there that christianity survived",
+      "topic_slug": "year-6-history-anglo-saxons-and-vikings",
+      "confidence": "medium",
+      "reasoning": "Deals with religious change and evidence in the Anglo-Saxon period, fitting the broader Anglo-Saxons and Vikings depth study.",
+      "subject": "History",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "history/ks2/year-5/britains-settlement-by-anglo-saxons-what-changed-after-the-romans-left": {
+      "unit_title": "britains settlement by anglo saxons what changed after the romans left",
+      "topic_slug": "year-3-history-anglo-saxon-settlement-and-the-kingdoms-of-england",
+      "confidence": "high",
+      "reasoning": "Directly covers Anglo-Saxon settlement and kingdom formation after Roman Britain.",
+      "subject": "History",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "history/ks2/year-5/early-islamic-civilisation-how-did-baghdad-become-the-city-of-peace": {
+      "unit_title": "early islamic civilisation how did baghdad become the city of peace",
+      "topic_slug": "year-4-history-non-european-societies-early-islamic-civilisation",
+      "confidence": "high",
+      "reasoning": "Covers early Islamic civilisation and Baghdad, matching the topic directly.",
+      "subject": "History",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "history/ks2/year-5/early-islamic-civilisation-what-connected-baghdad-to-the-wider-world": {
+      "unit_title": "early islamic civilisation what connected baghdad to the wider world",
+      "topic_slug": "year-4-history-non-european-societies-early-islamic-civilisation",
+      "confidence": "high",
+      "reasoning": "Continues the Baghdad/Islamic civilisation theme.",
+      "subject": "History",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "history/ks2/year-6/non-european-societies-benin-or-the-maya-1700": {
+      "unit_title": "non european societies benin or the maya 1700",
+      "topic_slug": "year-5-history-non-european-societies-benin",
+      "confidence": "high",
+      "reasoning": "Focuses on Benin City, Oba, and Benin Bronzes.",
+      "subject": "History",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "history/ks2/year-6/non-european-societies-benin-or-the-maya-1701": {
+      "unit_title": "non european societies benin or the maya 1701",
+      "topic_slug": "year-5-history-non-european-societies-maya-civilisation",
+      "confidence": "high",
+      "reasoning": "Focuses on Maya cities, calendars, and Mesoamerican geography.",
+      "subject": "History",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "history/ks2/year-5/the-anglo-saxons-how-do-we-know-about-life-in-anglo-saxon-england": {
+      "unit_title": "the anglo saxons how do we know about life in anglo saxon england",
+      "topic_slug": "year-6-history-anglo-saxons-and-vikings",
+      "confidence": "medium",
+      "reasoning": "Evidence-based study of Anglo-Saxon life fits the deeper Year 6 Anglo-Saxons and Vikings topic.",
+      "subject": "History",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "history/ks2/year-6/the-great-war-how-did-the-great-war-affect-my-local-area": {
+      "unit_title": "the great war how did the great war affect my local area",
+      "topic_slug": "year-5-history-local-history-study",
+      "confidence": "low",
+      "reasoning": "Focus on local area impact suggests a local history study, though period is WWI.",
+      "subject": "History",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "history/ks2/year-4/the-romans-what-did-it-mean-to-be-a-roman": {
+      "unit_title": "the romans what did it mean to be a roman",
+      "topic_slug": "year-3-history-the-roman-empire-and-its-impact-on-britain",
+      "confidence": "medium",
+      "reasoning": "Covers general Roman Empire history (kings, republic, emperors) fitting the broader Roman Empire topic.",
+      "subject": "History",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "history/ks2/year-4/the-romans-what-impact-did-the-romans-have-on-britain": {
+      "unit_title": "the romans what impact did the romans have on britain",
+      "topic_slug": "year-6-history-roman-britain",
+      "confidence": "high",
+      "reasoning": "Detailed coverage of Roman impact on Britain (Boudica, buildings, religion) matches Roman Britain topic.",
+      "subject": "History",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "history/ks2/year-6/the-vikings-how-did-viking-settlement-help-to-make-england": {
+      "unit_title": "the vikings how did viking settlement help to make england",
+      "topic_slug": "year-4-history-viking-and-anglo-saxon-struggle-for-england",
+      "confidence": "high",
+      "reasoning": "Covers Viking and Anglo-Saxon rulers shaping England, matching this topic directly.",
+      "subject": "History",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "history/ks2/year-6/the-vikings-how-do-we-know-so-much-about-viking-york": {
+      "unit_title": "the vikings how do we know so much about viking york",
+      "topic_slug": "year-6-history-anglo-saxons-and-vikings",
+      "confidence": "medium",
+      "reasoning": "Archaeological evidence study of Viking York fits the deeper Year 6 Anglo-Saxons and Vikings topic.",
+      "subject": "History",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "history/ks2/year-5/the-vikings-why-did-they-come-to-the-british-isles": {
+      "unit_title": "the vikings why did they come to the british isles",
+      "topic_slug": "year-4-history-viking-and-anglo-saxon-struggle-for-england",
+      "confidence": "high",
+      "reasoning": "Covers Viking raids and Anglo-Saxon resistance, matching the struggle for England topic.",
+      "subject": "History",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks1/year-2/adding-and-subtracting-ones-and-tens-to-and-from-2-digit-numbers": {
+      "unit_title": "adding and subtracting ones and tens to and from 2 digit numbers",
+      "topic_slug": "y2-maths-addition-subtraction",
+      "confidence": "high",
+      "reasoning": "Adding/subtracting ones and tens to 2-digit numbers matches Y2 addition and subtraction to 100.",
+      "subject": "Maths",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks1/year-1/addition-and-subtraction-facts-within-10": {
+      "unit_title": "addition and subtraction facts within 10",
+      "topic_slug": "year-1-maths-addition-and-subtraction",
+      "confidence": "high",
+      "reasoning": "Basic addition/subtraction facts within 10 fits Year 1 addition and subtraction.",
+      "subject": "Maths",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks1/year-2/addition-and-subtraction-of-two-2-digit-numbers": {
+      "unit_title": "addition and subtraction of two 2 digit numbers",
+      "topic_slug": "y2-maths-addition-subtraction",
+      "confidence": "high",
+      "reasoning": "Adding two 2-digit numbers crossing tens boundary matches Y2 addition and subtraction to 100.",
+      "subject": "Maths",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks1/year-1/additive-structures-addition": {
+      "unit_title": "additive structures addition",
+      "topic_slug": "year-1-maths-addition-and-subtraction",
+      "confidence": "medium",
+      "reasoning": "Basic part-whole addition concepts fit Year 1 addition and subtraction.",
+      "subject": "Maths",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks1/year-1/additive-structures-addition-and-subtraction": {
+      "unit_title": "additive structures addition and subtraction",
+      "topic_slug": "year-1-maths-addition-and-subtraction",
+      "confidence": "medium",
+      "reasoning": "Addition and subtraction stories with missing parts fit Year 1 addition and subtraction.",
+      "subject": "Maths",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks1/year-2/calculating-within-20": {
+      "unit_title": "calculating within 20",
+      "topic_slug": "year-1-maths-addition-and-subtraction",
+      "confidence": "high",
+      "reasoning": "Adding/subtracting within 20 and bridging 10 fits Year 1 addition and subtraction.",
+      "subject": "Maths",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks1/year-2/comparing-ordering-and-partitioning-2-digit-numbers": {
+      "unit_title": "comparing ordering and partitioning 2 digit numbers",
+      "topic_slug": "y2-maths-place-value-100",
+      "confidence": "high",
+      "reasoning": "Comparing and partitioning 2-digit numbers matches Y2 place value to 100.",
+      "subject": "Maths",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks1/year-2/composition-of-multiples-of-10": {
+      "unit_title": "composition of multiples of 10",
+      "topic_slug": "y2-maths-place-value-100",
+      "confidence": "high",
+      "reasoning": "Composition and addition/subtraction of multiples of ten fits Y2 place value to 100.",
+      "subject": "Maths",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks1/year-1/composition-of-numbers-0-to-5": {
+      "unit_title": "composition of numbers 0 to 5",
+      "topic_slug": "year-1-maths-number-and-place-value",
+      "confidence": "high",
+      "reasoning": "Partitioning small numbers matches Year 1 number and place value.",
+      "subject": "Maths",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks1/year-1/composition-of-numbers-11-to-19": {
+      "unit_title": "composition of numbers 11 to 19",
+      "topic_slug": "year-1-maths-number-and-place-value",
+      "confidence": "high",
+      "reasoning": "Understanding numbers 11-19 fits Year 1 number and place value.",
+      "subject": "Maths",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks1/year-1/composition-of-numbers-6-to-10": {
+      "unit_title": "composition of numbers 6 to 10",
+      "topic_slug": "year-1-maths-number-and-place-value",
+      "confidence": "high",
+      "reasoning": "Counting, comparing and odd/even within 10 fits Year 1 number and place value.",
+      "subject": "Maths",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks1/year-2/counting-and-representing-the-numbers-20-to-99": {
+      "unit_title": "counting and representing the numbers 20 to 99",
+      "topic_slug": "y2-maths-place-value-100",
+      "confidence": "high",
+      "reasoning": "Representing numbers 20-99 fits Y2 place value to 100.",
+      "subject": "Maths",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks1/year-1/counting-in-tens-decade-numbers": {
+      "unit_title": "counting in tens decade numbers",
+      "topic_slug": "year-1-maths-number-and-place-value",
+      "confidence": "medium",
+      "reasoning": "Counting in tens and decade number composition fits Year 1 number and place value.",
+      "subject": "Maths",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks1/year-1/counting-recognising-and-comparing-numbers-0-10": {
+      "unit_title": "counting recognising and comparing numbers 0 10",
+      "topic_slug": "year-1-maths-number-and-place-value",
+      "confidence": "high",
+      "reasoning": "Counting and comparing numbers within 10 fits Year 1 number and place value.",
+      "subject": "Maths",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks1/year-1/counting-to-and-from-20": {
+      "unit_title": "counting to and from 20",
+      "topic_slug": "year-1-maths-number-and-place-value",
+      "confidence": "high",
+      "reasoning": "Counting and comparing numbers to 20 fits Year 1 number and place value.",
+      "subject": "Maths",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks1/year-2/doubling-halving-quotative-and-partitive-division": {
+      "unit_title": "doubling halving quotative and partitive division",
+      "topic_slug": "year-1-maths-multiplication-and-division",
+      "confidence": "medium",
+      "reasoning": "Division structures and terminology fit the multiplication and division topic.",
+      "subject": "Maths",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks1/year-2/fractions-identify-equal-parts-and-be-familiar-with-halves-thirds-and-quarters": {
+      "unit_title": "fractions identify equal parts and be familiar with halves thirds and quarters",
+      "topic_slug": "y2-maths-fractions",
+      "confidence": "high",
+      "reasoning": "Halves, thirds and quarters fits Y2 fractions topic.",
+      "subject": "Maths",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks1/year-2/grouping-objects-in-different-ways-and-relating-to-multiplication": {
+      "unit_title": "grouping objects in different ways and relating to multiplication",
+      "topic_slug": "year-1-maths-multiplication-and-division",
+      "confidence": "high",
+      "reasoning": "Grouping and multiplication equation concepts fit Year 1 multiplication and division.",
+      "subject": "Maths",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks1/year-2/introduction-to-division-structures": {
+      "unit_title": "introduction to division structures",
+      "topic_slug": "year-1-maths-multiplication-and-division",
+      "confidence": "high",
+      "reasoning": "Grouping and sharing equally fits Year 1 multiplication and division.",
+      "subject": "Maths",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks1/year-2/multiplying-by-2-doubling-and-halving-factors-and-products": {
+      "unit_title": "multiplying by 2 doubling and halving factors and products",
+      "topic_slug": "y2-maths-multiplication-tables",
+      "confidence": "high",
+      "reasoning": "Doubling/halving with factor of 2 relates to the 2 times table topic.",
+      "subject": "Maths",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks1/year-1/numbers-0-to-20-in-different-contexts": {
+      "unit_title": "numbers 0 to 20 in different contexts",
+      "topic_slug": "year-1-maths-measurement",
+      "confidence": "high",
+      "reasoning": "Measuring and comparing length fits Year 1 measurement.",
+      "subject": "Maths",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks1/year-1/pattern-in-counting-from-20-to-100": {
+      "unit_title": "pattern in counting from 20 to 100",
+      "topic_slug": "y2-maths-place-value-100",
+      "confidence": "high",
+      "reasoning": "Counting patterns and crossing tens boundary to 100 fits Y2 place value to 100.",
+      "subject": "Maths",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks1/year-2/position-and-direction": {
+      "unit_title": "position and direction",
+      "topic_slug": "year-1-maths-geometry-position-and-direction",
+      "confidence": "high",
+      "reasoning": "Turns, position and direction vocabulary fits the geometry position and direction topic.",
+      "subject": "Maths",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks1/year-1/position-and-direction-including-fractions-of-turns": {
+      "unit_title": "position and direction including fractions of turns",
+      "topic_slug": "year-1-maths-geometry-position-and-direction",
+      "confidence": "high",
+      "reasoning": "Covers directions, turns and positional language, matching Geometry: Position and Direction.",
+      "subject": "Maths",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks1/year-1/recognise-compose-decompose-and-manipulate-2d-and-3d-shapes": {
+      "unit_title": "recognise compose decompose and manipulate 2d and 3d shapes",
+      "topic_slug": "year-1-maths-geometry-properties-of-shapes",
+      "confidence": "high",
+      "reasoning": "Focuses on composing/decomposing 2D and 3D shapes, matching Geometry: Properties of Shapes.",
+      "subject": "Maths",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks1/year-2/representing-counting-in-2s-and-10s-as-the-2-and-10-times-tables": {
+      "unit_title": "representing counting in 2s and 10s as the 2 and 10 times tables",
+      "topic_slug": "y2-maths-multiplication-tables",
+      "confidence": "high",
+      "reasoning": "Directly teaches the 2 and 10 times tables and related multiplication facts.",
+      "subject": "Maths",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks1/year-2/representing-counting-in-5s-as-the-5-times-table-and-link-to-the-10-times-tables": {
+      "unit_title": "representing counting in 5s as the 5 times table and link to the 10 times tables",
+      "topic_slug": "y2-maths-multiplication-tables",
+      "confidence": "high",
+      "reasoning": "Focuses on the 5 times table and its link to 10, part of multiplication tables topic.",
+      "subject": "Maths",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks1/year-2/secure-fluency-of-addition-and-subtraction-facts-within-10": {
+      "unit_title": "secure fluency of addition and subtraction facts within 10",
+      "topic_slug": "year-1-maths-addition-and-subtraction",
+      "confidence": "high",
+      "reasoning": "Covers addition and subtraction facts within 10, matching Year 1 addition and subtraction.",
+      "subject": "Maths",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks1/year-2/sense-of-measure-capacity-volume-and-mass": {
+      "unit_title": "sense of measure capacity volume and mass",
+      "topic_slug": "y2-maths-measurement",
+      "confidence": "medium",
+      "reasoning": "Covers comparing length, mass, and volume/capacity, aligning with Measurement: Length, Mass and Temperature.",
+      "subject": "Maths",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks1/year-2/shape-discuss-and-compare-2d-and-3d-shapes": {
+      "unit_title": "shape discuss and compare 2d and 3d shapes",
+      "topic_slug": "y2-maths-geometry-shapes",
+      "confidence": "high",
+      "reasoning": "Covers naming and comparing 2D and 3D shapes including polygons, matching Y2 Geometry: 2D and 3D Shapes.",
+      "subject": "Maths",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks1/year-1/time-sequencing-events-and-telling-the-time-to-the-hour-and-half-hour": {
+      "unit_title": "time sequencing events and telling the time to the hour and half hour",
+      "topic_slug": "year-1-maths-measurement",
+      "confidence": "high",
+      "reasoning": "Covers sequencing events and telling time to hour/half hour, part of Year 1 Measurement.",
+      "subject": "Maths",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks1/year-1/unitising-and-coin-recognition-solving-problems-involving-money": {
+      "unit_title": "unitising and coin recognition solving problems involving money",
+      "topic_slug": "year-1-maths-addition-and-subtraction",
+      "confidence": "medium",
+      "reasoning": "Skills listed focus on addition, subtraction, and counting facts within 10 despite money context.",
+      "subject": "Maths",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks1/year-1/unitising-and-coin-recognitions-counting-in-2s-5s-and-10s": {
+      "unit_title": "unitising and coin recognitions counting in 2s 5s and 10s",
+      "topic_slug": "year-1-maths-number-and-place-value",
+      "confidence": "medium",
+      "reasoning": "Focuses on counting efficiently in twos, fives, and tens, part of Year 1 Number and Place Value.",
+      "subject": "Maths",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-3/2-4-and-8-times-tables-using-times-tables-to-solve-problems": {
+      "unit_title": "2 4 and 8 times tables using times tables to solve problems",
+      "topic_slug": "multiplication-tables",
+      "confidence": "high",
+      "reasoning": "Focuses on relationships between times tables (2,4,8), core times tables content.",
+      "subject": "Maths",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-4/7-times-table-odd-and-even-patterns-square-numbers-and-tests-of-divisibility": {
+      "unit_title": "7 times table odd and even patterns square numbers and tests of divisibility",
+      "topic_slug": "multiplication-tables",
+      "confidence": "high",
+      "reasoning": "Covers 7 times table, square numbers and divisibility patterns, matching times tables topic.",
+      "subject": "Maths",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-6/addition-and-subtraction-of-fractions": {
+      "unit_title": "addition and subtraction of fractions",
+      "topic_slug": "year-5-maths-fractions-decimals-and-percentages",
+      "confidence": "medium",
+      "reasoning": "Adding/subtracting non-related fractions and simplifying is Year 5 level fraction work.",
+      "subject": "Maths",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-4/addition-and-subtraction-of-fractions-and-mixed-numbers-within-a-whole": {
+      "unit_title": "addition and subtraction of fractions and mixed numbers within a whole",
+      "topic_slug": "year-5-maths-fractions-decimals-and-percentages",
+      "confidence": "medium",
+      "reasoning": "Working with mixed numbers and improper fractions within addition/subtraction fits Year5 fractions.",
+      "subject": "Maths",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-5/angles-compare-name-estimate-and-measure-angles": {
+      "unit_title": "angles compare name estimate and measure angles",
+      "topic_slug": "year-5-maths-geometry-properties-of-shapes",
+      "confidence": "medium",
+      "reasoning": "Measuring and naming angles with a protractor and angle facts in shapes fits Year5 geometry.",
+      "subject": "Maths",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-4/apply-the-distributive-law-to-multiplication": {
+      "unit_title": "apply the distributive law to multiplication",
+      "topic_slug": "year-4-maths-multiplication-and-division",
+      "confidence": "medium",
+      "reasoning": "Distributive law for multiplication calculations fits Year4 multiplication and division.",
+      "subject": "Maths",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-3/bridging-100-counting-on-and-back-in-10s-adding-subtracting-multiples-of-10": {
+      "unit_title": "bridging 100 counting on and back in 10s adding subtracting multiples of 10",
+      "topic_slug": "y3-maths-addition-subtraction",
+      "confidence": "medium",
+      "reasoning": "Bridging 100 and adding/subtracting multiples of 10 is an addition/subtraction strategy for Year3.",
+      "subject": "Maths",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-3/calculate-the-value-of-a-part-fractions-as-operators": {
+      "unit_title": "calculate the value of a part fractions as operators",
+      "topic_slug": "year-5-maths-fractions-decimals-and-percentages",
+      "confidence": "medium",
+      "reasoning": "Finding fraction of a quantity using division fits Year5 fractions work.",
+      "subject": "Maths",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-6/calculating-using-knowledge-of-equivalence-in-addition-and-subtraction": {
+      "unit_title": "calculating using knowledge of equivalence in addition and subtraction",
+      "topic_slug": "y6-maths-algebra-expressions",
+      "confidence": "high",
+      "reasoning": "Balancing equations with addition/subtraction expressions is algebraic equation work.",
+      "subject": "Maths",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-5/calculating-with-decimal-fractions": {
+      "unit_title": "calculating with decimal fractions",
+      "topic_slug": "y6-maths-fractions-decimals-percentages",
+      "confidence": "medium",
+      "reasoning": "Dividing decimals and converting units aligns with advanced Year6 decimal work.",
+      "subject": "Maths",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-4/calculation-and-conversion-of-measures": {
+      "unit_title": "calculation and conversion of measures",
+      "topic_slug": "year-5-maths-measurement",
+      "confidence": "medium",
+      "reasoning": "Converting measures and using 1,000 partitioning fits Year5 measurement conversions.",
+      "subject": "Maths",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-3/column-addition": {
+      "unit_title": "column addition",
+      "topic_slug": "y3-maths-addition-subtraction",
+      "confidence": "high",
+      "reasoning": "Basic column addition with regrouping matches Year3 addition and subtraction.",
+      "subject": "Maths",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-4/column-addition-and-subtraction-with-4-digit-numbers": {
+      "unit_title": "column addition and subtraction with 4 digit numbers",
+      "topic_slug": "year-4-maths-addition-and-subtraction",
+      "confidence": "high",
+      "reasoning": "Column addition/subtraction with 4-digit numbers matches Year4 addition and subtraction.",
+      "subject": "Maths",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-3/column-subtraction": {
+      "unit_title": "column subtraction",
+      "topic_slug": "y3-maths-addition-subtraction",
+      "confidence": "high",
+      "reasoning": "Column subtraction with regrouping fits Year3 addition and subtraction.",
+      "subject": "Maths",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-5/compare-and-describe-measurements-using-knowledge-of-multiplication-and-division": {
+      "unit_title": "compare and describe measurements using knowledge of multiplication and division",
+      "topic_slug": "year-4-maths-measurement",
+      "confidence": "medium",
+      "reasoning": "Comparing lengths, mass, capacity, time and money using multiplication/division fits the broad Year4 Measurement topic.",
+      "subject": "Maths",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-4/compare-and-order-mixed-numbers-and-position-on-a-number-line": {
+      "unit_title": "compare and order mixed numbers and position on a number line",
+      "topic_slug": "year-5-maths-fractions-decimals-and-percentages",
+      "confidence": "high",
+      "reasoning": "Comparing and ordering mixed numbers is Year5 fraction content.",
+      "subject": "Maths",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-3/compare-and-order-unit-fractions": {
+      "unit_title": "compare and order unit fractions",
+      "topic_slug": "y3-maths-fractions",
+      "confidence": "medium",
+      "reasoning": "Comparing unit fractions by denominator is basic Year3 fraction work.",
+      "subject": "Maths",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-6/comparing-fractions": {
+      "unit_title": "comparing fractions",
+      "topic_slug": "year-5-maths-fractions-decimals-and-percentages",
+      "confidence": "high",
+      "reasoning": "Comparing non-related fractions using common denominators and fraction sense is Year5 level.",
+      "subject": "Maths",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-5/comparing-fractions-using-equivalence-and-decimals": {
+      "unit_title": "comparing fractions using equivalence and decimals",
+      "topic_slug": "year-4-maths-fractions-and-decimals",
+      "confidence": "medium",
+      "reasoning": "Exploring equivalent fractions and number patterns fits Year4 fractions and decimals.",
+      "subject": "Maths",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-4/comparing-ordering-and-rounding-4-digit-numbers": {
+      "unit_title": "comparing ordering and rounding 4 digit numbers",
+      "topic_slug": "year-4-maths-number-and-place-value",
+      "confidence": "high",
+      "reasoning": "Comparing, ordering and rounding 4-digit numbers matches Year4 place value.",
+      "subject": "Maths",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-5/compose-and-calculate-with-decimals-including-column-addition-and-subtraction": {
+      "unit_title": "compose and calculate with decimals including column addition and subtraction",
+      "topic_slug": "year-4-maths-fractions-and-decimals",
+      "confidence": "medium",
+      "reasoning": "Composing decimal tenths and rounding to nearest whole fits Year4 decimals work.",
+      "subject": "Maths",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-4/composition-of-fractions-greater-than-one": {
+      "unit_title": "composition of fractions greater than one",
+      "topic_slug": "year-5-maths-fractions-decimals-and-percentages",
+      "confidence": "high",
+      "reasoning": "Composing and decomposing mixed numbers fits Year5 fractions.",
+      "subject": "Maths",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-3/composition-of-non-unit-fractions-addition-and-subtraction": {
+      "unit_title": "composition of non unit fractions addition and subtraction",
+      "topic_slug": "year-4-maths-fractions-and-decimals",
+      "confidence": "high",
+      "reasoning": "Adding fractions with the same denominator is core Year4 fractions content.",
+      "subject": "Maths",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-4/convert-improper-fractions-to-mixed-numbers-and-vice-versa": {
+      "unit_title": "convert improper fractions to mixed numbers and vice versa",
+      "topic_slug": "year-5-maths-fractions-decimals-and-percentages",
+      "confidence": "high",
+      "reasoning": "Converting between improper fractions and mixed numbers is Year5 fraction content.",
+      "subject": "Maths",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-5/converting-units": {
+      "unit_title": "converting units",
+      "topic_slug": "year-5-maths-measurement",
+      "confidence": "medium",
+      "reasoning": "Covers unit conversion (miles/km, larger/smaller units) typical of Year 5 measurement.",
+      "subject": "Maths",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-4/coordinates": {
+      "unit_title": "coordinates",
+      "topic_slug": "year-4-maths-geometry-position-and-direction",
+      "confidence": "medium",
+      "reasoning": "First-quadrant coordinates and translations match Year 4 position and direction content.",
+      "subject": "Maths",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-5/division-by-partitioning-leading-to-short-division-2-and-3-digits-by-1-digit": {
+      "unit_title": "division by partitioning leading to short division 2 and 3 digits by 1 digit",
+      "topic_slug": "year-4-maths-multiplication-and-division",
+      "confidence": "medium",
+      "reasoning": "Formal short division of 2/3-digit numbers by 1-digit matches Year 4 multiplication and division.",
+      "subject": "Maths",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-4/division-with-remainders": {
+      "unit_title": "division with remainders",
+      "topic_slug": "y3-maths-multiplication-division",
+      "confidence": "medium",
+      "reasoning": "Basic division with remainders concept aligns with Year 3 multiplication/division.",
+      "subject": "Maths",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-6/draw-compose-and-decompose-shapes": {
+      "unit_title": "draw compose and decompose shapes",
+      "topic_slug": "year-5-maths-geometry-properties-of-shapes",
+      "confidence": "low",
+      "reasoning": "Reasoning about shapes with area/perimeter relationships fits Year 5 geometry properties of shapes.",
+      "subject": "Maths",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-4/efficient-strategies-for-adding-and-subtracting-mixed-numbers-crossing-a-whole": {
+      "unit_title": "efficient strategies for adding and subtracting mixed numbers crossing a whole",
+      "topic_slug": "y6-maths-fractions-decimals-percentages",
+      "confidence": "high",
+      "reasoning": "Adding/subtracting mixed numbers crossing a whole is advanced fraction work typical of Year 6.",
+      "subject": "Maths",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-5/find-unit-and-non-unit-fractions-of-whole-numbers-exploring-parts-and-wholes": {
+      "unit_title": "find unit and non unit fractions of whole numbers exploring parts and wholes",
+      "topic_slug": "year-4-maths-fractions-and-decimals",
+      "confidence": "medium",
+      "reasoning": "Finding unit/non-unit fractions of quantities matches Year 4 fractions content.",
+      "subject": "Maths",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-3/identify-parts-and-wholes-in-different-contexts": {
+      "unit_title": "identify parts and wholes in different contexts",
+      "topic_slug": "y3-maths-fractions",
+      "confidence": "medium",
+      "reasoning": "Basic parts and wholes concept aligns with Year 3 fractions introduction.",
+      "subject": "Maths",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-3/informal-and-mental-strategies-for-adding-and-subtracting-two-3-digit-numbers": {
+      "unit_title": "informal and mental strategies for adding and subtracting two 3 digit numbers",
+      "topic_slug": "y3-maths-addition-subtraction",
+      "confidence": "high",
+      "reasoning": "Adding/subtracting 3-digit numbers with mental strategies matches Year 3 addition and subtraction.",
+      "subject": "Maths",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-5/link-area-of-rectangles-to-multiplication": {
+      "unit_title": "link area of rectangles to multiplication",
+      "topic_slug": "year-5-maths-measurement",
+      "confidence": "medium",
+      "reasoning": "Area of compound rectilinear shapes fits Year 5 measurement content.",
+      "subject": "Maths",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-6/mean-average": {
+      "unit_title": "mean average",
+      "topic_slug": "y6-maths-statistics",
+      "confidence": "high",
+      "reasoning": "Calculating and interpreting the mean is a Year 6 statistics skill.",
+      "subject": "Maths",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-3/measures-mass-and-capacity": {
+      "unit_title": "measures mass and capacity",
+      "topic_slug": "y3-maths-measurement-mass-capacity",
+      "confidence": "high",
+      "reasoning": "Measuring mass in grams/kilograms directly matches Year 3 mass and capacity.",
+      "subject": "Maths",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-3/measuring-length-and-recording-in-tables": {
+      "unit_title": "measuring length and recording in tables",
+      "topic_slug": "y3-maths-measurement-length-perimeter",
+      "confidence": "high",
+      "reasoning": "Measuring length, converting cm/mm/m matches Year 3 length and perimeter.",
+      "subject": "Maths",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-4/money-apply-efficient-strategies-when-calculating-with-money": {
+      "unit_title": "money apply efficient strategies when calculating with money",
+      "topic_slug": "year-4-maths-measurement",
+      "confidence": "medium",
+      "reasoning": "Money conversion and decimal notation fits Year 4 measurement.",
+      "subject": "Maths",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-6/multiples-of-1-000": {
+      "unit_title": "multiples of 1 000",
+      "topic_slug": "year-5-maths-number-and-place-value",
+      "confidence": "medium",
+      "reasoning": "Composition of numbers up to 100,000 matches Year 5 place value.",
+      "subject": "Maths",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-6/multiplication-and-division-of-fractions": {
+      "unit_title": "multiplication and division of fractions",
+      "topic_slug": "y6-maths-fractions-decimals-percentages",
+      "confidence": "high",
+      "reasoning": "Multiplying and dividing fractions is Year 6 fraction content.",
+      "subject": "Maths",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-5/multiplication-by-partitioning-leading-to-short-multiplication-2-by-1-digit": {
+      "unit_title": "multiplication by partitioning leading to short multiplication 2 by 1 digit",
+      "topic_slug": "year-4-maths-multiplication-and-division",
+      "confidence": "high",
+      "reasoning": "Short multiplication of 2-digit by 1-digit numbers matches Year 4 multiplication and division.",
+      "subject": "Maths",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-5/multiplication-by-partitioning-leading-to-short-multiplication-3-by-1-digit": {
+      "unit_title": "multiplication by partitioning leading to short multiplication 3 by 1 digit",
+      "topic_slug": "year-4-maths-multiplication-and-division",
+      "confidence": "medium",
+      "reasoning": "Formal short multiplication of 3-digit numbers fits Year 4 multiplication and division progression.",
+      "subject": "Maths",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-5/multiply-3-or-more-numbers-commutative-and-associative-laws": {
+      "unit_title": "multiply 3 or more numbers commutative and associative laws",
+      "topic_slug": "year-5-maths-multiplication-and-division",
+      "confidence": "medium",
+      "reasoning": "Commutative/associative laws and volume calculations align with Year 5 multiplication and division.",
+      "subject": "Maths",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-5/multiply-a-proper-fraction-by-a-whole-number": {
+      "unit_title": "multiply a proper fraction by a whole number",
+      "topic_slug": "year-5-maths-fractions-decimals-and-percentages",
+      "confidence": "high",
+      "reasoning": "Multiplying proper fractions by whole numbers is Year 5 fraction content.",
+      "subject": "Maths",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-5/multiply-improper-fractions-and-mixed-numbers-by-a-whole-number": {
+      "unit_title": "multiply improper fractions and mixed numbers by a whole number",
+      "topic_slug": "y6-maths-fractions-decimals-percentages",
+      "confidence": "medium",
+      "reasoning": "Multiplying mixed/improper fractions by whole numbers with bridging is advanced Year 6 fraction work.",
+      "subject": "Maths",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-6/multiplying-and-dividing-by-2-digit-numbers": {
+      "unit_title": "multiplying and dividing by 2 digit numbers",
+      "topic_slug": "year-5-maths-multiplication-and-division",
+      "confidence": "low",
+      "reasoning": "Long multiplication/division by 2-digit numbers is closest to Year 5 multiplication and division as no Year 6 equivalent exists.",
+      "subject": "Maths",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-5/negative-numbers": {
+      "unit_title": "negative numbers",
+      "topic_slug": "y6-maths-place-value-rounding",
+      "confidence": "medium",
+      "reasoning": "Negative numbers and number lines fit Year 6 place value and rounding.",
+      "subject": "Maths",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-3/non-unit-fractions": {
+      "unit_title": "non unit fractions",
+      "topic_slug": "year-4-maths-fractions-and-decimals",
+      "confidence": "medium",
+      "reasoning": "Comparing non-unit fractions matches Year 4 fractions content.",
+      "subject": "Maths",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-6/order-compare-and-calculate-with-numbers-up-to-8-digits": {
+      "unit_title": "order compare and calculate with numbers up to 8 digits",
+      "topic_slug": "y6-maths-place-value-rounding",
+      "confidence": "high",
+      "reasoning": "Comparing numbers up to 10 million matches Year 6 place value and rounding.",
+      "subject": "Maths",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-6/order-of-operations": {
+      "unit_title": "order of operations",
+      "topic_slug": "y6-maths-algebra-expressions",
+      "confidence": "medium",
+      "reasoning": "Order of operations and distributive law are covered under Year 6 algebra/expressions content.",
+      "subject": "Maths",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-3/parallel-and-perpendicular-sides-in-polygons-and-perimeter": {
+      "unit_title": "parallel and perpendicular sides in polygons and perimeter",
+      "topic_slug": "year-4-maths-geometry-properties-of-shapes",
+      "confidence": "medium",
+      "reasoning": "Focuses on parallel/perpendicular sides and constructing shapes, matching Year 4 geometry properties.",
+      "subject": "Maths",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-4/perimeter": {
+      "unit_title": "perimeter",
+      "topic_slug": "y3-maths-measurement-length-perimeter",
+      "confidence": "high",
+      "reasoning": "Directly matches perimeter calculation content in the Length and Perimeter topic.",
+      "subject": "Maths",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-6/ratio-and-proportion": {
+      "unit_title": "ratio and proportion",
+      "topic_slug": "y6-maths-ratio-proportion",
+      "confidence": "high",
+      "reasoning": "Explicitly covers ratio, scale factors, and proportion, matching the Year 6 Ratio and Proportion topic.",
+      "subject": "Maths",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-4/relationship-between-the-3-and-6-times-tables-and-tests-of-divisibility": {
+      "unit_title": "relationship between the 3 and 6 times tables and tests of divisibility",
+      "topic_slug": "multiplication-tables",
+      "confidence": "medium",
+      "reasoning": "Focuses on times tables relationships and divisibility, matching the Multiplication Tables topic.",
+      "subject": "Maths",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-4/relationship-between-the-3-and-9-times-tables": {
+      "unit_title": "relationship between the 3 and 9 times tables",
+      "topic_slug": "multiplication-tables",
+      "confidence": "medium",
+      "reasoning": "Covers times table facts and relationships, matching the Multiplication Tables topic.",
+      "subject": "Maths",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-4/represent-counting-in-nines-as-the-9-times-table": {
+      "unit_title": "represent counting in nines as the 9 times table",
+      "topic_slug": "multiplication-tables",
+      "confidence": "medium",
+      "reasoning": "Covers the 9 times table and counting patterns, matching Multiplication Tables.",
+      "subject": "Maths",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-4/represent-counting-in-threes-and-sixes-as-the-3-and-6-times-tables": {
+      "unit_title": "represent counting in threes and sixes as the 3 and 6 times tables",
+      "topic_slug": "multiplication-tables",
+      "confidence": "medium",
+      "reasoning": "Covers 3 and 6 times tables, matching Multiplication Tables.",
+      "subject": "Maths",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-3/representing-3-digit-numbers-comparing-and-positioning-on-number-lines": {
+      "unit_title": "representing 3 digit numbers comparing and positioning on number lines",
+      "topic_slug": "y3-maths-place-value",
+      "confidence": "high",
+      "reasoning": "Focuses on comparing, ordering, and positioning 3-digit numbers, matching Year 3 Place Value.",
+      "subject": "Maths",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-4/review-of-column-addition-and-subtraction-roman-numerals": {
+      "unit_title": "review of column addition and subtraction roman numerals",
+      "topic_slug": "y3-maths-addition-subtraction",
+      "confidence": "medium",
+      "reasoning": "Reviews column addition and subtraction strategies, matching Year 3 Addition and Subtraction.",
+      "subject": "Maths",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-4/review-of-fractions": {
+      "unit_title": "review of fractions",
+      "topic_slug": "y3-maths-fractions",
+      "confidence": "medium",
+      "reasoning": "Covers basic fraction concepts of parts and wholes, matching Year 3 Fractions.",
+      "subject": "Maths",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-3/review-strategies-for-adding-and-subtracting-across-10": {
+      "unit_title": "review strategies for adding and subtracting across 10",
+      "topic_slug": "y3-maths-addition-subtraction",
+      "confidence": "medium",
+      "reasoning": "Covers addition strategies including bridging through 10, matching Year 3 Addition and Subtraction.",
+      "subject": "Maths",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-3/right-angles": {
+      "unit_title": "right angles",
+      "topic_slug": "y3-maths-geometry-shapes",
+      "confidence": "high",
+      "reasoning": "Covers right angles and properties of quadrilaterals/triangles, matching Year 3 Geometry: Properties of Shapes.",
+      "subject": "Maths",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-6/rounding-and-solving-problems-with-numbers-up-to-7-digits": {
+      "unit_title": "rounding and solving problems with numbers up to 7 digits",
+      "topic_slug": "y6-maths-place-value-rounding",
+      "confidence": "high",
+      "reasoning": "Focuses on rounding large numbers, matching Year 6 Place Value and Rounding.",
+      "subject": "Maths",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-4/secure-place-value-to-1000-apply-to-addition-and-subtraction-multiples-of-100": {
+      "unit_title": "secure place value to 1000 apply to addition and subtraction multiples of 100",
+      "topic_slug": "y3-maths-place-value",
+      "confidence": "high",
+      "reasoning": "Covers place value up to 1000 and related addition/subtraction, matching Year 3 Place Value.",
+      "subject": "Maths",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-3/securing-place-value-to-100-and-applying-to-addition-and-subtraction": {
+      "unit_title": "securing place value to 100 and applying to addition and subtraction",
+      "topic_slug": "y3-maths-place-value",
+      "confidence": "medium",
+      "reasoning": "Focuses on composition of 100 and bridging, matching Year 3 Place Value.",
+      "subject": "Maths",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-6/solving-problems-with-two-unknowns": {
+      "unit_title": "solving problems with two unknowns",
+      "topic_slug": "y6-maths-algebra-expressions",
+      "confidence": "high",
+      "reasoning": "Deals with balancing equations and unknowns, matching Year 6 Algebra: Expressions and Equations.",
+      "subject": "Maths",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-6/statistics": {
+      "unit_title": "statistics",
+      "topic_slug": "y6-maths-statistics",
+      "confidence": "high",
+      "reasoning": "Covers line graphs and pie charts, matching Year 6 Statistics.",
+      "subject": "Maths",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-4/symmetry-in-2d-shapes": {
+      "unit_title": "symmetry in 2d shapes",
+      "topic_slug": "year-4-maths-geometry-properties-of-shapes",
+      "confidence": "medium",
+      "reasoning": "Covers symmetry and shape classification, matching Year 4 Geometry Properties of Shapes.",
+      "subject": "Maths",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-3/tell-the-time-to-the-nearest-minute-and-compare-units-of-time": {
+      "unit_title": "tell the time to the nearest minute and compare units of time",
+      "topic_slug": "y3-maths-measurement-time",
+      "confidence": "high",
+      "reasoning": "Covers telling time and units of time, matching Year 3 Measurement: Time.",
+      "subject": "Maths",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-4/time-convert-between-12-and-24-hour-clocks-analogue-and-digital": {
+      "unit_title": "time convert between 12 and 24 hour clocks analogue and digital",
+      "topic_slug": "year-4-maths-measurement",
+      "confidence": "medium",
+      "reasoning": "Covers converting between 12/24 hour clocks and time units, matching Year 4 Measurement.",
+      "subject": "Maths",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-3/understand-additive-relationships-and-apply-them-to-rearrange-equations": {
+      "unit_title": "understand additive relationships and apply them to rearrange equations",
+      "topic_slug": "year-4-maths-addition-and-subtraction",
+      "confidence": "medium",
+      "reasoning": "Focuses on additive relationships and multi-step problems, matching Year 4 Addition and Subtraction.",
+      "subject": "Maths",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-4/understand-and-represent-multiplicative-structures": {
+      "unit_title": "understand and represent multiplicative structures",
+      "topic_slug": "year-4-maths-multiplication-and-division",
+      "confidence": "medium",
+      "reasoning": "Covers multiplication and division equation structures, matching Year 4 Multiplication and Division.",
+      "subject": "Maths",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-5/understand-and-use-the-concept-of-factorisation-square-and-prime-numbers": {
+      "unit_title": "understand and use the concept of factorisation square and prime numbers",
+      "topic_slug": "year-5-maths-multiplication-and-division",
+      "confidence": "medium",
+      "reasoning": "Covers factors, primes, and square numbers, matching Year 5 Multiplication and Division.",
+      "subject": "Maths",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-5/understand-hundredths-as-parts-of-a-whole-and-represent": {
+      "unit_title": "understand hundredths as parts of a whole and represent",
+      "topic_slug": "year-4-maths-fractions-and-decimals",
+      "confidence": "medium",
+      "reasoning": "Covers decimal hundredths, matching Year 4 Fractions and Decimals.",
+      "subject": "Maths",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-6/understand-place-value-within-numbers-with-up-to-7-digits": {
+      "unit_title": "understand place value within numbers with up to 7 digits",
+      "topic_slug": "y6-maths-place-value-rounding",
+      "confidence": "high",
+      "reasoning": "Numbers up to 10 million matches Year 6 place value scope.",
+      "subject": "Maths",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-5/understand-tenths-as-part-of-a-whole-represent-and-calculate-mentally": {
+      "unit_title": "understand tenths as part of a whole represent and calculate mentally",
+      "topic_slug": "year-4-maths-fractions-and-decimals",
+      "confidence": "high",
+      "reasoning": "Tenths as decimals is core Year 4 fractions/decimals content.",
+      "subject": "Maths",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-5/understand-the-concept-of-area": {
+      "unit_title": "understand the concept of area",
+      "topic_slug": "year-4-maths-measurement",
+      "confidence": "medium",
+      "reasoning": "Introductory area concept via counting squares aligns with Year 4 measurement.",
+      "subject": "Maths",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-5/understand-the-concept-of-volume": {
+      "unit_title": "understand the concept of volume",
+      "topic_slug": "year-5-maths-measurement",
+      "confidence": "medium",
+      "reasoning": "Volume of cuboids and compound shapes fits Year 5 measurement scope.",
+      "subject": "Maths",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-4/understand-what-happens-when-a-number-is-multiplied-or-divided-by-10-and-100": {
+      "unit_title": "understand what happens when a number is multiplied or divided by 10 and 100",
+      "topic_slug": "year-5-maths-multiplication-and-division",
+      "confidence": "medium",
+      "reasoning": "Multiplying/dividing by 10 and 100 is a Year 5 multiplication and division skill.",
+      "subject": "Maths",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-6/understanding-percentages": {
+      "unit_title": "understanding percentages",
+      "topic_slug": "y6-maths-fractions-decimals-percentages",
+      "confidence": "high",
+      "reasoning": "Percentage-fraction-decimal conversions are Year 6 content.",
+      "subject": "Maths",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-3/unit-fractions-as-part-of-a-whole": {
+      "unit_title": "unit fractions as part of a whole",
+      "topic_slug": "y3-maths-fractions",
+      "confidence": "medium",
+      "reasoning": "Basic part-whole fraction concepts align with Year 3 fractions.",
+      "subject": "Maths",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-5/use-common-factors-and-multiples-to-solve-calculations-efficiently": {
+      "unit_title": "use common factors and multiples to solve calculations efficiently",
+      "topic_slug": "year-5-maths-multiplication-and-division",
+      "confidence": "high",
+      "reasoning": "Factors and multiples for efficient calculation are Year 5 multiplication/division topics.",
+      "subject": "Maths",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-6/use-equivalence-and-compensation-to-simplify-and-solve-addition-calculations": {
+      "unit_title": "use equivalence and compensation to simplify and solve addition calculations",
+      "topic_slug": "year-4-maths-addition-and-subtraction",
+      "confidence": "medium",
+      "reasoning": "Mental addition strategies using compensation fit Year 4 addition and subtraction.",
+      "subject": "Maths",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-6/use-equivalence-and-compensation-to-simplify-and-solve-subtraction-problems": {
+      "unit_title": "use equivalence and compensation to simplify and solve subtraction problems",
+      "topic_slug": "year-4-maths-addition-and-subtraction",
+      "confidence": "medium",
+      "reasoning": "Subtraction compensation strategies align with Year 4 addition and subtraction.",
+      "subject": "Maths",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-5/use-knowledge-of-decimals-to-solve-problems-in-different-contexts-length": {
+      "unit_title": "use knowledge of decimals to solve problems in different contexts length",
+      "topic_slug": "year-5-maths-measurement",
+      "confidence": "medium",
+      "reasoning": "Decimal lengths and rounding relate to Year 5 measurement with decimals.",
+      "subject": "Maths",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-6/use-knowledge-of-part-whole-structure-to-solve-additive-problems": {
+      "unit_title": "use knowledge of part whole structure to solve additive problems",
+      "topic_slug": "y3-maths-addition-subtraction",
+      "confidence": "medium",
+      "reasoning": "Part-whole additive reasoning matches Year 3 addition and subtraction.",
+      "subject": "Maths",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "maths/ks2/year-6/using-equivalence-to-calculate": {
+      "unit_title": "using equivalence to calculate",
+      "topic_slug": "year-5-maths-multiplication-and-division",
+      "confidence": "medium",
+      "reasoning": "Scaling factors and quotients equivalence fits Year 5 multiplication and division.",
+      "subject": "Maths",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "science/ks1/year-1/everyday-materials": {
+      "unit_title": "everyday materials",
+      "topic_slug": "year-1-science-everyday-materials",
+      "confidence": "high",
+      "reasoning": "Covers identifying materials and basic properties, matching Y1 Everyday Materials.",
+      "subject": "Science",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "science/ks1/year-2/growing-plants": {
+      "unit_title": "growing plants",
+      "topic_slug": "y2-science-plants-growth",
+      "confidence": "high",
+      "reasoning": "Focuses on plant growth needs, seeds and bulbs, matching Y2 Plants: Growth and Needs.",
+      "subject": "Science",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "science/ks1/year-2/healthy-me": {
+      "unit_title": "healthy me",
+      "topic_slug": "year-1-science-animals-including-humans",
+      "confidence": "high",
+      "reasoning": "Covers hygiene, food and staying healthy, part of Y1 Animals Including Humans.",
+      "subject": "Science",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "science/ks1/year-1/human-body-parts": {
+      "unit_title": "human body parts",
+      "topic_slug": "year-1-science-animals-including-humans",
+      "confidence": "high",
+      "reasoning": "Body parts and senses match Y1 Animals Including Humans curriculum.",
+      "subject": "Science",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "science/ks1/year-1/identifying-plants-and-their-basic-parts": {
+      "unit_title": "identifying plants and their basic parts",
+      "topic_slug": "year-1-science-plants",
+      "confidence": "high",
+      "reasoning": "Identifying flowering plants and tree structure matches Y1 Plants.",
+      "subject": "Science",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "science/ks1/year-2/introduction-to-food-chains": {
+      "unit_title": "introduction to food chains",
+      "topic_slug": "y2-science-animals-survival",
+      "confidence": "medium",
+      "reasoning": "Food chains relate to how animals obtain food, aligning with Y2 Animals: Food, Survival and Life Cycles.",
+      "subject": "Science",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "science/ks1/year-2/living-things-and-where-they-live": {
+      "unit_title": "living things and where they live",
+      "topic_slug": "y2-science-living-things-habitats",
+      "confidence": "high",
+      "reasoning": "Covers habitats and living vs non-living, matching Y2 Living Things and Their Habitats.",
+      "subject": "Science",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "science/ks1/year-1/naming-and-grouping-animals": {
+      "unit_title": "naming and grouping animals",
+      "topic_slug": "y2-science-living-things-habitats",
+      "confidence": "medium",
+      "reasoning": "Classifying and naming animal groups fits under Living Things and Their Habitats.",
+      "subject": "Science",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "science/ks1/year-2/new-life": {
+      "unit_title": "new life",
+      "topic_slug": "y2-science-animals-survival",
+      "confidence": "high",
+      "reasoning": "Animal life cycles and basic needs match Y2 Animals: Food, Survival and Life Cycles.",
+      "subject": "Science",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "science/ks1/year-1/seasonal-changes-autumn-and-winter": {
+      "unit_title": "seasonal changes autumn and winter",
+      "topic_slug": "year-1-science-seasonal-changes",
+      "confidence": "high",
+      "reasoning": "Direct match with Y1 Seasonal Changes covering autumn and winter.",
+      "subject": "Science",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "science/ks1/year-1/seasonal-changes-spring-and-summer": {
+      "unit_title": "seasonal changes spring and summer",
+      "topic_slug": "year-1-science-seasonal-changes",
+      "confidence": "high",
+      "reasoning": "Direct match with Y1 Seasonal Changes covering spring and summer.",
+      "subject": "Science",
+      "year": "year-1",
+      "mapped_by": "oak-map-units"
+    },
+    "science/ks1/year-2/uses-of-everyday-materials": {
+      "unit_title": "uses of everyday materials",
+      "topic_slug": "y2-science-materials-properties",
+      "confidence": "high",
+      "reasoning": "Focus on material properties and uses matches Y2 Everyday Materials and Their Properties.",
+      "subject": "Science",
+      "year": "year-2",
+      "mapped_by": "oak-map-units"
+    },
+    "science/ks2/year-6/changing-circuits": {
+      "unit_title": "changing circuits",
+      "topic_slug": "year-4-science-electricity",
+      "confidence": "high",
+      "reasoning": "Covers circuits, buzzers, and conductors/insulators, matching the electricity topic.",
+      "subject": "Science",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "science/ks2/year-5/earth-sun-and-moon": {
+      "unit_title": "earth sun and moon",
+      "topic_slug": "year-5-science-earth-and-space",
+      "confidence": "high",
+      "reasoning": "Covers the Sun, Moon and Earth movements, matching Earth and Space.",
+      "subject": "Science",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "science/ks2/year-6/evolution-and-inheritance": {
+      "unit_title": "evolution and inheritance",
+      "topic_slug": "y6-science-evolution-inheritance",
+      "confidence": "high",
+      "reasoning": "Covers Darwin, adaptation and evolution directly matching this topic.",
+      "subject": "Science",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "science/ks2/year-5/forces-including-simple-machines": {
+      "unit_title": "forces including simple machines",
+      "topic_slug": "year-5-science-forces",
+      "confidence": "high",
+      "reasoning": "Covers air resistance, friction and gears, matching the Forces topic.",
+      "subject": "Science",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "science/ks2/year-3/healthy-eating": {
+      "unit_title": "healthy eating",
+      "topic_slug": "y3-science-animals-nutrition-skeletons",
+      "confidence": "medium",
+      "reasoning": "Focuses on food amounts and nutrition, aligning with the nutrition strand.",
+      "subject": "Science",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "science/ks2/year-5/human-development": {
+      "unit_title": "human development",
+      "topic_slug": "year-5-science-animals-including-humans-human-lifecycle",
+      "confidence": "high",
+      "reasoning": "Covers puberty and human life stages, matching the human lifecycle topic.",
+      "subject": "Science",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "science/ks2/year-3/introduction-to-light-and-shadows": {
+      "unit_title": "introduction to light and shadows",
+      "topic_slug": "y3-science-light-shadows",
+      "confidence": "high",
+      "reasoning": "Covers light sources, shadows and materials, matching the Y3 light topic.",
+      "subject": "Science",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "science/ks2/year-4/introduction-to-sound": {
+      "unit_title": "introduction to sound",
+      "topic_slug": "year-4-science-sound",
+      "confidence": "high",
+      "reasoning": "Covers pitch, volume and how sounds are made, matching the Sound topic.",
+      "subject": "Science",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "science/ks2/year-4/introduction-to-states-of-matter-and-changing-states": {
+      "unit_title": "introduction to states of matter and changing states",
+      "topic_slug": "year-4-science-states-of-matter",
+      "confidence": "high",
+      "reasoning": "Covers solids, liquids, gases and state changes, matching States of Matter.",
+      "subject": "Science",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "science/ks2/year-4/introduction-to-the-human-digestive-system": {
+      "unit_title": "introduction to the human digestive system",
+      "topic_slug": "year-4-science-animals-including-humans-digestion",
+      "confidence": "high",
+      "reasoning": "Covers teeth and digestion-related content, matching the Digestion topic.",
+      "subject": "Science",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "science/ks2/year-3/introduction-to-the-human-skeleton-and-muscles": {
+      "unit_title": "introduction to the human skeleton and muscles",
+      "topic_slug": "y3-science-animals-nutrition-skeletons",
+      "confidence": "high",
+      "reasoning": "Covers skeletons and muscles, matching this Y3 topic.",
+      "subject": "Science",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "science/ks2/year-6/keeping-healthy": {
+      "unit_title": "keeping healthy",
+      "topic_slug": "y6-science-circulatory-system",
+      "confidence": "medium",
+      "reasoning": "Focuses on heart rate and healthy hearts, aligning with circulatory system content.",
+      "subject": "Science",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "science/ks2/year-6/light-and-how-it-travels": {
+      "unit_title": "light and how it travels",
+      "topic_slug": "y6-science-light",
+      "confidence": "medium",
+      "reasoning": "Covers light travel, reflection and the eye, matching the more advanced Y6 light topic.",
+      "subject": "Science",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "science/ks2/year-4/living-things-and-the-environment": {
+      "unit_title": "living things and the environment",
+      "topic_slug": "year-4-science-living-things-and-their-habitats",
+      "confidence": "medium",
+      "reasoning": "Covers habitats, environment and species danger, matching this habitats topic.",
+      "subject": "Science",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "science/ks2/year-6/materials-non-statutory": {
+      "unit_title": "materials non statutory",
+      "topic_slug": "year-5-science-properties-and-changes-of-materials",
+      "confidence": "medium",
+      "reasoning": "Covers material comparisons and changes, matching the properties and changes topic.",
+      "subject": "Science",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "science/ks2/year-4/more-about-food-chains": {
+      "unit_title": "more about food chains",
+      "topic_slug": "year-4-science-living-things-and-their-habitats",
+      "confidence": "high",
+      "reasoning": "Covers food chains and consumers, matching this habitats and food chains topic.",
+      "subject": "Science",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "science/ks2/year-5/properties-changes-and-separating-materials": {
+      "unit_title": "properties changes and separating materials",
+      "topic_slug": "year-5-science-properties-and-changes-of-materials",
+      "confidence": "high",
+      "reasoning": "Covers irreversible changes and material properties, matching this topic.",
+      "subject": "Science",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "science/ks2/year-5/reproduction-and-life-cycles-animals": {
+      "unit_title": "reproduction and life cycles animals",
+      "topic_slug": "year-5-science-living-things-and-their-habitats",
+      "confidence": "medium",
+      "reasoning": "Covers animal life cycles and reproduction, matching this Y5 habitats/life cycles topic.",
+      "subject": "Science",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "science/ks2/year-5/reproduction-and-life-cycles-plants": {
+      "unit_title": "reproduction and life cycles plants",
+      "topic_slug": "y3-science-plants-life-cycle",
+      "confidence": "high",
+      "reasoning": "Covers plant life cycles and reproduction, matching the Plants Life Cycle topic.",
+      "subject": "Science",
+      "year": "year-5",
+      "mapped_by": "oak-map-units"
+    },
+    "science/ks2/year-3/rocks-and-soils": {
+      "unit_title": "rocks and soils",
+      "topic_slug": "y3-science-rocks-fossils",
+      "confidence": "high",
+      "reasoning": "Covers rocks, soils and fossils, matching this Y3 topic.",
+      "subject": "Science",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "science/ks2/year-4/simple-electrical-circuits": {
+      "unit_title": "simple electrical circuits",
+      "topic_slug": "year-4-science-electricity",
+      "confidence": "high",
+      "reasoning": "Covers circuits, conductors and insulators, matching the Electricity topic.",
+      "subject": "Science",
+      "year": "year-4",
+      "mapped_by": "oak-map-units"
+    },
+    "science/ks2/year-3/simple-forces-including-magnets": {
+      "unit_title": "simple forces including magnets",
+      "topic_slug": "y3-science-forces-magnets",
+      "confidence": "high",
+      "reasoning": "Covers magnets and contact forces, matching this Y3 topic.",
+      "subject": "Science",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "science/ks2/year-6/the-human-circulatory-system": {
+      "unit_title": "the human circulatory system",
+      "topic_slug": "y6-science-circulatory-system",
+      "confidence": "high",
+      "reasoning": "Covers heart, blood and blood vessels, directly matching the Circulatory System topic.",
+      "subject": "Science",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
+    },
+    "science/ks2/year-3/what-plants-do-and-what-they-need": {
+      "unit_title": "what plants do and what they need",
+      "topic_slug": "y3-science-plants-parts-functions",
+      "confidence": "high",
+      "reasoning": "Covers plant needs and water transport, matching Plants: Parts and Functions.",
+      "subject": "Science",
+      "year": "year-3",
+      "mapped_by": "oak-map-units"
+    },
+    "science/ks2/year-6/why-we-group-and-classify-living-things": {
+      "unit_title": "why we group and classify living things",
+      "topic_slug": "y6-science-living-things-classification",
+      "confidence": "high",
+      "reasoning": "Covers classification, grouping, and naming species, matching the Year 6 classification topic.",
+      "subject": "Science",
+      "year": "year-6",
+      "mapped_by": "oak-map-units"
     }
   }
 }
