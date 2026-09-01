@@ -7,7 +7,7 @@ import Link from 'next/link'
 import { redirect, notFound } from 'next/navigation'
 import { createSupabaseServerClient, getAuthUser } from '@/lib/supabase/server'
 import { getCurrentProfile } from '@/lib/profile'
-import { canActAsParent } from '@/lib/auth/roles'
+import { canActAsParent, isYearGroupLabel, isExamBoard } from '@/lib/auth/roles'
 import { prisma } from '@/lib/prisma'
 import { getTopicCurriculumCoverage, getCompletedTopicOutcomes } from '@/lib/curriculum'
 import {
@@ -27,6 +27,7 @@ import {
 import { getSignalsForChild } from '@/lib/learning-signals-runner'
 import type { LearningSignal } from '@/lib/learning-signals'
 import { ScreenTimeControls } from './ScreenTimeControls'
+import { YearGroupControl } from './YearGroupControl'
 import { SyllabusHeatmap } from './SyllabusHeatmap'
 import { ExamSection } from './ExamSection'
 import { ChildDetailTabs } from '@/components/parent/ChildDetailTabs'
@@ -635,6 +636,15 @@ export default async function ChildDetailPage({
                   childName={childProfile.display_name}
                   initialAssignments={examAssignmentRows}
                 />
+
+                <Card title="School year">
+                  <YearGroupControl
+                    childId={childProfile.id}
+                    childName={childProfile.display_name}
+                    currentYearGroup={isYearGroupLabel(yearGroupLabel) ? yearGroupLabel : null}
+                    currentExamBoard={isExamBoard(childProfile.exam_board) ? childProfile.exam_board : null}
+                  />
+                </Card>
 
                 <Card title="Screen-time controls">
                   <ScreenTimeControls
