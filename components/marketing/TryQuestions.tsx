@@ -8,6 +8,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import MathText from '@/components/ui/MathText'
 import type { PublicTryQuestion } from '@/lib/public-curriculum'
 
 interface Props {
@@ -107,7 +108,9 @@ export function TryQuestions({ questions, topicTitle, yearLabel, subjectName }: 
         />
       </div>
 
-      <p className="mt-6 text-lg font-semibold leading-relaxed text-ink">{question.question}</p>
+      <p className="mt-6 text-lg font-semibold leading-relaxed text-ink">
+        <MathText text={question.question} />
+      </p>
 
       <ul className="mt-5 space-y-2.5">
         {question.options.map((option) => {
@@ -132,7 +135,7 @@ export function TryQuestions({ questions, topicTitle, yearLabel, subjectName }: 
                 }
                 className={`flex min-h-[52px] w-full items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left text-base font-medium text-ink transition-colors disabled:cursor-default ${tone}`}
               >
-                <span>{option}</span>
+                <span><MathText text={option} /></span>
                 {answered && isAnswer && (
                   <span aria-hidden className="flex-none font-bold text-correct">✓</span>
                 )}
@@ -151,7 +154,9 @@ export function TryQuestions({ questions, topicTitle, yearLabel, subjectName }: 
             {wasRight ? 'Correct' : 'Not this time'}
           </p>
           {question.explanation && (
-            <p className="mt-1.5 text-sm leading-relaxed text-muted">{question.explanation}</p>
+            <p className="mt-1.5 text-sm leading-relaxed text-muted">
+              <MathText text={question.explanation} />
+            </p>
           )}
           <button
             onClick={next}

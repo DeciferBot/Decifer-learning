@@ -246,10 +246,10 @@ type Snapshot = {
   tryByTopic: Map<string, PublicTryQuestion[]>
 }
 
-// Questions carrying LaTeX ($) or markdown tables (|) need the renderers the
-// signed-in quiz uses. The public panel renders plain text, so they are skipped
-// rather than shown as raw markup. 91 of 11,061 published questions are affected.
-const UNRENDERABLE_PUBLICLY = /[$|]/
+// LaTeX is fine: the public panel renders question text through MathText, the
+// same way the signed-in quiz does. Markdown tables are not, so a question
+// carrying one is skipped rather than shown as a row of raw pipes.
+const UNRENDERABLE_PUBLICLY = /\|/
 
 // Deterministic shuffle. Math.random() would reorder the options on every
 // prerender, so two builds of the same page would differ for no reason.
