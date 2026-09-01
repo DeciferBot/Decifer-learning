@@ -20,13 +20,16 @@
 import { forwardRef } from 'react'
 import Link from 'next/link'
 
-export type ButtonVariant = 'primary' | 'secondary' | 'quiet' | 'danger'
+export type ButtonVariant = 'primary' | 'sea' | 'secondary' | 'quiet' | 'danger'
 export type ButtonSize = 'sm' | 'md' | 'lg'
 
 // Body colour, text colour, and the darker slab beneath it that gives the
 // button a physical edge to sink onto.
 const VARIANT: Record<ButtonVariant, string> = {
   primary: 'bg-brand-600 text-white border-brand-700 hover:bg-brand',
+  // The sea carries every prominent action that is not THE action. Ember
+  // means "go" and keeps that meaning only if nothing else wears it.
+  sea: 'bg-sea text-white border-sea-deep hover:brightness-110',
   secondary: 'bg-surface text-ink border-black/12 hover:bg-black/[0.03]',
   quiet: 'bg-transparent text-ink border-transparent shadow-none hover:bg-black/[0.04]',
   danger: 'bg-incorrect text-white border-incorrect-700 hover:brightness-105',
@@ -60,6 +63,19 @@ const BASE = [
   // feedback only, never movement.
   'motion-reduce:transition-none motion-reduce:active:translate-y-0',
 ].join(' ')
+
+/**
+ * The exact class recipe, for the places that cannot use the component —
+ * a motion.button, a Link that must stay a Link mid-animation. One source
+ * of truth either way: change the recipe here and both forms change.
+ */
+export function buttonClasses(
+  variant: ButtonVariant = 'primary',
+  size: ButtonSize = 'md',
+  extra = '',
+): string {
+  return `${BASE} ${VARIANT[variant]} ${SIZE[size]} ${extra}`
+}
 
 type Shared = {
   variant?: ButtonVariant

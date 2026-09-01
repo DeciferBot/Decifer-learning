@@ -31,6 +31,8 @@ import { NewParentLinkNotice } from './NewParentLinkNotice'
 import { DailyGoalRing, StreakReminderPrompt } from '@/components/child/DailyGoalRing'
 import { displayedStreak } from '@/lib/streak'
 import { Layers, Star, Target, Trophy, PencilLine, BookOpen, Gift, Flame, MapPin, RefreshCw, Shield, MapFold, Telescope, ClipboardList } from '@/components/ui/icons'
+import { Deci } from '@/components/ui/Deci'
+import { buttonClasses } from '@/components/ui/Button'
 
 export const metadata = { title: 'Home' }
 
@@ -306,35 +308,35 @@ export default async function ChildDashboardPage() {
       {nextAction ? (
         <Link
           href={nextAction.href}
-          className="block rounded-3xl px-5 py-6 text-center transition-transform active:scale-[0.99]"
-          style={{ background: 'linear-gradient(160deg, #6C9EFF 0%, #7C5CE0 100%)' }}
+          className="block overflow-hidden rounded-3xl border-2 border-sea-deep/30 bg-gradient-to-b from-sea to-[#2A82BC] px-5 pb-5 pt-6 shadow-clay transition-transform active:scale-[0.99] motion-reduce:active:scale-100"
         >
-          <p className="text-[11px] font-bold uppercase tracking-widest text-white/80">
-            {nextAction.kicker}
-          </p>
-          <p className="mt-1.5 font-heading text-2xl font-extrabold leading-tight text-white">
-            {nextAction.title}
-          </p>
-          <p className="mt-1 text-xs text-white/80">{nextAction.subtitle}</p>
-          <span className="mt-4 inline-flex min-h-[48px] w-full items-center justify-center rounded-xl bg-white px-6 font-heading text-base font-extrabold text-[#23324D]">
+          <div className="flex items-end gap-2.5 text-left">
+            <Deci mood="happy" size={52} className="flex-none drop-shadow-sm" />
+            <div className="mb-1 min-w-0 flex-1 rounded-2xl rounded-bl-md bg-surface px-4 py-2.5 shadow-[0_2px_0_rgba(15,58,92,0.18)]">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-sea">{nextAction.kicker}</p>
+              <p className="font-heading text-lg font-extrabold leading-tight text-ink">{nextAction.title}</p>
+              <p className="mt-0.5 text-xs text-muted">{nextAction.subtitle}</p>
+            </div>
+          </div>
+          <span className={buttonClasses('primary', 'md', 'mt-4 w-full pointer-events-none')}>
             {nextAction.cta}
           </span>
         </Link>
       ) : (
         <Link
           href="/daily-challenge"
-          className="block rounded-3xl px-5 py-6 text-center transition-transform active:scale-[0.99]"
-          style={{ background: 'linear-gradient(135deg, #FFE3A3 0%, #FFD43B 100%)' }}
+          className="block overflow-hidden rounded-3xl border-2 border-points-gold/50 bg-points-gold/15 px-5 pb-5 pt-6 shadow-clay transition-transform active:scale-[0.99] motion-reduce:active:scale-100"
         >
-          <p className="text-[11px] font-bold uppercase tracking-widest" style={{ color: '#7a5b00' }}>
-            Every topic done
-          </p>
-          <p className="mt-1.5 font-heading text-2xl font-extrabold leading-tight" style={{ color: '#3d2e00' }}>
-            Daily Mystery Challenge
-          </p>
-          <p className="mt-1 text-xs" style={{ color: '#7a5b00' }}>3 fresh questions, every day</p>
-          <span className="mt-4 inline-flex min-h-[48px] w-full items-center justify-center rounded-xl bg-surface px-6 font-heading text-base font-extrabold" style={{ color: '#3d2e00' }}>
-            Play →
+          <div className="flex items-end gap-2.5 text-left">
+            <Deci mood="cheering" size={52} className="flex-none" />
+            <div className="mb-1 min-w-0 flex-1 rounded-2xl rounded-bl-md bg-surface px-4 py-2.5 shadow-[0_2px_0_rgba(15,58,92,0.15)]">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-points-gold-700">Every topic done</p>
+              <p className="font-heading text-lg font-extrabold leading-tight text-ink">Daily Mystery Challenge</p>
+              <p className="mt-0.5 text-xs text-muted">3 fresh questions, every day</p>
+            </div>
+          </div>
+          <span className={buttonClasses('primary', 'md', 'mt-4 w-full pointer-events-none')}>
+            Play &rarr;
           </span>
         </Link>
       )}
@@ -349,7 +351,7 @@ export default async function ChildDashboardPage() {
       {nextAction && (
         <Link
           href="/daily-challenge"
-          className="flex items-center gap-3 rounded-2xl border border-points-gold/40 bg-points-gold/10 px-4 py-3 transition-colors hover:bg-points-gold/15"
+          className="flex items-center gap-3 rounded-2xl border-2 border-points-gold/40 bg-points-gold/10 px-4 py-3 shadow-clay-sm transition-[transform,box-shadow,background-color] duration-fast ease-out hover:bg-points-gold/15 active:translate-y-[2px] active:shadow-clay-pressed motion-reduce:transition-none motion-reduce:active:translate-y-0"
         >
           <Star className="w-5 h-5 flex-none text-points-gold-700" aria-hidden />
           <div className="min-w-0 flex-1">
@@ -363,10 +365,10 @@ export default async function ChildDashboardPage() {
       {/* ── Reward Vault — our best asset, so it sits above the small print ─ */}
       <Link
         href="/vault"
-        className={`flex items-center gap-3 rounded-2xl px-4 py-3 transition-colors ${
+        className={`flex items-center gap-3 rounded-2xl px-4 py-3 shadow-clay-sm transition-[transform,box-shadow,background-color] duration-fast ease-out active:translate-y-[2px] active:shadow-clay-pressed motion-reduce:transition-none motion-reduce:active:translate-y-0 ${
           vaultCredits > 0
             ? 'border-2 border-correct/50 bg-correct/10 hover:bg-correct/15'
-            : 'border border-brand/20 bg-brand/5 hover:bg-brand/10'
+            : 'border-2 border-sea/25 bg-sea/5 hover:bg-sea/10'
         }`}
       >
         <Gift className={`w-5 h-5 flex-none ${vaultCredits > 0 ? 'text-correct-700' : 'text-brand-700'}`} aria-hidden />

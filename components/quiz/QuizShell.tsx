@@ -24,6 +24,8 @@ import { fireFeedback } from '@/lib/feedback'
 import { SoundToggle } from './SoundToggle'
 import { WinBurst } from './WinBurst'
 import MathText from '@/components/ui/MathText'
+import { buttonClasses } from '@/components/ui/Button'
+import { Deci } from '@/components/ui/Deci'
 import { GuardianVictoryScreen } from './GuardianVictoryScreen'
 import { HeartCrack, Swords, Sparkles, Trophy, Star, RefreshCw, Gift, Flame, Shield, Lightbulb, Target, Check } from '@/components/ui/icons'
 import { StudyBuddy } from './StudyBuddy'
@@ -707,14 +709,14 @@ export function QuizShell({
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="rounded-2xl border border-black/5 bg-surface p-8 text-center shadow-sm"
+        className="rounded-2xl border-2 border-black/8 bg-surface p-8 text-center shadow-clay"
       >
         <div className="flex justify-center mb-3"><HeartCrack className="w-12 h-12 text-incorrect-700" aria-hidden /></div>
         <h2 className="font-heading text-2xl font-bold text-ink">Out of hearts!</h2>
         <p className="mt-2 text-muted">Don&apos;t worry, no score saved. Give it another go!</p>
         <button
           onClick={restart}
-          className="mt-6 min-h-[48px] w-full rounded-xl bg-brand-600 px-6 py-3 font-heading font-bold text-white transition-colors hover:bg-brand-700"
+          className={buttonClasses('primary', 'md', 'mt-6 w-full')}
         >
           Try Again
         </button>
@@ -749,7 +751,7 @@ export function QuizShell({
     }
     if (passed && submitting) {
       return (
-        <div className="rounded-2xl border border-black/5 bg-surface p-8 text-center shadow-sm">
+        <div className="rounded-2xl border-2 border-black/8 bg-surface p-8 text-center shadow-clay">
           <div className="flex justify-center mb-3"><Swords className="w-12 h-12 text-on-maths" aria-hidden /></div>
           <h2 className="font-heading text-2xl font-bold text-ink">Guardian Defeated!</h2>
           <p className="mt-4 text-sm text-muted">Saving results…</p>
@@ -831,7 +833,7 @@ export function QuizShell({
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="relative overflow-hidden rounded-2xl border border-black/5 bg-surface p-8 text-center shadow-sm"
+          className="relative overflow-hidden rounded-2xl border-2 border-black/8 bg-surface p-8 text-center shadow-clay"
         >
           {/* Confetti for a pass, and for a round that still banked a card. */}
           {(passed || canFixUp || allEventuallyCorrect) && <WinBurst />}
@@ -945,7 +947,7 @@ export function QuizShell({
             {passed && nextTopic && (
               <Link
                 href={`/topics/${nextTopic.id}/learn`}
-                className="inline-flex min-h-[48px] items-center justify-center rounded-xl bg-brand-600 px-6 py-3 font-heading font-bold text-white transition-colors hover:bg-brand-700"
+                className={buttonClasses('primary', 'md')}
               >
                 {nextTopic.newlyUnlocked ? 'Start' : 'Next'}: {nextTopic.title} →
               </Link>
@@ -953,7 +955,7 @@ export function QuizShell({
             {passed && !nextTopic && (
               <Link
                 href="/world-map"
-                className="inline-flex min-h-[48px] items-center justify-center rounded-xl bg-brand-600 px-6 py-3 font-heading font-bold text-white transition-colors hover:bg-brand-700"
+                className={buttonClasses('primary', 'md')}
               >
                 See your World Map →
               </Link>
@@ -961,7 +963,7 @@ export function QuizShell({
             {passed && (
               <Link
                 href="/collection"
-                className="inline-flex min-h-[48px] items-center justify-center rounded-xl border border-black/10 px-6 py-3 font-heading font-bold text-on-maths transition-colors hover:bg-brand/10"
+                className={buttonClasses('secondary', 'md')}
               >
                 View Collection
               </Link>
@@ -969,7 +971,7 @@ export function QuizShell({
             {canFixUp && (
               <button
                 onClick={startFixUp}
-                className="min-h-[48px] rounded-xl bg-brand-600 px-6 py-3 font-heading font-bold text-white transition-colors hover:bg-brand-700"
+                className={buttonClasses('primary', 'md')}
               >
                 Fix {missedCount === 1 ? 'that one' : `those ${missedCount}`} →
               </button>
@@ -977,14 +979,14 @@ export function QuizShell({
             {!passed && !canFixUp && (
               <button
                 onClick={restart}
-                className="min-h-[48px] rounded-xl bg-brand-600 px-6 py-3 font-heading font-bold text-white transition-colors hover:bg-brand-700"
+                className={buttonClasses('primary', 'md')}
               >
                 {allEventuallyCorrect ? 'Go again for a clean run →' : 'Try Again'}
               </button>
             )}
             <Link
               href={backHref}
-              className="inline-flex min-h-[48px] items-center justify-center rounded-xl border border-black/10 px-6 py-3 font-heading font-bold text-ink transition-colors hover:bg-black/5"
+              className={buttonClasses('secondary', 'md')}
             >
               {backLabel}
             </Link>
@@ -1039,7 +1041,7 @@ export function QuizShell({
           </button>
         </div>
         <p className="text-xs font-bold uppercase tracking-widest text-muted">Previous question</p>
-        <div className="rounded-2xl border border-black/5 bg-surface p-6 shadow-sm space-y-4">
+        <div className="rounded-2xl border-2 border-black/8 bg-surface p-6 shadow-clay space-y-4">
           <p className="font-heading text-xl font-bold leading-snug text-ink">
             <MathText text={prevQ.question_text} />
           </p>
@@ -1065,7 +1067,7 @@ export function QuizShell({
         </div>
         <button
           onClick={() => setShowingPrevReview(false)}
-          className="min-h-[48px] w-full rounded-xl bg-brand-600 px-6 py-3 font-heading font-bold text-white transition-colors hover:bg-brand-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+          className={buttonClasses('primary', 'md', 'w-full')}
         >
           Continue quiz →
         </button>
@@ -1167,7 +1169,7 @@ export function QuizShell({
       </div>
 
       <div
-        className="h-2 overflow-hidden rounded-full bg-black/5"
+        className="h-2.5 overflow-hidden rounded-full bg-black/8"
         role="progressbar"
         aria-valuenow={qIndex + 1}
         aria-valuemin={1}
@@ -1191,8 +1193,25 @@ export function QuizShell({
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -24 }}
           transition={{ duration: 0.22 }}
-          className="rounded-2xl border border-black/5 bg-surface p-6 shadow-sm"
+          className="overflow-hidden rounded-2xl border-2 border-black/8 bg-surface shadow-clay"
         >
+          {/* The sky: Deci asks the question from a sea-blue header. The wave
+              below hands over to the white deck where the child answers. */}
+          <div className="bg-gradient-to-b from-sea to-[#2A82BC] px-5 pt-5">
+            <div className="flex items-end gap-2.5">
+              <Deci mood={questionDone ? (answeredCorrectly ? 'cheering' : 'thinking') : 'happy'} size={56} className="flex-none drop-shadow-sm" />
+              <div className="mb-1.5 min-w-0 flex-1 rounded-2xl rounded-bl-md bg-surface px-4 py-2.5 shadow-[0_2px_0_rgba(15,58,92,0.18)]">
+                <p className={`font-heading font-bold leading-snug text-ink ${youngMode ? 'text-xl' : 'text-[17px]'}`}>
+                  <MathText text={q.question_text} />
+                </p>
+              </div>
+            </div>
+            <svg className="-mx-5 mt-2 block w-[calc(100%+2.5rem)]" viewBox="0 0 400 22" preserveAspectRatio="none" aria-hidden>
+              <path d="M0 13 Q25 3 50 13 T100 13 T150 13 T200 13 T250 13 T300 13 T350 13 T400 13 V22 H0 Z" fill="rgb(var(--tw-surface))" />
+            </svg>
+          </div>
+
+          <div className="p-6 pt-3">
           {showWorkedExample && q.worked_example && (
             <WorkedExample example={q.worked_example} />
           )}
@@ -1208,10 +1227,7 @@ export function QuizShell({
             </motion.div>
           )}
 
-          <div className="mb-5 flex items-start justify-between gap-3">
-            <p className={`font-heading font-bold leading-snug text-ink ${youngMode ? 'text-2xl' : 'text-xl'}`}>
-              <MathText text={q.question_text} />
-            </p>
+          <div className="mb-4 flex justify-end">
             <QuestionListenButton
               // distractors is always [] for multipart types (structured_answer,
               // true_false_grid, ordered_list, source_analysis, explain_example),
@@ -1367,7 +1383,7 @@ export function QuizShell({
                 const imageUrl = q.option_images?.[choice]
 
                 let cls =
-                  `rounded-xl border-2 text-center font-heading font-bold text-ink transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink ${
+                  `rounded-md border-2 text-center font-heading font-bold text-ink shadow-clay-sm transition-[transform,box-shadow,background-color,border-color] duration-fast ease-out select-none touch-manipulation enabled:active:translate-y-[2px] enabled:active:shadow-clay-pressed enabled:active:duration-instant motion-reduce:transition-none motion-reduce:active:translate-y-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink ${
                     imageUrl ? 'flex flex-col items-center gap-2 p-3' : 'px-4 py-3'
                   } ${
                     youngMode ? 'min-h-[72px] text-lg' : 'min-h-[56px]'
@@ -1376,16 +1392,16 @@ export function QuizShell({
                   if (choice === lastPicked && attempts > 0) {
                     cls += ' border-incorrect bg-incorrect/20 text-rose-700'
                   } else if (isRuledOut) {
-                    cls += ' border-black/10 bg-background opacity-40'
+                    cls += ' border-black/10 bg-background opacity-40 shadow-none'
                   } else {
-                    cls += ' border-black/10 bg-background hover:border-brand hover:bg-brand/10'
+                    cls += ' border-black/10 bg-surface [@media(hover:hover)]:hover:border-brand [@media(hover:hover)]:hover:bg-brand/10'
                   }
                 } else if (isCorrectChoice) {
                   cls += ' border-correct bg-correct/20 text-correct-700'
                 } else if (isWrongPick) {
                   cls += ' border-incorrect bg-incorrect/20 text-rose-700'
                 } else {
-                  cls += ' border-black/10 bg-background opacity-50'
+                  cls += ' border-black/10 bg-background opacity-50 shadow-none'
                 }
 
                 // Build an accessible label that includes the outcome state when answered
@@ -1480,13 +1496,14 @@ export function QuizShell({
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-4 space-y-1">
               <button
                 onClick={next}
-                className="min-h-[48px] w-full rounded-xl bg-brand-600 px-6 py-3 font-heading font-bold text-white transition-colors hover:bg-brand-700"
+                className={buttonClasses('primary', 'md', 'w-full')}
               >
                 {qIndex + 1 < activeQuestions.length ? 'Next Question →' : 'See Results'}
               </button>
               <ReportProblemButton questionId={q.id} />
             </motion.div>
           )}
+          </div>
         </motion.div>
       </AnimatePresence>
     </div>

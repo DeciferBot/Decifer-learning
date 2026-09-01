@@ -60,6 +60,10 @@ const config: Config = {
         lightning: 'rgb(var(--tw-lightning) / <alpha-value>)',
 
         // Secondary / tertiary brand (Ember leads, Indigo anchors, Green grows)
+        sea: 'rgb(var(--tw-sea) / <alpha-value>)',
+        'sea-deep': 'rgb(var(--tw-sea-deep) / <alpha-value>)',
+        'sea-soft': 'rgb(var(--tw-sea-soft) / <alpha-value>)',
+        foam: 'rgb(var(--tw-foam) / <alpha-value>)',
         indigo: 'rgb(var(--tw-indigo) / <alpha-value>)',
         'indigo-deep': 'rgb(var(--tw-indigo-deep) / <alpha-value>)',
         'indigo-soft': 'rgb(var(--tw-indigo-soft) / <alpha-value>)',
@@ -134,12 +138,12 @@ const config: Config = {
       // edge, which is what reads as "moulded" rather than "printed". Ember,
       // Indigo and Geist are untouched: this is depth, not repaint.
       boxShadow: {
-        'clay-sm': '0 2px 0 0 rgb(0 0 0 / 0.06), 0 4px 10px -4px rgb(49 46 129 / 0.12), inset 0 1px 0 0 rgb(255 255 255 / 0.7)',
-        clay: '0 4px 0 0 rgb(0 0 0 / 0.06), 0 10px 20px -8px rgb(49 46 129 / 0.16), inset 0 2px 0 0 rgb(255 255 255 / 0.75)',
-        'clay-lg': '0 6px 0 0 rgb(0 0 0 / 0.07), 0 18px 34px -12px rgb(49 46 129 / 0.2), inset 0 2px 0 0 rgb(255 255 255 / 0.8)',
+        'clay-sm': '0 2px 0 0 rgb(0 0 0 / 0.06), 0 4px 10px -4px rgb(15 58 92 / 0.12), inset 0 1px 0 0 rgb(255 255 255 / 0.7)',
+        clay: '0 4px 0 0 rgb(0 0 0 / 0.06), 0 10px 20px -8px rgb(15 58 92 / 0.16), inset 0 2px 0 0 rgb(255 255 255 / 0.75)',
+        'clay-lg': '0 6px 0 0 rgb(0 0 0 / 0.07), 0 18px 34px -12px rgb(15 58 92 / 0.2), inset 0 2px 0 0 rgb(255 255 255 / 0.8)',
         // Pressed: the object sinks, so the drop edge shrinks and the highlight
         // flips to a shading from above.
-        'clay-pressed': '0 1px 0 0 rgb(0 0 0 / 0.06), inset 0 3px 6px -2px rgb(49 46 129 / 0.22)',
+        'clay-pressed': '0 1px 0 0 rgb(0 0 0 / 0.06), inset 0 3px 6px -2px rgb(15 58 92 / 0.22)',
       },
       fontFamily: {
         // Geist Sans — interface, headings, body (master brand)

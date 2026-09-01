@@ -39,7 +39,7 @@
      under a theme scope (see [data-theme]). Values equal the previous
      hex exactly, so light mode is unchanged.
      ══════════════════════════════════════════════════════════ */
-  --tw-background:      253 248 242;   /* #FDF8F2 */
+  --tw-background:      238 246 250;   /* #EEF6FA sea-tinted ground (was warm cream #FDF8F2) */
   --tw-surface:         255 255 255;   /* #FFFFFF */
   --tw-ember:           251 90 36;     /* #FB5A24 */
   --tw-ember-bright:    255 122 77;    /* #FF7A4D */
@@ -62,6 +62,12 @@
   --tw-sprout:          168 230 207;   /* #A8E6CF */
   --tw-explorer:        116 192 252;   /* #74C0FC */
   --tw-lightning:       255 212 59;    /* #FFD43B */
+  /* The sea — leads the nautical theme (2026-09). Ember stays the accent:
+     it means "go" and nothing else. */
+  --tw-sea:             27 111 168;    /* #1B6FA8 */
+  --tw-sea-deep:        15 58 92;      /* #0F3A5C */
+  --tw-sea-soft:        216 236 246;   /* #D8ECF6 */
+  --tw-foam:            247 251 253;   /* #F7FBFD raised-surface tint */
   --tw-indigo:          44 49 96;      /* #2C3160 */
   --tw-indigo-deep:     19 23 52;      /* #131734 */
   --tw-indigo-soft:     236 237 246;   /* #ECEDF6 */
@@ -70,9 +76,9 @@
   --tw-green-soft:      227 245 236;   /* #E3F5EC */
   --tw-azure:           62 142 255;    /* #3E8EFF */
   --tw-violet:          155 124 255;   /* #9B7CFF */
-  --tw-ink:             31 26 20;      /* #1F1A14 */
-  --tw-ink-2:           92 81 71;      /* #5C5147 */
-  --tw-muted:           110 98 85;     /* #6E6255 */
+  --tw-ink:             18 49 75;      /* #12314B deep-sea ink (was warm #1F1A14) */
+  --tw-ink-2:           61 90 115;     /* #3D5A73 (was warm #5C5147) */
+  --tw-muted:           91 115 134;    /* #5B7386 (was warm #6E6255) */
 
   /* Text that sits ON a subject colour. The subject hues are light, so white
      on them fails badly: white on --maths is 2.63:1, on --english 2.15:1, on
