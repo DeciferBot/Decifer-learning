@@ -20,7 +20,6 @@ export type ZoneNode = {
 
 type Props = {
   zoneId: string
-  zoneName: string
   subjectName: string
   theme: string | null
   subjectColor: string
@@ -67,7 +66,7 @@ function layoutNodes(nodes: ZoneNode[]): PlacedNode[] {
   return placed
 }
 
-export function ZoneMap({ zoneId, zoneName, subjectName, theme, subjectColor, nodes, allCompleted, checkpointTopicId }: Props) {
+export function ZoneMap({ zoneId, subjectName, theme, subjectColor, nodes, allCompleted, checkpointTopicId }: Props) {
   const ThemeIcon: IconType = theme ? (THEME_ICON[theme] ?? MapFold) : MapFold
   const completedCount = nodes.filter((n) => n.state === 'completed').length
   const placed = layoutNodes(nodes)
@@ -86,8 +85,13 @@ export function ZoneMap({ zoneId, zoneName, subjectName, theme, subjectColor, no
           <ThemeIcon size={20} style={{ color: onPaper(subjectColor) }} />
         </span>
         <div>
-          <h3 className="font-heading text-base font-bold leading-tight text-ink">{zoneName}</h3>
-          <p className="text-xs font-semibold text-ink-2">{subjectName}</p>
+          {/* The subject leads. The invented zone name ("Number Jungle",
+              "Crystal Labyrinth") used to be the heading, which meant a child
+              hunting for maths had to already know that maths lives in the
+              jungle. The subtitle is gone too: the footer below already gives
+              the topic count and the progress bar, so repeating it here was
+              the same number twice on one card. */}
+          <h3 className="font-heading text-base font-bold leading-tight text-ink">{subjectName}</h3>
         </div>
       </div>
 
@@ -97,7 +101,7 @@ export function ZoneMap({ zoneId, zoneName, subjectName, theme, subjectColor, no
           className="relative mx-5"
           style={{ height }}
           role="region"
-          aria-label={`${zoneName} topic map`}
+          aria-label={`${subjectName} topic map`}
         >
           {/* Adventure trail connecting consecutive topics */}
           <svg className="absolute inset-0 h-full w-full" aria-hidden>
@@ -182,7 +186,7 @@ export function ZoneMap({ zoneId, zoneName, subjectName, theme, subjectColor, no
           aria-valuenow={completedCount}
           aria-valuemin={0}
           aria-valuemax={nodes.length}
-          aria-label={`${zoneName} progress: ${completedCount} of ${nodes.length} topics complete`}
+          aria-label={`${subjectName} progress: ${completedCount} of ${nodes.length} topics complete`}
         >
           <div
             className="h-full rounded-full transition-all duration-500"

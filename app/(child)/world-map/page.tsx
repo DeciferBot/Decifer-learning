@@ -144,7 +144,6 @@ export default async function WorldMapPage() {
             <ZoneMap
               key={zone.id}
               zoneId={zone.id}
-              zoneName={zone.name}
               subjectName={zone.subject.name}
               theme={zone.theme}
               subjectColor={colour}
