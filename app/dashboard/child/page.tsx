@@ -9,9 +9,9 @@
 // learning started.
 //
 // Now it answers with one thing. `pickNextAction` below chooses it, the stat
-// strip carries the numbers, and everything else moves either into the bottom
-// tab bar (which already carries World Map, Explore, Cards and Profile) or into
-// a single compact row.
+// strip carries the numbers, and everything else sits in a three-across tile
+// grid near the bottom. The tab bar holds four: Learn (this screen), Games,
+// Cards, Profile.
 export const dynamic = 'force-dynamic'
 
 import Link from 'next/link'
@@ -30,7 +30,7 @@ import { getVaultStatus } from '@/lib/vault/status'
 import { NewParentLinkNotice } from './NewParentLinkNotice'
 import { DailyGoalRing, StreakReminderPrompt } from '@/components/child/DailyGoalRing'
 import { displayedStreak } from '@/lib/streak'
-import { Layers, Star, Target, Trophy, PencilLine, BookOpen, Gift, Flame, MapPin, RefreshCw, Shield, Gamepad } from '@/components/ui/icons'
+import { Layers, Star, Target, Trophy, PencilLine, BookOpen, Gift, Flame, MapPin, RefreshCw, Shield, MapFold, Telescope, ClipboardList } from '@/components/ui/icons'
 
 export const metadata = { title: 'Home' }
 
@@ -383,21 +383,27 @@ export default async function ChildDashboardPage() {
         <span className="flex-none text-xs font-bold text-brand-700">Open →</span>
       </Link>
 
-      {/* ── Everything else, in one row ─────────────────────────────────── */}
-      <div className="grid grid-cols-4 gap-2">
+      {/* ── Everywhere else, three across ───────────────────────────────────
+          Three columns rather than four, so each tile is wide enough for a
+          readable word and a finger. Games moved out to the tab bar; the world
+          map, Explore and Exams moved in, because the tab bar was carrying
+          seven tabs on a 375px phone. */}
+      <div className="grid grid-cols-3 gap-3">
         {[
+          { href: '/world-map',   label: 'Subjects',  Icon: MapFold },
+          { href: '/explore',     label: 'Explore',   Icon: Telescope },
+          { href: '/exam',        label: 'Exams',     Icon: ClipboardList },
           { href: '/missions',    label: 'Missions',  Icon: Target },
           { href: '/leaderboard', label: 'Family',    Icon: Trophy },
           { href: '/customise',   label: 'Customise', Icon: PencilLine },
-          { href: '/downtime',    label: 'Games',     Icon: Gamepad },
         ].map(({ href, label, Icon }) => (
           <Link
             key={href}
             href={href}
-            className="flex min-h-[64px] flex-col items-center justify-center gap-1 rounded-2xl border border-black/5 bg-surface px-2 py-3 text-center shadow-sm transition-colors hover:bg-black/[0.03]"
+            className="flex min-h-[84px] flex-col items-center justify-center gap-1.5 rounded-2xl border border-black/5 bg-surface px-2 py-4 text-center shadow-sm transition-colors hover:bg-black/[0.03]"
           >
-            <Icon className="w-4 h-4 text-muted" aria-hidden />
-            <span className="font-heading text-xs font-semibold text-ink">{label}</span>
+            <Icon className="w-6 h-6 text-brand-700" aria-hidden />
+            <span className="font-heading text-sm font-semibold text-ink">{label}</span>
           </Link>
         ))}
       </div>
