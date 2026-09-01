@@ -8,7 +8,9 @@
 // there is nothing to put on the page but the title, and a wall of near-empty
 // pages costs more in quality signal than it earns in coverage.
 //
-// Lesson TITLES only. Bodies, questions, answers and hints stay behind auth.
+// Lesson TITLES only, plus a five-question try panel. Lesson bodies and hints
+// stay behind auth; the five questions and their answers are deliberately public
+// (see PublicTopicDetail.tryQuestions for why).
 
 import type { Metadata } from 'next'
 import Link from 'next/link'
@@ -16,6 +18,7 @@ import { notFound } from 'next/navigation'
 import { getPublicTopicDetail, getPublicTopicParams } from '@/lib/public-curriculum'
 import { jsonLd } from '@/lib/json-ld'
 import { MarketingNav } from '@/components/marketing/MarketingNav'
+import { TryQuestions } from '@/components/marketing/TryQuestions'
 import { inkOn } from '@/lib/subject-colour'
 
 export const revalidate = 86400
@@ -133,6 +136,15 @@ export default async function TopicCurriculumPage({ params }: Props) {
             ))}
           </ol>
         </section>
+
+        {d.tryQuestions.length > 0 && (
+          <TryQuestions
+            questions={d.tryQuestions}
+            topicTitle={d.title}
+            yearLabel={d.displayLabel}
+            subjectName={d.subjectName}
+          />
+        )}
 
         {(d.previousTopic || d.nextTopic) && (
           <nav className="mt-10 flex flex-col gap-3 sm:flex-row sm:justify-between" aria-label="Topic navigation">
