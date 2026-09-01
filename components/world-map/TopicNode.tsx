@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Lock, Check, Star, BookOpen } from '@/components/ui/icons'
-import { inkOn } from '@/lib/subject-colour'
 
 export type NodeState = 'locked' | 'available' | 'completed'
 
@@ -22,39 +21,31 @@ export const NODE_CIRCLE = 64 // px — satisfies the ≥48 tap-target requireme
 export const NODE_BOX_W = 94  // px column reserved for circle + label + chip
 
 export function TopicNode({ title, state, href, subjectColor, xPct, yPx, quizOptional = false, chapterCount }: Props) {
+  const circleClass =
+    state === 'completed'
+      ? 'bg-correct border-[3px] border-solid border-correct-700 shadow-clay-sm'
+      : state === 'available'
+        ? 'bg-brand border-[3px] border-solid border-brand-700 shadow-clay'
+        : 'bg-black/5 border-[3px] border-dashed border-sea-deep/25'
   const circle = (
     <div
-      className={state === 'locked' ? 'bg-black/10' : ''}
-      style={{
-        width: NODE_CIRCLE,
-        height: NODE_CIRCLE,
-        flexShrink: 0,
-        borderRadius: '50%',
-        backgroundColor: state === 'locked' ? undefined : subjectColor,
-        border:
-          state === 'completed'
-            ? '3px solid var(--correct)'
-            : state === 'available'
-              ? `3px solid ${subjectColor}`
-              : '3px dashed #C9CFD8',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        cursor: state === 'locked' ? 'default' : 'pointer',
-      }}
+      className={`flex flex-none items-center justify-center rounded-full transition-[transform,box-shadow] duration-fast ease-out ${circleClass} ${
+        state === 'locked' ? '' : 'cursor-pointer active:translate-y-[2px] active:shadow-clay-pressed motion-reduce:active:translate-y-0'
+      }`}
+      style={{ width: NODE_CIRCLE, height: NODE_CIRCLE }}
       aria-hidden
     >
-      {state === 'locked'    ? <Lock size={20} className="text-ink-2" />           :
-       state === 'completed' ? <Check size={20} style={{ color: inkOn(subjectColor) }} />    :
-       quizOptional          ? <BookOpen size={20} style={{ color: inkOn(subjectColor) }} /> :
-                               <Star size={20} style={{ color: inkOn(subjectColor) }} />}
+      {state === 'locked'    ? <Lock size={20} className="text-muted" /> :
+       state === 'completed' ? <Check size={24} className="text-white" strokeWidth={3} /> :
+       quizOptional          ? <BookOpen size={22} className="text-white" /> :
+                               <Star size={24} className="text-white" />}
     </div>
   )
 
   const label = (
     <div className="pointer-events-none flex flex-col items-center gap-1" style={{ width: NODE_BOX_W }}>
       <p
-        className={`mt-1.5 text-center text-[11px] font-bold leading-tight ${state === 'locked' ? 'text-ink-2' : 'text-ink'}`}
+        className={`mt-1.5 text-center text-[11px] font-bold leading-tight ${state === 'locked' ? 'text-muted' : 'text-sea-deep'}`}
         style={{
           display: '-webkit-box',
           WebkitLineClamp: 2,
@@ -113,8 +104,8 @@ export function TopicNode({ title, state, href, subjectColor, xPct, yPx, quizOpt
         // MotionConfig reducedMotion="user" (child layout) disables this pulse
         // for children who prefer reduced motion.
         <motion.div
-          animate={{ scale: [1, 1.08, 1] }}
-          transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
+          animate={{ y: [0, -5, 0] }}
+          transition={{ repeat: Infinity, duration: 2.4, ease: 'easeInOut' }}
         >
           {linked}
         </motion.div>
