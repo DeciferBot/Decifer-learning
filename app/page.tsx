@@ -3,7 +3,8 @@ import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
 import { RecoveryRedirect } from './RecoveryRedirect'
 import { DecipherText } from '@/components/ui/DecipherText'
-import { HeroMockup } from '@/components/homepage/HeroMockup'
+import { RealAppPreview } from '@/components/homepage/RealAppPreview'
+import { Deci } from '@/components/ui/Deci'
 import { MarketingFooter } from '@/components/marketing/MarketingFooter'
 import { MarketingNav } from '@/components/marketing/MarketingNav'
 import type { ComponentType, SVGProps } from 'react'
@@ -60,6 +61,10 @@ export default function Home({
         {/* ── Hero: headline + three doors ────────────────────────────────── */}
         <section className="mx-auto max-w-5xl px-4 pb-12 pt-8 md:pb-16 md:pt-14">
           <div className="text-center">
+            {/* Deci is the product's face and, until now, appeared on exactly
+                two screens, both behind a sign-in. The one page a stranger
+                sees had no face at all. */}
+            <Deci mood="happy" size={72} className="mx-auto mb-3" />
             <span className="inline-flex items-center gap-1.5 rounded-full border border-brand/20 bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-700">
               UK National Curriculum · Years 1 to 11
             </span>
@@ -139,7 +144,7 @@ export default function Home({
               </div>
               <p className="mt-3 text-xs text-muted">Set-up takes a minute. No credit card.</p>
             </div>
-            <HeroMockup />
+            <RealAppPreview />
           </div>
         </section>
 
@@ -201,27 +206,32 @@ export default function Home({
 // ── Static content ─────────────────────────────────────────────────────────────
 
 // The purple is Blitz's own colour and matches the Blitz button in MarketingNav.
+// The three panels use the product's own colours, not the subject colours.
+// They used to be maths blue, science green and a raw purple (#7C3AED) that
+// exists nowhere else in Decifer. Painting a page that has no subjects on it
+// with subject colours is what made the marketing pages feel like a different
+// product from the app.
 const DOORS: Array<{ href: string; label: string; body: string; Icon: Icon; art: string }> = [
   {
     href: '/try',
     label: 'Learn',
     body: 'Pick your year and a subject. Five real questions, right now.',
     Icon: BookOpen,
-    art: 'bg-maths text-ink',
+    art: 'bg-sea text-white',
   },
   {
     href: '/games',
     label: 'Play',
     body: 'Chess, checkers, Connect 4, crosswords. Free, no sign-up.',
     Icon: Gamepad,
-    art: 'bg-science text-ink',
+    art: 'bg-teal text-white',
   },
   {
     href: '/blitz',
     label: 'Compete',
     body: 'Live quiz battles with friends or the class. Join with a code.',
     Icon: Swords,
-    art: 'bg-[#7C3AED] text-white',
+    art: 'bg-ember text-white',
   },
 ]
 
