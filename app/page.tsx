@@ -12,7 +12,7 @@ import {
   BookOpen, Gamepad, Swords, ArrowRight,
   Check, Shield, MapFold,
 } from '@/components/ui/icons'
-import { SEO_TITLE } from '@/lib/brand'
+import { SEO_TITLE, DECI_NAME, DECI_PRONUNCIATION } from '@/lib/brand'
 
 type Icon = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
 
@@ -61,10 +61,22 @@ export default function Home({
         {/* ── Hero: headline + three doors ────────────────────────────────── */}
         <section className="mx-auto max-w-5xl px-4 pb-12 pt-8 md:pb-16 md:pt-14">
           <div className="text-center">
-            {/* Deci is the product's face and, until now, appeared on exactly
-                two screens, both behind a sign-in. The one page a stranger
-                sees had no face at all. */}
-            <Deci mood="happy" size={72} className="m-greet mx-auto mb-3" />
+            {/* Deci introduces itself by name, because a mascot nobody can
+                say the name of is just a picture. The pronunciation lives in
+                lib/brand.ts so it can never drift. */}
+            <div className="m-greet mb-4 flex flex-col items-center">
+              <Deci mood="happy" size={80} />
+              <p className="relative -mt-1 rounded-2xl bg-surface px-4 py-2 font-heading text-sm font-bold text-ink shadow-clay-sm">
+                <span
+                  aria-hidden
+                  className="absolute -top-1.5 left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 bg-surface"
+                />
+                <span className="relative">
+                  Hi, my name is {DECI_NAME}{' '}
+                  <span className="font-normal text-muted">({DECI_PRONUNCIATION})</span>
+                </span>
+              </p>
+            </div>
             <span className="inline-flex items-center gap-1.5 rounded-full border border-brand/20 bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-700">
               UK National Curriculum · Years 1 to 11
             </span>

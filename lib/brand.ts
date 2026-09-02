@@ -24,3 +24,20 @@ export const TITLE = `${TAGLINE} | Decifer Learning`
  * TAGLINE stays exactly as it is for the OG cards, footer and auth panel.
  */
 export const SEO_TITLE = 'UK National Curriculum Learning for Years 1 to 11 | Decifer Learning'
+
+/**
+ * Deci — the product's guide, and how to say its name.
+ *
+ * Recorded here on 2026-09-02 because it existed nowhere: not in the brand
+ * guidelines, not in the code, only in Amit's head. That gap is why a page had
+ * already been written anchoring the name to "decipher", a word the brand
+ * deliberately does not spell.
+ *
+ * It is the letter D, then "sigh". Not DESS-ee. Not DEH-chee.
+ *
+ * Use DECI_PRONUNCIATION wherever the name is introduced to someone meeting it
+ * for the first time, so the spelling of the sound never drifts either.
+ */
+export const DECI_NAME = 'Deci'
+export const DECI_PRONUNCIATION = 'dee-SY'
+export const DECI_INTRO = `My name is ${DECI_NAME}. You say it ${DECI_PRONUNCIATION}.`

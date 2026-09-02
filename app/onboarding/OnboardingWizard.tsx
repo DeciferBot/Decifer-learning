@@ -14,6 +14,8 @@ import {
 } from '@/lib/onboarding-config'
 import { Target, Star } from '@/components/ui/icons'
 import { ONBOARDING_ICONS } from '@/lib/onboarding-icons'
+import { Deci } from '@/components/ui/Deci'
+import { DECI_NAME, DECI_PRONUNCIATION } from '@/lib/brand'
 
 // Accent colours — mirrors the Customise page palette.
 const COLOURS = [
@@ -123,11 +125,26 @@ export function OnboardingWizard({
         </button>
       </div>
 
+      {/* Deci introduces itself before asking a child for anything. This is the
+          first screen of the product, and until now the guide that speaks on
+          every quiz screen arrived unnamed. A child cannot warm to someone
+          whose name they cannot say, so the sound is spelt out. */}
+      {stepName === 'avatar' && (
+        <div className="flex items-end gap-2.5">
+          <Deci mood="happy" size={56} className="flex-none" />
+          <p className="mb-1.5 rounded-2xl rounded-bl-md bg-surface px-4 py-2.5 font-heading text-[15px] font-bold text-ink shadow-clay-sm">
+            Hi {displayName}, my name is {DECI_NAME}{' '}
+            <span className="font-normal text-muted">({DECI_PRONUNCIATION})</span>. I&apos;ll be
+            with you the whole way.
+          </p>
+        </div>
+      )}
+
       {/* ── Step content ─────────────────────────────────────────────────── */}
       {stepName === 'avatar' && (
         <Step
-          title={`Hi ${displayName}!`}
-          subtitle="Pick a character to be your avatar."
+          title="Who do you want to be?"
+          subtitle="Pick a character. You can change it any time."
         >
           <div className="grid grid-cols-4 gap-2">
             {AVATARS.map((a) => {
