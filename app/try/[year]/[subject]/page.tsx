@@ -63,7 +63,15 @@ export default async function TrySubjectPage({ params }: Props) {
           className="mt-6"
         />
 
-        <p className="mt-8 text-center text-sm text-muted">
+        {set.topicPath ? (
+          <p className="mt-6 text-center text-sm">
+            <Link href={set.topicPath} className="font-semibold text-brand-700 underline">
+              Read the full lesson on {set.topicTitle}
+            </Link>
+          </p>
+        ) : null}
+
+        <p className="mt-4 text-center text-sm text-muted">
           {set.otherTopics > 0 ? (
             <>
               A new {set.subjectName} topic appears here every day.{' '}
