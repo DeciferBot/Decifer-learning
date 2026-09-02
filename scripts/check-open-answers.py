@@ -216,6 +216,10 @@ def fetch(limit: int | None, order_random: bool) -> list[dict]:
             JOIN year_groups yg ON yg.id = t.year_group_id
             WHERE qq.status = 'published'
               AND (qq.distractors IS NULL OR jsonb_array_length(qq.distractors) < 2)
+              -- Questions that refer to a picture cannot be judged by a text
+              -- model: calibration planted an error in one and the checker had
+              -- no way to see it. They are excluded and counted, not guessed at.
+              AND (qq.foundation_images IS NULL OR jsonb_array_length(qq.foundation_images) = 0)
             ORDER BY {"random()" if order_random else "qq.id"}
             {f"LIMIT {int(limit)}" if limit else ""}
         """)
